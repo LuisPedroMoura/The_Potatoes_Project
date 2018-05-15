@@ -45,7 +45,7 @@ javaCode: .*?
 /*
  * CLASS = class
  */
-classDeclaration:	CLASS CLASS_NAME
+classDeclaration: CLASS STRING
 				;	
 		
 		
@@ -54,11 +54,24 @@ classDeclaration:	CLASS CLASS_NAME
  * SCOPE_END = }
  * STATIC = static
  */
-classContent:	SCOPE_BEGIN statement* SCOPE_END
+classContent	: SCOPE_BEGIN (declaration | function)* SCOPE_END
+				;
+
+
+
+statement	: STATIC attribute //private by default
+			| declaration
+			| condition
+			| assignment
+			| control_flow_statement
+			| function_call
 			;
 
-statement	:	STATIC attributes //private by default
-			|	STATIC? functions //public by default
+assignment	: (var | array) EQUAL (var | values_list) EOL
+			;
+			
+declaration	: type var
+			| type var EQUAL (var | values_list)
 			;
 
 
@@ -67,20 +80,20 @@ statement	:	STATIC attributes //private by default
  *FUNCTIONS----------------------------------------------------------
  *-------------------------------------------------------------------
  */
-functions	: function_signature function_content    
+function	: function_signature function_content    
 			;
 
-function_signature	:	FUN STRING PARENTHESIS_BEGIN (type STRING (COMMA type STRING)* )* PARENTHESIS_END COLON (type | VOID_TYPE)
+function_signature	:	FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
+						PARENTHESIS_END COLON type 
+						SCOPE_BEGIN function_content* SCOPE_END
 					;
 
-function_content	:	SCOPE_BEGIN function_content* SCOPE_END
-					|	attributes
-					|	operations
-					|	conditions
-					|	loops
+function_content	:	statement* function_return?
 					;
 
-
+function_return		:	RETURN var EOL
+					;
+					
 /*
  *-------------------------------------------------------------------
  *STRUCTURES---------------------------------------------------------
@@ -89,31 +102,68 @@ function_content	:	SCOPE_BEGIN function_content* SCOPE_END
 /*
  * Array<number>
  */
-arrays	:	arrayDeclaration  EOL
-		|	arrayDeclaration arrayInitialization
+array	:	ARRAY DIAMOND_BEGIN type DIAMOND_END ID
 		;
-		
-		
-arrayDeclaration: ARRAY DIAMOND_BEGIN type DIAMOND_END STRING
-				;
-				
-				
-arrayInitialization	: EQUALS SCOPE_BEGIN value ( COMMA value)* SCOPE_END EOL
-					| EQUALS EOL
-					;
-		
+
+/*
+ *-------------------------------------------------------------------
+ *CONDITION----------------------------------------------------------
+ *-------------------------------------------------------------------
+ */
 
 
-	
+					
+/*
+ *-------------------------------------------------------------------
+ *CONDITION----------------------------------------------------------
+ *-------------------------------------------------------------------
+ */
+ 
+ control_flow_statement	: condition
+ 						| for_loop
+ 						| while_loop
+ 						| when
+ 						;	
+ 
+ 
+ 		
+ for_loop	: FOR PARENTHESIS_BEGIN assignment? EOL comparison EOL operation PARENTHESIS_END SCOPE_BEGIN statement* SCOPE_END
+ 			;
+ 			
+ while_loop	: WHILE PARENTHESIS_BEGIN (comparison | var | value) PARENTHESIS_END SCOPE_BEGIN statement* SCOPE_END
+ 			;
+ 			
+ when		: WHEN PARENTHESIS_BEGIN (var) PARENTHESIS_END SCOPE_BEGIN when_case* SCOPE_END
+ 			;
+ 			
+when_case	: value ARROW statement EOL
+ 			;
+// [LM] var and value on the comparison to use 'true', 'false'or var with boolean value			
+condition	: IF PARENTHESIS_BEGIN (comparison | var | value) PARENTHESIS_END SCOPE_BEGIN statement* SCOPE_END
+ 			;
+ 			
+comparison	: (value | var) compare_operator (value | var)
+			;
+			
+compare_operator	: EQUALS
+					| LESS_THAN
+					| LESS_OR_EQUAL
+					| GREATER_THAN
+					| GREATER_OR_EQUAL
+					| DIFFERENT
+					;			
+ 
 
+ 
+			
 /*
  *-------------------------------------------------------------------
  *-------------------------------------------------------------------
  *-------------------------------------------------------------------
  */
 
-attributes	:	vars
-			|	arrays
+attribute	: var
+			| array
 			;
 			
 
@@ -123,16 +173,8 @@ attributes	:	vars
  *-------------------------------------------------------------------
  */
  
- vars	:	varsDeclaration EOL
-		|	varsDeclaration varsInitialization  
- 		;
-
-varsDeclaration	: type STRING
-				;
-				
-varsInitialization	: EQUALS value EOL
-					;
-					
+var	: ID
+	;				
 
 /*
  *-------------------------------------------------------------------
@@ -147,6 +189,8 @@ varsInitialization	: EQUALS value EOL
 type:	NUMBER_TYPE
 	|	BOOLEAN_TYPE
 	|	STRING_TYPE
+	|	VOID_TYPE
+	|	array
 	;
 	
 /*
@@ -156,6 +200,9 @@ value	:	NUMBER
 		|	BOOLEAN
 		|	STRING
 		;
+		
+values_list	: value (COMMA value)*
+			;
 				
 
 		
