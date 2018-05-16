@@ -12,12 +12,12 @@ options{
 program	:	code* EOF	
 		;
 		
-code	:	headerDeclaration? classDeclaration? classContent
+code	:	header_declaration? class_declaration? class_content
 		;
 	
 // HEADER----------------------------------------------------------------------
 // HEADER_BEGIN = 'header*' ; HEADER_END = '**'
-headerDeclaration	: HEADER_BEGIN  javaCode HEADER_END
+header_declaration	: HEADER_BEGIN  javaCode HEADER_END
 					;
 					
 // EOL = ';'
@@ -27,12 +27,11 @@ javaCode			: .*?
 // CLASS-----------------------------------------------------------------------
 
 // CLASS = class
-classDeclaration: CLASS STRING
+class_declaration: CLASS STRING
 				;	
 		
-		
 // SCOPE_BEGIN = { ; SCOPE_END = } ; STATIC = static
-classContent		: SCOPE_BEGIN (declaration | function)* SCOPE_END
+class_content		: SCOPE_BEGIN (declaration | function)* SCOPE_END
 					;
 
 statement			: declaration EOL			#statement_declaration
@@ -46,8 +45,11 @@ declaration			: array_declaration			#declaration_array
 					;
 
 assignment			: array_declaration assignment_operator values_list	#assignment_array
-					| var_declaration assignment_operator (var | value)	#assignement_varDeclaration
-					| var assignment_operator (var | value)				#assigment_var
+					| var_declaration assignment_operator var			#assignment_varDeclaration_Var
+					| var_declaration assignment_operator value			#assignment_varDeclaration_Value
+					| var assignment_operator var						#assignment_var_var
+					| var assignment_operator value						#assignment_var_value
+					| var assignment_operator values_list				#assigment_var_valueList
 					;
 // [LM] add instanceof operator ?? very usefiul in array, of Numbers	
 assignment_operator	: EQUAL
