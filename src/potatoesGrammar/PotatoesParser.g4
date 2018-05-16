@@ -1,6 +1,6 @@
 parser grammar PotatoesParser;
 options{
-	tokenVocab = potatoesLexer;
+	tokenVocab = PotatoesLexer;
 }
 
 @header{
@@ -13,7 +13,6 @@ program	:	code* EOF
 		;
 		
 code	:	headerDeclaration? classDeclaration? classContent
-		|	classDeclaration classContent
 		;
 	
 // HEADER----------------------------------------------------------------------
@@ -25,7 +24,6 @@ headerDeclaration	: HEADER_BEGIN  javaCode HEADER_END
 javaCode			: .*? 
 					;
 		
-
 // CLASS-----------------------------------------------------------------------
 
 // CLASS = class
@@ -34,17 +32,23 @@ classDeclaration: CLASS STRING
 		
 		
 // SCOPE_BEGIN = { ; SCOPE_END = } ; STATIC = static
-classContent	: SCOPE_BEGIN (declaration | function)* SCOPE_END
-				;
+classContent		: SCOPE_BEGIN (declaration | function)* SCOPE_END
+					;
 
-statement		: declaration EOL
-				| assignment EOL
-				| control_flow_statement
-				| function_call EOL
-				;
+statement			: declaration EOL			#statement_declaration
+					| assignment EOL			#statement_assignment
+					| control_flow_statement	#statement_controlFlowStatement
+					| function_call EOL			#statement_function_call
+					;
+					
+declaration			: array_declaration			#declaration_array
+					| var_declaration			#declaration_var
+					;
 
-assignment		: (declaration | var | array) assignment_operator (var | values_list | value)
-				;
+assignment			: array_declaration assignment_operator values_list	#assignment_array
+					| var_declaration assignment_operator (var | value)	#assignement_varDeclaration
+					| var assignment_operator (var | value)				#assigment_var
+					;
 // [LM] add instanceof operator ?? very usefiul in array, of Numbers	
 assignment_operator	: EQUAL
 					| ADD_EQUAL
@@ -53,20 +57,11 @@ assignment_operator	: EQUAL
 					| DIV_EQUAL
 					| MOD_EQUAL
 					;
-			
-declaration		: type var
-				;
 
 // FUNCTIONS-------------------------------------------------------------------
-function			: function_signature function_content    
-					;
-
-function_signature	: FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
+function			: FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
 					  PARENTHESIS_END COLON type 
-					  SCOPE_BEGIN function_content* SCOPE_END
-					;
-
-function_content	: statement* function_return?
+					  SCOPE_BEGIN statement* function_return? SCOPE_END
 					;
 
 function_return		: RETURN var EOL
@@ -75,10 +70,6 @@ function_return		: RETURN var EOL
 function_call		: ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
 					  PARENTHESIS_END
 					;
-					
-// STRUCTURES------------------------------------------------------------------
-array	: ARRAY DIAMOND_BEGIN type DIAMOND_END ID
-		;
 
 // CONTROL FLOW STATMENTS------------------------------------------------------
  control_flow_statement	: condition
@@ -93,7 +84,7 @@ for_loop	: FOR PARENTHESIS_BEGIN
  			;
  			
 while_loop	: WHILE PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  SCOPE_BEGIN statement* SCOPE_END
+			  (SCOPE_BEGIN statement* SCOPE_END | EOL)
  			;
  			
 when		: WHEN PARENTHESIS_BEGIN (var) PARENTHESIS_END
@@ -108,7 +99,7 @@ condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
  			;
 
 // LOGICAL OPERATIONS----------------------------------------------------------
-logical_operation	: logical_operand (AND | OR) logical_operand
+logical_operation	: logical_operand logical_operator logical_operand
 					;
 					
 logical_operand 	: NOT? comparison
@@ -132,41 +123,43 @@ compare_operator	: EQUALS
 					;			
 
 // OPERATIONS------------------------------------------------------------------
-operation	: expr (MULTIPLY | DIVIDE) expr
-			| expr (ADD | SUBTRACT)	expr
-			| expr POWER
-			| expr MODULUS INT
-			| expr INCREMENT
-			| expr DECREMENT 
-			| PARENTHESIS_BEGIN expr PARENTHESIS_END
-			| expr
+operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END	#operation_parenthesis
+			| operation (MULTIPLY | DIVIDE) 				#operation_mult_div
+			| operation (ADD | SUBTRACT) operation			#operation_add_sub
+			| operation POWER								#operation_power
+			| operation MODULUS INT							#operation_modulus
+			| operation INCREMENT							#operation_increment
+			| operation DECREMENT 							#operation_decrement
+			| var											#operation_expr
+			| NUMBER										#operation_NUMBER
 			;
-			
-expr		: var
-			| value
-			; 
- 
-// VARS------------------------------------------------------------------------
- 
-var	: ID
-	;				
-				
-// NUMBER_TYPE = number (in lowercase)
-type		: NUMBER_TYPE
-			| BOOLEAN_TYPE
-			| STRING_TYPE
-			| VOID_TYPE
-			| array
-			;
+
+// STRUCTURES------------------------------------------------------------------
+array_declaration	: ARRAY DIAMOND_BEGIN type DIAMOND_END var
+					;
+		 
+// VARS------------------------------------------------------------------------ 
+var					: ID
+					;
 	
-value		: NUMBER
-			| BOOLEAN
-			| STRING
-			| INT
-			;
+var_declaration		: type var
+					;			
+				
+type				: NUMBER_TYPE
+					| BOOLEAN_TYPE
+					| STRING_TYPE
+					| VOID_TYPE
+					| array_declaration
+					;
+	
+value				: NUMBER
+					| BOOLEAN
+					| STRING
+					| INT
+					;
 		
-values_list	: value (COMMA value)*
-			;
+values_list			: value (COMMA value)*
+					;
 				
 
 		
