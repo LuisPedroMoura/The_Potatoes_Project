@@ -1,4 +1,4 @@
-lexer grammar potatoesLexer;
+lexer grammar PotatoesLexer;
 
 @header{
 	package potatoesGrammar;
@@ -29,9 +29,9 @@ COLON  : ':';
 COMMA  : ',';
 
 VOID_TYPE    : 'void';
-NUMBER_TYPE  : 'number';
+NUMBER_TYPE  : 'Number';
 BOOLEAN_TYPE : 'boolean';
-STRING_TYPE  : 'string';
+STRING_TYPE  : 'String';
 
 IF     : 'if';
 FOR    : 'for';
