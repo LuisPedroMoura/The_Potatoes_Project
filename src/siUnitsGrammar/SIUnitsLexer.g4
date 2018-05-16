@@ -1,7 +1,7 @@
 lexer grammar SIUnitsLexer;
 
 @header{
-	package projeto.si_units_grammar;
+	package SIUnitsGrammar;
 }
 
 

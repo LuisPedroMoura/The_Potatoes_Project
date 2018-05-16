@@ -4,11 +4,11 @@ options{
 }
 
 @header{
-	package projeto.potatoesGrammar;
+	package potatoesGrammar;
 }
 
 
-
+// MAIN RULES------------------------------------------------------------------
 program	:	code* EOF	
 		;
 		
@@ -16,190 +16,156 @@ code	:	headerDeclaration? classDeclaration? classContent
 		|	classDeclaration classContent
 		;
 	
-/*
- *-------------------------------------------------------------------
- *HEADER-------------------------------------------------------------
- *-------------------------------------------------------------------
- */	
-		
-/* 
- * HEADER_BEGIN = 'header*'
- * HEADER_END = '**'
-*/
-headerDeclaration:	HEADER_BEGIN  javaCode HEADER_END
-				 ;
-
-/*
- * EOL = ';'
- */
-javaCode: .*? 
-		;
+// HEADER----------------------------------------------------------------------
+// HEADER_BEGIN = 'header*' ; HEADER_END = '**'
+headerDeclaration	: HEADER_BEGIN  javaCode HEADER_END
+					;
+					
+// EOL = ';'
+javaCode			: .*? 
+					;
 		
 
-/*
- *-------------------------------------------------------------------
- *CLASS--------------------------------------------------------------
- *-------------------------------------------------------------------
- */	
+// CLASS-----------------------------------------------------------------------
 
-/*
- * CLASS = class
- */
+// CLASS = class
 classDeclaration: CLASS STRING
 				;	
 		
 		
-/*
- * SCOPE_BEGIN = {
- * SCOPE_END = }
- * STATIC = static
- */
+// SCOPE_BEGIN = { ; SCOPE_END = } ; STATIC = static
 classContent	: SCOPE_BEGIN (declaration | function)* SCOPE_END
 				;
 
+statement		: declaration EOL
+				| assignment EOL
+				| control_flow_statement
+				| function_call EOL
+				;
 
-
-statement	: STATIC attribute //private by default
-			| declaration
-			| condition
-			| assignment
-			| control_flow_statement
-			| function_call
-			;
-
-assignment	: (var | array) EQUAL (var | values_list) EOL
-			;
+assignment		: (var | array) assignment_operator (var | values_list | value)
+				;
+// [LM] add instanceof operator ?? very usefiul in array, of Numbers	
+assignment_operator	: EQUAL
+					| ADD_EQUAL
+					| SUB_EQUAL
+					| MULT_EQUAL
+					| DIV_EQUAL
+					| MOD_EQUAL
+					;
 			
-declaration	: type var
-			| type var EQUAL (var | values_list)
-			;
+declaration		: type var
+				| type var EQUAL (var | values_list)
+				;
 
-
-/*
- *-------------------------------------------------------------------
- *FUNCTIONS----------------------------------------------------------
- *-------------------------------------------------------------------
- */
-function	: function_signature function_content    
-			;
-
-function_signature	:	FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
-						PARENTHESIS_END COLON type 
-						SCOPE_BEGIN function_content* SCOPE_END
+// FUNCTIONS-------------------------------------------------------------------
+function			: function_signature function_content    
 					;
 
-function_content	:	statement* function_return?
+function_signature	: FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
+					  PARENTHESIS_END COLON type 
+					  SCOPE_BEGIN function_content* SCOPE_END
 					;
 
-function_return		:	RETURN var EOL
+function_content	: statement* function_return?
+					;
+
+function_return		: RETURN var EOL
 					;
 					
-/*
- *-------------------------------------------------------------------
- *STRUCTURES---------------------------------------------------------
- *-------------------------------------------------------------------
- */	
-/*
- * Array<number>
- */
-array	:	ARRAY DIAMOND_BEGIN type DIAMOND_END ID
+function_call		: ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
+					  PARENTHESIS_END
+					;
+					
+// STRUCTURES------------------------------------------------------------------
+array	: ARRAY DIAMOND_BEGIN type DIAMOND_END ID
 		;
 
-/*
- *-------------------------------------------------------------------
- *CONDITION----------------------------------------------------------
- *-------------------------------------------------------------------
- */
-
-
-					
-/*
- *-------------------------------------------------------------------
- *CONDITION----------------------------------------------------------
- *-------------------------------------------------------------------
- */
- 
+// CONTROL FLOW STATMENTS------------------------------------------------------
  control_flow_statement	: condition
  						| for_loop
  						| while_loop
  						| when
  						;	
  
- 
- 		
- for_loop	: FOR PARENTHESIS_BEGIN assignment? EOL comparison EOL operation PARENTHESIS_END SCOPE_BEGIN statement* SCOPE_END
+for_loop	: FOR PARENTHESIS_BEGIN
+			  assignment? EOL logical_operation EOL operation PARENTHESIS_END
+			  SCOPE_BEGIN statement* SCOPE_END
  			;
  			
- while_loop	: WHILE PARENTHESIS_BEGIN (comparison | var | value) PARENTHESIS_END SCOPE_BEGIN statement* SCOPE_END
+while_loop	: WHILE PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
+			  SCOPE_BEGIN statement* SCOPE_END
  			;
  			
- when		: WHEN PARENTHESIS_BEGIN (var) PARENTHESIS_END SCOPE_BEGIN when_case* SCOPE_END
+when		: WHEN PARENTHESIS_BEGIN (var) PARENTHESIS_END
+			  SCOPE_BEGIN when_case* SCOPE_END
  			;
  			
 when_case	: value ARROW statement EOL
  			;
-// [LM] var and value on the comparison to use 'true', 'false'or var with boolean value			
-condition	: IF PARENTHESIS_BEGIN (comparison | var | value) PARENTHESIS_END SCOPE_BEGIN statement* SCOPE_END
+		
+condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
+			  SCOPE_BEGIN statement* SCOPE_END
  			;
- 			
-comparison	: (value | var) compare_operator (value | var)
-			;
+
+// LOGICAL OPERATIONS----------------------------------------------------------
+logical_operation	: logical_operand (AND | OR) logical_operand
+					;
+					
+logical_operand 	: comparison
+					| var	// boolean var
+					| value // true or false
+					;
+					
+logical_operator	: AND
+					| OR
+					| NOT
+					;
+						
+comparison			: operation compare_operator operation
+					;
 			
 compare_operator	: EQUALS
+					| NOT_EQUAL
 					| LESS_THAN
 					| LESS_OR_EQUAL
 					| GREATER_THAN
 					| GREATER_OR_EQUAL
-					| DIFFERENT
 					;			
- 
 
- 
-			
-/*
- *-------------------------------------------------------------------
- *-------------------------------------------------------------------
- *-------------------------------------------------------------------
- */
-
-attribute	: var
-			| array
+// OPERATIONS------------------------------------------------------------------
+operation	: expr (MULTIPLY | DIVIDE) expr
+			| expr (ADD | SUBTRACT)	expr
+			| expr POWER
+			| expr MODULUS INT
+			| expr INCREMENT
+			| expr DECREMENT 
+			| PARENTHESIS_BEGIN expr PARENTHESIS_END
+			| expr
 			;
 			
-
-/*
- *-------------------------------------------------------------------
- *VARS---------------------------------------------------------------
- *-------------------------------------------------------------------
- */
+expr		: var
+			| value
+			; 
+ 
+// VARS------------------------------------------------------------------------
  
 var	: ID
 	;				
-
-/*
- *-------------------------------------------------------------------
- *-------------------------------------------------------------------
- *-------------------------------------------------------------------
- */				
-					
-					
-/*
- * NUMBER_TYPE = number ... em minusculas
- */
-type:	NUMBER_TYPE
-	|	BOOLEAN_TYPE
-	|	STRING_TYPE
-	|	VOID_TYPE
-	|	array
-	;
+				
+// NUMBER_TYPE = number (in lowercase)
+type		: NUMBER_TYPE
+			| BOOLEAN_TYPE
+			| STRING_TYPE
+			| VOID_TYPE
+			| array
+			;
 	
-/*
- * NUMBER = INT / DOUBLE ... WHATEVER :P ... ETC
- */
-value	:	NUMBER
-		|	BOOLEAN
-		|	STRING
-		;
+value		: NUMBER
+			| BOOLEAN
+			| STRING
+			| INT
+			;
 		
 values_list	: value (COMMA value)*
 			;

@@ -1,7 +1,7 @@
 lexer grammar potatoesLexer;
 
 @header{
-	package projeto.potatoesLexer;
+	package potatoesGrammar;
 }
 
 HEADER_BEGIN : 'header*';
