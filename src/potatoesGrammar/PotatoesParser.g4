@@ -43,7 +43,7 @@ statement		: declaration EOL
 				| function_call EOL
 				;
 
-assignment		: (var | array) assignment_operator (var | values_list | value)
+assignment		: (declaration | var | array) assignment_operator (var | values_list | value)
 				;
 // [LM] add instanceof operator ?? very usefiul in array, of Numbers	
 assignment_operator	: EQUAL
@@ -55,7 +55,6 @@ assignment_operator	: EQUAL
 					;
 			
 declaration		: type var
-				| type var EQUAL (var | values_list)
 				;
 
 // FUNCTIONS-------------------------------------------------------------------
@@ -112,14 +111,13 @@ condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
 logical_operation	: logical_operand (AND | OR) logical_operand
 					;
 					
-logical_operand 	: comparison
-					| var	// boolean var
-					| value // true or false
+logical_operand 	: NOT? comparison
+					| NOT? var	// boolean var
+					| NOT? value // true or false
 					;
 					
 logical_operator	: AND
 					| OR
-					| NOT
 					;
 						
 comparison			: operation compare_operator operation
