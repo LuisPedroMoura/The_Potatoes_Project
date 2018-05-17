@@ -1,1 +1,15 @@
 /bin/
+
+*.tokens
+
+*.class
+
+*.interp
+
+antlr/src/
+
+antlr/stringtemplate/
+
+antlr/antlr4_src\.zip
+
+antlr/src\.zip
