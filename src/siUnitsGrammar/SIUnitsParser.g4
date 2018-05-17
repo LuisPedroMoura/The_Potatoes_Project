@@ -7,13 +7,32 @@ options{
 	package projeto.si_units_grammar;
 }
 
+define			: unit_or_factor '[' unit_symbol ']' ':' (NUMERIC_TYPE | '10' POWER)
+	  			| unit_name ':' constructor
+	  			; 
+	   
+unit_or_factor  : unit_name
+			    | FACTOR 		//FACTOR = 'factor'
+			    ;
+			   
+unit_name		: ID;
+
+unit_symbol     : ID;
+
+constructor		: unit_name ((MULTIPLY|DIVISION) unit_name)+
+
+
+
+
+/*
+
 quantity: NUMBER PREFIX? dimention
 		;
-		
+	*/	
 /**
  * [LM]
- * Em principio a notaçao obragatória tem de ser usando apenas potencias
- * positivas e uma única barra de divisao, ou seja, para: (kg m^2)/(s^3 A^2)
+ * Em principio a notaï¿½ao obragatï¿½ria tem de ser usando apenas potencias
+ * positivas e uma ï¿½nica barra de divisao, ou seja, para: (kg m^2)/(s^3 A^2)
  * (kg m^2)/(s^3 A^2) 	-> CORRETO
  * kg m^2/s^3 A^2	  	-> ERRADO
  * (kg m^2)				-> ERRADO
@@ -23,7 +42,7 @@ quantity: NUMBER PREFIX? dimention
  * 
  * m^2/s^2 -> CORRETO ... (m/s)^2 -> ERRADO na nossa linguagem, errado no SI, correto na matematica
  */
-
+/*
 dimention 	: (parenthesis | mult) SOLIDUS (parenthesis | mult)
 	  		| mult
 	  		;
@@ -37,3 +56,4 @@ mult	: mult SPACE mult
 		| BASE_UNIT
 		| DERIVED_UNIT
 		;
+*/
