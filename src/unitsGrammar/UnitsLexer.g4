@@ -9,11 +9,11 @@ lexer grammar UnitsLexer;
 	package unitsGrammar;
 }
 
-// Reserved words
+// Reserved words --------------------------------------------------------------
 CONSTANTS		: 'constants' ;
 UNITS			: 'units' ;
-
-// Reserved chars 
+ 
+// Reserved chars --------------------------------------------------------------
 SCOPE_OPEN		: '{' ; 
 SCOPE_CLOSE		: '}' ; 
 ARG_OPEN		: '[' ;
@@ -21,16 +21,17 @@ ARG_CLOSE		: ']' ;
 COLON			: ':' ;
 NEW_LINE		: '\n';
 
-// Reserved chars : operators
+// Reserved chars : operators --------------------------------------------------
 PAR_OPEN		: '(' ;
 PAR_CLOSE		: ')' ;
 DIVIDE			: '/' ;
 MULTIPLY		: '*' ;
 ADD				: '+' ;
+SUBTRACT		: '-' ;
 OR				: '|' ;
 POWER			: '^' ;
 
-// Numbers and Identifiers
+// Numbers and Identifiers -----------------------------------------------------
 ID				: [a-zA-Z]+ ;
 
 fragment INT	: '0' | [1-9][0-9]? ;
