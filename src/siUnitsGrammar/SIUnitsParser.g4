@@ -7,9 +7,20 @@ options{
 	package projeto.si_units_grammar;
 }
 
-define			: unit_or_factor '[' unit_symbol ']' ':' (NUMERIC_TYPE | '10' POWER)
+define			: unit_or_factor '[' unit_symbol ']' ':' (NUMERIC_TYPE | operation)
 	  			| unit_name ':' constructor
-	  			; 
+	  			;
+	  			
+operation	: PARENTHESIS_OPEN operation PARENTHESIS_CLOSE	#operation_parenthesis
+			| operation op=(MULTIPLY | DIVIDE) 				#operation_mult_div
+			| operation op=(ADD | SUBTRACT) operation		#operation_add_sub
+			| operation POWER								#operation_power
+			| type											#operation_expr
+			| NUMBER										#operation_NUMBER
+			;
+			
+type :
+				
 	   
 unit_or_factor  : unit_name
 			    | FACTOR 		//FACTOR = 'factor'
