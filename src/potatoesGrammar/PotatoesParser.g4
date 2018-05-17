@@ -126,8 +126,8 @@ compare_operator	: EQUALS
 
 // OPERATIONS------------------------------------------------------------------
 operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END	#operation_parenthesis
-			| operation (MULTIPLY | DIVIDE) 				#operation_mult_div
-			| operation (ADD | SUBTRACT) operation			#operation_add_sub
+			| operation op=(MULTIPLY | DIVIDE) 				#operation_mult_div
+			| operation op=(ADD | SUBTRACT) operation			#operation_add_sub
 			| operation POWER								#operation_power
 			| operation MODULUS INT							#operation_modulus
 			| operation INCREMENT							#operation_increment
@@ -137,8 +137,14 @@ operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END	#operation_parenthesis
 			;
 
 // STRUCTURES------------------------------------------------------------------
-array_declaration	: ARRAY DIAMOND_BEGIN type DIAMOND_END var
+array_declaration	: ARRAY diamond_begin type diamond_end var
 					;
+					
+diamond_begin		: LESS_THAN
+					;
+					
+diamond_end			: GREATER_THAN
+					; 
 		 
 // VARS------------------------------------------------------------------------ 
 var					: ID
