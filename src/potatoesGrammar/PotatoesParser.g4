@@ -133,6 +133,7 @@ operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END	#operation_parenthesis
 			| operation INCREMENT							#operation_increment
 			| operation DECREMENT 							#operation_decrement
 			| var											#operation_expr
+			| DOUBLE
 			| NUMBER										#operation_NUMBER
 			;
 
@@ -164,6 +165,7 @@ value				: NUMBER
 					| BOOLEAN
 					| STRING
 					| INT
+					| 
 					;
 		
 values_list			: value (COMMA value)*
