@@ -1,0 +1,22 @@
+constants {
+    // Factors
+    DECA  [da]      : 10^1 
+    HECTO [h]       : 10^2
+    PICO  [p]       : 10^-12
+    FEMTO [f]       : 10^(-15)
+    TEN             : 10
+    Factors         : (263.15 + 10)
+}
+
+units {
+    // Basic Types (default is numeric)
+    distance  [m]
+    time      [s]
+    absTemp   [K]   
+    energy    [J]  
+
+    // Derived Types
+    power     [W]   : energy / time
+    temp      [C]   : factor * absTemp
+    velocity        : distance / time
+}

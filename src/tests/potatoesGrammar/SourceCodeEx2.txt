@@ -1,0 +1,27 @@
+//
+//calculate square area for each element in array
+//
+
+header**
+	package ... ;
+	import ... ;
+**
+
+class SourceCodeEx2 {
+	main{
+			
+		Array<number> sides = {1 m, 2 km, 3 mm, 4 cm, 5Mm};
+		Array<number> areas; 
+		
+		//question:
+		//	print(calcArea(sides[i]) + '\n'); allowed? java does
+		
+		for(i in 0..sides.length){
+			print(calcArea(sides[i]) + "\n");
+		}		
+	}
+		
+	fun calcArea(number n1) : number{
+			return side * side;
+	}
+}
