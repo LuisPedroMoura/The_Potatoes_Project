@@ -1,11 +1,16 @@
+// Units Grammar Example 1
+// Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+
 constants {
     // Factors
     DECA  [da]      : 10^1 
     HECTO [h]       : 10^2
     PICO  [p]       : 10^-12
     FEMTO [f]       : 10^(-15)
-    TEN             : 10
-    Factors         : (263.15 + 10)
+    
+    // Other constants
+    AVOGRADO [A]    : 6.022 * 10^23
+    KELVINFACTOR    : (263.15 + 10)
 }
 
 units {
@@ -14,9 +19,9 @@ units {
     time      [s]
     absTemp   [K]   
     energy    [J]  
-
+    
     // Derived Types
     power     [W]   : energy / time
-    temp      [C]   : factor * absTemp
+    temp      [C]   : KELVINFACTOR * absTemp
     velocity        : distance / time
 }

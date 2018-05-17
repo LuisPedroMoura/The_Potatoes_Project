@@ -19,7 +19,7 @@ SCOPE_CLOSE		: '}' ;
 ARG_OPEN		: '[' ;
 ARG_CLOSE		: ']' ;
 COLON			: ':' ;
-NEW_LINE		: '\n';
+NEW_LINE		: '\r'? '\n';
 
 // Reserved chars : operators --------------------------------------------------
 PAR_OPEN		: '(' ;
@@ -34,10 +34,10 @@ POWER			: '^' ;
 // Numbers and Identifiers -----------------------------------------------------
 ID				: [a-zA-Z]+ ;
 
-fragment INT	: '0' | [1-9][0-9]? ;
+fragment INT	: '0' | [1-9][0-9]* ;
 NUMBER			: '0' | ('-' | '+')? INT ('.'[0-9]+)? ;
 
 COMMENTS		: '//' .*? '\n' -> skip;
-WS				: [ \t\r\n]+ -> skip;
+WS				: [ \t]+ -> skip;
 
 ERROR			: . ;

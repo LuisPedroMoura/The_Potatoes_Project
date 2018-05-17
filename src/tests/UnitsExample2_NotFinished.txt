@@ -1,3 +1,7 @@
+// Units Grammar Example 2 : Not Finished
+// Units SI Package
+// Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+
 DECA  [da]      : 10^1
 HECTO [h]       : 10^2
 KILO  [k]       : 10^3
