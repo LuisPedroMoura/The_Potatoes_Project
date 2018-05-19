@@ -1,0 +1,8 @@
+//test header_declaration class_declaration class_content
+
+header*
+**
+
+class test_r4
+{
+}

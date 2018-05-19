@@ -1,0 +1,4 @@
+//test header_declaration
+//error -> because doesn't has class content
+header*
+**

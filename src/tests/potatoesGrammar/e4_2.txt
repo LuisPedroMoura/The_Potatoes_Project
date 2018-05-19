@@ -1,0 +1,6 @@
+//test class_content#2
+//error -> because class scope starts with SCOPE_END and ends with SCOPE_START
+
+class test_e4_2
+}
+{

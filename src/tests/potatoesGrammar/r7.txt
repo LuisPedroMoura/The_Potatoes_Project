@@ -1,0 +1,10 @@
+//test class_content class_content
+//[MJ] ATENÇAO: *duas classes 
+
+class test_r7_1				
+{
+}
+
+class test_r7_2
+{
+}

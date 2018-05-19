@@ -1,0 +1,5 @@
+//test class_content#1
+//[MJ] ATENÇAO: a classe nao foi declarada
+
+{
+}

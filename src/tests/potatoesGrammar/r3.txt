@@ -1,0 +1,6 @@
+//test class_declaration class_content
+//[MJ] ATENÇAO: nome da classe main???
+
+class main
+{
+}

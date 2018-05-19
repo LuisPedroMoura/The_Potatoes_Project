@@ -1,0 +1,9 @@
+//test class_content class_content
+//[MJ] ATENÇAO: *duas classes 
+//				*nao ha declaraçao de nenhuma class
+				
+{
+}
+
+{
+}

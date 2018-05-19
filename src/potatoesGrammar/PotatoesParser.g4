@@ -16,7 +16,6 @@ code	:	header_declaration? class_declaration? class_content
 		;
 	
 // HEADER----------------------------------------------------------------------
-// HEADER_BEGIN = 'header*' ; HEADER_END = '**'
 header_declaration	: HEADER_BEGIN  javaCode HEADER_END
 					;
 					
@@ -26,11 +25,9 @@ javaCode			: .*?
 		
 // CLASS-----------------------------------------------------------------------
 
-// CLASS = class
-class_declaration: CLASS STRING
+class_declaration: CLASS ID
 				;	
 		
-// SCOPE_BEGIN = { ; SCOPE_END = } ; STATIC = static
 class_content		: SCOPE_BEGIN (declaration | function)* SCOPE_END
 					;
 
@@ -133,7 +130,6 @@ operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END	#operation_parenthesis
 			| operation INCREMENT							#operation_increment
 			| operation DECREMENT 							#operation_decrement
 			| var											#operation_expr
-			| DOUBLE
 			| NUMBER										#operation_NUMBER
 			;
 

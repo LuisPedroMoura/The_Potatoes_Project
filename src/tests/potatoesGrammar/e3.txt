@@ -1,0 +1,7 @@
+//test header_declaration class_declaration
+//error -> because doesn't has class content
+
+header*
+**
+
+class main

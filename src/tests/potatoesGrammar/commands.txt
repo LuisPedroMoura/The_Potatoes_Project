@@ -1,0 +1,8 @@
+estando no src
+antlr4-build
+
+antlr4-test potatoesGrammar.Potatoes program -tokens < tests/potatoesGrammar/r8.txt
+
+cat tests/potatoesGrammar/r6.txt
+
+antlr4-clean

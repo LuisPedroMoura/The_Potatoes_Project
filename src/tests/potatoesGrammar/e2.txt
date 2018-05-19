@@ -1,0 +1,4 @@
+//test class_declaration	
+//error -> because doesn't has class_content
+
+class main
