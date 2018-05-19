@@ -146,8 +146,12 @@ diamond_end			: GREATER_THAN
 // VARS------------------------------------------------------------------------ 
 var					: ID
 					;
-	
+
+// [LM] - to the tester: please verify what happens if declaration is: x z;
+//						 where x an z are both variables (because user created
+//						 types can only be solved into ID's)
 var_declaration		: type var
+					| ID var	// to declare personalized type variables
 					;			
 				
 type				: NUMBER_TYPE
@@ -160,8 +164,6 @@ type				: NUMBER_TYPE
 value				: NUMBER
 					| BOOLEAN
 					| STRING
-					| INT
-					| 
 					;
 		
 values_list			: value (COMMA value)*

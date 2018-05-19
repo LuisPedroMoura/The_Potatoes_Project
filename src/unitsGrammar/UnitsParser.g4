@@ -12,12 +12,12 @@ options{
 	package unitsGrammar;
 }
 
-program	: NEW_LINE* (const_declaration)? NEW_LINE+ units_declaration NEW_LINE*
-		| NEW_LINE* units_declaration NEW_LINE+ (const_declaration) NEW_LINE*
+program	: NEW_LINE* (const_declaration)? NEW_LINE+ units_declaration NEW_LINE+
+		| NEW_LINE* units_declaration NEW_LINE+ (const_declaration) NEW_LINE+
 		;
 
 // Constants ------------------------------------------------------------------
-const_declaration : CONSTANTS SCOPE_OPEN NEW_LINE? 
+const_declaration : CONSTANTS SCOPE_OPEN NEW_LINE*
 				    (constant NEW_LINE+)* 
 				    SCOPE_CLOSE
 				  ;
@@ -35,7 +35,7 @@ const_op	: PAR_OPEN const_op PAR_CLOSE				#const_op_parenthesis
 			;
 
 // Units ----------------------------------------------------------------------
-units_declaration	: UNITS SCOPE_OPEN NEW_LINE?
+units_declaration	: UNITS SCOPE_OPEN NEW_LINE*
 					  (unit NEW_LINE+)* 
 					  SCOPE_CLOSE
 					;

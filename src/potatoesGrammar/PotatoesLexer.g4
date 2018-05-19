@@ -44,9 +44,9 @@ WHEN              : 'when';
 ARROW             : '->';
 
 // TYPE NAME---------------------------------------------------------------
-NUMBER_TYPE       : 'Number';
+NUMBER_TYPE       : 'number';
 BOOLEAN_TYPE      : 'boolean';
-STRING_TYPE       : 'String';
+STRING_TYPE       : 'string';
 VOID_TYPE         : 'void';
 
 // LOGICAL OPERATORS-------------------------------------------------------
@@ -82,10 +82,8 @@ ID                : LETTER (LETTER | DIGIT)*;
 fragment LETTER   : [a-zA-Z_] ;
 
 // TYPE AGROUPMENT---------------------------------------------------------
-NUMBER            : (INT) 
-		          | (INT '.' INT | '.' INT)
-		          ;
-INT               : DIGIT+;
+NUMBER            : '0' | ('-' | '+')? INT ('.'[0-9]+)? ;
+INT               : '0' | [1-9][0-9]* ;
 fragment DIGIT    : [0-9];
 BOOLEAN           : 'false' | 'true';
 STRING            : '"' (ESC | . )*? '"';
