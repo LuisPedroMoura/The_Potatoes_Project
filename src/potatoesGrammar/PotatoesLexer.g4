@@ -43,6 +43,12 @@ WHILE             : 'while';
 WHEN              : 'when';
 ARROW             : '->';
 
+// TYPE NAME---------------------------------------------------------------
+NUMBER_TYPE       : 'Number';
+BOOLEAN_TYPE      : 'boolean';
+STRING_TYPE       : 'String';
+VOID_TYPE         : 'void';
+
 // LOGICAL OPERATORS-------------------------------------------------------
 NOT               : '!';
 AND               : '&';
@@ -74,12 +80,6 @@ DIAMOND_END       : '>';
 // VARS-------------------------------------------------------------------- 
 ID                : LETTER (LETTER | DIGIT)*;
 fragment LETTER   : [a-zA-Z_] ;
-
-// TYPE NAME---------------------------------------------------------------
-NUMBER_TYPE       : 'Number';
-BOOLEAN_TYPE      : 'boolean';
-STRING_TYPE       : 'String';
-VOID_TYPE         : 'void';
 
 // TYPE AGROUPMENT---------------------------------------------------------
 NUMBER            : (INT) 
