@@ -13,6 +13,7 @@ EOL               : ';';
 
 // CLASS-------------------------------------------------------------------
 CLASS             : 'class';
+MAIN			  : 'main' ;
 
 SCOPE_BEGIN       : '{';
 SCOPE_END         : '}';
@@ -74,17 +75,17 @@ DECREMENT         : '--';
 
 // STRUCTURES--------------------------------------------------------------
 ARRAY             : 'Array';
-DIAMOND_BEGIN     : '<';
-DIAMOND_END       : '>';
+
+// These symbols are used, but where replaced with rules in Parser
+//DIAMOND_BEGIN     : '<';
+//DIAMOND_END       : '>';
 
 // VARS-------------------------------------------------------------------- 
-ID                : LETTER (LETTER | DIGIT)*;
-fragment LETTER   : [a-zA-Z_] ;
+ID                : [a-z] [a-zA-Z0-9_]*;
 
 // TYPE AGROUPMENT---------------------------------------------------------
 NUMBER            : '0' | ('-' | '+')? INT ('.'[0-9]+)? ;
-INT               : '0' | [1-9][0-9]* ;
-fragment DIGIT    : [0-9];
+
 BOOLEAN           : 'false' | 'true';
 STRING            : '"' (ESC | . )*? '"';
 fragment ESC      : '//"' | '\\\\';
