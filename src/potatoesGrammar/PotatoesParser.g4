@@ -124,9 +124,9 @@ compare_operator	: EQUALS
 // OPERATIONS------------------------------------------------------------------
 operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END	#operation_parenthesis
 			| operation op=(MULTIPLY | DIVIDE) 				#operation_mult_div
-			| operation op=(ADD | SUBTRACT) operation			#operation_add_sub
+			| operation op=(ADD | SUBTRACT) operation		#operation_add_sub
 			| operation POWER								#operation_power
-			| operation MODULUS INT							#operation_modulus
+			| operation MODULUS NUMBER 						#operation_modulus
 			| operation INCREMENT							#operation_increment
 			| operation DECREMENT 							#operation_decrement
 			| var											#operation_expr

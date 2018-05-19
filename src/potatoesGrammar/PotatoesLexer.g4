@@ -67,7 +67,7 @@ GREATER_OR_EQUAL  : '>=';
 MULTIPLY          : '*';
 DIVIDE            : '/';
 ADD               : '+';
-SUBTRACT          : '-';
+SUBTRACT		  : '-';
 POWER             : '^';
 MODULUS           : '%';
 INCREMENT         : '++';
@@ -84,7 +84,10 @@ ARRAY             : 'Array';
 ID                : [a-z] [a-zA-Z0-9_]*;
 
 // TYPE AGROUPMENT---------------------------------------------------------
-NUMBER            : '0' | ('-' | '+')? INT ('.'[0-9]+)? ;
+NUMBER            : '0'
+				  | ('-' | '+')? [0-9] ('.'[0-9]+)?
+				  | ('-' | '+')? [1-9][0-9]* ('.'[0-9]+)?
+				  ;
 
 BOOLEAN           : 'false' | 'true';
 STRING            : '"' (ESC | . )*? '"';

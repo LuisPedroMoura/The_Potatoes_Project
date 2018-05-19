@@ -27,7 +27,7 @@ public class PotatoesParser extends Parser {
 		EQUALS=32, NOT_EQUAL=33, LESS_THAN=34, LESS_OR_EQUAL=35, GREATER_THAN=36, 
 		GREATER_OR_EQUAL=37, MULTIPLY=38, DIVIDE=39, ADD=40, SUBTRACT=41, POWER=42, 
 		MODULUS=43, INCREMENT=44, DECREMENT=45, ARRAY=46, ID=47, NUMBER=48, BOOLEAN=49, 
-		STRING=50, LINE_COMMENT=51, COMMENT=52, WS=53, INT=54;
+		STRING=50, LINE_COMMENT=51, COMMENT=52, WS=53;
 	public static final int
 		RULE_program = 0, RULE_code = 1, RULE_header_declaration = 2, RULE_javaCode = 3, 
 		RULE_class_declaration = 4, RULE_class_content = 5, RULE_statement = 6, 
@@ -66,7 +66,7 @@ public class PotatoesParser extends Parser {
 		"LESS_THAN", "LESS_OR_EQUAL", "GREATER_THAN", "GREATER_OR_EQUAL", "MULTIPLY", 
 		"DIVIDE", "ADD", "SUBTRACT", "POWER", "MODULUS", "INCREMENT", "DECREMENT", 
 		"ARRAY", "ID", "NUMBER", "BOOLEAN", "STRING", "LINE_COMMENT", "COMMENT", 
-		"WS", "INT"
+		"WS"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -2097,7 +2097,7 @@ public class PotatoesParser extends Parser {
 			return getRuleContext(OperationContext.class,0);
 		}
 		public TerminalNode MODULUS() { return getToken(PotatoesParser.MODULUS, 0); }
-		public TerminalNode INT() { return getToken(PotatoesParser.INT, 0); }
+		public TerminalNode NUMBER() { return getToken(PotatoesParser.NUMBER, 0); }
 		public Operation_modulusContext(OperationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -2265,7 +2265,7 @@ public class PotatoesParser extends Parser {
 						setState(321);
 						match(MODULUS);
 						setState(322);
-						match(INT);
+						match(NUMBER);
 						}
 						break;
 					case 5:
@@ -2758,9 +2758,9 @@ public class PotatoesParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\38\u0173\4\2\t\2\4"+
-		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
-		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\67\u0173\4\2\t\2"+
+		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
+		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
 		"\4\32\t\32\4\33\t\33\4\34\t\34\4\35\t\35\4\36\t\36\4\37\t\37\4 \t \4!"+
 		"\t!\4\"\t\"\3\2\7\2F\n\2\f\2\16\2I\13\2\3\2\3\2\3\3\5\3N\n\3\3\3\5\3Q"+
@@ -2868,7 +2868,7 @@ public class PotatoesParser extends Parser {
 		"\u0139\u0137\3\2\2\2\u0139\u0138\3\2\2\2\u013a\u014b\3\2\2\2\u013b\u013c"+
 		"\f\t\2\2\u013c\u013d\t\5\2\2\u013d\u014a\5\62\32\n\u013e\u013f\f\n\2\2"+
 		"\u013f\u014a\t\6\2\2\u0140\u0141\f\b\2\2\u0141\u014a\7,\2\2\u0142\u0143"+
-		"\f\7\2\2\u0143\u0144\7-\2\2\u0144\u014a\78\2\2\u0145\u0146\f\6\2\2\u0146"+
+		"\f\7\2\2\u0143\u0144\7-\2\2\u0144\u014a\7\62\2\2\u0145\u0146\f\6\2\2\u0146"+
 		"\u014a\7.\2\2\u0147\u0148\f\5\2\2\u0148\u014a\7/\2\2\u0149\u013b\3\2\2"+
 		"\2\u0149\u013e\3\2\2\2\u0149\u0140\3\2\2\2\u0149\u0142\3\2\2\2\u0149\u0145"+
 		"\3\2\2\2\u0149\u0147\3\2\2\2\u014a\u014d\3\2\2\2\u014b\u0149\3\2\2\2\u014b"+
