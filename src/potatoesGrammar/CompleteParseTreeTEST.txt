@@ -1,0 +1,48 @@
+constants {
+	KILO [k]  : 10^3
+	MICRO [u] : 10^-6
+}
+
+units {
+	distance	[m]
+	time		[s]
+	velocity : distance / time
+}
+
+header*
+	package teste;
+	import batatas;
+	
+**
+
+{
+
+	distance dist = 10;
+	time tempo = 5;
+	
+	fun testePotatoes (number result) : number {
+		
+		for (number i = 0; i < 10; i++){
+			dist++;
+		}
+		
+		if (dist > tempo) {
+			dist += 10;
+		}
+		
+		when (dist){
+			30 -> dist += 10;
+		}
+		
+		while (dist < 50){
+			dist ++;
+		)
+				
+		return result;
+	}
+
+
+
+
+
+}

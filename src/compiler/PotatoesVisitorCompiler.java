@@ -13,17 +13,11 @@ import potatoesGrammar.PotatoesParser.Assignment_varDeclaration_VarContext;
 import potatoesGrammar.PotatoesParser.Assignment_var_valueContext;
 import potatoesGrammar.PotatoesParser.Assignment_var_varContext;
 import potatoesGrammar.PotatoesParser.Class_contentContext;
-import potatoesGrammar.PotatoesParser.CodeContext;
 import potatoesGrammar.PotatoesParser.Diamond_beginContext;
 import potatoesGrammar.PotatoesParser.Diamond_endContext;
 import potatoesGrammar.PotatoesParser.Header_declarationContext;
-import potatoesGrammar.PotatoesParser.ProgramContext;
-import potatoesGrammar.PotatoesParser.Statement_assignmentContext;
-import potatoesGrammar.PotatoesParser.Statement_declarationContext;
 import potatoesGrammar.PotatoesParserBaseVisitor;
 import utils.*;
-
-
 
 
 public class PotatoesVisitorCompiler extends PotatoesParserBaseVisitor<Boolean>  {
@@ -267,17 +261,43 @@ public class PotatoesVisitorCompiler extends PotatoesParserBaseVisitor<Boolean> 
 // --------------------------------------------------------------------------------------------------------------------
 // CONTROL FLOW STATMENTS------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override public Boolean visitControl_flow_statement(PotatoesParser.Control_flow_statementContext ctx) { return visitChildren(ctx); }
+	@Override public Boolean visitControl_flow_statement(PotatoesParser.Control_flow_statementContext ctx) {
+		return visitChildren(ctx);
+	}
 
-	@Override public Boolean visitFor_loop(PotatoesParser.For_loopContext ctx) { return visitChildren(ctx); }
+	
+	@Override public Boolean visitFor_loop(PotatoesParser.For_loopContext ctx) {
+		// [LM] verify that assigned var does NOT EXIST
+		//String assign_var = ctx.assignment().
+		// [LM] verify that logical operation operators EXIST
+		
+		// [LM] verify that operatio operator exist
+		
+		// print compile if verifications are correct		
+				
+		// visit statments
+		return visitChildren(ctx);
+	}
+	
+	
+	@Override public Boolean visitWhile_loop(PotatoesParser.While_loopContext ctx) {
+		return visitChildren(ctx);
+	}
 
-	@Override public Boolean visitWhile_loop(PotatoesParser.While_loopContext ctx) { return visitChildren(ctx); }
+	
+	@Override public Boolean visitWhen(PotatoesParser.WhenContext ctx) {
+		return visitChildren(ctx);
+	}
 
-	@Override public Boolean visitWhen(PotatoesParser.WhenContext ctx) { return visitChildren(ctx); }
+	
+	@Override public Boolean visitWhen_case(PotatoesParser.When_caseContext ctx) {
+		return visitChildren(ctx);
+	}
 
-	@Override public Boolean visitWhen_case(PotatoesParser.When_caseContext ctx) { return visitChildren(ctx); }
-
-	@Override public Boolean visitCondition(PotatoesParser.ConditionContext ctx) { return visitChildren(ctx); }
+	
+	@Override public Boolean visitCondition(PotatoesParser.ConditionContext ctx) {
+		return visitChildren(ctx);
+	}
 
 	
 // --------------------------------------------------------------------------------------------------------------------
