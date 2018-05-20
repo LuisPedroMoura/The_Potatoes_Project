@@ -40,8 +40,10 @@ units_declaration	: UNITS SCOPE_OPEN NEW_LINE*
 					  SCOPE_CLOSE
 					;
 					
-unit		: ID ARG_OPEN ID ARG_CLOSE (COLON units_op)?	#unit_with_id
-			| ID   					   (COLON units_op)?	#unit_without_id
+unit		: ID ARG_OPEN ID ARG_CLOSE						#unit_basic_with_id
+			| ID   					   						#unit_basic_without_id
+			| ID ARG_OPEN ID ARG_CLOSE (COLON units_op)		#unit_with_id
+			| ID   					   (COLON units_op)		#unit_without_id
 	  		;
 	  			
 units_op	: PAR_OPEN units_op PAR_CLOSE				#units_op_parenthesis
