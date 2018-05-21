@@ -12,11 +12,14 @@ options{
 program	:	code* EOF	
 		;
 		
-code	: (declaration EOL)* 
-		| (assignment EOL)* 
-		| function*
+code	: SCOPE_BEGIN class_content* SCOPE_END
 		;
 // CLASS-----------------------------------------------------------------------
+		
+class_content	: declaration EOL	#class_contentDeclaration 
+				| assignment EOL	#class_contentAssignment
+				| function			#class_contentFunction
+				;		
 		
 statement			: declaration EOL			#statement_declaration
 					| assignment EOL			#statement_assignment
@@ -147,7 +150,7 @@ var					: ID
 					;
 
 // [LM] - to the tester: please verify what happens if declaration is: x z;
-//						 where x and z are both variables (because user created
+//						 where x an z are both variables (because user created
 //						 types can only be solved into ID's)
 var_declaration		: type var
 					| ID var	// to declare personalized type variables

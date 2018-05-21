@@ -9,14 +9,7 @@ units {
 	velocity : distance / time
 }
 
-header*
-	package teste;
-	import batatas;
-	
-**
-
 {
-
 	distance dist = 10;
 	time tempo = 5;
 	
@@ -40,9 +33,5 @@ header*
 				
 		return result;
 	}
-
-
-
-
-
+	
 }
