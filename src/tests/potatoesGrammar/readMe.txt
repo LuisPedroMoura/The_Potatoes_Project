@@ -6,53 +6,33 @@ cenas a testar
 	-> fun
 		*control_flow_statement
 		*structures
+		
+		
+
+//-------------------------
+//ERROS A CORRIGIR---------
+//-------------------------
 	
-cenas testadas
+	//SEMANTICOS
+		* vars nao inicializadas (ver r9)
+		* repetiçao de nomes (de vars, ...) (ver r9)
+		//em funçoes
+			* argumento void v1 (ver r9)
+			* returns em funçoes void e vice versa (ver r9)
+		//em operacoes
+			* operaçoes com tipos dif 
+			
+			
+//******************************************************************************************************	
+//cenas testadas****************************************************************************************
+//******************************************************************************************************
 
 ficheiros
-	e -> error -> é suposto dar erro!
+	e -> error -> é suposto dar erro sintatico!
 	r -> right -> é suposto estar correto!
 	
 	REVER -> provavelmente devia dar erro e nao da...
 	ERRO_SEMANTICO -> tem de dar erro semantico
-
-//------------------------------------------------------------------------------------------------------
-//DECLARAÇOES DA CLASSE---------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------
-
-	//-------------------------------------------------------------------
-	//tudo vazio---------------------------------------------------------
-	//-------------------------------------------------------------------
-	
-	
-	//-------------
-	//ERROS--------
-	//-------------
-	-> header_declaration					-> e1
-	-> class_declaration 					-> e2
-	-> header_declaration class_declaration	-> e3
-	-> class_content#2						-> e4_2
-
-
-	//-------------
-	//CERTOS-------
-	//-------------
-	-> class_content#1 						-> r1 REVER -> declaraçao da classe
-	-> header_declaration class_content		-> r2 REVER -> declaraçao da classe
-	-> class_declaration class_content		-> r3 ERRO_SEMANTICO -> nome da classe 
-	-> header_declaration class_declaration class_content -> r4
-
-
-	problemas neste bloco:	*duas classes 
-							*nao ha declaraçao de nenhuma classe
-	o problema das duas classes resolve-se fazendo a primeira regra assim:
-				program	: code EOF	
-						;
-						
-	-> class_content class_content						-> r5 REVER
-	-> class_declaration class_content class_content	-> r6 REVER
-	-> class_declaration class_content class_declaration class_content	-> r7 REVER
-
 
 //------------------------------------------------------------------------------------------------------
 //CONTEUDOS DA CLASSE-----------------------------------------------------------------------------------
@@ -65,37 +45,44 @@ ficheiros
 	//-------------
 	//ERROS--------
 	//-------------
-	-> control_flow_statement_condition		-> e5
-	-> control_flow_statement_for_loop		-> e6
-	-> control_flow_statement_while_loop	->
-	-> control_flow_statement_when			->
-
-	-> fun(void) : void	->
-	-> fun(void) : type ->
-	-> fun(type) : void ->
-	-> fun(type) : type ->
-	-> fun(type, type ...) : void ->
-	-> fun(type, type ...) : type ->
+	-> control_flow_statement_condition		-> e1
+	-> control_flow_statement_for_loop		-> e2
+	-> control_flow_statement_while_loop	-> mais do mesmo...
+	-> control_flow_statement_when			-> mais do mesmo...
 
 	//-------------------------------------------------------------------
 	//com conteudo-------------------------------------------------------
 	//-------------------------------------------------------------------
-
-	//-------------
-	//ERROS--------
-	//-------------
-	-> class_declaration class_content{ control_flow_statement_condition } 	-> e9
-	-> class_declaration class_content{ control_flow_statement_for_loop } 	->
-	-> class_declaration class_content{ control_flow_statement_while_loop }	->
-	-> class_declaration class_content{ control_flow_statement_when } 		->
+		
+		//-------------------------------------
+		//funçoes com control_flow_statement---
+		//-------------------------------------
+			-> class_declaration class_content{ fun_with_content(boolean_var == true) } -> e3
 
 
 	//-------------
 	//CERTOS-------
 	//-------------
-	-> class_declaration class_content{ fun(void) : void }	->
-	-> class_declaration class_content{ fun(void) : type }	->
-	-> class_declaration class_content{ fun(type) : void }	->
-	-> class_declaration class_content{ fun(type) : type }	->
-	-> class_declaration class_content{ fun(type, type ...) : void } ->
-	-> class_declaration class_content{ fun(type, type ...) : type } ->
+	
+		//-----------------
+		//funçoes vazias---
+		//-----------------
+		-> class_declaration class_content{ fun }	-> r1
+		-> class_declaration class_content{ fun }	-> r2 ERRO_SEMANTICO
+
+	
+	
+		//-------------------------------------
+		//funçoes com control_flow_statement---
+		//-------------------------------------
+		
+			//if's
+			-> class_declaration class_content{ fun_with_content (op with numbers) } -> r3
+			-> class_declaration class_content{ fun_with_content (op with booleans) } -> r4
+			
+			//for's
+			-> class_declaration class_content{ fun_with_content } -> r5 REVER
+			
+			
+	
+	

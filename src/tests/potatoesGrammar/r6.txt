@@ -1,9 +1,0 @@
-//test class_content class_content
-//[MJ] ATENÇAO: *duas classes 
-
-class test_r6				
-{
-}
-
-{
-}

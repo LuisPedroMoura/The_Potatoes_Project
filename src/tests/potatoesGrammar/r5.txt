@@ -1,9 +1,26 @@
-//test class_content class_content
-//[MJ] ATENÇAO: *duas classes 
-//				*nao ha declaraçao de nenhuma class
-				
-{
-}
+// test class_content{ fun_with_content }
+// focus: for's and operations with POWER and MODULUS
 
-{
+	
+	
+fun main():void {
+	
+	
+	for(number i=0; i < size; i++){
+	
+		 number op = 9^-2 * 9;
+		 
+		 for(;op>0; op--){
+			
+			boolean loop = true;
+			when(loop){
+				false	-> op++;
+				true	-> op = op--;
+			}
+			loop=!loop;							
+		 }
+		
+	}
+		
 }
+		

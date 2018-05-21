@@ -39,6 +39,7 @@ RETURN            : 'return';
 
 // CONTROL FLOW------------------------------------------------------------
 IF                : 'if';
+ELSE			  : 'else';
 FOR               : 'for';
 WHILE             : 'while';
 WHEN              : 'when';
@@ -49,6 +50,9 @@ NUMBER_TYPE       : 'number';
 BOOLEAN_TYPE      : 'boolean';
 STRING_TYPE       : 'string';
 VOID_TYPE         : 'void';
+
+// BOOLEAN VALUES----------------------------------------------------------
+BOOLEAN           : 'false' | 'true';
 
 // LOGICAL OPERATORS-------------------------------------------------------
 NOT               : '!';
@@ -89,7 +93,6 @@ NUMBER            : '0'
 				  | ('-' | '+')? [1-9][0-9]* ('.'[0-9]+)?
 				  ;
 
-BOOLEAN           : 'false' | 'true';
 STRING            : '"' (ESC | . )*? '"';
 fragment ESC      : '//"' | '\\\\';
 

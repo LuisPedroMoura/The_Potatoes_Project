@@ -1,9 +1,0 @@
-//test control_flow_statement->condition
-//error-> because if-statement is not inside a class_content
-
-	if(side > 0){
-	}
-	if(area == 1){			
-	}
-	else {
-	}

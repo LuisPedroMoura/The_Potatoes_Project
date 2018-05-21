@@ -1,5 +1,24 @@
-//test class_content#1
-//[MJ] ATENÇAO: a classe nao foi declarada
+// test class_content{ fun }
 
-{
+{	
+fun fun1() : void {
+}
+
+fun fun2(number n1) : void {
+}
+
+fun fun3() : number {
+	return 3;
+}
+
+fun fun4(number n1) : number {
+	return n1;
+}
+
+fun fun5(number n1, number n2): void{
+}
+
+fun fun6(number n1, boolean b1, string s1) : void{
+}
+
 }

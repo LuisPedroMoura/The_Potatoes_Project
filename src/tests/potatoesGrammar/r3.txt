@@ -1,6 +1,37 @@
-//test class_declaration class_content
-//[MJ] ATENÇAO: nome da classe main???
+// test class_content{ fun_with_content(op with numbers) }
+// focus: if's and simple operations with numbers
 
-class main
-{
+	
+number area = 10;
+
+fun main():void {
+	number side = 1; //assignment
+	number square_area; //declaration
+
+	if(side > 0){
+		square_area = calcSquareArea(side); //function_call assignment
+	}
+	else if(side > 1){
+		square_area = calcSquareArea(side+1); //function_call assignment
+	}
+	else{
+		square_area = calcSquareArea(side+2); //function_call assignment
+	}
+			
+	if(square_area == 1){		
+		calcSquareVolume(9); //function_call
+	}
+	else{
+		number meaningless_result = calcSquareArea(area) - calcSquareVolume(6*9); //operation with functions calls assignment
+	}		
 }
+
+fun calcSquareArea(number n1) : number {
+	n = n1 * n1;
+	return n;
+}
+
+fun calcSquareVolume(number n1) : number {
+	return n1*n1*n1;
+}
+	

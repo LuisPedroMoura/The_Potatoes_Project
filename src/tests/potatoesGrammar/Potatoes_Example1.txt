@@ -1,0 +1,24 @@
+//
+//calculate square area
+//
+
+
+fun main():void{
+	number side = 1;
+	number area;
+
+	if(side > 0){
+		area = calcArea(side);
+	}
+	
+	if(area == 1){		
+		print(area);
+	}
+	else print("error");
+	
+	
+}
+	
+fun calcArea(number n1) : number {
+		return n1 * n1;
+}

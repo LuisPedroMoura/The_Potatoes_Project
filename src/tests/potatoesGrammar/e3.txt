@@ -1,7 +1,12 @@
-//test header_declaration class_declaration
-//error -> because doesn't has class content
+// test class_content{ fun_with_content(boolean_var == true) }
+// error -> boolean_var == true is not allowed
 
-header*
-**
+	
+boolean sameSize = true;
 
-class main
+fun main():void {
+	if(sameSize == true){ //is not allowed
+			//does nothing :p
+	}
+		
+}

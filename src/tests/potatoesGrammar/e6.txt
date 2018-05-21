@@ -1,6 +1,0 @@
-//test control_flow_statement_for_loop
-//error -> because for loop isn't inside a class
-			
-for( Number i=0; i<10; i++){
-
-}

@@ -1,4 +1,6 @@
-//test class_declaration	
-//error -> because doesn't has class_content
+//test control_flow_statement_for_loop
+//error -> because for loop isn't inside a function
+			
+for( Number i=0; i<10; i++){
 
-class main
+}

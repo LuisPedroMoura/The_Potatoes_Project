@@ -1,4 +1,10 @@
-//test header_declaration
-//error -> because doesn't has class content
-header*
-**
+//test control_flow_statement->condition
+//error (syntax) -> because if-statement is not inside a function
+//error (semantics) -> side and area vars aren't initialized
+
+	if(side > 0){
+	}
+	if(area == 1){			
+	}
+	else {
+	}

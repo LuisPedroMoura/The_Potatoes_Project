@@ -1,7 +1,20 @@
-//test header_declaration class_content
-//[MJ] ATENÇAO: a classe nao foi declarada
+// test class_content{ fun }
+//error->semantics
 
-header*
-**
-{
+
+//same arg name n1, n1
+fun fun1(number n1, number n1): void{
+}
+
+//arg void v1	note: java doesn't allow
+fun fun2(number n1, boolean b1, string s1, void v1) : void{
+}
+
+//has a return but returns nothing
+fun fun3() : number{
+}
+
+//doesn't have a return but returns a var that is not initialized
+fun fun3() : void{
+	return v1;
 }

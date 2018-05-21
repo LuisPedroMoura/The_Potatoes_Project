@@ -28,7 +28,7 @@ javaCode			: .*?
 class_declaration: CLASS ID
 				;	
 		
-class_content		: SCOPE_BEGIN (declaration | function)* SCOPE_END
+class_content		: SCOPE_BEGIN ( (declaration EOL) | (assignment EOL) | function)* SCOPE_END
 					;
 
 statement			: declaration EOL			#statement_declaration
@@ -42,11 +42,17 @@ declaration			: array_declaration			#declaration_array
 					;
 
 assignment			: array_declaration assignment_operator values_list	#assignment_array
-					| var_declaration assignment_operator var			#assignment_varDeclaration_Var
-					| var_declaration assignment_operator value			#assignment_varDeclaration_Value
-					| var assignment_operator var						#assignment_var_var
+					| var_declaration assignment_operator operation		#assigment_var_declaration_operation
+					| var_declaration assignment_operator NOT? var		#assignment_varDeclaration_var
+					| var_declaration assignment_operator value			#assignment_varDeclaration_value
+					| var_declaration assignment_operator function_call	#assigment_var_declaration_functionCall
+					| var INCREMENT										#assigment_varIncrement
+					| var DECREMENT 									#assigment_varDecrement
+					| var assignment_operator operation					#assigment_var_operation
+					| var assignment_operator NOT? var					#assignment_var_var
 					| var assignment_operator value						#assignment_var_value
 					| var assignment_operator values_list				#assigment_var_valueList
+					| var assignment_operator function_call				#assigment_var_functionCall
 					;
 // [LM] add instanceof operator ?? very usefiul in array, of Numbers	
 assignment_operator	: EQUAL
@@ -58,15 +64,15 @@ assignment_operator	: EQUAL
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
-function			: FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
+function			: FUN (ID | MAIN) PARENTHESIS_BEGIN (type var (COMMA type var)* )*
 					  PARENTHESIS_END COLON type 
 					  SCOPE_BEGIN statement* function_return? SCOPE_END
 					;
 
-function_return		: RETURN var EOL
+function_return		: RETURN (var | value | operation) EOL
 					;
 					
-function_call		: ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
+function_call		: ID PARENTHESIS_BEGIN ((var|value|operation) (COMMA (var|value|operation))* )*
 					  PARENTHESIS_END
 					;
 
@@ -90,15 +96,19 @@ when		: WHEN PARENTHESIS_BEGIN (var) PARENTHESIS_END
 			  SCOPE_BEGIN when_case* SCOPE_END
  			;
  			
-when_case	: value ARROW statement EOL
+when_case	: value ARROW statement
  			;
 		
 condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
 			  SCOPE_BEGIN statement* SCOPE_END
+			  (ELSE IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
+			  SCOPE_BEGIN statement* SCOPE_END)*
+			  (ELSE SCOPE_BEGIN statement* SCOPE_END )?
+			  
  			;
 
 // LOGICAL OPERATIONS----------------------------------------------------------
-logical_operation	: logical_operand logical_operator logical_operand
+logical_operation	: logical_operand (logical_operator logical_operand)?
 					;
 					
 logical_operand 	: NOT? comparison
@@ -122,15 +132,17 @@ compare_operator	: EQUALS
 					;			
 
 // OPERATIONS------------------------------------------------------------------
-operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END	#operation_parenthesis
-			| operation op=(MULTIPLY | DIVIDE) 				#operation_mult_div
-			| operation op=(ADD | SUBTRACT) operation		#operation_add_sub
-			| operation POWER								#operation_power
-			| operation MODULUS NUMBER 						#operation_modulus
-			| operation INCREMENT							#operation_increment
-			| operation DECREMENT 							#operation_decrement
-			| var											#operation_expr
-			| NUMBER										#operation_NUMBER
+operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END		#operation_parenthesis
+			| operation op=(MULTIPLY | DIVIDE) operation		#operation_mult_div
+			| operation op=(ADD | SUBTRACT) operation			#operation_add_sub
+			| operation POWER NUMBER							#operation_power
+			| operation MODULUS NUMBER 							#operation_modulus
+			| operation INCREMENT								#operation_increment
+			| operation DECREMENT 								#operation_decrement
+			| operation compare_operator operation				#operation_comparison
+			| var												#operation_expr
+			| function_call										#operation_functionCall
+			| NUMBER											#operation_NUMBER
 			;
 
 // STRUCTURES------------------------------------------------------------------
