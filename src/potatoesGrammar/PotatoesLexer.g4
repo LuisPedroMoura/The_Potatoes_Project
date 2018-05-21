@@ -4,17 +4,10 @@ lexer grammar PotatoesLexer;
 	package potatoesGrammar;
 }
 
-// HEADER------------------------------------------------------------------
-HEADER_BEGIN      : 'header*';
-HEADER_END        : '**';
-
 // END OF LINE
 EOL               : ';';
 
-// CLASS-------------------------------------------------------------------
-CLASS             : 'class';
-MAIN			  : 'main' ;
-
+// SCOPE-------------------------------------------------------------------
 SCOPE_BEGIN       : '{';
 SCOPE_END         : '}';
 
@@ -28,6 +21,8 @@ MOD_EQUAL         : '%=';
 
 // FUNCTIONS---------------------------------------------------------------
 FUN               : 'fun';
+
+MAIN			  : 'main' ;
 
 PARENTHESIS_BEGIN : '(';
 PARENTHESIS_END   : ')';

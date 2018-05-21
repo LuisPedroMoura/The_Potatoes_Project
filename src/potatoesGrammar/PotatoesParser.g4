@@ -12,25 +12,12 @@ options{
 program	:	code* EOF	
 		;
 		
-code	:	header_declaration? class_declaration? class_content
+code	: (declaration EOL)* 
+		| (assignment EOL)* 
+		| function*
 		;
-	
-// HEADER----------------------------------------------------------------------
-header_declaration	: HEADER_BEGIN  javaCode HEADER_END
-					;
-					
-// EOL = ';'
-javaCode			: .*? 
-					;
-		
 // CLASS-----------------------------------------------------------------------
-
-class_declaration: CLASS ID
-				;	
 		
-class_content		: SCOPE_BEGIN ( (declaration EOL) | (assignment EOL) | function)* SCOPE_END
-					;
-
 statement			: declaration EOL			#statement_declaration
 					| assignment EOL			#statement_assignment
 					| control_flow_statement	#statement_controlFlowStatement
@@ -96,7 +83,7 @@ when		: WHEN PARENTHESIS_BEGIN (var) PARENTHESIS_END
 			  SCOPE_BEGIN when_case* SCOPE_END
  			;
  			
-when_case	: value ARROW statement
+when_case	: value ARROW SCOPE_BEGIN? statement* SCOPE_END?
  			;
 		
 condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
@@ -160,7 +147,7 @@ var					: ID
 					;
 
 // [LM] - to the tester: please verify what happens if declaration is: x z;
-//						 where x an z are both variables (because user created
+//						 where x and z are both variables (because user created
 //						 types can only be solved into ID's)
 var_declaration		: type var
 					| ID var	// to declare personalized type variables
