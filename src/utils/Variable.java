@@ -50,7 +50,7 @@ public class Variable {
 		// Example kg * meter, has to create a new unit/Type
 		else {
 			Type newType = Type.multiply(a.getType(), b.getType());
-			double newValue = a.getBaseValue() / b.getBaseValue();
+			double newValue = a.getBaseValue() * b.getBaseValue();
 			return new Variable(newType, newValue);
 		}
 	}
