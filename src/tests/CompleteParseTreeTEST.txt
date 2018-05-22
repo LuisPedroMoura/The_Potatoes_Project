@@ -9,11 +9,14 @@ units {
 	velocity : distance / time
 }
 
-{
+
 	distance dist = 10;
+	//distance dist = 10 m; error
 	time tempo = 5;
 	
 	fun testePotatoes (number result) : number {
+			
+		velocity = dist / 2 s;
 		
 		for (number i = 0; i < 10; i++){
 			dist++;
@@ -34,4 +37,3 @@ units {
 		return result;
 	}
 	
-}

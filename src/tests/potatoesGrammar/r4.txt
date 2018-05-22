@@ -1,39 +1,40 @@
 // test class_content{ fun_with_content(op with booleans) }
 // focus: if's and simple operations with booleans
-	
-boolean sameSize;
 
-fun main():void {
-	number l1 = 1;
-	number l2 = 2;
 
-	if(l1 == l2){
-		sameSize = true;
-		if(sameSize){
-			number squareArea;
-			squareArea = calcSquareArea(l1);
+	boolean sameSize;
+
+	fun main{
+		number l1 = 1;
+		number l2 = 2;
+
+		if(l1 == l2){
+			sameSize = true;
+			if(sameSize){
+				number squareArea;
+				squareArea = calcSquareArea(l1);
+			}
 		}
-	}
-	
-	sameSize = l1 != l2;
-	if(!sameSize){
-		number l1Volume = calcSquareVolume(l1);
-		number l2Volume = calcSquareVolume(l2);
 		
-		boolean l1bigger = l1Volume > l2Volume;
-		
-		if(l1bigger & sameSize ){
-			//does nothing :p
+		sameSize = l1 != l2;
+		if(!sameSize){
+			number l1Volume = calcSquareVolume(l1);
+			number l2Volume = calcSquareVolume(l2);
+			
+			boolean l1bigger = l1Volume > l2Volume;
+			
+			if(l1bigger & sameSize ){
+				//does nothing :p
+			}
 		}
+			
 	}
-		
-}
 
-fun calcSquareArea(number n1) : number {
-	n = n1 * n1;
-	return n;
-}
+	fun calcSquareArea(number n1) : number {
+		n = n1 * n1;
+		return n;
+	}
 
-fun calcSquareVolume(number n1) : number {
-	return n1*n1*n1;
-}
+	fun calcSquareVolume(number n1) : number {
+		return n1*n1*n1;
+	}

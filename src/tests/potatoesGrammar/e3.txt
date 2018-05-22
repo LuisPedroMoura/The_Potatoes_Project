@@ -2,11 +2,11 @@
 // error -> boolean_var == true is not allowed
 
 	
-boolean sameSize = true;
+	boolean sameSize = true;
 
-fun main():void {
-	if(sameSize == true){ //is not allowed
-			//does nothing :p
+	fun main():void {
+		if(sameSize == true){ //is not allowed
+				//does nothing :p
+		}
+			
 	}
-		
-}
