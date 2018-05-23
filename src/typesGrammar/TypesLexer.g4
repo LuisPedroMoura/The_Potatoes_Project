@@ -1,23 +1,27 @@
-/* Units Grammar - Lexer
+/* Types Grammar - Lexer
  * Inês Justo (84804), Luis Pedro Moura (83808)
  * Maria João Lavoura (84681), Pedro Teixeira (84715)
  */
  
-lexer grammar UnitsLexer;
+lexer grammar TypesLexer;
 
 @header{
-	package unitsGrammar;
+/* Types Grammar - Lexer
+ * Inês Justo (84804), Luis Pedro Moura (83808)
+ * Maria João Lavoura (84681), Pedro Teixeira (84715)
+ */
+package typesGrammar;
 }
 
 // Reserved words --------------------------------------------------------------
-CONSTANTS		: 'constants' ;
-UNITS			: 'units' ;
+PREFIXES		: 'prefixes' ;
+TYPES			: 'types' ;
  
 // Reserved chars --------------------------------------------------------------
 SCOPE_OPEN		: '{' ; 
 SCOPE_CLOSE		: '}' ; 
-ARG_OPEN		: '[' ;
-ARG_CLOSE		: ']' ;
+ARG_OPEN		: '"' ;
+ARG_CLOSE		: '"' ;
 COLON			: ':' ;
 NEW_LINE		: '\r'? '\n';
 

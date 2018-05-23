@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 
  * <b>Code</b><p>
  * 
- * @author Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+ * @author InÃªs Justo (84804), Luis Pedro Moura (83808), Maria JoÃ£o Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
 public class Code {
-	
+
 	private List<Double> codes;
-	
+
 	public Code () {
 		codes = new ArrayList<>();
 	}
-	
+
 	/**
 	 * Adds new code to list
 	 * @param code
@@ -24,14 +25,14 @@ public class Code {
 	public void add(double code) {
 		codes.add(code);
 	}
-	
+
 	/**
 	 * @return codes List
 	 */
 	public List<Double> getCodes(){
 		return codes;
 	}
-	
+
 	/**
 	 * 
 	 * @return first element of codes List
@@ -39,7 +40,7 @@ public class Code {
 	public double getBaseCode() {
 		return codes.get(0);
 	}
-	
+
 	/**
 	 * Checks for compatibility of codes. At least one code in each List must be equal
 	 * @param a Type to have its code compared
@@ -54,7 +55,7 @@ public class Code {
 		}
 		return true;
 	}
-	
+
 
 	public static Code multiply(Code a, Code b){
 		Code newCode = new Code();
@@ -65,7 +66,7 @@ public class Code {
 		}
 		return newCode;
 	}
-	
+
 	public static Code divide(Code a, Code b){
 		Code newCode = new Code();
 		for (Double codeA : a.getCodes()) {
@@ -75,9 +76,9 @@ public class Code {
 		}
 		return newCode;
 	}
-	
 
-	
+
+
 	public static Code or(Type a, Type b){
 		Code newCode = new Code();
 		for (Double codeA : a.getCode().getCodes()) {
@@ -88,7 +89,7 @@ public class Code {
 		}
 		return newCode;
 	}
-	
-	
+
+
 
 }

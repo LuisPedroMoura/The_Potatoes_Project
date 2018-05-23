@@ -1,10 +1,10 @@
-package unitsGrammar;
+package typesGrammar;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import unitsGrammar.UnitsParser.Unit_basic_with_idContext;
-import unitsGrammar.UnitsParser.Unit_basic_without_idContext;
+import typesGrammar.UnitsParser.Unit_basic_with_idContext;
+import typesGrammar.UnitsParser.Unit_basic_without_idContext;
 import utils.Type;
 
 /**
@@ -15,7 +15,7 @@ import utils.Type;
  * @version May-June 2018
  */
 
-public class UnitsImport extends UnitsParserBaseVisitor<Type> {
+public class TypesInterpreter_Old extends UnitsParserBaseVisitor<Type> {
 
 	private Map<String, Type> types = new HashMap<>();
 
