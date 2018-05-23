@@ -13,3 +13,10 @@ antlr/stringtemplate/
 antlr/antlr4_src\.zip
 
 antlr/src\.zip
+
+/target/*
+
+*Parser*Listener.java
+*Parser*Visitor.java
+*Lexer.java
+*Parser.java
