@@ -20,8 +20,7 @@ TYPES			: 'types' ;
 // Reserved chars --------------------------------------------------------------
 SCOPE_OPEN		: '{' ; 
 SCOPE_CLOSE		: '}' ; 
-ARG_OPEN		: '"' ;
-ARG_CLOSE		: '"' ;
+QUOTE_MARK		: '"' ;
 COLON			: ':' ;
 NEW_LINE		: '\r'? '\n';
 
@@ -36,11 +35,18 @@ OR				: '|' ;
 POWER			: '^' ;
 
 // Numbers and Identifiers -----------------------------------------------------
-ID				: [a-zA-Z]+ ;
+ID				: LETTER (LETTER | DIGIT)*;
+STRING			: QUOTE_MARK (ESC | . )*? QUOTE_MARK;
+NUMBER			: '0' | ('-' | '+')? INT ('.' DIGIT+)? ;
 
-fragment INT	: '0' | [1-9][0-9]* ;
-NUMBER			: '0' | ('-' | '+')? INT ('.'[0-9]+)? ;
+fragment LETTER	: [a-zA-Z] |'_';
+fragment ESC	: '\\"' | '\\\\' ;
 
+fragment DIGIT	: [0-9];
+fragment INT	: '0' | [1-9] DIGIT* ;
+
+				
+// Comments. Others ------------------------------------------------------------
 COMMENTS		: '//' .*? '\n' -> skip;
 WS				: [ \t]+ -> skip;
 

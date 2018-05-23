@@ -1,4 +1,5 @@
-// Types Grammar Example 2
+// Types Grammar Example 3
+// This example will generate an error
 // Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
 
 prefixes {
@@ -13,7 +14,7 @@ types {
 	meter	 "m"
 	inch 	 "inch"
 	yard 	 "yd"
-	distance "d"	: (1)meter 		 | (0.025)inch | (0.9)yard
-	mile 	 "mil" 	: (0.75)distance | (2)meter
+	distance "d"	: (-1+ 49725)meter 		 | (0.025)inch | (0.9)yard
+	mile 	 "mil" 	: (0.75)distance | meter		// should give error
 }
 

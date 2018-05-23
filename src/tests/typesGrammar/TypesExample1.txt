@@ -1,14 +1,6 @@
 // Types Grammar Example 1
 // Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
 
-prefixes {
-    DECA  "da"      : 10^1 
-    HECTO "h"       : 10^2
-    PICO  "p"       : 10^-12
-    FEMTO "f"       : 10^(-15)
-}
-
-
 types {
     // Basic Types (default is numeric)
     meter	  "m"
@@ -24,9 +16,16 @@ types {
     distance  		  "m"   : (1) meter | (2) inch
     power     		  "W"   : energy / time
     temp      		  "C"   : 0.5 * absTemp
-    velocity        		: distance / time
+    velocity          "m/s"	: distance / time
     
     animais 		  "a" 	: (1) pessoa | (1) vaca
 	animaisTerrestres "at"	: (2) pessoa | (4) vaca
 	
+}
+
+prefixes {
+    DECA  "da"      : 10^1 
+    HECTO "h"       : 10^2
+    PICO  "p"       : 10^-12
+    FEMTO "f"       : 10^(-15)
 }

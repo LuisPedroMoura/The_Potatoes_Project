@@ -16,41 +16,47 @@ options{
 package typesGrammar;
 }
 
-program	: NEW_LINE* (prefix_declar)?    units_declaration NEW_LINE*
-		| NEW_LINE*  units_declaration (prefix_declar)?   NEW_LINE*
-		;
-
-// Constants ------------------------------------------------------------------
-prefix_declar : PREFIXES SCOPE_OPEN NEW_LINE*
-				(prefix NEW_LINE+)* 
-				SCOPE_CLOSE NEW_LINE*
-			  ;
-					
-prefix		: ID ARG_OPEN ID ARG_CLOSE COLON prefix_op		
-	  		;
-	  			
-prefix_op	: PAR_OPEN prefix_op PAR_CLOSE					#prefixOpParenthesis
-			| prefix_op op=(MULTIPLY | DIVIDE) prefix_op	#prefixOpMultDiv
-			| prefix_op op=(ADD | SUBTRACT)    prefix_op	#prefixOpAddSub
-			| <assoc=right> prefix_op POWER    prefix_op	#prefixOpPower
-			| ID											#prefixOpID
-			| NUMBER										#prefixOpNUMBER
+typesFile	: NEW_LINE* (prefixDeclar)?  (typesDeclar)	  NEW_LINE*
+			| NEW_LINE* (typesDeclar)    (prefixDeclar)?  NEW_LINE*
 			;
 
-// Units ----------------------------------------------------------------------
-units_declaration	: TYPES SCOPE_OPEN NEW_LINE*
-					  (unit NEW_LINE+)* 
-					  SCOPE_CLOSE NEW_LINE* 
-					;
+// Prefixes -------------------------------------------------------------------
+prefixDeclar: PREFIXES SCOPE_OPEN NEW_LINE*
+			  (prefix NEW_LINE+)* 
+			  SCOPE_CLOSE NEW_LINE*
+			;
 					
-unit		: ID ARG_OPEN ID ARG_CLOSE					#UnitBasic
-			| ID ARG_OPEN ID ARG_CLOSE (COLON units_op)	#UnitDerived
+prefix		: ID STRING COLON prefixOp		
 	  		;
 	  			
-units_op	: PAR_OPEN units_op PAR_CLOSE				#UnitsOpParenthesis
-			| units_op OR units_op						#UnitsOpOr
-			| units_op op=(MULTIPLY | DIVIDE) units_op	#UnitsOpMultDiv
-			| <assoc=right> units_op POWER NUMBER		#UnitsOpPower
-			| ID										#UnitsOpID
-			| NUMBER									#UnitsOpNUMBER
+prefixOp	: PAR_OPEN prefixOp PAR_CLOSE					#PrefixOpParenthesis
+			| prefixOp op=(MULTIPLY | DIVIDE  ) prefixOp	#PrefixOpMultDiv
+			| prefixOp op=(ADD 		| SUBTRACT) prefixOp	#PrefixOpAddSub
+			| <assoc=right> prefixOp POWER      prefixOp	#PrefixOpPower
+			| ID											#PrefixOpID
+			| NUMBER										#PrefixOpNUMBER
+			;
+
+// Types ----------------------------------------------------------------------
+typesDeclar	: TYPES SCOPE_OPEN NEW_LINE*
+			  (type NEW_LINE+)* 
+			  SCOPE_CLOSE NEW_LINE* 
+			;
+					
+type		: ID STRING 				 					#TypeBasic
+			| ID STRING (COLON typeOp) 						#TypeDerived
+	  		;
+	  			
+typeOp		: PAR_OPEN typeOp PAR_CLOSE						#TypeOpParenthesis
+			| factor typeOp (OR factor typeOp)*				#TypeOpOr
+			| typeOp op=(MULTIPLY | DIVIDE) typeOp			#TypeOpMultDiv
+			| <assoc=right> typeOp POWER NUMBER				#TypeOpPower
+			| ID											#TypeOpID
+			| NUMBER										#TypeOpNUMBER
+			;
+			
+factor 		: PAR_OPEN factor PAR_CLOSE 					#FactorParenthesis
+			| factor op=(DIVIDE | MULTIPLY) factor			#FactorMultDiv
+			| factor op=(ADD 	| SUBTRACT) factor 			#FactorAddSub
+			| NUMBER										#FactorNUMBER
 			;

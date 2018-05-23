@@ -1,0 +1,9 @@
+#!/bin/bash  
+
+
+if [ $2 == "-b" ]; then
+ antlr4-build && antlr4-test typesGrammar.Types typesFile -tokens < tests/typesGrammar/$1  && antlr4-test typesGrammar.Types typesFile -gui < tests/typesGrammar/$1  
+else
+ antlr4-test typesGrammar.Types typesFile -tokens < tests/typesGrammar/$1  && antlr4-test typesGrammar.Types typesFile -gui < tests/typesGrammar/$1    
+fi
+
