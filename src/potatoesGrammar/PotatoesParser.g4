@@ -30,19 +30,36 @@ declaration			: array_declaration			#declaration_array
 					;
 
 
-assignment			: array_declaration assignment_operator values_list	#assignment_array
-					| var_declaration assignment_operator NOT? var		#assignment_varDeclaration_var
+assignment			: var_declaration assignment_operator NOT? var		#assignment_varDeclaration_var //boolean vars
 					| var_declaration assignment_operator value			#assignment_varDeclaration_value
+					| var_declaration assignment_operator comparison	#assignment_var_declaration_comparison
 					| var_declaration assignment_operator operation		#assignment_var_declaration_operation
+					| array_declaration assignment_operator values_list	#assignment_array
 					| var_declaration assignment_operator function_call	#assignment_var_declaration_functionCall
-					| var INCREMENT										#assignment_varIncrement
-					| var DECREMENT 									#assignment_varDecrement
-					| var assignment_operator NOT? var					#assignment_var_var
+					| var_declaration assignment_operator var INCREMENT	#assignment_var_declaration__varIncrement
+					| var_declaration assignment_operator var DECREMENT #assignment_var_declaration__varDecrement
+					
+					| var assignment_operator NOT? var					#assignment_var_var //boolean vars
 					| var assignment_operator value						#assignment_var_value
+					| var assignment_operator comparison				#assignment_var_comparison
 					| var assignment_operator operation					#assignment_var_operation
 					| var assignment_operator values_list				#assignment_var_valueList
 					| var assignment_operator function_call				#assingment_var_functionCall
+					| var INCREMENT										#assignment_varIncrement
+					| var DECREMENT 									#assignment_varDecrement
+					
+					| array_access assignment_operator NOT? var			#assignment_var_var //boolean vars
+					| array_access assignment_operator value			#assignment_var_value
+					| array_access assignment_operator comparison		#assignment_var_comparison
+					| array_access assignment_operator operation		#assignment_var_operation
+					| array_access assignment_operator values_list		#assignment_var_valueList
+					| array_access assignment_operator function_call	#assingment_var_functionCall
+					| array_access assignment_operator var INCREMENT	#assignment_varIncrement
+					| array_access assignment_operator var DECREMENT 	#assignment_varDecrement
+					| array_access INCREMENT							#assignment_varIncrement
+					| array_access DECREMENT 							#assignment_varDecrement
 					;
+
 // [LM] add instanceof operator ?? very useful in array, of Numbers	
 assignment_operator	: EQUAL
 					| ADD_EQUAL
@@ -62,12 +79,12 @@ function			: FUN MAIN SCOPE_BEGIN statement* SCOPE_END
 function_return		: RETURN (var|value|operation) EOL
 					;
 					
-function_call		: ID PARENTHESIS_BEGIN ((var|value|operation) (COMMA (var|value|operation))* )*
+function_call		: ID PARENTHESIS_BEGIN ((var|value|operation|array_access) (COMMA (var|value|operation|array_access))* )*
 					  PARENTHESIS_END
 					;
 
 // CONTROL FLOW STATMENTS------------------------------------------------------
- control_flow_statement	: condition
+control_flow_statement	: condition
  						| for_loop
  						| while_loop
  						| when
@@ -122,37 +139,37 @@ compare_operator	: EQUALS
 					;			
 
 // OPERATIONS------------------------------------------------------------------
-operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END		#operation_parenthesis
-			| operation op=(MULTIPLY | DIVIDE) operation		#operation_mult_div
-			| operation op=(ADD | SUBTRACT) operation			#operation_add_sub
-			| operation POWER NUMBER							#operation_power
-			| operation MODULUS NUMBER 							#operation_modulus
-			| operation INCREMENT								#operation_increment
-			| operation DECREMENT 								#operation_decrement
-			| operation compare_operator operation				#operation_comparison
-			| var												#operation_expr
-			| function_call										#operation_functionCall
-			| number_operation units_operation?					#operation_number
+operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operation_parenthesis
+			| operation op=(MULTIPLY | DIVIDE) operation 	#operation_mult_div
+			| operation  op=(ADD | SUBTRACT) operation		#operation_add_sub
+			| <assoc=right> operation POWER NUMBER			#operation_power
+			| operation MODULUS NUMBER 						#operation_modulus
+			| operation INCREMENT							#operation_increment
+			| operation DECREMENT 							#operation_decrement
+			| var											#operation_expr
+			| function_call									#operation_functionCall
+			| number_operation units_operation?				#operation_number
 			;
 
-// NUMBER OPERATIONS------------------------------------------------------------
-
-number_operation: PARENTHESIS_BEGIN number_operation PARENTHESIS_END		#number_operation_parenthesis
-				| number_operation op=(MULTIPLY | DIVIDE) number_operation	#number_operation_mult_div
-				| number_operation op=(ADD | SUBTRACT) number_operation		#number_operation_add_sub
-				| number_operation POWER NUMBER								#number_operation_power
-				| number_operation MODULUS NUMBER 							#number_operation_modulus
-				| NUMBER 													#number_operation_number
-				;
 
 // UNITS OPERATIONS-------------------------------------------------------------
-
-units_operation	: PARENTHESIS_BEGIN? units_operation PARENTHESIS_END? DIVIDE 
-				  PARENTHESIS_BEGIN? units_operation PARENTHESIS_END?			#units_operation_div
-				| units_operation MULTIPLY units_operation						#units_operation_mult
-				| units_operation POWER NUMBER									#units_operation_power
-				| ID															#units_operation_id
+units_operation	: PARENTHESIS_BEGIN units_operation PARENTHESIS_END			#units_operation_parenthesis
+				| <assoc=right> units_operation POWER NUMBER				#units_operation_power
+				| units_operation op=(MULTIPLY | DIVIDE) units_operation	#units_operation_mult_div
+				| unit														#units_operation_unit
 				;
+				
+				
+// NUMBER OPERATIONS-------------------------------------------------------------				
+number_operation	: PARENTHESIS_BEGIN number_operation PARENTHESIS_END	#number_operation_parenthesis
+				| number_operation op=(MULTIPLY | DIVIDE) number_operation	#number_operation_mult_div
+				| number_operation  op=(ADD | SUBTRACT) number_operation	#number_operation_add_sub
+				| <assoc=right> number_operation POWER NUMBER				#number_operation_power
+				| NUMBER													#number_operation_
+				;
+
+
+
 
 // STRUCTURES------------------------------------------------------------------
 array_declaration	: ARRAY diamond_begin type diamond_end var
@@ -162,13 +179,22 @@ diamond_begin		: LESS_THAN
 					;
 					
 diamond_end			: GREATER_THAN
-					; 
+					;
+					
+array_access		: ID SQUARE_BRACKET_BEGIN  (var|NUMBER) SQUARE_BRACKET_END
+					;
 
 // PRINTS----------------------------------------------------------------------
 
 print	: PRINT PARENTHESIS_BEGIN ((value | var) (ADD (value | var))* ) PARENTHESIS_END EOL
 		;
-				 
+
+
+// UNITS----------------------------------------------------------------------
+unit	: ID
+		;
+
+		
 // VARS------------------------------------------------------------------------ 
 var					: ID
 					;

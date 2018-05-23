@@ -12,21 +12,27 @@
 //}
 
 	distance d = 1;
-	//distance d = 1 m; error
 	
 	velocity v1 = d / 2 s;
-	velocity v2 = d / 2 ms;
+	velocity v2 = d / 2 ms; //ms e detetado com um token... erro semantico
 	accelaration a1 = d / 2 s*s;	// 1/2 = 1/2 m*s^-2
 	accelaration a2 = d / 2 ms*s;	// 1/(2*10^-3) = 10^3/2 m*s^-2
 	accelaration a3;
 	a3 = d / 2 ks^2;				// 1/(2*10^3) = 10^-3/2 m*s^-2
 	
-	accelaration a4 = 2 m*s^-2
-	accelaration a4 = 2 m/s^2
+	accelaration a4 = 2 m*s^-2;
+	accelaration a4 = 2 m/s^2;
 	
 	number ratio1 = a1 / a3;						// (1/2 m*s^-2) / ( 10^-3/2 m*s^-2) = 10^3
-	number ratio2 = (1/2 m*s^-2) / (1/2 m*ms^-2)	// (1/2 m*s^-2) / ((1/(2*10^3)) m*s^-2) = 10^3 
+	number ratio2 = (1/2 m*s^-2) / (1/2 m*ms^-2);	// (1/2 m*s^-2) / ((1/(2*10^3)) m*s^-2) = 10^3 
 													// notar : 1/2 m*ms^-2 = 1/(2*10^3) m*s^-2 = (1/2)*10^-3 m*s^-2
-	number ratio3 = 1/2 m*s^-2 / 1/2 m*ms^-2		// ratio3 = ratio2
-												
-	// (A^2 * s^4) / (kg * m^2)
+	number ratio3 = 1/2 m*s^-2 / 1/2 m*ms^-2;		// ratio3 = ratio2
+	
+	number ratio4 = (((1/2) ((m*s)^-2)) / ((1/2) ((m*ms)^-2)));
+	
+	
+	distance d = 1 m; //tem de dar erro semantico
+	number dimensionless = 1 m; //tem de dar erro semantico
+	
+
+	

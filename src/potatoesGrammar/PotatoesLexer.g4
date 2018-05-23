@@ -27,6 +27,9 @@ MAIN			  : 'main' ;
 PARENTHESIS_BEGIN : '(';
 PARENTHESIS_END   : ')';
 
+SQUARE_BRACKET_BEGIN : '[';
+SQUARE_BRACKET_END   : ']';
+
 COMMA             : ',';
 COLON             : ':';
 
