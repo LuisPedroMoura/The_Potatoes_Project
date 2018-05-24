@@ -3,15 +3,10 @@ package typesGrammar;
 import java.util.HashMap;
 import java.util.Map;
 
-import typesGrammar.TypesParser.FactorAddSubContext;
-import typesGrammar.TypesParser.FactorMultDivContext;
-import typesGrammar.TypesParser.FactorNUMBERContext;
-import typesGrammar.TypesParser.FactorParenthesisContext;
 import typesGrammar.TypesParser.TypeBasicContext;
 import typesGrammar.TypesParser.TypeDerivedContext;
 import typesGrammar.TypesParser.TypeOpIDContext;
 import typesGrammar.TypesParser.TypeOpMultDivContext;
-import typesGrammar.TypesParser.TypeOpNUMBERContext;
 import typesGrammar.TypesParser.TypeOpOrContext;
 import typesGrammar.TypesParser.TypeOpParenthesisContext;
 import typesGrammar.TypesParser.TypeOpPowerContext;
@@ -85,6 +80,7 @@ public class TypesInterpreter extends TypesParserBaseVisitor<Type> {
 	@Override
 	public Type visitTypeOpOr(TypeOpOrContext ctx) {
 		Code c = new Code();
+
 		ctx.typeOp().forEach(typeOp -> {
 			Type type = visit(typeOp);
 			c.add(type.getCode());

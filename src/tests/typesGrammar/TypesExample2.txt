@@ -15,5 +15,6 @@ types {
 	yard 	 "yd"
 	distance "d"	: (1)meter 		 | (0.025)inch | (0.9)yard
 	mile 	 "mil" 	: (0.75)distance | (2)meter
+	mile "mil" : 5 
+	mile "mil" : (1) ((1) meter)
 }
-

@@ -16,23 +16,22 @@ options{
 package typesGrammar;
 }
 
-typesFile	: NEW_LINE* (prefixDeclar)?  (typesDeclar)	  NEW_LINE*
-			| NEW_LINE* (typesDeclar)    (prefixDeclar)?  NEW_LINE*
+typesFile	: NEW_LINE* prefixDeclar?  typesDeclar	  NEW_LINE*
+			| NEW_LINE* typesDeclar    prefixDeclar?  NEW_LINE*
 			;
 
 // Prefixes -------------------------------------------------------------------
 prefixDeclar: PREFIXES SCOPE_OPEN NEW_LINE*
 			  (prefix NEW_LINE+)* 
-			  SCOPE_CLOSE NEW_LINE*
+			  SCOPE_CLOSE NEW_LINE+
 			;
 					
-prefix		: ID STRING COLON prefixOp		
+prefix		: ID STRING COLON valueOp
 	  		;
 	  			
 prefixOp	: PAR_OPEN prefixOp PAR_CLOSE					#PrefixOpParenthesis
 			| prefixOp op=(MULTIPLY | DIVIDE  ) prefixOp	#PrefixOpMultDiv
 			| prefixOp op=(ADD 		| SUBTRACT) prefixOp	#PrefixOpAddSub
-			| <assoc=right> prefixOp POWER      prefixOp	#PrefixOpPower
 			| ID											#PrefixOpID
 			| NUMBER										#PrefixOpNUMBER
 			;
@@ -40,23 +39,26 @@ prefixOp	: PAR_OPEN prefixOp PAR_CLOSE					#PrefixOpParenthesis
 // Types ----------------------------------------------------------------------
 typesDeclar	: TYPES SCOPE_OPEN NEW_LINE*
 			  (type NEW_LINE+)* 
-			  SCOPE_CLOSE NEW_LINE* 
+			  SCOPE_CLOSE NEW_LINE+ 
 			;
 					
 type		: ID STRING 				 					#TypeBasic
-			| ID STRING (COLON typeOp) 						#TypeDerived
+			| ID STRING (COLON typeOp | typeOpOr) 			#TypeDerived
 	  		;
+	  		
+typeOpOr	: valueOp ID (OR valueOp ID)*					
+			;
+
 	  			
-typeOp		: PAR_OPEN typeOp PAR_CLOSE													#TypeOpParenthesis
-			| factor typeOp (OR factor typeOp)*				#TypeOpOr
+typeOp		: PAR_OPEN typeOp PAR_CLOSE						#TypeOpParenthesis
 			| typeOp op=(MULTIPLY | DIVIDE) typeOp			#TypeOpMultDiv
-			| <assoc=right> typeOp POWER NUMBER				#TypeOpPower
+			| <assoc=right> ID POWER NUMBER					#TypeOpPower
 			| ID											#TypeOpID
-			| NUMBER										#TypeOpNUMBER
 			;
 			
-factor 		: PAR_OPEN factor PAR_CLOSE 					#FactorParenthesis
-			| factor op=(DIVIDE | MULTIPLY) factor			#FactorMultDiv
-			| factor op=(ADD 	| SUBTRACT) factor 			#FactorAddSub
-			| NUMBER										#FactorNUMBER
+valueOp		: PAR_OPEN valueOp PAR_CLOSE 					#ValueOpParenthesis
+			| valueOp op=(DIVIDE | MULTIPLY) valueOp		#ValueOpMultDiv
+			| valueOp op=(ADD 	 | SUBTRACT) valueOp 		#ValueOpAddSub
+			| <assoc=right> valueOp POWER 	 valueOp		#ValueOpOpPower
+			| NUMBER										#ValueOpNumber
 			;
