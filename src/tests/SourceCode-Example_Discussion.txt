@@ -1,0 +1,165 @@
+GRAMÁTICA DA UNIDADES - SUGESTÃO DE CÓDIGO FONTE
+
+	Em baixo apresentamos um exemplo de código para a declaração de unidades e
+prefixos/constantes. O facto de os ID estarem em maiusculas ou minusculas
+é apenas uma sugestão visual, sendo permitido ao utilizador optar pelo formato
+mais conveniente (pode querer fazer impressão das unidades por extenso).
+	
+
+	constants {
+		KILO  [k]      : 10^3
+		MILI  [m]       : 10^-3
+		PI              : 3.14
+		WHATEVER		: PI + 5
+	}
+
+	units {
+		// Basic Types (default is numeric)
+		distance  [m]
+		time      [s]
+		Energy	  [J]
+		
+		// Derived Types
+		power     [W]   : energy / time
+		velocity        : distance / time  // symbol [x] is optional
+	}
+
+
+	O lexer acima já foi testado e funciona sem erros e para já, sem restrições
+entre 'constants' e 'units', ou seja, como se pode ver é permitido definir
+'MILI' e 'distance' com a letra 'm'. As considerações seguintes sobre o uso das
+unidades na linguagem general purpose determinarão se alguma restrição é
+necessária dentro de cada módulo.
+
+
+GRAMÁTICA GENERAL PORPUSE (OPERAÇÕES) - SUGESTÃO DE CÓDIGO FONTE
+
+	Tentámos, sem pensar em implementação, encontrar uma forma orgânica e
+clara de o utilizador poder escrever as operações de forma o mais livre possível.
+	Os casos apresentados abaixo são na sua maioria os 'worst case' que conseguimos
+conceber, de forma a perceber se a linguagem permanecia clara e intuitiva em qualquer
+situaçao.
+	O uso de variáveis é claro:
+	
+	
+	distance x = 10;
+	time y = 5;
+	
+	velocity z = x / z;		// correct
+	velocity z = x * z;		// error
+	
+	
+	Mas achámos que é natural também se poder fazer contas usando literais e unidades
+especificadas no momento (justificacão dos parentises retos no ponto seguinte):
+
+
+	distance x = 10;
+	time y = 5;
+	
+	velocity z = x + 10 [m];	// error
+	velocity z = x / 5 [s];		// correct, outputs: z = 2 m/s
+	
+	
+	Até aqui usámos apenas variáveis e unidades. Há ainda a possibilidade de usar
+as constantes tanto como prefixos das unidades, como contantes matemáticas para
+operações com literais.
+
+
+	distance x = 10;
+	time y = 5;
+	
+	number n = 5*k;				// correct, outputs: n = 5000
+	
+	velocity z = x / 5*k [s];	// correct
+	velocity z = x / 5 [ks];	// also correct (5000 s = 5 ks)
+	
+	
+	O segundo formato de atribuição a 'z' parece, à partida, mais adequado para
+prefixos de unidades. Mas as funcionalidades das 'constants' tambem permitem o seu uso
+como constantes matemáticas, para as quais o primeiro formato é mais adequado, como
+é o caso de:
+
+
+	velocity z = x / 5*PI [s];	// correct
+	velocity z = x / 5 [PIs];	// also correct ( 15.42 s = 5 * (3.14*s))
+
+	
+	Assim, os parentises retos tomam um papel fundamental, pois é obrigatório envolver
+qualquer unidade declarada diretamente numa operação ou atribuição. Já os
+prefixos/constantes podem ser usados sem restrição. Isto permite também uma
+distinção visual entre o uso de uma constante (5*k, com o sinal *) e de um prefixo
+(5 [km], sem * unindo-se à unidade escolhida).
+
+
+	Até este ponto, pareceu-nos que a sintaxe é orgânica, mas gostariamos de ter
+a sua opinião se devemos seguir por este caminho.
+
+
+	Continuando, há pelo menos uma situação limite que pode visualmente não ser tão clara,
+mas para que tal aconteça é necessário o utilizador definir unidades e prefixos com
+a mesma letra. É algo que o utilizador pode evitar definindo simbolos únicos, mas
+achamos, de momento, que se deve manter essa possibilidade em aberto, visto que
+na realidade a situação ocorre (mili e metro, por exemplo).
+	O código fica um pouco menos legivel, mas, ainda assim, parece-nos coerente,
+uma vez que a atribuiçao tem que fazer sentido para a variável que vai receber um
+novo valor:
+
+
+	distance x = 10;
+	time y = 5;
+	
+	// prefix and units separated -> no problem
+	distance d = x + 5*m [m];	// correct, outputs: d = 10,005 m
+	distance d = x + 5*k*m [m]	// correct, outputs: d = 15 m
+	
+	// prefix and units together -> still visualy logical
+	distance d = x + 5 [mm];	// correct
+	distance d = x + 5 [m*m];	// error, [m*m] -> meter*meter -> m^2
+	
+	// multiple prefixes -> is it acceptable? if so:
+	distance d = x + 5 [kmm];	// correct, [kmm] -> kilomili meter
+ 	distance d = x + 5 [km*m];	// error, [km*m] -> kilometer*meter -> k*m^2
+	
+	Neste dois ultimos casos correctos, dado que 'd' tem de receber obrigatoriamente
+uma 'distance', todos os simbolos extra dentro de [ ] serão considerados como prefixos.
+Nos 2 ultimos casos errados, há uma distinçao lógica quando há operações dentro dos [ ].
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

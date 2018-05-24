@@ -1,0 +1,112 @@
+LIGUAGEM GENERAL PURPOSE (POTATOES)
+
+	Após as considerações do ficheiro anterior, colocou-se em questão a utilização
+do simbolo [...] para demarcar as unidades em operações com literais. Sendo o
+problema a confusão criada entre essa simbologia e o normal uso do mesmo simbolo
+em arrays. Ao debater este assunto foi considerada a substitução por plicas como
+a possibilidade de eliminar de todo a funcionalidade visual e prática desse elemento.
+Assim, abaixo, apresenta-mos vários exemplos de código fonte lado a lado para
+comparação daquele que melhor veicula a informação pretendida.
+
+Consideremos a seguinte declaração de unidades:
+
+constants {
+	KILO 	[k]	: 10^3
+	MILI 	[m]	: 10^(-3)
+	PI		[pi]: 3.14
+}
+units {
+	meter "m"
+	inch "inch"
+	yard "yd"
+	distance "d": (2)meter | (0.025)inch | (0.9)yard
+	mile "mil" : (0.75)distance | (2)meter
+	
+	animais "a" : (1)pessoa | (1)vaca
+	legs	"l" : (2)pessoa | (4)vaca
+	
+	velocity "in/s" : inch /second
+	velocity "m/s" : (0.0125)distance / second
+	
+	
+	
+	time		[s]
+	velocity		: distance / time
+}
+
+EXEMPLOS PARA CÓDIGO FONTE
+
+distance d = 10;
+time 	 t = 5;
+velocity v;
+	
+	dist x = 5;
+	dist y = 5;
+	number z = x / 5 m / 5 s;
+	
+	v = d / t;			v = d / t;			// v = 2 m/s
+	
+	v = d / 2 's';		v = d / 2 s			// v = 5 m/s
+	
+	d = 5*4 m m			d = 5*4 'mm'		// d = 20 milimetros
+						d = 5*4*m 'm'					
+	
+	Para a versao da esquerda, onde nao sao usadas plicas para demarcar zonas
+diferentes , a das unidades e a dos valores, surge uma questão de definir o que
+é o simbolo de multiplicacao, um asterisco ou um espaço? Faz sentido que seja um
+simbolo único para a mesma função. E dado o uso dos simbolos + - / para operações
+é natural usar o simbolo * nesta situação. Como tal refazemos o exemplo anterior:
+
+	d = 5*4*m*m			d = 5*4 'mm'
+						d = 5*4*m 'm'
+						
+	area a;
+	
+	a = 5*4*m*m*m		a = 5*4*m 'm*m'
+						a = 5*4 'mm*m'
+						
+	capacitancia c;
+	
+	c = 5 * m * (A^2 * s^4) / (k * g * m^2)  	c = 5*m '(A^2 * s^4) / (kg * m^2)'
+	c = 5 * (m * A^2 * s^4) / (k * g * m^2)		c = 5 'm(A^2 * s^4)/(kg * m^2)'
+	c = 5 * (A^2 * s^4 * m) / (k * g * m^2)		
+
+
+												c = 5*a*b*m '...'
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
