@@ -39,8 +39,8 @@ public class Variable {
 		return value * this.getType().getFactor();
 	}
 	
-	
-	public static Variable multiply(Variable a, Variable b) {
+
+	public static Variable multiply(Type destination, Variable a, Variable b) {
 		// Example meters * inch, has to be converted to same base before multiplication for correct area
 		if (isCompatible(a, b)) {
 			Type newType = Type.isBaseType(a.getType(), b.getType());
