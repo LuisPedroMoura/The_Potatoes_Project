@@ -34,6 +34,7 @@ public class Type {
 	// Instance Fields ---------------------------------------------------------------------
 	private final String typeName;
 	private final String printName;
+	private final double codeID;
 	private Map<Double, Double> code = new HashMap<>();
 
 	// CTORS -------------------------------------------------------------------------------
@@ -103,6 +104,10 @@ public class Type {
 	public Map<Double, Double> getCode() {
 		return code;
 	}
+	
+	public double getCodeID() {
+		return codeID;
+	}
 
 	// -------------------------------
 	// ---- OPERATIONS WITH TYPES ----
@@ -144,6 +149,17 @@ public class Type {
 //	public static boolean isCompatible(Type a, Type b) {
 //		return Code.isCompatible(a.getCode(), b.getCode());
 //	}
+	
+	
+	public static Type multiplyVarType(Type destination, Variable a, Variable b) {
+		double newCode = a.getType().getCodeID() * b.getType().getCodeID();
+		double newFactor = destination.getCode().get(newCode);
+		Map<Double, Double> map = new HashMap<>();
+		map.put(newCode,  newFactor);
+		Type newType = new Type( a.getType().getCodeID(), b.getType());
+		
+		
+	}
 	
 	
 	/**

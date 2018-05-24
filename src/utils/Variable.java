@@ -42,6 +42,13 @@ public class Variable {
 
 	public static Variable multiply(Type destination, Variable a, Variable b) {
 		// Example meters * inch, has to be converted to same base before multiplication for correct area
+		double newCode = a.getType().getCodeID() * b.getType().getCodeID();
+		double newFactor = destination.getCode().get(newCode);
+		Type newType = new Type( a.getType().getCodeID(), b.getType());
+		double factorA = destination.getCode().get(newType.getCode());
+		double newValue = factorA*valueA*factorB*valueB;
+		
+		
 		if (isCompatible(a, b)) {
 			Type newType = Type.isBaseType(a.getType(), b.getType());
 			double newValue = a.getBaseValue() * b.getBaseValue();
