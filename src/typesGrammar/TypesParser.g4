@@ -47,7 +47,7 @@ type		: ID STRING 				 					#TypeBasic
 			| ID STRING (COLON typeOp) 						#TypeDerived
 	  		;
 	  			
-typeOp		: PAR_OPEN typeOp PAR_CLOSE						#TypeOpParenthesis
+typeOp		: PAR_OPEN typeOp PAR_CLOSE													#TypeOpParenthesis
 			| factor typeOp (OR factor typeOp)*				#TypeOpOr
 			| typeOp op=(MULTIPLY | DIVIDE) typeOp			#TypeOpMultDiv
 			| <assoc=right> typeOp POWER NUMBER				#TypeOpPower

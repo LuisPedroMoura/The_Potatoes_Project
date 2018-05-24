@@ -1,6 +1,5 @@
 package utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -86,15 +85,15 @@ public class Type {
 
 	// Instance Fields ---------------------------------------------------------------------
 	private final String name;
-	private final String unit;
+	private final String type;
 	private final double factor;
-	private Code code = new Code();
+	private Map<> code = new Code();
 
 	// CTORS -------------------------------------------------------------------------------
 
 	/**
 	 * Constructor<p>
-	 * Create a new basic unit
+	 * Create a new basic type
 	 * @param name	for example 'distance'
 	 */
 	public Type(String name) {
@@ -103,47 +102,47 @@ public class Type {
 
 	/**
 	 * Constructor<p>
-	 * Create a new basic unit
-	 * @param name	for example 'distance'
-	 * @param unit	for example 'm' (meter)
+	 * Create a new basic type
+	 * @param typeName	for example 'distance'
+	 * @param printName	for example 'm' (meter)
 	 */
-	public Type(String name, String unit) {
-		this(name, unit, 1, primes.get(index));
+	public Type(String typeName, String printName) {
+		this(typeName, printName, 1, primes.get(index));
 		index++;
 	}
 
 	/**
 	 * Constructor<p>
-	 * Create a new unit based on another unit 
+	 * Create a new type based on another type 
 	 * @param name	for example 'distance'
-	 * @param unit	for example 'm' (meter)
+	 * @param type	for example 'm' (meter)
 	 * @param code	the code. can be the result of an operation between the codes of several types
 	 */
 	public Type(String name, double code) {
 		this(name, "", 1, code);
 	}
-	
+
 	public Type(String name, double factor, double code) {
 		this(name, "", factor, code);
 	}
 
 	/**
 	 * Constructor<p>
-	 * Create a new unit based on another unit 
+	 * Create a new type based on another type 
 	 * @param name	for example 'distance'
-	 * @param unit	for example 'm' (meter)
+	 * @param type	for example 'm' (meter)
 	 * @param code	the code. can be the result of an operation between the codes of several types
 	 */
-	public Type(String name, String unit, double factor, double code) {
+	public Type(String name, String type, double factor, double code) {
 		this.name    = name;
-		this.unit    = unit;
+		this.type    = type;
 		this.factor  = factor;
 		this.code.add(code);
 	}
-	
-	public Type(String name, String unit, double factor, Code code) {
+
+	public Type(String name, String type, double factor, Code code) {
 		this.name    = name;
-		this.unit    = unit;
+		this.type    = type;
 		this.factor  = factor;
 		this.code	 = code;
 	}
@@ -156,9 +155,9 @@ public class Type {
 	}
 
 	public String getUnit() {
-		return unit;
+		return type;
 	}
-	
+
 	public double getFactor() {
 		return factor;
 	}
@@ -172,62 +171,62 @@ public class Type {
 	public static Code or(Type a, Type b) {
 		return Code.or(a, b);
 	}
-	
+
 	// used for generating the codes List for multiplication of totally different Types
 	public static Type multiply(Type a, Type b) {
 		return new Type("","", 1, Code.multiply(a.getCode(), b.getCode()));
 	}
-	
+
 	public static Type divide(Type a, Type b) {
 		return new Type("","", 1, Code.divide(a.getCode(), b.getCode()));
 	}
-	
-//	public static Type add(Type a, Type b) {
-//		return new Type("","", a.getCode());
-//	}
-//	
-//	public static Type subtract(Type a, Type b) {
-//		return new Type("","", Code.subtract(a.getCode(), b.getCode()));
-//	}
 
-	
+	//	public static Type add(Type a, Type b) {
+	//		return new Type("","", a.getCode());
+	//	}
+	//	
+	//	public static Type subtract(Type a, Type b) {
+	//		return new Type("","", Code.subtract(a.getCode(), b.getCode()));
+	//	}
+
+
 	public static boolean isCompatible(Type a, Type b) {
 		return Code.isCompatible(a.getCode(), b.getCode());
 	}
-	
+
 	public static Type isBaseType(Type a, Type b) {
 		if (a.getFactor() <= b.getFactor()){
 			return a;
 		}
 		return b;
 	}
-	
+
 
 
 	// -------------------------------
 	// ------ AUXILIAR METHODS -------
 	// -------------------------------
-//	private static List<Integer> factorize(int code) {
-//
-//		List<Integer> factors = new ArrayList<>();
-//
-//		for (int i = 0; i <= code / i; i++) {
-//			while (code % primes.get(i) == 0) {
-//				factors.add(i);
-//				code /= primes.get(i);
-//			}
-//		}
-//		if (code > 1) {
-//			factors.add(code);
-//		}
-//
-//		return factors;
-//
-//	}
-//
-//	private static boolean compareDimention(Type a, Type b) {
-//		return a.getNumCode() == b.getNumCode() && a.getDenCode() == b.getDenCode();
-//	}
+	//	private static List<Integer> factorize(int code) {
+	//
+	//		List<Integer> factors = new ArrayList<>();
+	//
+	//		for (int i = 0; i <= code / i; i++) {
+	//			while (code % primes.get(i) == 0) {
+	//				factors.add(i);
+	//				code /= primes.get(i);
+	//			}
+	//		}
+	//		if (code > 1) {
+	//			factors.add(code);
+	//		}
+	//
+	//		return factors;
+	//
+	//	}
+	//
+	//	private static boolean compareDimention(Type a, Type b) {
+	//		return a.getNumCode() == b.getNumCode() && a.getDenCode() == b.getDenCode();
+	//	}
 
 	/**
 	 * 
@@ -255,42 +254,42 @@ public class Type {
 	// ------ STANDARD METHODS -------
 	// -------------------------------
 
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + denCode;
-//		result = prime * result + prefix;
-//		result = prime * result + numCode;
-//		long temp;
-//		temp = Double.doubleToLongBits(value);
-//		result = prime * result + (int) (temp ^ (temp >>> 32));
-//		return result;
-//	}
-//
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (this == obj)
-//			return true;
-//		if (obj == null)
-//			return false;
-//		if (getClass() != obj.getClass())
-//			return false;
-//		Type other = (Type) obj;
-//		if (denCode != other.denCode)
-//			return false;
-//		if (prefix != other.prefix)
-//			return false;
-//		if (numCode != other.numCode)
-//			return false;
-//		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value))
-//			return false;
-//		return true;
-//	}
-//
-//	@Override
-//	public String toString() {
-//		return value + " " + dimention;
-//	}
+	//	@Override
+	//	public int hashCode() {
+	//		final int prime = 31;
+	//		int result = 1;
+	//		result = prime * result + denCode;
+	//		result = prime * result + prefix;
+	//		result = prime * result + numCode;
+	//		long temp;
+	//		temp = Double.doubleToLongBits(value);
+	//		result = prime * result + (int) (temp ^ (temp >>> 32));
+	//		return result;
+	//	}
+	//
+	//	@Override
+	//	public boolean equals(Object obj) {
+	//		if (this == obj)
+	//			return true;
+	//		if (obj == null)
+	//			return false;
+	//		if (getClass() != obj.getClass())
+	//			return false;
+	//		Type other = (Type) obj;
+	//		if (denCode != other.denCode)
+	//			return false;
+	//		if (prefix != other.prefix)
+	//			return false;
+	//		if (numCode != other.numCode)
+	//			return false;
+	//		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value))
+	//			return false;
+	//		return true;
+	//	}
+	//
+	//	@Override
+	//	public String toString() {
+	//		return value + " " + dimention;
+	//	}
 
 }

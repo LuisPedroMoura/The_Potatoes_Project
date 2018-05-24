@@ -1,9 +1,5 @@
-package typesGrammar;
+package typesGrammar.legacy;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import typesGrammar.UnitsParser.Unit_basic_with_idContext;
 import typesGrammar.UnitsParser.Unit_basic_without_idContext;
 import utils.Type;
 
@@ -17,12 +13,6 @@ import utils.Type;
 
 public class TypesInterpreter_Old extends UnitsParserBaseVisitor<Type> {
 
-	private Map<String, Type> types = new HashMap<>();
-
-
-	@Override public Type visitProgram(UnitsParser.ProgramContext ctx) { 
-		return visitChildren(ctx); 
-	}
 
 	// Constants -----------------------------------------------------------------------
 	// TODO
@@ -72,18 +62,6 @@ public class TypesInterpreter_Old extends UnitsParserBaseVisitor<Type> {
 	}
 
 	// Units -----------------------------------------------------------------------
-	@Override public Type visitUnits_declaration(UnitsParser.Units_declarationContext ctx) { 
-		ctx.unit().forEach(unit -> visit(unit));
-		return visitChildren(ctx); 
-	}
-
-	@Override
-	public Type visitUnit_basic_with_id(Unit_basic_with_idContext ctx) {
-		Type t = new Type(ctx.ID(0).getText(), ctx.ID(1).getText());
-		types.put(ctx.ID(0).getText(), t);
-		return t;
-	}
-
 	@Override
 	public Type visitUnit_basic_without_id(Unit_basic_without_idContext ctx) {
 		Type t = new Type(ctx.ID().getText());
