@@ -13,101 +13,97 @@ import java.util.Set;
  * @author Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
-
 public class Type {
 
-
-
-	// Static Fields -----------------------------------------------------------------------
+	// Static Fields 
 	// Queue because each time a new Type is created, the next prime number is needed 
 	// --> thus, we need a FIFO structure
 	//private static Queue<Integer> primes = new LinkedList<>();
 	private static List<Integer> primes = new LinkedList<>();	
 	private static int index;
 
-	// Static CTOR	------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// Static CTOR
 	static { 
 		index = 0;
 		initPrimeNumbersList(1000);
 	}
 
-	// Instance Fields ---------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// Instance Fields 
 	private final String typeName;
 	private final String printName;
-	private Map<Double, Double> code = new HashMap<>();
+	private final double codeID;
+	private final Map<Double, Double> codes;
 
-	// CTORS -------------------------------------------------------------------------------
-
+	// --------------------------------------------------------------------------
+	// CTORS 
 	/**
-	 * Constructor<p>
-	 * Create a new basic type
-	 * @param name	for example 'distance'
-	 */
-	public Type(String name) {
-		this(name, "");
-	}
-
-	/**
-	 * Constructor<p>
+	 * Constructor for basic types<p>
 	 * Create a new basic type
 	 * @param typeName	for example 'distance'
 	 * @param printName	for example 'm' (meter)
 	 */
 	public Type(String typeName, String printName) {
-		this(typeName, printName, primes.get(index), 1);
+		this.typeName  = typeName;
+		this.printName = printName;
+
+		this.codeID	   = primes.get(index);
 		index++;
+
+		codes = new HashMap<>();
+		codes.put(codeID, 1.0);		// a type is compatible with itself, with a factor of 1
+		codes.put(1.0, 1.0);		// all types are compatible with the basic numeric type (represented by code 1.0)
 	}
 
 	/**
-	 * Constructor<p>
+	 * Constructor for derived types<p>
 	 * Create a new type based on another type 
 	 * @param name	for example 'distance'
-	 * @param type	for example 'm' (meter)
-	 * @param code	the code. can be the result of an operation between the codes of several types
+	 * @param printName	for example 'm' (meter)
+	 * @param codes	for example 'm' (meter)
 	 */
-	public Type(String typeName, double code, double factor) {
-		this(typeName, "", code, factor);
+	public Type(String typeName, String printName, Map<Double, Double> codes) {
+		this(typeName, printName);
+		this.codes.putAll(codes);
 	}
 
-
+	// --------------------------------------------------------------------------
+	// Getters
 	/**
-	 * Constructor<p>
-	 * Create a new type based on another type 
-	 * @param name	for example 'distance'
-	 * @param type	for example 'm' (meter)
-	 * @param code	the code. can be the result of an operation between the codes of several types
+	 * 
+	 * @return typeName
 	 */
-	public Type(String typeName, String printName, double code, double factor) {
-		this.typeName    = typeName;
-		this.printName    = printName;
-		this.code.put(code, factor);
-	}
-
-	public Type(String typeName, String printName, Map<Double, Double> code) {
-		this.typeName    = typeName;
-		this.printName    = printName;
-		this.code	 = code;
-	}
-
-	// -------------------------------
-	// ---------- GETTERS ------------
-	// -------------------------------
 	public String getTypeName() {
 		return typeName;
 	}
 
+	/**
+	 * 
+	 * @return printName
+	 */
 	public String getPrintName() {
 		return printName;
 	}
 
-	public Map<Double, Double> getCode() {
-		return code;
+	/**
+	 * 
+	 * @return codes
+	 */
+	public Map<Double, Double> getCodes() {
+		return codes;
 	}
 
-	// -------------------------------
-	// ---- OPERATIONS WITH TYPES ----
-	// -------------------------------
+	/**
+	 * 
+	 * @return codeID
+	 */
+	public double getCodeID() {
+		return codeID;
+	}
 
+	// --------------------------------------------------------------------------
+	// Operations With Types (Multiplication, Division)
 
 	// used for generating the codes List for multiplication of totally different Types
 	public static Type multiply(Type a, Type b) {
@@ -126,10 +122,11 @@ public class Type {
 	//		return new Type("","", Code.subtract(a.getCode(), b.getCode()));
 	//	}
 
-	
+	// --------------------------------------------------------------------------
+	// Verify Compatibility
 	public boolean isCompatible(Type t) {
-		Set<Double> tKeySet = t.getCode().keySet();
-		Set<Double> thisKeySet = code.keySet();
+		Set<Double> tKeySet = t.getCodes().keySet();
+		Set<Double> thisKeySet = codes.keySet();
 		for (Double codeA : tKeySet) {
 			for (Double codeB : thisKeySet) {
 				if (codeA != codeB) {
@@ -139,13 +136,24 @@ public class Type {
 		}
 		return true;		
 	}
-	
-	
-//	public static boolean isCompatible(Type a, Type b) {
-//		return Code.isCompatible(a.getCode(), b.getCode());
-//	}
-	
-	
+
+
+	//	public static boolean isCompatible(Type a, Type b) {
+	//		return Code.isCompatible(a.getCode(), b.getCode());
+	//	}
+
+	/* [PT] TODO
+	public static Type multiplyVarType(Type destination, Variable a, Variable b) { 
+		double newCode = a.getType().getCodeID() * b.getType().getCodeID(); 
+		double newFactor = destination.getCode().get(newCode); 
+		Map<Double, Double> map = new HashMap<>(); 
+		map.put(newCode,  newFactor); 
+		Type newType = new Type(a.getType().getCodeID(), b.getType()); 
+	} 
+	 */
+
+	// --------------------------------------------------------------------------
+	// Aux Methods
 	/**
 	 * Multiplies the codes of two Types, which is the distributive of the codes wit multiplication
 	 * Corresponding factors are also multiplied but the result is inverted
@@ -155,18 +163,18 @@ public class Type {
 	 */
 	private static Map<Double, Double> multiplyCodes(Type a, Type b) {
 		Map<Double, Double> auxCode = new HashMap<>();
-		Set<Double> aKeySet = a.getCode().keySet();
-		Set<Double> bKeySet = b.getCode().keySet();
+		Set<Double> aKeySet = a.getCodes().keySet();
+		Set<Double> bKeySet = b.getCodes().keySet();
 		for (Double codeA : aKeySet) {
 			for (Double codeB : bKeySet) {
-				Double factorA = a.getCode().get(codeA);
-				Double factorB = b.getCode().get(codeB);
+				Double factorA = a.getCodes().get(codeA);
+				Double factorB = b.getCodes().get(codeB);
 				auxCode.put(codeA*codeB, 1/(factorA*factorB));
 			}
 		}
 		return auxCode;
 	}
-	
+
 	/**
 	 * Divides the codes of two Types, which is the distributive of the codes with division
 	 * Corresponding factors are also divided but in inverted position
@@ -176,36 +184,36 @@ public class Type {
 	 */
 	private static Map<Double, Double> divideCodes(Type a, Type b) {
 		Map<Double, Double> auxCode = new HashMap<>();
-		Set<Double> aKeySet = a.getCode().keySet();
-		Set<Double> bKeySet = b.getCode().keySet();
+		Set<Double> aKeySet = a.getCodes().keySet();
+		Set<Double> bKeySet = b.getCodes().keySet();
 		for (Double codeA : aKeySet) {
 			for (Double codeB : bKeySet) {
-				Double factorA = a.getCode().get(codeA);
-				Double factorB = b.getCode().get(codeB);
+				Double factorA = a.getCodes().get(codeA);
+				Double factorB = b.getCodes().get(codeB);
 				auxCode.put(codeA/codeB, factorB/factorA); // factor division is inverted from code division
 			}
 		}
 		return auxCode;
 	}
-	
-	
-	
-	
-	public static Map<Double, Double> orCodes(Type a, Type b){
+
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return new map of codes
+	 */
+	public static  Map<Double, Double> orCodes(Type a, Type b){
 		Map<Double, Double> auxCode = new HashMap<>();
-		Set<Double> aKeySet = a.getCode().keySet();
-		Set<Double> bKeySet = b.getCode().keySet();
+		Set<Double> aKeySet = a.getCodes().keySet();
+		Set<Double> bKeySet = b.getCodes().keySet();
 		for (Double codeA : aKeySet) {
-			auxCode.put(codeA, a.getCode().get(codeA));
+			auxCode.put(codeA, a.getCodes().get(codeA));
 		}
 		for (Double codeB : bKeySet) {
-			auxCode.put(codeB, b.getCode().get(codeB));
+			auxCode.put(codeB, b.getCodes().get(codeB));
 		}
 		return auxCode;
 	}
-
-
-
 
 	/**
 	 * 
@@ -230,4 +238,83 @@ public class Type {
 	}
 
 
+	// --------------------------------------------------------------------------
+	// Other Methods
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Type [");
+		if (typeName != null) {
+			builder.append("typeName=");
+			builder.append(typeName);
+			builder.append(", ");
+		}
+		if (printName != null) {
+			builder.append("printName=");
+			builder.append(printName);
+			builder.append(", ");
+		}
+		builder.append("codeID=");
+		builder.append(codeID);
+		builder.append(", ");
+		if (codes != null) {
+			builder.append("codes=");
+			builder.append(codes);
+		}
+		builder.append("]");
+		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(codeID);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((codes == null) ? 0 : codes.hashCode());
+		result = prime * result + ((printName == null) ? 0 : printName.hashCode());
+		result = prime * result + ((typeName == null) ? 0 : typeName.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Type other = (Type) obj;
+		if (Double.doubleToLongBits(codeID) != Double.doubleToLongBits(other.codeID)) {
+			return false;
+		}
+		if (codes == null) {
+			if (other.codes != null) {
+				return false;
+			}
+		} else if (!codes.equals(other.codes)) {
+			return false;
+		}
+		if (printName == null) {
+			if (other.printName != null) {
+				return false;
+			}
+		} else if (!printName.equals(other.printName)) {
+			return false;
+		}
+		if (typeName == null) {
+			if (other.typeName != null) {
+				return false;
+			}
+		} else if (!typeName.equals(other.typeName)) {
+			return false;
+		}
+		return true;
+	}
 }

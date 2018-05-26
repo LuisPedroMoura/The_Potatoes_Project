@@ -38,10 +38,18 @@ public class Variable {
 	public double getBaseValue() {
 		return value * this.getType().getFactor();
 	}
-	
+
 
 	public static Variable multiply(Type destination, Variable a, Variable b) {
 		// Example meters * inch, has to be converted to same base before multiplication for correct area
+		// Example meters * inch, has to be converted to same base before multiplication for correct area 
+		double newCode = a.getType().getCodeID() * b.getType().getCodeID(); 
+		double newFactor = destination.getCode().get(newCode); 
+		Type newType = new Type( a.getType().getCodeID(), b.getType()); 
+		double factorA = destination.getCode().get(newType.getCode()); 
+		double newValue = factorA*valueA*factorB*valueB; 
+
+
 		if (isCompatible(a, b)) {
 			Type newType = Type.isBaseType(a.getType(), b.getType());
 			double newValue = a.getBaseValue() * b.getBaseValue();
@@ -54,8 +62,8 @@ public class Variable {
 			return new Variable(newType, newValue);
 		}
 	}
-	
-	
+
+
 	public static Variable divide(Variable a, Variable b) {
 		// Example meters / second, has to be converted to same base before multiplication for correct velocity
 		if (isCompatible(a, b)) {
@@ -70,7 +78,7 @@ public class Variable {
 			return new Variable(newType, newValue);
 		}
 	}
-	
+
 	public static Variable add(Variable a, Variable b) {
 		if (isCompatible(a, b)) {
 			Type newType = Type.isBaseType(a.getType(), b.getType());
@@ -83,8 +91,8 @@ public class Variable {
 			return new Variable(null, newValue);
 		}
 	}
-		
-		
+
+
 	public static Variable subtract(Variable a, Variable b) {
 		if (isCompatible(a, b)) {
 			Type newType = Type.isBaseType(a.getType(), b.getType());
@@ -97,16 +105,16 @@ public class Variable {
 			return new Variable(null, newValue);
 		}
 	}
-	
-	
+
+
 	public static boolean isCompatible(Variable a, Variable b) {
 		return Type.isCompatible(a.getType(), b.getType());
 	}
 
 
-	
-	
-	
+
+
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

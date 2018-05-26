@@ -29,12 +29,6 @@ prefixDeclar: PREFIXES SCOPE_OPEN NEW_LINE*
 prefix		: ID STRING COLON valueOp
 	  		;
 	  			
-prefixOp	: PAR_OPEN prefixOp PAR_CLOSE					#PrefixOpParenthesis
-			| prefixOp op=(MULTIPLY | DIVIDE  ) prefixOp	#PrefixOpMultDiv
-			| prefixOp op=(ADD 		| SUBTRACT) prefixOp	#PrefixOpAddSub
-			| ID											#PrefixOpID
-			| NUMBER										#PrefixOpNUMBER
-			;
 
 // Types ----------------------------------------------------------------------
 typesDeclar	: TYPES SCOPE_OPEN NEW_LINE*
@@ -43,19 +37,22 @@ typesDeclar	: TYPES SCOPE_OPEN NEW_LINE*
 			;
 					
 type		: ID STRING 				 					#TypeBasic
-			| ID STRING (COLON typeOp | typeOpOr) 			#TypeDerived
+			| ID STRING COLON typeOp 						#TypeDerived
+			| ID STRING COLON typeOpOr 						#TypeDerivedOr
 	  		;
 	  		
-typeOpOr	: valueOp ID (OR valueOp ID)*					
+typeOpOr	: typeOpOrAlt (OR typeOpOrAlt)*					
 			;
 
-	  			
+typeOpOrAlt : valueOp ID;
+	
 typeOp		: PAR_OPEN typeOp PAR_CLOSE						#TypeOpParenthesis
 			| typeOp op=(MULTIPLY | DIVIDE) typeOp			#TypeOpMultDiv
 			| <assoc=right> ID POWER NUMBER					#TypeOpPower
 			| ID											#TypeOpID
 			;
-			
+
+// Value ----------------------------------------------------------------------		
 valueOp		: PAR_OPEN valueOp PAR_CLOSE 					#ValueOpParenthesis
 			| valueOp op=(DIVIDE | MULTIPLY) valueOp		#ValueOpMultDiv
 			| valueOp op=(ADD 	 | SUBTRACT) valueOp 		#ValueOpAddSub
