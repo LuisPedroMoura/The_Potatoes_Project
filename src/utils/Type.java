@@ -93,6 +93,10 @@ public class Type {
 	public Map<Double, Double> getCodes() {
 		return codes;
 	}
+	
+	public double getCodeID() {
+		return codeID;
+	}
 
 	/**
 	 * 
