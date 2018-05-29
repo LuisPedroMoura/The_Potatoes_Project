@@ -62,11 +62,6 @@ assignment			: var_declaration assignment_operator NOT? var		#assignment_varDecl
 
 // [LM] add instanceof operator ?? very useful in array, of Numbers	
 assignment_operator	: EQUAL
-					| ADD_EQUAL
-					| SUB_EQUAL
-					| MULT_EQUAL
-					| DIV_EQUAL
-					| MOD_EQUAL
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
@@ -148,6 +143,8 @@ operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operation_parenthesis
 			| operation DECREMENT 							#operation_decrement
 			| var											#operation_expr
 			| function_call									#operation_functionCall
+			| array_access									#operation_array_access
+			| array_length									#operation_array_length
 			| number_operation units_operation?				#operation_number
 			;
 
@@ -161,7 +158,7 @@ units_operation	: PARENTHESIS_BEGIN units_operation PARENTHESIS_END			#units_ope
 				
 				
 // NUMBER OPERATIONS-------------------------------------------------------------				
-number_operation	: PARENTHESIS_BEGIN number_operation PARENTHESIS_END	#number_operation_parenthesis
+number_operation: PARENTHESIS_BEGIN number_operation PARENTHESIS_END		#number_operation_parenthesis
 				| number_operation op=(MULTIPLY | DIVIDE) number_operation	#number_operation_mult_div
 				| number_operation  op=(ADD | SUBTRACT) number_operation	#number_operation_add_sub
 				| <assoc=right> number_operation POWER NUMBER				#number_operation_power
@@ -172,8 +169,11 @@ number_operation	: PARENTHESIS_BEGIN number_operation PARENTHESIS_END	#number_op
 
 
 // STRUCTURES------------------------------------------------------------------
-array_declaration	: ARRAY diamond_begin type diamond_end var
+array_declaration	: array_type var
 					;
+					
+array_type			:  ARRAY diamond_begin type diamond_end
+					;					
 					
 diamond_begin		: LESS_THAN
 					;
@@ -183,10 +183,13 @@ diamond_end			: GREATER_THAN
 					
 array_access		: ID SQUARE_BRACKET_BEGIN  (var|NUMBER) SQUARE_BRACKET_END
 					;
+					
+array_length		: var LENGTH
+					;
 
 // PRINTS----------------------------------------------------------------------
 
-print	: PRINT PARENTHESIS_BEGIN ((value | var) (ADD (value | var))* ) PARENTHESIS_END EOL
+print	: (PRINT|PRINTLN) PARENTHESIS_BEGIN ((value | var) (ADD (value | var))* ) PARENTHESIS_END EOL
 		;
 
 
@@ -210,7 +213,8 @@ type				: NUMBER_TYPE
 					| BOOLEAN_TYPE
 					| STRING_TYPE
 					| VOID_TYPE
-					| array_declaration
+					| ID	// to declare personalized type variables
+					| array_type
 					;
 	
 value				: NUMBER units_operation?
@@ -218,7 +222,7 @@ value				: NUMBER units_operation?
 					| STRING
 					;
 		
-values_list			: value (COMMA value)*
+values_list			: (value|var) (COMMA (value|var))*
 					;
 				
 

@@ -1,0 +1,90 @@
+/*
+types {
+    // Basic Types (default is numeric)
+    meter	  "m"
+    inch	  "in"
+    time      "s" 
+    
+    pessoa    "p"
+    
+    
+    // Derived Types
+    distance  		"m"   	: (1) meter | (2) inch
+    velocity        "m/s"	: distance / time
+    acceleration	"m/s^2"	: distance / time^2 | velocity/time
+	
+    animais 		  "a" 	: (1) pessoa | (1) vaca
+	animaisTerrestres "at"	: (2) pessoa | (4) vaca
+	
+}
+
+prefixes {
+    DECA  "da"      : 10^1 
+    HECTO "h"       : 10^2
+    PICO  "p"       : 10^-12
+    FEMTO "f"       : 10^(-15)
+}
+
+*/
+
+	distance dist = 10;
+	//syntatic error -> distance dist = 10 m; 
+	time t = 5;
+	
+	fun main{	
+		//--------------------
+		//declaration---------
+		//--------------------
+		acceleration globalAcceleration;
+	
+	
+		//--------------------
+		//assignments---------
+		//--------------------
+		
+			println("var_declaration assignment_operator function_call");
+				velocity v1 = calcVelocity(dist, t);
+				//systatic error -> velocity v1 = calcVelocity(10, 1); 
+			
+				velocity v2 = calcVelocity(dist, 2);
+				//error? -> velocity v2 = calcVelocity(dist, 2 s); se sim, vai ter de ser sintatico
+			
+			println("array_declaration assignment_operator values_list");
+				Array<velocity> velocities = {v1, v2, 2, 9.0, 0.998};
+				//error -> Array<velocity> velocities = { 2*9 };
+		
+			println("var assignment_operator function_call");
+				globalAcceleration = calcGlobalAcceleration();
+				
+			println("var assignment_operator function_call(var, operation(array_access/number_operation units_operation))");
+				a = BiggerAcceleration(globalAcceleration, velocities[0]/2 s*s );
+			
+			
+	}
+	
+	fun calcVelocity(distance d, time t): velocity{
+		return d / t; 
+	}
+	
+	fun calcGlobalAcceleration(): acceleration{
+		acceleration a = dist/t^2;
+		return a;
+	}
+	
+	fun BiggerAcceleration(acceleration a1, acceleration a2): acceleration{
+		if(a1>a2) return a1;
+		return a2;
+	}
+	
+	fun ...():...{
+	
+		for()...
+	
+	
+	}
+	
+	
+	
+	
+	
+		

@@ -13,11 +13,6 @@ SCOPE_END         : '}';
 
 // ASSIGNMENT OPERATORS----------------------------------------------------
 EQUAL             : '=';
-ADD_EQUAL         : '+=';
-SUB_EQUAL         : '-=';
-MULT_EQUAL        : '*=';
-DIV_EQUAL         : '/=';
-MOD_EQUAL         : '%=';
 
 // FUNCTIONS---------------------------------------------------------------
 FUN               : 'fun';
@@ -76,8 +71,8 @@ INCREMENT         : '++';
 DECREMENT         : '--';
 
 // STRUCTURES--------------------------------------------------------------
-ARRAY             : 'Array';
-
+ARRAY			  : 'Array';
+LENGTH			  : '.length';
 // PRINTS------------------------------------------------------------------
 PRINT			  : 'print';
 PRINTLN			  : 'println';

@@ -1,0 +1,13 @@
+fun main{
+		
+	Array<number> sides = {1, 2, 3, 4, 5};
+	Array<number> areas; 
+	
+	number n = calcArea(sides[i]);
+	print(n);
+	
+	for(number i=0; i < size; i++){
+		print(calcArea(sides[i]) + "\n");
+	}		
+}
+	

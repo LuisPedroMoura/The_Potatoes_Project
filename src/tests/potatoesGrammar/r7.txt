@@ -1,0 +1,13 @@
+//arrays (dynamic)
+
+//array declaration
+Array<velocity> velocities;
+
+//array assignment
+
+Array<velocity> velocities = {v1, v2, 2, 9.0, 0.998};
+velocities[5] = 0;
+//sytatic error -> velocities[5] = 0 m/s;
+
+//array length
+//velocities.length -> used in operations
