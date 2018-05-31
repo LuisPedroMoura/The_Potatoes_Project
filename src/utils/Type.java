@@ -68,6 +68,20 @@ public class Type {
 		this.codes.putAll(codes);
 	}
 
+	/**
+	 * Constructor for temporary types<p>
+	 * Create a new type based on another type 
+	 * @param codes	for example 'm' (meter)
+	 */
+	private Type(Map<Double, Double> codes) {
+		this.typeName  = "temp";
+		this.printName = "";
+		this.codeID = 0;
+		this.codes = codes;
+		codes.put(1.0, 1.0);		
+		// all types are compatible with the basic numeric type (represented by code 1.0)
+	}
+
 	// --------------------------------------------------------------------------
 	// Getters
 	/**
@@ -88,19 +102,15 @@ public class Type {
 
 	/**
 	 * 
-	 * @return codes
-	 */
+	 * @return codes the type compatible types' codes
+	 */ 
 	public Map<Double, Double> getCodes() {
 		return codes;
-	}
-	
-	public double getCodeID() {
-		return codeID;
 	}
 
 	/**
 	 * 
-	 * @return codeID
+	 * @return codeID the type unique code
 	 */
 	public double getCodeID() {
 		return codeID;
@@ -111,20 +121,21 @@ public class Type {
 
 	// used for generating the codes List for multiplication of totally different Types
 	public static Type multiply(Type a, Type b) {
-		return new Type("temporary","", multiplyCodes(a, b));
+		return new Type(multiplyCodes(a, b));
 	}
 
 	public static Type divide(Type a, Type b) {
-		return new Type("temporary","", divideCodes(a, b));
+		return new Type(divideCodes(a, b));
 	}
 
-	//	public static Type add(Type a, Type b) {
-	//		return new Type("","", a.getCode());
-	//	}
-	//	
-	//	public static Type subtract(Type a, Type b) {
-	//		return new Type("","", Code.subtract(a.getCode(), b.getCode()));
-	//	}
+	/**
+	 * @param a
+	 * @param factor of the type a
+	 * @return new map of codes
+	 */
+	public static Type or(Type original, Type a, double factor){
+		return new Type(orCodes(original, a, factor));
+	}
 
 	// --------------------------------------------------------------------------
 	// Verify Compatibility
@@ -141,80 +152,69 @@ public class Type {
 		return true;		
 	}
 
-
-	//	public static boolean isCompatible(Type a, Type b) {
-	//		return Code.isCompatible(a.getCode(), b.getCode());
-	//	}
-
-	/* [PT] TODO
-	public static Type multiplyVarType(Type destination, Variable a, Variable b) { 
-		double newCode = a.getType().getCodeID() * b.getType().getCodeID(); 
-		double newFactor = destination.getCode().get(newCode); 
-		Map<Double, Double> map = new HashMap<>(); 
-		map.put(newCode,  newFactor); 
-		Type newType = new Type(a.getType().getCodeID(), b.getType()); 
-	} 
-	 */
-
 	// --------------------------------------------------------------------------
 	// Aux Methods
 	/**
-	 * Multiplies the codes of two Types, which is the distributive of the codes wit multiplication
-	 * Corresponding factors are also multiplied but the result is inverted
+	 * Multiplies the codes of two Types, which is the distributive of the 
+	 * codes with multiplication.
+	 * Corresponding factors are also multiplied but the result is inverted.
 	 * @param a
 	 * @param b
 	 * @return new map of codes
 	 */
 	private static Map<Double, Double> multiplyCodes(Type a, Type b) {
-		Map<Double, Double> auxCode = new HashMap<>();
+		Map<Double, Double> newCodes = new HashMap<>();
 		Set<Double> aKeySet = a.getCodes().keySet();
 		Set<Double> bKeySet = b.getCodes().keySet();
 		for (Double codeA : aKeySet) {
 			for (Double codeB : bKeySet) {
 				Double factorA = a.getCodes().get(codeA);
 				Double factorB = b.getCodes().get(codeB);
-				auxCode.put(codeA*codeB, 1/(factorA*factorB));
+				newCodes.put(codeA*codeB, 1/(factorA*factorB));
 			}
 		}
-		return auxCode;
+
+		return newCodes;
 	}
 
 	/**
-	 * Divides the codes of two Types, which is the distributive of the codes with division
-	 * Corresponding factors are also divided but in inverted position
+	 * Divides the codes of two Types, which is the distributive of the 
+	 * codes with division.
+	 * Corresponding factors are also divided but in inverted position.
 	 * @param a
 	 * @param b
 	 * @return new map of codes
 	 */
 	private static Map<Double, Double> divideCodes(Type a, Type b) {
-		Map<Double, Double> auxCode = new HashMap<>();
+		Map<Double, Double> newCodes = new HashMap<>();
 		Set<Double> aKeySet = a.getCodes().keySet();
 		Set<Double> bKeySet = b.getCodes().keySet();
 		for (Double codeA : aKeySet) {
 			for (Double codeB : bKeySet) {
 				Double factorA = a.getCodes().get(codeA);
 				Double factorB = b.getCodes().get(codeB);
-				auxCode.put(codeA/codeB, factorB/factorA); // factor division is inverted from code division
+				newCodes.put(codeA/codeB, factorB/factorA); // factor division is inverted from code division
 			}
 		}
-		return auxCode;
+
+		return newCodes;
 	}
 
 	/**
-	 * 
+	 * @param original
 	 * @param a
-	 * @param b
+	 * @param factor 
 	 * @return new map of codes
 	 */
-	public static  Map<Double, Double> orCodes(Type a, Type b){
+	private static Map<Double, Double> orCodes(Type original, Type a, double factor){
 		Map<Double, Double> auxCode = new HashMap<>();
-		Set<Double> aKeySet = a.getCodes().keySet();
-		Set<Double> bKeySet = b.getCodes().keySet();
-		for (Double codeA : aKeySet) {
-			auxCode.put(codeA, a.getCodes().get(codeA));
+		Set<Double> originalKeySet  = original.getCodes().keySet();
+		Set<Double> toAddKeySet     = a.getCodes().keySet();
+		for (Double codeOriginal : originalKeySet) {
+			auxCode.put(codeOriginal, original.getCodes().get(codeOriginal));
 		}
-		for (Double codeB : bKeySet) {
-			auxCode.put(codeB, b.getCodes().get(codeB));
+		for (Double codeA : toAddKeySet) {
+			auxCode.put(codeA, a.getCodes().get(codeA) * factor);
 		}
 		return auxCode;
 	}
@@ -241,28 +241,24 @@ public class Type {
 		}
 	}
 
-
 	// --------------------------------------------------------------------------
 	// Other Methods
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Type [");
+		builder.append("[Type ");
 		if (typeName != null) {
-			builder.append("typeName=");
 			builder.append(typeName);
-			builder.append(", ");
 		}
 		if (printName != null) {
-			builder.append("printName=");
-			builder.append(printName);
-			builder.append(", ");
+			builder.append(", Print Name: ");
+			if (printName.equals("")) builder.append("undefined");
+			else builder.append(printName);
 		}
-		builder.append("codeID=");
+		builder.append(", Code ID: ");
 		builder.append(codeID);
-		builder.append(", ");
 		if (codes != null) {
-			builder.append("codes=");
+			builder.append(", Codes: ");
 			builder.append(codes);
 		}
 		builder.append("]");
@@ -281,7 +277,6 @@ public class Type {
 		result = prime * result + ((typeName == null) ? 0 : typeName.hashCode());
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {

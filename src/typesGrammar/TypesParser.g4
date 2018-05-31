@@ -16,14 +16,14 @@ options{
 package typesGrammar;
 }
 
-typesFile	: NEW_LINE* prefixDeclar?  typesDeclar	  NEW_LINE*
-			| NEW_LINE* typesDeclar    prefixDeclar?  NEW_LINE*
+typesFile	: NEW_LINE* prefixDeclar? NEW_LINE+ typesDeclar	  NEW_LINE* EOF
+			| NEW_LINE* typesDeclar   NEW_LINE+ prefixDeclar? NEW_LINE* EOF
 			;
 
 // Prefixes -------------------------------------------------------------------
 prefixDeclar: PREFIXES SCOPE_OPEN NEW_LINE*
 			  (prefix NEW_LINE+)* 
-			  SCOPE_CLOSE NEW_LINE+
+			  SCOPE_CLOSE 
 			;
 					
 prefix		: ID STRING COLON valueOp
@@ -33,7 +33,7 @@ prefix		: ID STRING COLON valueOp
 // Types ----------------------------------------------------------------------
 typesDeclar	: TYPES SCOPE_OPEN NEW_LINE*
 			  (type NEW_LINE+)* 
-			  SCOPE_CLOSE NEW_LINE+ 
+			  SCOPE_CLOSE 
 			;
 					
 type		: ID STRING 				 					#TypeBasic
