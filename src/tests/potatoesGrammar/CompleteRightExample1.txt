@@ -76,11 +76,13 @@ prefixes {
 		return a2;
 	}
 	
-	fun ...():...{
+	fun meter2KilometerArray (Array<distance> dm) : Array<distance> {
 	
-		for()...
-	
-	
+		for(number i=0; i < dm.length; i++){
+			dm[i] = dm[i] * 10^(-3);										
+		}
+		
+		return dm;
 	}
 	
 	

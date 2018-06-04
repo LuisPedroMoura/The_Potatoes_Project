@@ -203,7 +203,7 @@ var					: ID
 					;
 
 // [LM] - to the tester: please verify what happens if declaration is: x z;
-//						 where x an z are both variables (because user created
+//						 where x and z are both variables (because user created
 //						 types can only be solved into ID's)
 var_declaration		: type var
 					| ID var	// to declare personalized type variables
