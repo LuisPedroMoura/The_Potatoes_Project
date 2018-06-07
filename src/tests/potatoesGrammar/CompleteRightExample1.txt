@@ -22,7 +22,8 @@ prefixes {
     DECA  "da"      : 10^1 
     HECTO "h"       : 10^2
     PICO  "p"       : 10^-12
-    FEMTO "f"       : 10^(-15)
+    FEMTO "f"       : 10^(-15)   //error
+    KILO  "k"       : 10^-3
 }
 
 */
@@ -73,13 +74,14 @@ prefixes {
 	
 	fun BiggerAcceleration(acceleration a1, acceleration a2): acceleration{
 		if(a1>a2) return a1;
+		//error -> if(a1>a2){ return a1;} 
 		return a2;
 	}
 	
 	fun meter2KilometerArray (Array<distance> dm) : Array<distance> {
 	
 		for(number i=0; i < dm.length; i++){
-			dm[i] = dm[i] * 10^(-3);										
+			dm[i] = dm[i] * 10^-3;										
 		}
 		
 		return dm;

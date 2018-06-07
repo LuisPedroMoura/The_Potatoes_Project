@@ -87,7 +87,7 @@ control_flow_statement	: condition
  
 for_loop	: FOR PARENTHESIS_BEGIN
 			  assignment? EOL logical_operation EOL operation PARENTHESIS_END
-			  SCOPE_BEGIN statement* SCOPE_END
+			  (statement | (SCOPE_BEGIN statement* SCOPE_END))
  			;
  			
 while_loop	: WHILE PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
@@ -102,10 +102,10 @@ when_case	: value ARROW SCOPE_BEGIN? statement* SCOPE_END?
  			;
 		
 condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  SCOPE_BEGIN statement* SCOPE_END
+			  (statement | (SCOPE_BEGIN statement* SCOPE_END))
 			  (ELSE IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  SCOPE_BEGIN statement* SCOPE_END)*
-			  (ELSE SCOPE_BEGIN statement* SCOPE_END )?
+			  (statement | (SCOPE_BEGIN statement* SCOPE_END)))*
+			  (ELSE (statement | (SCOPE_BEGIN statement* SCOPE_END)) )?
 			  
  			;
 
