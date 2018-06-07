@@ -22,6 +22,9 @@ statement			: declaration EOL			#statement_declaration
 					| assignment EOL			#statement_assignment
 					| control_flow_statement	#statement_controlFlowStatement
 					| function_call EOL			#statement_function_call
+					// [IJ] - o return tem de estar dentro da statement
+					//      - controlar posteriormente os erros
+					| function_return			#statement_function_return
 					| print						#statement_print
 					;
 					
@@ -68,7 +71,7 @@ assignment_operator	: EQUAL
 function			: FUN MAIN SCOPE_BEGIN statement* SCOPE_END
 					| FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
 					  PARENTHESIS_END COLON type 
-					  SCOPE_BEGIN statement* function_return? SCOPE_END
+					  SCOPE_BEGIN statement* SCOPE_END
 					;
 
 function_return		: RETURN (var|value|operation) EOL

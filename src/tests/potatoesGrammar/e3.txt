@@ -4,7 +4,7 @@
 	
 	boolean sameSize = true;
 
-	fun main():void { //erro: só aceita fun main{ 
+	fun main():void { // erro: só aceita fun main{ 
 		if(sameSize == true){ //is not allowed
 				//does nothing :p
 		}
