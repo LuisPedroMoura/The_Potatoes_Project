@@ -11,22 +11,16 @@ EOL               : ';';
 SCOPE_BEGIN       : '{';
 SCOPE_END         : '}';
 
-// ASSIGNMENT OPERATORS----------------------------------------------------
+// ASSIGNMENT OPERATOR-----------------------------------------------------
 EQUAL             : '=';
 
 // FUNCTIONS---------------------------------------------------------------
-FUN               : 'fun';
-
-MAIN			  : 'main' ;
+FUN 			  : 'fun';
 
 PARENTHESIS_BEGIN : '(';
 PARENTHESIS_END   : ')';
 
-SQUARE_BRACKET_BEGIN : '[';
-SQUARE_BRACKET_END   : ']';
-
 COMMA             : ',';
-COLON             : ':';
 
 RETURN            : 'return';
 
@@ -36,7 +30,6 @@ ELSE			  : 'else';
 FOR               : 'for';
 WHILE             : 'while';
 WHEN              : 'when';
-ARROW             : '->';
 
 // TYPE NAME---------------------------------------------------------------
 NUMBER_TYPE       : 'number';
@@ -52,14 +45,6 @@ NOT               : '!';
 AND               : '&';
 OR                : '|';
 
-// COMPARE OPERATORS-------------------------------------------------------
-EQUALS            : '==';
-NOT_EQUAL         : '!=';
-LESS_THAN         : '<';
-LESS_OR_EQUAL     : '<=';
-GREATER_THAN      : '>';
-GREATER_OR_EQUAL  : '>=';
-
 // OPERATIONS--------------------------------------------------------------
 MULTIPLY          : '*';
 DIVIDE            : '/';
@@ -71,9 +56,8 @@ MODULUS           : '%';
 // STRUCTURES--------------------------------------------------------------
 ARRAY			  : 'Array';
 LENGTH			  : 'length';
-// PRINTS------------------------------------------------------------------
-PRINT			  : 'print';
-PRINTLN			  : 'println';
+DIAMOND_BEGIN	  : '<';
+DIAMOND_END		  : '>';
 
 // VARS-------------------------------------------------------------------- 
 ID                : [a-z] [a-zA-Z0-9_]*;

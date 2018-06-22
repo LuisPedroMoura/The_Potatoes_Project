@@ -9,169 +9,161 @@ options{
 
 
 // MAIN RULES------------------------------------------------------------------
-program	:	code+ EOF	
-		;
+program				:	code+ EOF	
+					;
 		
-code	: declaration EOL	#class_contentDeclaration 
-		| assignment EOL	#class_contentAssignment
-		| function			#class_contentFunction
-		;	
+code				: declaration EOL	#classContentDeclaration 
+					| assignment EOL	#classContentAssignment
+					| function			#classContentFunction
+					;	
 // CLASS-----------------------------------------------------------------------	
 		
-statement			: declaration EOL			#statement_declaration
-					| assignment EOL			#statement_assignment
-					| control_flow_statement	#statement_controlFlowStatement
-					| function_call EOL			#statement_function_call
+statement			: declaration EOL			#statementDeclaration
+					| assignment EOL			#statementAssignment
+					| controlFlowStatement		#statementControlFlowStatement
+					| functionCall EOL			#statementFunctionCall
 					// [IJ] - o return tem de estar dentro da statement
 					//      - controlar posteriormente os erros
-					| function_return			#statement_function_return
-					| print						#statement_print
+					| functionReturn			#statementFunctionReturn
+					| print						#statementPrint
 					;
 					
-declaration			: array_declaration			#declaration_array
-					| var_declaration			#declaration_var
+declaration			: arrayDeclaration			#declaratioAarray
+					| varDeclaration			#declarationVar
 					;
 
 
-assignment			: var_declaration assignment_operator cast? NOT? var		#assignment_varDeclaration_var //boolean vars
-					| var_declaration assignment_operator cast? value			#assignment_varDeclaration_value
-					| var_declaration assignment_operator comparison			#assignment_var_declaration_comparison
-					| var_declaration assignment_operator cast? operation		#assignment_var_declaration_operation
-					| array_declaration assignment_operator values_list			#assignment_array
-					| var_declaration assignment_operator function_call			#assignment_var_declaration_functionCall
+assignment			: varDeclaration EQUAL cast? NOT? var		#assignmentVarDeclarationVar //boolean vars
+					| varDeclaration EQUAL cast? value			#assignmentVarDeclarationValue
+					| varDeclaration EQUAL comparison			#assignmentVarDeclarationComparison
+					| varDeclaration EQUAL cast? operation		#assignmentVarDeclarationOperation
+					| arrayDeclaration EQUAL valuesList		#assignmentArray
+					| varDeclaration EQUAL functionCall		#assignmentVarDeclarationFunctionCall
 					
-					| var assignment_operator cast? NOT? var					#assignment_var_var //boolean vars
-					| var assignment_operator cast? value						#assignment_var_value
-					| var assignment_operator comparison						#assignment_var_comparison
-					| var assignment_operator cast? operation					#assignment_var_operation
-					| var assignment_operator values_list						#assignment_var_valueList
-					| var assignment_operator function_call						#assingment_var_functionCall
+					| var EQUAL cast? NOT? var					#assignmentVarVar //boolean vars
+					| var EQUAL cast? value					#assignmentVarValue
+					| var EQUAL comparison						#assignmentVarComparison
+					| var EQUAL cast? operation				#assignmentVarOperation
+					| var EQUAL valuesList						#assignmentVarValueList
+					| var EQUAL functionCall					#assingmentVarFunctionCall
 					
-					| array_access assignment_operator cast? NOT? var			#assignment_var_var //boolean vars
-					| array_access assignment_operator cast? value				#assignment_var_value
-					| array_access assignment_operator comparison				#assignment_var_comparison
-					| array_access assignment_operator cast? operation			#assignment_var_operation
-					| array_access assignment_operator values_list				#assignment_var_valueList
-					| array_access assignment_operator function_call			#assingment_var_functionCall
-					;
-
-assignment_operator	: EQUAL
+					| arrayAccess EQUAL cast? NOT? var			#assignmentVarVar //boolean vars
+					| arrayAccess EQUAL cast? value			#assignmentVarValue
+					| arrayAccess EQUAL comparison				#assignmentVarComparison
+					| arrayAccess EQUAL cast? operation		#assignmentVarOperation
+					| arrayAccess EQUAL valuesList				#assignmentVarValueList
+					| arrayAccess EQUAL functionCall			#assingmentVarFunctionCall
 					;
 
 // CASTS-----------------------------------------------------------------------
 
-cast	:	PARENTHESIS_BEGIN var PARENTHESIS_END
-		;
+cast				:	PARENTHESIS_BEGIN var PARENTHESIS_END
+					;
 
 // FUNCTIONS-------------------------------------------------------------------
-function			: FUN MAIN SCOPE_BEGIN statement* SCOPE_END
+function			: FUN 'main' SCOPE_BEGIN statement* SCOPE_END
 					| FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
-					  PARENTHESIS_END COLON type 
+					  PARENTHESIS_END ':' type 
 					  SCOPE_BEGIN statement* SCOPE_END
 					;
 
-function_return		: RETURN (var|value|operation) EOL
+functionReturn		: RETURN (var|value|operation) EOL
 					;
 					
-function_call		: ID PARENTHESIS_BEGIN ((var|value|operation|array_access) (COMMA (var|value|operation|array_access))* )*
-					  PARENTHESIS_END
+functionCall		: ID PARENTHESIS_BEGIN ((var|value|operation|arrayAccess) 
+					  (COMMA (var|value|operation|arrayAccess))* )* PARENTHESIS_END
 					;
 
 // CONTROL FLOW STATMENTS------------------------------------------------------
-control_flow_statement	: condition
- 						| for_loop
- 						| while_loop
- 						| when
- 						;	
+controlFlowStatement: condition
+ 					| forLoop
+ 					| whileLoop
+ 					| when
+ 					;	
  
-for_loop	: FOR PARENTHESIS_BEGIN
-			  assignment? EOL logical_operation EOL operation PARENTHESIS_END
-			  SCOPE_BEGIN statement* SCOPE_END //[MJ] must have scopes for the sake of simplicity 
- 			;
+forLoop				: FOR PARENTHESIS_BEGIN
+					  assignment? EOL logicalOperation EOL operation PARENTHESIS_END
+					  SCOPE_BEGIN statement* SCOPE_END //[MJ] must have scopes for the sake of simplicity 
+ 					;
  			
-while_loop	: WHILE PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  (SCOPE_BEGIN statement* SCOPE_END | EOL)
- 			;
+whileLoop			: WHILE PARENTHESIS_BEGIN logicalOperation PARENTHESIS_END
+					  (SCOPE_BEGIN statement* SCOPE_END | EOL)
+					;
  			
-when		: WHEN PARENTHESIS_BEGIN var PARENTHESIS_END
-			  SCOPE_BEGIN when_case* SCOPE_END
- 			;
+when				: WHEN PARENTHESIS_BEGIN var PARENTHESIS_END
+					  SCOPE_BEGIN whenCase* SCOPE_END
+					;
  			
-when_case	: value ARROW SCOPE_BEGIN? statement* SCOPE_END?
- 			;
+whenCase			: value '->' SCOPE_BEGIN? statement* SCOPE_END?
+ 					;
 		
 //[MJ] must have scopes for the sake of simplicity 
-condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  SCOPE_BEGIN statement* SCOPE_END
-			  (ELSE IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  SCOPE_BEGIN statement* SCOPE_END)*
-			  (ELSE SCOPE_BEGIN statement* SCOPE_END)?
- 			;
+condition			: IF PARENTHESIS_BEGIN logicalOperation PARENTHESIS_END
+					  SCOPE_BEGIN statement* SCOPE_END
+					  (ELSE IF PARENTHESIS_BEGIN logicalOperation PARENTHESIS_END
+					  SCOPE_BEGIN statement* SCOPE_END)*
+					  (ELSE SCOPE_BEGIN statement* SCOPE_END)?
+					;
 
 // LOGICAL OPERATIONS----------------------------------------------------------
-logical_operation	: logical_operand (logical_operator logical_operand)?
+logicalOperation	: logicalOperand (logicalOperator logicalOperand)?
 					;
 					
-logical_operand 	: NOT? comparison
+logicalOperand 		: NOT? comparison
 					| NOT? var	// boolean var
 					| NOT? value // true or false
 					;
 					
-logical_operator	: AND
+logicalOperator		: AND
 					| OR
 					;
 						
-comparison			: operation compare_operator operation
+comparison			: operation compareOperator operation
 					;
 			
-compare_operator	: EQUALS
-					| NOT_EQUAL
-					| LESS_THAN
-					| LESS_OR_EQUAL
-					| GREATER_THAN
-					| GREATER_OR_EQUAL
+compareOperator		: '=='
+					| '!='
+					| '<'
+					| '<='
+					| '>'
+					| '>='
 					;			
 
 // OPERATIONS------------------------------------------------------------------
 
-operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operation_parenthesis
-			| operation POWER NUMBER						#operation_power
-			| operation op=(MULTIPLY | DIVIDE) operation 	#operation_mult
-			| SUBTRACT operation 
-			| ADD operation
-			| operation  op=(ADD | SUBTRACT) operation		#operation_add_sub
-			| operation MODULUS NUMBER 						#operation_modulus
-			| var											#operation_expr
-			| function_call									#operation_functionCall
-			| array_access									#operation_array_access
-			| array_length									#operation_array_length
-			| cast? NUMBER									#operation_number
-			;
+operation			: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operationParenthesis
+					| operation POWER NUMBER						#operationPower
+					| operation op=(MULTIPLY | DIVIDE) operation 	#operationMult
+					| SUBTRACT operation 
+					| ADD operation
+					| operation  op=(ADD | SUBTRACT) operation		#operationAddSub
+					| operation MODULUS NUMBER 						#operationModulus
+					| var											#operationExpr
+					| functionCall									#operationFunctionCall
+					| arrayAccess									#operationArrayAccess
+					| arrayLength									#operationArrayLength
+					| cast? NUMBER									#operationNumber
+					;
 			
 
 // STRUCTURES------------------------------------------------------------------
-array_declaration	: array_type var
+arrayDeclaration	: arrayType var
 					;
 					
-array_type			:  ARRAY diamond_begin type diamond_end
+arrayType			:  ARRAY DIAMOND_BEGIN type DIAMOND_END
 					;					
 					
-diamond_begin		: LESS_THAN
+arrayAccess			: ID '['  (var|NUMBER) ']'
 					;
 					
-diamond_end			: GREATER_THAN
-					;
-					
-array_access		: ID SQUARE_BRACKET_BEGIN  (var|NUMBER) SQUARE_BRACKET_END
-					;
-					
-array_length		: LENGTH PARENTHESIS_BEGIN var PARENTHESIS_END 
+arrayLength			: LENGTH PARENTHESIS_BEGIN var PARENTHESIS_END 
 					;
 
 // PRINTS----------------------------------------------------------------------
 
-print	: (PRINT|PRINTLN) PARENTHESIS_BEGIN ((value | var) (ADD (value | var))* ) PARENTHESIS_END EOL
-		;
+print				: ('print'|'println') PARENTHESIS_BEGIN ((value | var) (ADD (value | var))* ) 
+					  PARENTHESIS_END EOL
+					;
 
 	
 // VARS------------------------------------------------------------------------ 
@@ -181,7 +173,7 @@ var					: ID
 // [LM] - to the tester: please verify what happens if declaration is: x z;
 //						 where x and z are both variables (because user created
 //						 types can only be solved into ID's)
-var_declaration		: type var
+varDeclaration		: type var
 					| ID var	// to declare personalized type variables
 					;			
 				
@@ -190,7 +182,7 @@ type				: NUMBER_TYPE
 					| STRING_TYPE
 					| VOID_TYPE
 					| ID	// to declare personalized type variables
-					| array_type
+					| arrayType
 					;
 	
 value				: NUMBER
@@ -198,7 +190,7 @@ value				: NUMBER
 					| STRING
 					;
 		
-values_list			: (value|var) (COMMA (value|var))*
+valuesList			: (value|var) (COMMA (value|var))*
 					;
 				
 
