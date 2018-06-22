@@ -1,29 +1,17 @@
 /*
 types {
     // Basic Types (numeric by default)
-    meter	  "m"
-    inch	  "in"
-    time      "s" 
+    meter	  	"m"
+    inch	  	"in"
+    time      	"s" 
     
-    pessoa    "p"
-    
+    pessoa		"p"
+    vaca		"v"
     
     // Derived Types
     distance  		"m"   	: (1) meter | (2) inch
     velocity        "m/s"	: distance / time
     acceleration	"m/s^2"	: distance / time^2 | velocity/time
-	
-    animais 		  "a" 	: (1) pessoa | (1) vaca
-	animaisTerrestres "at"	: (2) pessoa | (4) vaca
-	
-}
-
-prefixes {
-    DECA  "da"      : 10^1 
-    HECTO "h"       : 10^2
-    PICO  "p"       : 10^-12
-    FEMTO "f"       : 10^(-15)   //error
-    KILO  "k"       : 10^-3
 }
 
 */
@@ -59,7 +47,8 @@ prefixes {
 			println("var assignment_operator function_call");
 				globalAcceleration = calcGlobalAcceleration();
 				
-			println("var assignment_operator function_call(var, operation(array_access/number_operation units_operation))");
+			println("var assignment_operator function_call()");
+			println("	-> function_call(var, operation(array_access / NUMBER))");
 				a = BiggerAcceleration(globalAcceleration, velocities[0]/2);
 			
 			
@@ -75,8 +64,7 @@ prefixes {
 	}
 	
 	fun BiggerAcceleration(acceleration a1, acceleration a2): acceleration{
-		if(a1>a2) return a1;
-		//error -> if(a1>a2){ return a1;} 
+		if(a1>a2){ return a1;} 
 		return a2;
 	}
 	
@@ -88,6 +76,17 @@ prefixes {
 		
 		return dm;
 	}
+	
+	/*
+
+	 RETURN value
+	 function_call value array_access
+	
+	*/
+	
+	
+	fun 
+	
 	
 	
 	

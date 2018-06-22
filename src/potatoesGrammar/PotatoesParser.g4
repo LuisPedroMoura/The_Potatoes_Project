@@ -33,30 +33,35 @@ declaration			: array_declaration			#declaration_array
 					;
 
 
-assignment			: var_declaration assignment_operator NOT? var		#assignment_varDeclaration_var //boolean vars
-					| var_declaration assignment_operator value			#assignment_varDeclaration_value
-					| var_declaration assignment_operator comparison	#assignment_var_declaration_comparison
-					| var_declaration assignment_operator operation		#assignment_var_declaration_operation
-					| array_declaration assignment_operator values_list	#assignment_array
-					| var_declaration assignment_operator function_call	#assignment_var_declaration_functionCall
+assignment			: var_declaration assignment_operator cast? NOT? var		#assignment_varDeclaration_var //boolean vars
+					| var_declaration assignment_operator cast? value			#assignment_varDeclaration_value
+					| var_declaration assignment_operator comparison			#assignment_var_declaration_comparison
+					| var_declaration assignment_operator cast? operation		#assignment_var_declaration_operation
+					| array_declaration assignment_operator values_list			#assignment_array
+					| var_declaration assignment_operator function_call			#assignment_var_declaration_functionCall
 					
-					| var assignment_operator NOT? var					#assignment_var_var //boolean vars
-					| var assignment_operator value						#assignment_var_value
-					| var assignment_operator comparison				#assignment_var_comparison
-					| var assignment_operator operation					#assignment_var_operation
-					| var assignment_operator values_list				#assignment_var_valueList
-					| var assignment_operator function_call				#assingment_var_functionCall
+					| var assignment_operator cast? NOT? var					#assignment_var_var //boolean vars
+					| var assignment_operator cast? value						#assignment_var_value
+					| var assignment_operator comparison						#assignment_var_comparison
+					| var assignment_operator cast? operation					#assignment_var_operation
+					| var assignment_operator values_list						#assignment_var_valueList
+					| var assignment_operator function_call						#assingment_var_functionCall
 					
-					| array_access assignment_operator NOT? var			#assignment_var_var //boolean vars
-					| array_access assignment_operator value			#assignment_var_value
-					| array_access assignment_operator comparison		#assignment_var_comparison
-					| array_access assignment_operator operation		#assignment_var_operation
-					| array_access assignment_operator values_list		#assignment_var_valueList
-					| array_access assignment_operator function_call	#assingment_var_functionCall
+					| array_access assignment_operator cast? NOT? var			#assignment_var_var //boolean vars
+					| array_access assignment_operator cast? value				#assignment_var_value
+					| array_access assignment_operator comparison				#assignment_var_comparison
+					| array_access assignment_operator cast? operation			#assignment_var_operation
+					| array_access assignment_operator values_list				#assignment_var_valueList
+					| array_access assignment_operator function_call			#assingment_var_functionCall
 					;
 
 assignment_operator	: EQUAL
 					;
+
+// CASTS-----------------------------------------------------------------------
+
+cast	:	PARENTHESIS_BEGIN var PARENTHESIS_END
+		;
 
 // FUNCTIONS-------------------------------------------------------------------
 function			: FUN MAIN SCOPE_BEGIN statement* SCOPE_END
@@ -128,17 +133,21 @@ compare_operator	: EQUALS
 					;			
 
 // OPERATIONS------------------------------------------------------------------
+
 operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operation_parenthesis
-			| operation op=(MULTIPLY | DIVIDE) operation 	#operation_mult_div
+			| operation POWER NUMBER						#operation_power
+			| operation op=(MULTIPLY | DIVIDE) operation 	#operation_mult
+			| SUBTRACT operation 
+			| ADD operation
 			| operation  op=(ADD | SUBTRACT) operation		#operation_add_sub
-			| <assoc=right> operation POWER NUMBER			#operation_power
 			| operation MODULUS NUMBER 						#operation_modulus
 			| var											#operation_expr
 			| function_call									#operation_functionCall
 			| array_access									#operation_array_access
 			| array_length									#operation_array_length
-			| NUMBER										#operation_number
+			| cast? NUMBER									#operation_number
 			;
+			
 
 // STRUCTURES------------------------------------------------------------------
 array_declaration	: array_type var
@@ -156,7 +165,7 @@ diamond_end			: GREATER_THAN
 array_access		: ID SQUARE_BRACKET_BEGIN  (var|NUMBER) SQUARE_BRACKET_END
 					;
 					
-array_length		: var LENGTH
+array_length		: LENGTH PARENTHESIS_BEGIN var PARENTHESIS_END 
 					;
 
 // PRINTS----------------------------------------------------------------------
