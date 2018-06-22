@@ -16,6 +16,9 @@
 		distance d2 = (distance) i1 / m1;
 		//*/
 		
+		//ERRO SINTATICO
+		number n1 = v1;
+		
 		//OK -> soma/subtração entre tipos que derivam de distance
 		///*
 		distance d1 = i1 + m1; // d1 = i1*8 + m1*0.5;

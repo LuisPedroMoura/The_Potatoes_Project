@@ -5,13 +5,13 @@ types {
     inch	  	"in"
     time      	"s" 
     
-    pessoa		"p"
-    vaca		"v"
-    
     // Derived Types
     distance  		"m"   	: (1) meter | (2) inch
     velocity        "m/s"	: distance / time
-    acceleration	"m/s^2"	: distance / time^2 | velocity/time
+	
+    meterAcceleration	"m/s^2"	: velocity/time
+	inchAcceleration	"in/s^2": inch/time^2
+	acceleration	"a"	: (1) meterAcceleration | (2) inchAcceleration
 }
 
 */
@@ -23,9 +23,8 @@ types {
 	//--------------------
 	//assignments---------
 	//--------------------
-	distance dist = 10;
-	//syntatic error -> distance dist = 10 m; 
-	time t = 5;
+	distance dist = (distance) 10;
+	time t = (time) 5;
 	
 	fun main{
 	
@@ -35,23 +34,24 @@ types {
 		//--------------------
 		
 			println("var_declaration assignment_operator function_call");
-				velocity v1 = calcVelocity(dist, t);
-				//systatic error -> velocity v1 = calcVelocity(10, 1); 
-			
-				velocity v2 = calcVelocity(dist, 2);
+				velocity v1 = calcVelocity(dist, t);			
+				velocity v2 = calcVelocity(dist, (time) 2);
 			
 			println("array_declaration assignment_operator values_list");
-				Array<velocity> velocities = {v1, v2, 2, 9.0, 0.998};
+				Array<velocity> velocities = {v1, v2, (velocity)2, (velocity)9.0, (velocity)0.998};
 				//error -> Array<velocity> velocities = { 2*9 };
+				//error -> sem cast
 		
 			println("var assignment_operator function_call");
 				globalAcceleration = calcGlobalAcceleration();
 				
 			println("var assignment_operator function_call()");
-			println("	-> function_call(var, operation(array_access / NUMBER))");
-				a = BiggerAcceleration(globalAcceleration, velocities[0]/2);
+			println("	-> function_call(var, operation(array_access / cast NUMBER))");
+				a = biggerAcceleration( globalAcceleration, velocities[0] / (time) 2 );
 			
-			
+			println("whatever function")
+			boolean b = whatever();
+			println("result: " + b);
 	}
 	
 	fun calcVelocity(distance d, time t): velocity{
@@ -63,29 +63,48 @@ types {
 		return a;
 	}
 	
-	fun BiggerAcceleration(acceleration a1, acceleration a2): acceleration{
-		if(a1>a2){ return a1;} 
+	fun biggerAcceleration(acceleration a1, acceleration a2): acceleration{
+		if(a1>a2){ return a1; } 
 		return a2;
 	}
 	
-	fun meter2KilometerArray (Array<distance> dm) : Array<distance> {
+	fun distance2KiloDistance (Array<distance> dist) : Array<distance> {
 	
-		for(number i=0; i < dm.length; i++){
-			dm[i] = dm[i] * 10^-3;										
+		for(number i=0; i < length(dist); i++){
+			dist[i] = dist[i] * 10^3;	// 10^-3 erro?									
 		}
 		
-		return dm;
+		return dist;
 	}
 	
-	/*
-
-	 RETURN value
-	 function_call value array_access
+	fun whatever() : boolean{
 	
-	*/
+		Array<inch> inches = {(inch)2, (inch)9.0, (inch)0.998};
+		Array<inch> kiloInches = distance2KiloDistance(inches);
+		
+		number i = 0;
+		while(i<length(inches)){
+			number n1 = inches[i] + -2;
+			number n2 = -2 + inches[i];
+			number n3 = inches[i] + -2 - 5;
+			number n4 = -inches[i] - 5;
+			println("inches[i] + -2 = " + n1);
+			println("-2 + inches[i] = " + n2);
+			println("inches[i] + -2 - 5 = " + n3);
+			println("-inches[i] - 5 = " + n4);
+		}
+		
+		
+		
+		inch kinch = kiloInches[0];
+		when(kinch){
+			2 -> { return false; }
+			2000 -> { return true; }
+		}
+		
+		return true;
 	
-	
-	fun 
+	}
 	
 	
 	
