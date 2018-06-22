@@ -90,26 +90,26 @@ control_flow_statement	: condition
  
 for_loop	: FOR PARENTHESIS_BEGIN
 			  assignment? EOL logical_operation EOL operation PARENTHESIS_END
-			  (statement | (SCOPE_BEGIN statement* SCOPE_END))
+			  SCOPE_BEGIN statement* SCOPE_END //[MJ] must have scopes for the sake of simplicity 
  			;
  			
 while_loop	: WHILE PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
 			  (SCOPE_BEGIN statement* SCOPE_END | EOL)
  			;
  			
-when		: WHEN PARENTHESIS_BEGIN (var) PARENTHESIS_END
+when		: WHEN PARENTHESIS_BEGIN var PARENTHESIS_END
 			  SCOPE_BEGIN when_case* SCOPE_END
  			;
  			
 when_case	: value ARROW SCOPE_BEGIN? statement* SCOPE_END?
  			;
 		
+//[MJ] must have scopes for the sake of simplicity 
 condition	: IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  (statement | (SCOPE_BEGIN statement* SCOPE_END))
+			  SCOPE_BEGIN statement* SCOPE_END
 			  (ELSE IF PARENTHESIS_BEGIN logical_operation PARENTHESIS_END
-			  (statement | (SCOPE_BEGIN statement* SCOPE_END)))*
-			  (ELSE (statement | (SCOPE_BEGIN statement* SCOPE_END)) )?
-			  
+			  SCOPE_BEGIN statement* SCOPE_END)*
+			  (ELSE SCOPE_BEGIN statement* SCOPE_END)?
  			;
 
 // LOGICAL OPERATIONS----------------------------------------------------------
@@ -148,28 +148,8 @@ operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operation_parenthesis
 			| function_call									#operation_functionCall
 			| array_access									#operation_array_access
 			| array_length									#operation_array_length
-			| number_operation units_operation?				#operation_number
+			| NUMBER										#operation_number
 			;
-
-
-// UNITS OPERATIONS-------------------------------------------------------------
-units_operation	: PARENTHESIS_BEGIN units_operation PARENTHESIS_END			#units_operation_parenthesis
-				| <assoc=right> units_operation POWER NUMBER				#units_operation_power
-				| units_operation op=(MULTIPLY | DIVIDE) units_operation	#units_operation_mult_div
-				| unit														#units_operation_unit
-				;
-				
-				
-// NUMBER OPERATIONS-------------------------------------------------------------				
-number_operation: PARENTHESIS_BEGIN number_operation PARENTHESIS_END		#number_operation_parenthesis
-				| number_operation op=(MULTIPLY | DIVIDE) number_operation	#number_operation_mult_div
-				| number_operation  op=(ADD | SUBTRACT) number_operation	#number_operation_add_sub
-				| <assoc=right> number_operation POWER NUMBER				#number_operation_power
-				| NUMBER													#number_operation_
-				;
-
-
-
 
 // STRUCTURES------------------------------------------------------------------
 array_declaration	: array_type var
@@ -195,12 +175,7 @@ array_length		: var LENGTH
 print	: (PRINT|PRINTLN) PARENTHESIS_BEGIN ((value | var) (ADD (value | var))* ) PARENTHESIS_END EOL
 		;
 
-
-// UNITS----------------------------------------------------------------------
-unit	: ID
-		;
-
-		
+	
 // VARS------------------------------------------------------------------------ 
 var					: ID
 					;
@@ -220,7 +195,7 @@ type				: NUMBER_TYPE
 					| array_type
 					;
 	
-value				: NUMBER units_operation?
+value				: NUMBER
 					| BOOLEAN
 					| STRING
 					;

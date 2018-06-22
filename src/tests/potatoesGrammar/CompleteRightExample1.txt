@@ -1,6 +1,6 @@
 /*
 types {
-    // Basic Types (default is numeric)
+    // Basic Types (numeric by default)
     meter	  "m"
     inch	  "in"
     time      "s" 
@@ -27,16 +27,19 @@ prefixes {
 }
 
 */
-
+	//--------------------
+	//declaration---------
+	//--------------------
+	acceleration globalAcceleration;
+	
+	//--------------------
+	//assignments---------
+	//--------------------
 	distance dist = 10;
 	//syntatic error -> distance dist = 10 m; 
 	time t = 5;
 	
-	fun main{	
-		//--------------------
-		//declaration---------
-		//--------------------
-		acceleration globalAcceleration;
+	fun main{
 	
 	
 		//--------------------
@@ -48,7 +51,6 @@ prefixes {
 				//systatic error -> velocity v1 = calcVelocity(10, 1); 
 			
 				velocity v2 = calcVelocity(dist, 2);
-				//error? -> velocity v2 = calcVelocity(dist, 2 s); se sim, vai ter de ser sintatico
 			
 			println("array_declaration assignment_operator values_list");
 				Array<velocity> velocities = {v1, v2, 2, 9.0, 0.998};
@@ -58,7 +60,7 @@ prefixes {
 				globalAcceleration = calcGlobalAcceleration();
 				
 			println("var assignment_operator function_call(var, operation(array_access/number_operation units_operation))");
-				a = BiggerAcceleration(globalAcceleration, velocities[0]/2 s*s );
+				a = BiggerAcceleration(globalAcceleration, velocities[0]/2);
 			
 			
 	}
