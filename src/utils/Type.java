@@ -97,7 +97,7 @@ public class Type {
 	}
 
 // --------------------------------------------------------------------------
-// OPERATIONS WITH TYPES (Multiplication, Division)
+// OPERATIONS WITH TYPES (Multiplication and Division)
 
 	/**
 	 * @return new Type with correspondent code
