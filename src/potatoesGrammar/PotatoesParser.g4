@@ -39,8 +39,6 @@ assignment			: var_declaration assignment_operator NOT? var		#assignment_varDecl
 					| var_declaration assignment_operator operation		#assignment_var_declaration_operation
 					| array_declaration assignment_operator values_list	#assignment_array
 					| var_declaration assignment_operator function_call	#assignment_var_declaration_functionCall
-					| var_declaration assignment_operator var INCREMENT	#assignment_var_declaration__varIncrement
-					| var_declaration assignment_operator var DECREMENT #assignment_var_declaration__varDecrement
 					
 					| var assignment_operator NOT? var					#assignment_var_var //boolean vars
 					| var assignment_operator value						#assignment_var_value
@@ -48,8 +46,6 @@ assignment			: var_declaration assignment_operator NOT? var		#assignment_varDecl
 					| var assignment_operator operation					#assignment_var_operation
 					| var assignment_operator values_list				#assignment_var_valueList
 					| var assignment_operator function_call				#assingment_var_functionCall
-					| var INCREMENT										#assignment_varIncrement
-					| var DECREMENT 									#assignment_varDecrement
 					
 					| array_access assignment_operator NOT? var			#assignment_var_var //boolean vars
 					| array_access assignment_operator value			#assignment_var_value
@@ -57,13 +53,8 @@ assignment			: var_declaration assignment_operator NOT? var		#assignment_varDecl
 					| array_access assignment_operator operation		#assignment_var_operation
 					| array_access assignment_operator values_list		#assignment_var_valueList
 					| array_access assignment_operator function_call	#assingment_var_functionCall
-					| array_access assignment_operator var INCREMENT	#assignment_varIncrement
-					| array_access assignment_operator var DECREMENT 	#assignment_varDecrement
-					| array_access INCREMENT							#assignment_varIncrement
-					| array_access DECREMENT 							#assignment_varDecrement
 					;
 
-// [LM] add instanceof operator ?? very useful in array, of Numbers	
 assignment_operator	: EQUAL
 					;
 
@@ -142,8 +133,6 @@ operation	: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operation_parenthesis
 			| operation  op=(ADD | SUBTRACT) operation		#operation_add_sub
 			| <assoc=right> operation POWER NUMBER			#operation_power
 			| operation MODULUS NUMBER 						#operation_modulus
-			| operation INCREMENT							#operation_increment
-			| operation DECREMENT 							#operation_decrement
 			| var											#operation_expr
 			| function_call									#operation_functionCall
 			| array_access									#operation_array_access

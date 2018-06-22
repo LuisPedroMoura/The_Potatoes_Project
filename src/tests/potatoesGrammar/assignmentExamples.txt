@@ -1,8 +1,6 @@
 //
 //Assignment examples
 //
-	
-		
 /*
 	meter		"m"
     inch	  	"in"

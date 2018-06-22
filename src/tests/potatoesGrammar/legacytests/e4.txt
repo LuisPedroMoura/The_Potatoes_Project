@@ -1,0 +1,18 @@
+	
+	//error -> dm é um id e nao uma var logo dá erro no return
+	
+	fun meter2KilometerArray (Array<distance> dm) : Array<distance> {
+		int counter = 0;
+	
+		while(counter==1);
+		
+		while(dm>0) {
+			counter++;
+			if(counter ==1)
+				return dm;	
+				
+		}
+		
+		return dm;
+	}
+	

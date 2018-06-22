@@ -1,0 +1,9 @@
+// Não dá erro mas devia dar -> s d; is not allowed ID ID;
+
+fun main {
+	string s;
+	string d;
+	s d; 
+
+	println(s);
+}

@@ -67,8 +67,6 @@ ADD               : '+';
 SUBTRACT		  : '-';
 POWER             : '^';
 MODULUS           : '%';
-INCREMENT         : '++';
-DECREMENT         : '--';
 
 // STRUCTURES--------------------------------------------------------------
 ARRAY			  : 'Array';
