@@ -12,66 +12,63 @@ options{
 program				:	code+ EOF	
 					;
 		
-code				: declaration EOL	#classContentDeclaration 
-					| assignment EOL	#classContentAssignment
-					| function			#classContentFunction
+code				: declaration EOL								#classContentDeclaration 
+					| assignment EOL								#classContentAssignment
+					| function										#classContentFunction
 					;	
 // CLASS-----------------------------------------------------------------------	
 		
-statement			: declaration EOL			#statementDeclaration
-					| assignment EOL			#statementAssignment
-					| controlFlowStatement		#statementControlFlowStatement
-					| functionCall EOL			#statementFunctionCall
+statement			: declaration EOL								#statementDeclaration
+					| assignment EOL								#statementAssignment
+					| controlFlowStatement							#statementControlFlowStatement
+					| functionCall EOL								#statementFunctionCall
 					// [IJ] - o return tem de estar dentro da statement
 					//      - controlar posteriormente os erros
-					| functionReturn			#statementFunctionReturn
-					| print						#statementPrint
+					| functionReturn								#statementFunctionReturn
+					| print											#statementPrint
 					;
 					
-declaration			: arrayDeclaration			#declaratioAarray
-					| varDeclaration			#declarationVar
+declaration			: arrayDeclaration								#declaratioAarray
+					| varDeclaration								#declarationVar
 					;
 
 
-assignment			: varDeclaration EQUAL cast? NOT? var		#assignmentVarDeclarationVar //boolean vars
-					| varDeclaration EQUAL cast? value			#assignmentVarDeclarationValue
-					| varDeclaration EQUAL comparison			#assignmentVarDeclarationComparison
-					| varDeclaration EQUAL cast? operation		#assignmentVarDeclarationOperation
-					| arrayDeclaration EQUAL valuesList		#assignmentArray
-					| varDeclaration EQUAL functionCall		#assignmentVarDeclarationFunctionCall
+assignment			: varDeclaration EQUAL cast? NOT? var			#assignmentVarDeclarationVar //boolean vars
+					| varDeclaration EQUAL cast? value				#assignmentVarDeclarationValue
+					| varDeclaration EQUAL comparison				#assignmentVarDeclarationComparison
+					| varDeclaration EQUAL cast? operation			#assignmentVarDeclarationOperation
+					| arrayDeclaration EQUAL valuesList				#assignmentArray
+					| varDeclaration EQUAL functionCall				#assignmentVarDeclarationFunctionCall
 					
-					| var EQUAL cast? NOT? var					#assignmentVarVar //boolean vars
-					| var EQUAL cast? value					#assignmentVarValue
-					| var EQUAL comparison						#assignmentVarComparison
-					| var EQUAL cast? operation				#assignmentVarOperation
-					| var EQUAL valuesList						#assignmentVarValueList
-					| var EQUAL functionCall					#assingmentVarFunctionCall
+					| var EQUAL cast? NOT? var						#assignmentVarVar //boolean vars
+					| var EQUAL cast? value							#assignmentVarValue
+					| var EQUAL comparison							#assignmentVarComparison
+					| var EQUAL cast? operation						#assignmentVarOperation
+					| var EQUAL valuesList							#assignmentVarValueList
+					| var EQUAL functionCall						#assingmentVarFunctionCall
 					
-					| arrayAccess EQUAL cast? NOT? var			#assignmentVarVar //boolean vars
-					| arrayAccess EQUAL cast? value			#assignmentVarValue
-					| arrayAccess EQUAL comparison				#assignmentVarComparison
-					| arrayAccess EQUAL cast? operation		#assignmentVarOperation
-					| arrayAccess EQUAL valuesList				#assignmentVarValueList
-					| arrayAccess EQUAL functionCall			#assingmentVarFunctionCall
+					| arrayAccess EQUAL cast? NOT? var				#assignmentVarVar //boolean vars
+					| arrayAccess EQUAL cast? value					#assignmentVarValue
+					| arrayAccess EQUAL comparison					#assignmentVarComparison
+					| arrayAccess EQUAL cast? operation				#assignmentVarOperation
+					| arrayAccess EQUAL valuesList					#assignmentVarValueList
+					| arrayAccess EQUAL functionCall				#assingmentVarFunctionCall
 					;
 
 // CASTS-----------------------------------------------------------------------
 
-cast				:	PARENTHESIS_BEGIN var PARENTHESIS_END
+cast				: '(' var ')'
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
-function			: FUN 'main' SCOPE_BEGIN statement* SCOPE_END
-					| FUN ID PARENTHESIS_BEGIN (type var (COMMA type var)* )*
-					  PARENTHESIS_END ':' type 
-					  SCOPE_BEGIN statement* SCOPE_END
+function			: 'fun' 'main' '{' statement* '}'
+					| 'fun' ID '(' (type var (',' type var)* )* ')' ':' type '{' statement* '}'
 					;
 
 functionReturn		: RETURN (var|value|operation) EOL
 					;
 					
-functionCall		: ID PARENTHESIS_BEGIN ((var|value|operation|arrayAccess) 
-					  (COMMA (var|value|operation|arrayAccess))* )* PARENTHESIS_END
+functionCall		: ID '(' ((var|value|operation|arrayAccess) (',' (var|value|operation|arrayAccess))* )* ')'
 					;
 
 // CONTROL FLOW STATMENTS------------------------------------------------------
@@ -81,28 +78,23 @@ controlFlowStatement: condition
  					| when
  					;	
  
-forLoop				: FOR PARENTHESIS_BEGIN
-					  assignment? EOL logicalOperation EOL operation PARENTHESIS_END
-					  SCOPE_BEGIN statement* SCOPE_END //[MJ] must have scopes for the sake of simplicity 
+forLoop				: FOR '(' assignment? EOL logicalOperation EOL operation ')'
+					  '{' statement* '}' //[MJ] must have scopes for the sake of simplicity 
  					;
  			
-whileLoop			: WHILE PARENTHESIS_BEGIN logicalOperation PARENTHESIS_END
-					  (SCOPE_BEGIN statement* SCOPE_END | EOL)
+whileLoop			: WHILE '(' logicalOperation ')' ('{' statement* '}' | EOL)
 					;
  			
-when				: WHEN PARENTHESIS_BEGIN var PARENTHESIS_END
-					  SCOPE_BEGIN whenCase* SCOPE_END
+when				: WHEN '(' var ')' '{' whenCase* '}'
 					;
  			
-whenCase			: value '->' SCOPE_BEGIN? statement* SCOPE_END?
+whenCase			: value '->' '{'? statement* '}'?
  					;
 		
 //[MJ] must have scopes for the sake of simplicity 
-condition			: IF PARENTHESIS_BEGIN logicalOperation PARENTHESIS_END
-					  SCOPE_BEGIN statement* SCOPE_END
-					  (ELSE IF PARENTHESIS_BEGIN logicalOperation PARENTHESIS_END
-					  SCOPE_BEGIN statement* SCOPE_END)*
-					  (ELSE SCOPE_BEGIN statement* SCOPE_END)?
+condition			: IF '(' logicalOperation ')' '{' statement* '}'
+					  (ELSE IF '(' logicalOperation ')' '{' statement* '}')*
+					  (ELSE '{' statement* '}')?
 					;
 
 // LOGICAL OPERATIONS----------------------------------------------------------
@@ -130,14 +122,13 @@ compareOperator		: '=='
 					;			
 
 // OPERATIONS------------------------------------------------------------------
-
-operation			: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operationParenthesis
-					| operation POWER NUMBER						#operationPower
-					| operation op=(MULTIPLY | DIVIDE) operation 	#operationMult
-					| SUBTRACT operation 
-					| ADD operation
-					| operation  op=(ADD | SUBTRACT) operation		#operationAddSub
-					| operation MODULUS NUMBER 						#operationModulus
+operation			: '(' operation ')' 							#operationParenthesis
+					| operation '^' NUMBER							#operationPower
+					| operation op=('*' | '/') operation		 	#operationMult
+					| '-' operation									
+					| '+' operation
+					| operation  op=('+' | '-') operation			#operationAddSub
+					| operation '%' NUMBER 							#operationModulus
 					| var											#operationExpr
 					| functionCall									#operationFunctionCall
 					| arrayAccess									#operationArrayAccess
@@ -150,19 +141,18 @@ operation			: PARENTHESIS_BEGIN operation PARENTHESIS_END 	#operationParenthesis
 arrayDeclaration	: arrayType var
 					;
 					
-arrayType			:  ARRAY DIAMOND_BEGIN type DIAMOND_END
+arrayType			: 'Array' '<' type '>'
 					;					
 					
 arrayAccess			: ID '['  (var|NUMBER) ']'
 					;
 					
-arrayLength			: LENGTH PARENTHESIS_BEGIN var PARENTHESIS_END 
+arrayLength			: 'length' '(' var ')' 
 					;
 
 // PRINTS----------------------------------------------------------------------
 
-print				: ('print'|'println') PARENTHESIS_BEGIN ((value | var) (ADD (value | var))* ) 
-					  PARENTHESIS_END EOL
+print				: ('print'|'println') '(' ((value | var) ('+' (value | var))* ) ')' EOL
 					;
 
 	
@@ -176,11 +166,11 @@ var					: ID
 varDeclaration		: type var
 					| ID var	// to declare personalized type variables
 					;			
-				
-type				: NUMBER_TYPE
-					| BOOLEAN_TYPE
-					| STRING_TYPE
-					| VOID_TYPE
+
+type				: 'number'
+					| 'boolean'
+					| 'string'
+					| 'void'
 					| ID	// to declare personalized type variables
 					| arrayType
 					;
@@ -190,7 +180,7 @@ value				: NUMBER
 					| STRING
 					;
 		
-valuesList			: (value|var) (COMMA (value|var))*
+valuesList			: (value|var) (',' (value|var))*
 					;
 				
 

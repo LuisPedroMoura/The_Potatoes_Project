@@ -7,21 +7,10 @@ lexer grammar PotatoesLexer;
 // END OF LINE
 EOL               : ';';
 
-// SCOPE-------------------------------------------------------------------
-SCOPE_BEGIN       : '{';
-SCOPE_END         : '}';
-
 // ASSIGNMENT OPERATOR-----------------------------------------------------
 EQUAL             : '=';
 
 // FUNCTIONS---------------------------------------------------------------
-FUN 			  : 'fun';
-
-PARENTHESIS_BEGIN : '(';
-PARENTHESIS_END   : ')';
-
-COMMA             : ',';
-
 RETURN            : 'return';
 
 // CONTROL FLOW------------------------------------------------------------
@@ -31,12 +20,6 @@ FOR               : 'for';
 WHILE             : 'while';
 WHEN              : 'when';
 
-// TYPE NAME---------------------------------------------------------------
-NUMBER_TYPE       : 'number';
-BOOLEAN_TYPE      : 'boolean';
-STRING_TYPE       : 'string';
-VOID_TYPE         : 'void';
-
 // BOOLEAN VALUES----------------------------------------------------------
 BOOLEAN           : 'false' | 'true';
 
@@ -44,20 +27,6 @@ BOOLEAN           : 'false' | 'true';
 NOT               : '!';
 AND               : '&';
 OR                : '|';
-
-// OPERATIONS--------------------------------------------------------------
-MULTIPLY          : '*';
-DIVIDE            : '/';
-ADD               : '+';
-SUBTRACT		  : '-';
-POWER             : '^';
-MODULUS           : '%';
-
-// STRUCTURES--------------------------------------------------------------
-ARRAY			  : 'Array';
-LENGTH			  : 'length';
-DIAMOND_BEGIN	  : '<';
-DIAMOND_END		  : '>';
 
 // VARS-------------------------------------------------------------------- 
 ID                : [a-z] [a-zA-Z0-9_]*;
