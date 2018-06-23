@@ -19,7 +19,6 @@ import potatoesGrammar.PotatoesParser.Assignment_Var_Not_BooleanContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_OperationContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ValueContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ValueListContext;
-import potatoesGrammar.PotatoesParser.Assignment_Var__Not_BooleanContext;
 import potatoesGrammar.PotatoesParser.Assingment_Var_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.CastContext;
 import potatoesGrammar.PotatoesParser.Code_AssignmentContext;
@@ -35,9 +34,6 @@ import potatoesGrammar.PotatoesParser.ForLoopContext;
 import potatoesGrammar.PotatoesParser.FunctionCallContext;
 import potatoesGrammar.PotatoesParser.FunctionContext;
 import potatoesGrammar.PotatoesParser.FunctionReturnContext;
-import potatoesGrammar.PotatoesParser.LogicalOperandContext;
-import potatoesGrammar.PotatoesParser.LogicalOperationContext;
-import potatoesGrammar.PotatoesParser.LogicalOperatorContext;
 import potatoesGrammar.PotatoesParser.Operation_Add_SubContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayAccessContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayLengthContext;
@@ -57,9 +53,7 @@ import potatoesGrammar.PotatoesParser.Statement_DeclarationContext;
 import potatoesGrammar.PotatoesParser.Statement_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.Statement_Function_ReturnContext;
 import potatoesGrammar.PotatoesParser.Statement_PrintContext;
-import potatoesGrammar.PotatoesParser.TypeContext;
 import potatoesGrammar.PotatoesParser.UsingContext;
-import potatoesGrammar.PotatoesParser.ValueContext;
 import potatoesGrammar.PotatoesParser.ValuesListContext;
 import potatoesGrammar.PotatoesParser.VarContext;
 import potatoesGrammar.PotatoesParser.VarDeclarationContext;
@@ -279,14 +273,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// TODO Auto-generated method stub
 		return super.visitAssingment_Var_FunctionCall(ctx);
 	}
-
-	
-	@Override
-	public ST visitAssignment_Var__Not_Boolean(Assignment_Var__Not_BooleanContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var__Not_Boolean(ctx);
-	}
-
 	
 	
 	// --------------------------------------------------------------------------------------------------------------------	
@@ -373,27 +359,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// --------------------------------------------------------------------------------------------------------------------
 	// LOGICAL OPERATIONS--------------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------
-	
-
-	@Override
-	public ST visitLogicalOperation(LogicalOperationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperation(ctx);
-	}
-
-	
-	@Override
-	public ST visitLogicalOperand(LogicalOperandContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand(ctx);
-	}
-
-	
-	@Override
-	public ST visitLogicalOperator(LogicalOperatorContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperator(ctx);
-	}
 
 	
 	@Override
@@ -549,20 +514,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitVarDeclaration(VarDeclarationContext ctx) {
 		// TODO Auto-generated method stub
 		return super.visitVarDeclaration(ctx);
-	}
-
-	
-	@Override
-	public ST visitType(TypeContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitType(ctx);
-	}
-
-	
-	@Override
-	public ST visitValue(ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitValue(ctx);
 	}
 
 	
