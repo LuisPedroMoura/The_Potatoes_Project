@@ -92,10 +92,30 @@ public class Type {
 	/**
 	 * @return codeID the type unique code
 	 */
-	public double getCodeID() {
+	public double getCode() {
 		return code;
 	}
 
+// --------------------------------------------------------------------------
+// OPTYPES AND CHECKLIST MANIPULATIONS
+	
+	public void addOpType(Type type) {
+		opTypes.add(type.getCode());
+		checkList.add(false);
+	}
+	
+	public boolean checkType(Type type) {
+		Double code = type.getCode();
+		
+		for (int i = 0; i < checkList.size(); i++) {
+			if (checkList.get(i) == false) {
+				if (opTypes.get(i) == code) {
+					
+				}
+			}
+		}
+	}
+	
 // --------------------------------------------------------------------------
 // OPERATIONS WITH TYPES (Multiplication and Division)
 
@@ -103,14 +123,14 @@ public class Type {
 	 * @return new Type with correspondent code
 	 */
 	public static Type multiply(Type a, Type b) {
-		return new Type(a.getCodeID() * b.getCodeID());
+		return new Type(a.getCode() * b.getCode());
 	}
 
 	/**
 	 * @return new Type with correspondent code
 	 */
 	public static Type divide(Type a, Type b) {
-		return new Type(a.getCodeID() / b.getCodeID());
+		return new Type(a.getCode() / b.getCode());
 	}
 
 

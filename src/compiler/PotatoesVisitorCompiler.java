@@ -5,379 +5,545 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
+
 import static java.lang.System.*;
+
+import potatoesGrammar.PotatoesBaseVisitor;
 import potatoesGrammar.PotatoesParser;
-import potatoesGrammar.PotatoesParser.Assigment_var_valueListContext;
-import potatoesGrammar.PotatoesParser.Assignment_varDeclaration_ValueContext;
-import potatoesGrammar.PotatoesParser.Assignment_varDeclaration_VarContext;
-import potatoesGrammar.PotatoesParser.Assignment_var_valueContext;
-import potatoesGrammar.PotatoesParser.Assignment_var_varContext;
-import potatoesGrammar.PotatoesParser.Class_contentContext;
-import potatoesGrammar.PotatoesParser.Diamond_beginContext;
-import potatoesGrammar.PotatoesParser.Diamond_endContext;
-import potatoesGrammar.PotatoesParser.Header_declarationContext;
-import potatoesGrammar.PotatoesParserBaseVisitor;
+import potatoesGrammar.PotatoesParser.ArrayAccessContext;
+import potatoesGrammar.PotatoesParser.ArrayDeclarationContext;
+import potatoesGrammar.PotatoesParser.ArrayLengthContext;
+import potatoesGrammar.PotatoesParser.ArrayTypeContext;
+import potatoesGrammar.PotatoesParser.Assignment_ArrayContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_ComparisonContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_ComparisonContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_FunctionCallContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_OperationContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_ValueContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_VarContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_OperationContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_ValueContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_ValueListContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_VarContext;
+import potatoesGrammar.PotatoesParser.Assingment_Var_FunctionCallContext;
+import potatoesGrammar.PotatoesParser.CastContext;
+import potatoesGrammar.PotatoesParser.Class_Content_AssignmentContext;
+import potatoesGrammar.PotatoesParser.Class_Content_DeclarationContext;
+import potatoesGrammar.PotatoesParser.Class_Content_FunctionContext;
+import potatoesGrammar.PotatoesParser.CompareOperatorContext;
+import potatoesGrammar.PotatoesParser.ComparisonContext;
+import potatoesGrammar.PotatoesParser.ConditionContext;
+import potatoesGrammar.PotatoesParser.ControlFlowStatementContext;
+import potatoesGrammar.PotatoesParser.Declaratio_AarrayContext;
+import potatoesGrammar.PotatoesParser.Declaration_VarContext;
+import potatoesGrammar.PotatoesParser.ForLoopContext;
+import potatoesGrammar.PotatoesParser.FunctionCallContext;
+import potatoesGrammar.PotatoesParser.FunctionContext;
+import potatoesGrammar.PotatoesParser.FunctionReturnContext;
+import potatoesGrammar.PotatoesParser.LogicalOperandContext;
+import potatoesGrammar.PotatoesParser.LogicalOperationContext;
+import potatoesGrammar.PotatoesParser.LogicalOperatorContext;
+import potatoesGrammar.PotatoesParser.Operation_Add_SubContext;
+import potatoesGrammar.PotatoesParser.Operation_ArrayAccessContext;
+import potatoesGrammar.PotatoesParser.Operation_ArrayLengthContext;
+import potatoesGrammar.PotatoesParser.Operation_ExprContext;
+import potatoesGrammar.PotatoesParser.Operation_FunctionCallContext;
+import potatoesGrammar.PotatoesParser.Operation_ModulusContext;
+import potatoesGrammar.PotatoesParser.Operation_Mult_DivContext;
+import potatoesGrammar.PotatoesParser.Operation_NumberContext;
+import potatoesGrammar.PotatoesParser.Operation_ParenthesisContext;
+import potatoesGrammar.PotatoesParser.Operation_PowerContext;
+import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
+import potatoesGrammar.PotatoesParser.PrintContext;
+import potatoesGrammar.PotatoesParser.ProgramContext;
+import potatoesGrammar.PotatoesParser.Statement_AssignmentContext;
+import potatoesGrammar.PotatoesParser.Statement_Control_Flow_StatementContext;
+import potatoesGrammar.PotatoesParser.Statement_DeclarationContext;
+import potatoesGrammar.PotatoesParser.Statement_FunctionCallContext;
+import potatoesGrammar.PotatoesParser.Statement_Function_ReturnContext;
+import potatoesGrammar.PotatoesParser.Statement_PrintContext;
+import potatoesGrammar.PotatoesParser.TypeContext;
+import potatoesGrammar.PotatoesParser.ValueContext;
+import potatoesGrammar.PotatoesParser.ValuesListContext;
+import potatoesGrammar.PotatoesParser.VarContext;
+import potatoesGrammar.PotatoesParser.VarDeclarationContext;
+import potatoesGrammar.PotatoesParser.WhenCaseContext;
+import potatoesGrammar.PotatoesParser.WhenContext;
+import potatoesGrammar.PotatoesParser.WhileLoopContext;
+import typesGrammar.TypesFileInfo;
 import utils.*;
+import utils.errorHandling.ErrorHandling;
 
 
-public class PotatoesVisitorCompiler extends PotatoesParserBaseVisitor<Boolean>  {
+public class PotatoesVisitorCompiler extends PotatoesBaseVisitor<Boolean>  {
 	
+	// Static Field (Debug Only)
+	private static final boolean debug = true;
+	
+	static String path;
+	TypesFileInfo typesFileInfo = new TypesFileInfo(path);
+	Map<String, Type> typesTable = typesFileInfo.getTypesTable();
+	
+	protected ParseTreeProperty<Variable> mapVar = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
-	
+
 // --------------------------------------------------------------------------------------------------------------------
 // MAIN RULES----------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
-	@Override public Boolean visitProgram(PotatoesParser.ProgramContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	
-	@Override public Boolean visitCode(PotatoesParser.CodeContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	
-// --------------------------------------------------------------------------------------------------------------------	
-// HEADER----------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------------------------	
 	@Override
-	public Boolean visitHeader_declaration(Header_declarationContext ctx) {
+	public Boolean visitProgram(ProgramContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitHeader_declaration(ctx);
+		return super.visitProgram(ctx);
 	}
 
+	@Override
+	public Boolean visitClass_Content_Declaration(Class_Content_DeclarationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitClass_Content_Declaration(ctx);
+	}
 
-	@Override public Boolean visitJavaCode(PotatoesParser.JavaCodeContext ctx) {
-		// [LM] javaCode rule text is to be copied to compiled Java file
-		visitChildren(ctx);
-		return true;
+	@Override
+	public Boolean visitClass_Content_Assignment(Class_Content_AssignmentContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitClass_Content_Assignment(ctx);
 	}
-	
 
-// --------------------------------------------------------------------------------------------------------------------
-// CLASS-----------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------------------------
-	@Override public Boolean visitClass_declaration(PotatoesParser.Class_declarationContext ctx) {
-		// [LM] Simple Class declaration to be copied to compiled Java file
-		visitChildren(ctx);
-		return true;
+	@Override
+	public Boolean visitClass_Content_Function(Class_Content_FunctionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitClass_Content_Function(ctx);
 	}
-	
-	
-	@Override public Boolean visitClass_content(Class_contentContext ctx) {
-		return visitChildren(ctx);
-	}
-	
-	
+
 // --------------------------------------------------------------------------------------------------------------------	
 // CLASS - STATEMENTS-----------------------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override public Boolean visitStatement_declaration(PotatoesParser.Statement_declarationContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitStatement_Declaration(Statement_DeclarationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStatement_Declaration(ctx);
 	}
 
-	
-	@Override public Boolean visitStatement_assignment(PotatoesParser.Statement_assignmentContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStatement_Assignment(ctx);
 	}
 
-
-	@Override public Boolean visitStatement_controlFlowStatement(PotatoesParser.Statement_controlFlowStatementContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitStatement_Control_Flow_Statement(Statement_Control_Flow_StatementContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStatement_Control_Flow_Statement(ctx);
 	}
 
-	
-	@Override public Boolean visitStatement_function_call(PotatoesParser.Statement_function_callContext ctx) {
-		// [LM] verify stack of function ID's and if correct, print to JAVA
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitStatement_FunctionCall(Statement_FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStatement_FunctionCall(ctx);
 	}
-	
+
+	@Override
+	public Boolean visitStatement_Function_Return(Statement_Function_ReturnContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStatement_Function_Return(ctx);
+	}
+
+	@Override
+	public Boolean visitStatement_Print(Statement_PrintContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStatement_Print(ctx);
+	}
+
 
 // --------------------------------------------------------------------------------------------------------------------	
 // CLASS - DECLARATIONS-----------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override public Boolean visitDeclaration_array(PotatoesParser.Declaration_arrayContext ctx) {
-		visitChildren(ctx);
-		return true;
+	@Override
+	public Boolean visitDeclaratio_Aarray(Declaratio_AarrayContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitDeclaratio_Aarray(ctx);
 	}
 
-	
-	@Override public Boolean visitDeclaration_var(PotatoesParser.Declaration_varContext ctx) {
-		visitChildren(ctx);
-		return true;
+	@Override
+	public Boolean visitDeclaration_Var(Declaration_VarContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitDeclaration_Var(ctx);
 	}
 	
 // --------------------------------------------------------------------------------------------------------------------
 // CLASS - ASSIGNMENTS-----------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override public Boolean visitAssignment_array(PotatoesParser.Assignment_arrayContext ctx) {
-		// [LM] to be completed, complex parsing of values to array... Intended error to mark place
-		
-		
-//		// get variables
-//		String arrayName = ctx.array_declaration().var().getText();
-//		String arrayType = ctx.array_declaration().type().getText();
-//		//String[] arrayValues = ctx.values_list().get;
-//		
-//		// validate if assigned variable exists
-//		if (symbolTable.containsKey(arrayName)) {
-//			err.println("variable is already initialized");
-//			return false;
-//		}
-//		
-//		// create lists for all possible cases
-//		// [LM] is declaration without type possible, to avoid creating multiple lists?
-//		List<String> arrayString;
-//		List<Quantity> arrayQuantity;
-//		
-//		
-//		if (arrayType.equals("String")){
-//			arrayString = new ArrayList<>();
-//			if ()
-//			//Collections.addAll(arrayString, arrayValues);
-//			symbolTable.put(arrayName, arrayString);
-//		}
-//		else if (arrayType.equals("Number")) {
-//			arrayQuantity = new ArrayList<>();
-//			//for (int i = 0; i < arrayValues.length; i++) {
-//				// [LM] Quantity object creation from Parser yet to be solved
-//				//arrayQuantity.add(new Quantity());
-//			//}
-//			symbolTable.put(arrayName, arrayQuantity);
-//		}
-//		else {
-//			err.println("Array accepts only NUmber or String type");
-//			return false;
-//		}
-//		
-		return true;
-	}
-
-	
 	@Override
-	public Boolean visitAssignment_varDeclaration_Var(Assignment_varDeclaration_VarContext ctx) {
+	public Boolean visitAssignment_Var_Declaration_Var(Assignment_Var_Declaration_VarContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitAssignment_varDeclaration_Var(ctx);
+		return super.visitAssignment_Var_Declaration_Var(ctx);
 	}
-
 
 	@Override
-	public Boolean visitAssignment_varDeclaration_Value(Assignment_varDeclaration_ValueContext ctx) {
+	public Boolean visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitAssignment_varDeclaration_Value(ctx);
-	}
-	
-	
-	@Override
-	public Boolean visitAssignment_var_var(Assignment_var_varContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_var_var(ctx);
-	}
-	
-	
-	@Override public Boolean visitAssignment_var_value(Assignment_var_valueContext ctx) {
-		// [LM] this functions escalates in complexity.
-		// [LM] Sugestion: create auxiliary functions to validate minor things
-		// [LM] it is needed to address problem of distinguishing var from value in right side of assignment
-		
-//		String varName = ctx.var().ID().getText();
-//		String operator = ctx.assignment_operator().getText();
-//		String varValue = ctx.value().getText();
-//		if (!symbolTable.containsKey(varName)) {
-//			if (varType....)
-//			symbolTable.put(varName,);
-//		}
-//		else {
-//			
-//			if (symbolTable.get(varName) instanceof String && ctx.value().) {
-//				switch(operator) {
-//					case "=":
-//						//symbolTable.put(varName, ctx. .getText())
-//						break;
-//					case "+=":
-//						//symbolTable.put(varName, symbolTable.get(varName) + ctx.getText();
-//						break;
-//					default:
-//						return false;
-//				}
-//
-//			}
-//			else {
-//				err.println("incompatible types");
-//				return false;
-//			}
-//			
-//			if (symbolTable.get(varName) instanceof Number && ctx.varisNumber()) {
-//				if (operator.equals("=")) {
-//					//symbolTable.put(varName, new Quantity())
-//				}
-//				else if (operator.equals("+=")){
-//					//symbolTable.put(varName, symbolTable.get(varName) + ctx.getText();
-//				}
-//			}
-//			else {
-//				err.println("incompatible types");
-//				return false;
-//			}
-//			
-//			//varValue = symbolTable.get(varName);
-//			
-//			if (symbolTable.containsKey(varName) && operator.equals("=")) {
-//				err.println("variable is already inicialized");
-//				return false;
-//			}
-//			else if (operator.equals("+=")) {
-//				//symbolTable.put(varName, );
-//			}
-//		}
-		return true;
+		return super.visitAssignment_Var_Declaration_Value(ctx);
 	}
 
+	@Override
+	public Boolean visitAssignment_Var_Declaration_Comparison(Assignment_Var_Declaration_ComparisonContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var_Declaration_Comparison(ctx);
+	}
 
 	@Override
-	public Boolean visitAssigment_var_valueList(Assigment_var_valueListContext ctx) {
+	public Boolean visitAssignment_Var_Declaration_Operation(Assignment_Var_Declaration_OperationContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitAssigment_var_valueList(ctx);
+		return super.visitAssignment_Var_Declaration_Operation(ctx);
 	}
-	
-	
-	@Override public Boolean visitAssignment_operator(PotatoesParser.Assignment_operatorContext ctx) {
-		return visitChildren(ctx);
+
+	@Override
+	public Boolean visitAssignment_Array(Assignment_ArrayContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Array(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_Var_Declaration_FunctionCall(Assignment_Var_Declaration_FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var_Declaration_FunctionCall(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_Var_Var(Assignment_Var_VarContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var_Var(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_Var_Value(Assignment_Var_ValueContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var_Value(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_Var_Comparison(Assignment_Var_ComparisonContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var_Comparison(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_Var_Operation(Assignment_Var_OperationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var_Operation(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_Var_ValueList(Assignment_Var_ValueListContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var_ValueList(ctx);
+	}
+
+	@Override
+	public Boolean visitAssingment_Var_FunctionCall(Assingment_Var_FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssingment_Var_FunctionCall(ctx);
 	}
 
 	
 // --------------------------------------------------------------------------------------------------------------------	
 // FUNCTIONS-------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override public Boolean visitFunction(PotatoesParser.FunctionContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitFunction(FunctionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitFunction(ctx);
 	}
 
-	@Override public Boolean visitFunction_return(PotatoesParser.Function_returnContext ctx) { return visitChildren(ctx); }
-	
-	@Override public Boolean visitFunction_call(PotatoesParser.Function_callContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitFunctionReturn(FunctionReturnContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitFunctionReturn(ctx);
+	}
 
+	@Override
+	public Boolean visitFunctionCall(FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitFunctionCall(ctx);
+	}
+	
+	@Override
+	public Boolean visitPrint(PrintContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitPrint(ctx);
+	}
 	
 // --------------------------------------------------------------------------------------------------------------------
 // CONTROL FLOW STATMENTS------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override public Boolean visitControl_flow_statement(PotatoesParser.Control_flow_statementContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitControlFlowStatement(ControlFlowStatementContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitControlFlowStatement(ctx);
 	}
 
-	
-	@Override public Boolean visitFor_loop(PotatoesParser.For_loopContext ctx) {
-		// [LM] verify that assigned var does NOT EXIST
-		//String assign_var = ctx.assignment().
-		// [LM] verify that logical operation operators EXIST
-		
-		// [LM] verify that operatio operator exist
-		
-		// print compile if verifications are correct		
-				
-		// visit statments
-		return visitChildren(ctx);
-	}
-	
-	
-	@Override public Boolean visitWhile_loop(PotatoesParser.While_loopContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitForLoop(ForLoopContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitForLoop(ctx);
 	}
 
-	
-	@Override public Boolean visitWhen(PotatoesParser.WhenContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitWhileLoop(WhileLoopContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitWhileLoop(ctx);
 	}
 
-	
-	@Override public Boolean visitWhen_case(PotatoesParser.When_caseContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitWhen(WhenContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitWhen(ctx);
 	}
 
-	
-	@Override public Boolean visitCondition(PotatoesParser.ConditionContext ctx) {
-		return visitChildren(ctx);
+	@Override
+	public Boolean visitWhenCase(WhenCaseContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitWhenCase(ctx);
+	}
+
+	@Override
+	public Boolean visitCondition(ConditionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitCondition(ctx);
 	}
 
 	
 // --------------------------------------------------------------------------------------------------------------------
 // LOGICAL OPERATIONS----------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
-	@Override public Boolean visitLogical_operation(PotatoesParser.Logical_operationContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitLogicalOperation(LogicalOperationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitLogicalOperation(ctx);
+	}
 
-	@Override public Boolean visitLogical_operand(PotatoesParser.Logical_operandContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitLogicalOperand(LogicalOperandContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitLogicalOperand(ctx);
+	}
 
-	@Override public Boolean visitLogical_operator(PotatoesParser.Logical_operatorContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitLogicalOperator(LogicalOperatorContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitLogicalOperator(ctx);
+	}
 
-	@Override public Boolean visitComparison(PotatoesParser.ComparisonContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitComparison(ComparisonContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitComparison(ctx);
+	}
 
-	@Override public Boolean visitCompare_operator(PotatoesParser.Compare_operatorContext ctx) { return visitChildren(ctx); }
-
+	@Override
+	public Boolean visitCompareOperator(CompareOperatorContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitCompareOperator(ctx);
+	}
 	
 // --------------------------------------------------------------------------------------------------------------------
 // OPERATIONS------------------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------
-	@Override public Boolean visitOperation_mult_div(PotatoesParser.Operation_mult_divContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_Modulus(Operation_ModulusContext ctx) {
+		Variable a = mapVar.get(ctx.operation(0));
+		Variable b = mapVar.get(ctx.operation(1));
+		
+		// verify that right side of mod operation is of Type Number
+		if (b.getType().getCode() != 1) {
+			ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number");
+			return false;
+		}
+		
+		Double moddedValue = a.getValue() % b.getValue();
+		a = new Variable (a.getType(), moddedValue);
+		mapVar.put(ctx,  a);
+		return true;
+	}
 
-	@Override public Boolean visitOperation_NUMBER(PotatoesParser.Operation_NUMBERContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_FunctionCall(Operation_FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_FunctionCall(ctx);
+	}
 
-	@Override public Boolean visitOperation_expr(PotatoesParser.Operation_exprContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_Simetric(Operation_SimetricContext ctx) {
+		Variable a = mapVar.get(ctx.operation());
+		a = new Variable(a.getType(), a.getValue() * -1);
+		mapVar.put(ctx, a);
+		return true;
+	}
 
-	@Override public Boolean visitOperation_decrement(PotatoesParser.Operation_decrementContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_ArrayAccess(Operation_ArrayAccessContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_ArrayAccess(ctx);
+	}
 
-	@Override public Boolean visitOperation_add_sub(PotatoesParser.Operation_add_subContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_NUMBER(Operation_NumberContext ctx) {
+		Type numberType = new Type("Number", "", 1.0);
+		Double code = Double.parseDouble(ctx.NUMBER().getText());
+		Variable a = new Variable(numberType, code);
+		mapVar.put(ctx, a);
+		return true;
+	}
 
-	@Override public Boolean visitOperation_increment(PotatoesParser.Operation_incrementContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_Parenthesis(Operation_ParenthesisContext ctx) {
+		mapVar.put(ctx, mapVar.get(ctx.operation()));
+		return true;
+	}
 
-	@Override public Boolean visitOperation_modulus(PotatoesParser.Operation_modulusContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_ArrayLength(Operation_ArrayLengthContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_ArrayLength(ctx);
+	}
 
-	@Override public Boolean visitOperation_parenthesis(PotatoesParser.Operation_parenthesisContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_Expr(Operation_ExprContext ctx) {
+		String varName = ctx.var().ID().getText();
+		
+		// verify is Variable is declared and contained in symbolTable
+		if (!symbolTable.containsKey(varName)) {
+			ErrorHandling.printError(ctx, "Variable \"" + varName + "is not declared");
+			return false;
+		}
+		
+		// verify that Variable is initialized
+		if (symbolTable.get(varName) == null) {
+			ErrorHandling.printError(ctx, "Variable \"" + varName + "is not initialized");
+			return false;
+		}
+		
+		// Variable is declared
+		Variable a = (Variable) symbolTable.get(ctx.var().ID().getText());
+		
+		mapVar.put(ctx, a);
+		return true;
+	}
 
-	@Override public Boolean visitOperation_power(PotatoesParser.Operation_powerContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitOperation_Power(Operation_PowerContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_Power(ctx);
+	}
 
+	@Override
+	public Boolean visitOperation_Mult_Div(Operation_Mult_DivContext ctx) {
+		Variable a = mapVar.get(ctx.operation(0));
+		Variable b = mapVar.get(ctx.operation(1));
+		
+		
+		return super.visitOperation_Mult_Div(ctx);
+	}
+
+	@Override
+	public Boolean visitOperation_Add_Sub(Operation_Add_SubContext ctx) {
+		Variable a = mapVar.get(ctx.operation(0));
+		Variable b = mapVar.get(ctx.operation(1));
+		
+		// verify that types are equals before adding or subtracting 
+		if (!a.getType().equals(b.getType())) {
+			// if types are not equal, try to convert Variable 'b' Type into 'a' Type
+			if (!b.convertTypeTo(a.getType())) {
+				ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" is not compatible with \"" + b.getType() + "\"");
+				return false;
+			}
+		}
+		// types are equal adding and subtracting is possible
+		if (ctx.op.equals("+")) {
+			mapVar.put(ctx, Variable.add(a, b));
+		}
+		else if (ctx.op.equals("-")) {
+			mapVar.put(ctx,  Variable.subtract(a, b));
+		}
+		return true;
+	}
 	
+	@Override
+	public Boolean visitCast(CastContext ctx) {
+		Variable a = mapVar.get(ctx.operation());
+		
+		// cast is only possible if Variable is of Type Number (with code 1)
+		if (a.getType().getCode() != 1) {
+			ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" cannot be casted. Only Number type can be casted");
+			return false;
+		}
+		
+		// type is Number cast is possible
+		mapVar.put(ctx, new Variable(typesTable.get(ctx.ID().getText())));
+		return true;
+	}
+
 // --------------------------------------------------------------------------------------------------------------------
 // STRUCTURES - ARRAYS------------------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------
-	@Override public Boolean visitArray_declaration(PotatoesParser.Array_declarationContext ctx) {
-		// [LM] what return should be used?
-		if (!symbolTable.containsKey(ctx.var().ID().getText())) {
-			symbolTable.put(ctx.var().ID().getText(), null);
-		}
-		else {
-			err.println("variable is already initialized");
-		}
-		return visitChildren(ctx);
-	}
-	
-	
 	@Override
-	public Boolean visitDiamond_begin(Diamond_beginContext ctx) {
+	public Boolean visitArrayDeclaration(ArrayDeclarationContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitDiamond_begin(ctx);
+		return super.visitArrayDeclaration(ctx);
 	}
 
+	@Override
+	public Boolean visitArrayType(ArrayTypeContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitArrayType(ctx);
+	}
 
 	@Override
-	public Boolean visitDiamond_end(Diamond_endContext ctx) {
+	public Boolean visitArrayAccess(ArrayAccessContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitDiamond_end(ctx);
+		return super.visitArrayAccess(ctx);
+	}
+
+	@Override
+	public Boolean visitArrayLength(ArrayLengthContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitArrayLength(ctx);
 	}
 
 	
 // --------------------------------------------------------------------------------------------------------------------
 // VARS AND TYPES------------------------------------------------------------------------ 
 // --------------------------------------------------------------------------------------------------------------------
-	@Override public Boolean visitVar(PotatoesParser.VarContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitVar(VarContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitVar(ctx);
+	}
 
-	@Override public Boolean visitVar_declaration(PotatoesParser.Var_declarationContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitVarDeclaration(VarDeclarationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitVarDeclaration(ctx);
+	}
 
-	@Override public Boolean visitType(PotatoesParser.TypeContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitType(TypeContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitType(ctx);
+	}
 
-	@Override public Boolean visitValue(PotatoesParser.ValueContext ctx) { return visitChildren(ctx); }
+	@Override
+	public Boolean visitValue(ValueContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitValue(ctx);
+	}
 
-	@Override public Boolean visitValues_list(PotatoesParser.Values_listContext ctx) { return visitChildren(ctx); }
-
+	@Override
+	public Boolean visitValuesList(ValuesListContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitValuesList(ctx);
+	}
 // --------------------------------------------------------------------------------------------------------------------
 // AUXILIAR FUNCTIONS ---------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
