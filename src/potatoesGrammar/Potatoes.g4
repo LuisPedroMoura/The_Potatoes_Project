@@ -10,12 +10,15 @@ grammar Potatoes;
 
 
 // MAIN RULES------------------------------------------------------------------
-program				: code+ EOF	
+program				: using code+ EOF	
 					;
-		
-code				: declaration EOL								#class_Content_Declaration 
-					| assignment EOL								#class_Content_Assignment
-					| function										#class_Content_Function
+	
+using				: USING STRING EOL
+					;	
+					
+code				: declaration EOL								#code_Declaration 
+					| assignment EOL								#code_Assignment
+					| function										#code_Function
 					;	
 // CLASS-----------------------------------------------------------------------	
 		
@@ -29,36 +32,37 @@ statement			: declaration EOL								#statement_Declaration
 					| print											#statement_Print
 					;
 					
-declaration			: arrayDeclaration								#declaratio_Aarray
+declaration			: arrayDeclaration								#declaration_Aarray
 					| varDeclaration								#declaration_Var
 					;
 
 
-assignment			: varDeclaration '=' cast? '!'? var				#assignment_Var_Declaration_Var //boolean vars
-					| varDeclaration '=' cast? value				#assignment_Var_Declaration_Value
+assignment			: varDeclaration '=' '!'? var					#assignment_Var_Declaration_Var //boolean vars
+					| varDeclaration '=' value						#assignment_Var_Declaration_Value
 					| varDeclaration '=' comparison					#assignment_Var_Declaration_Comparison
-					| varDeclaration '=' cast? operation			#assignment_Var_Declaration_Operation
-					| arrayDeclaration '=' valuesList				#assignment_Array
+					| varDeclaration '=' operation					#assignment_Var_Declaration_Operation
 					| varDeclaration '=' functionCall				#assignment_Var_Declaration_FunctionCall
+					| arrayDeclaration '=' valuesList				#assignment_Array_ValuesList
+					| arrayDeclaration '=' functionCall				#assignment_Array_FunctionCall
 					
-					| var '=' cast? '!'? var						#assignment_Var_Var //boolean vars
-					| var '=' cast? value							#assignment_Var_Value
+					| var '=' '!'? var								#assignment_Var_Var //boolean vars
+					| var '=' value									#assignment_Var_Value
 					| var '=' comparison							#assignment_Var_Comparison
-					| var '=' cast? operation						#assignment_Var_Operation
+					| var '=' operation								#assignment_Var_Operation
 					| var '=' valuesList							#assignment_Var_ValueList
 					| var '=' functionCall							#assingment_Var_FunctionCall
 					
-					| arrayAccess '=' cast? '!'? var				#assignment_Var_Var //boolean vars
-					| arrayAccess '=' cast? value					#assignment_Var_Value
+					| arrayAccess '=' '!'? var						#assignment_Var_Var //boolean vars
+					| arrayAccess '=' value							#assignment_Var_Value
 					| arrayAccess '=' comparison					#assignment_Var_Comparison
-					| arrayAccess '=' cast? operation				#assignment_Var_Operation
+					| arrayAccess '=' operation						#assignment_Var_Operation
 					| arrayAccess '=' valuesList					#assignment_Var_ValueList
 					| arrayAccess '=' functionCall					#assingment_Var_FunctionCall
 					;
 
 // CASTS-----------------------------------------------------------------------
 
-cast				: '(' var ')'
+cast				: '(' ID ')'
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
@@ -79,7 +83,7 @@ controlFlowStatement: condition
  					| when
  					;	
  
-forLoop				: FOR '(' assignment? EOL logicalOperation EOL operation ')'
+forLoop				: FOR '(' assignment? EOL logicalOperation EOL assignment ')'
 					  '{' statement* '}' //[MJ] must have scopes for the sake of simplicity 
  					;
  			
@@ -123,26 +127,26 @@ compareOperator		: '=='
 					;			
 
 // OPERATIONS------------------------------------------------------------------
-operation			: '(' operation ')' 							#operation_Parenthesis
-					| operation '^' '-'? NUMBER						#operation_Power
-					| operation op=('*' | '/') operation		 	#operation_Mult_Div
+operation			: cast operation								#operation_Cast	
+					| '(' operation ')' 							#operation_Parenthesis
+					| operation op=('*' | '/' | '%') operation		#operation_Mult_Div_Mod
 					| '-' operation									#operation_Simetric
 					| operation  op=('+' | '-') operation			#operation_Add_Sub
-					| operation '%' NUMBER 							#operation_Modulus
-					| var											#operation_Expr
+					|<assoc=right> operation '^' operation			#operation_Power
+					| var											#operation_Var
 					| functionCall									#operation_FunctionCall
 					| arrayAccess									#operation_ArrayAccess
 					| arrayLength									#operation_ArrayLength
-					| cast? NUMBER									#operation_Number
+					| NUMBER										#operation_NUMBER
 					;
 			
 
 // STRUCTURES------------------------------------------------------------------
-arrayDeclaration	: arrayType var
+arrayDeclaration	: ARRAY '<' type ',' NUMBER'>' var
 					;
 					
 arrayType			: ARRAY '<' type '>'
-					;					
+					;			
 					
 arrayAccess			: ID '['  (var|NUMBER) ']'
 					;
@@ -175,12 +179,12 @@ type				: NUMBER_TYPE
 					| arrayType
 					;
 	
-value				: NUMBER
+value				: cast NUMBER
 					| BOOLEAN
 					| STRING
 					;
 		
-valuesList			: (cast? value|var) (',' (cast? value|var))*
+valuesList			: '{' (value|var) (',' (value|var))* '}'
 					;
 				
 
@@ -188,6 +192,8 @@ valuesList			: (cast? value|var) (',' (cast? value|var))*
 //LEXER---------------------------------------------------------------------
 //--------------------------------------------------------------------------
 
+//
+USING			  : 'using';
 
 // END OF LINE
 EOL               : ';';
