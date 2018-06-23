@@ -1,5 +1,3 @@
-
-
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -9,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.collections15.Predicate;
+import org.apache.commons.collections15.Transformer;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -18,6 +17,7 @@ import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeRenderer;
@@ -29,26 +29,21 @@ import utils.Type;
 /**
  * 
  * <b>TestTypesFileInfo</b><p>
- * 
+ * Allows testing of the Types Grammar & Intepreter and analyzis of the generated information.<p>
  * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
+ * @see {@link https://stackoverflow.com/questions/37740057/jung-large-graph-visualization?noredirect=1&lq=1}
  */
 public class TestTypesFileInfo {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
-
-		//".\\src\\tests\\typesGrammar\\TypesExample1.txt"
-		System.out.println("Testing File " + args[0]);
+		System.out.println("LFA Project | TestTypesFileInfo\nTesting File " + args[0] + "...\n");
 		TypesFileInfo file = new TypesFileInfo(args[0]);
 		System.out.println(file);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				createAndShowGUI(file.getTypesGraph());
 			}
 		});
@@ -64,20 +59,39 @@ public class TestTypesFileInfo {
 		VisualizationViewer<Type, Factor> vv = new VisualizationViewer<Type, Factor>(new FRLayout<Type, Factor>(g, size));
 		DefaultModalGraphMouse<String, Double> graphMouse = new DefaultModalGraphMouse<String, Double>();
 		vv.setGraphMouse(graphMouse); 
+
 		vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Type>() {
 			@Override
 			public String transform(Type v) {
-
 				return v.toString();
 			}});
 
 		vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<Factor>() {
 			@Override
 			public String transform(Factor v) {
-
 				return v.toString();
 			}});
 		improvePerformance(vv);
+
+		// EDGE LABEL POSITION
+		vv.getRenderContext().setEdgeLabelClosenessTransformer(new ConstantDirectionalEdgeValueTransformer<Type, Factor>(0.5d, 0.5d));
+		int labelOffset = vv.getRenderContext().getLabelOffset();
+		if (labelOffset >= 0) {
+			vv.getRenderContext().setLabelOffset(labelOffset);
+		}
+
+		vv.setVertexToolTipTransformer(new Transformer<Type, String>() {
+			@Override
+			public String transform(Type v) {
+
+				return v.toString();
+			}});
+
+		vv.setEdgeToolTipTransformer(new Transformer<Factor, String>() {
+			@Override
+			public String transform(Factor v) {
+				return v.toString();
+			}});
 
 		f.getContentPane().add(vv);
 		f.setSize(size);
@@ -157,6 +171,7 @@ public class TestTypesFileInfo {
 			@Override
 			public void paintEdge(RenderContext<V,E> rc, Layout<V, E> layout, E e) 
 			{
+
 				GraphicsDecorator g2d = rc.getGraphicsContext();
 				Graph<V,E> graph = layout.getGraph();
 				if (!rc.getEdgeIncludePredicate().evaluate(

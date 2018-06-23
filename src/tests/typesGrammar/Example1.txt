@@ -16,8 +16,8 @@ types {
     //temp      		  "C"   : 0.5 * absTemp
     velocity          "m/s"	: distance / time
     
-    animais 		  "a" 	: (1) pessoa | (1) vaca
-	animaisTerrestres "at"	: (2) pessoa | (4) vaca
+    //animais 		  "a" 	: (1) pessoa | (1) vaca
+	//animaisTerrestres "at"	: (2) pessoa | (4) vaca
 	
 }
 

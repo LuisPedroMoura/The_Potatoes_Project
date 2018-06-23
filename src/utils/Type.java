@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-
 /**
  * 
  * <b>Type</b><p>
@@ -30,8 +29,8 @@ public class Type {
 	// --------------------------------------------------------------------------
 	// Instance Fields
 
-	private final String typeName;
-	private final String printName;
+	private String typeName;
+	private String printName;
 	private final double code;
 	private List<Type>	  opTypes 	= new ArrayList<>();
 	private List<Boolean> checkList = new ArrayList<>();
@@ -98,9 +97,16 @@ public class Type {
 		return code;
 	}
 
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
+	}
+
+	public void setPrintName(String printName) {
+		this.printName = printName;
+	}
+
 	// --------------------------------------------------------------------------
 	// Op Types & Checklist Manipulations
-
 	public void addOpType(Type type) {
 		opTypes.add(type);
 		checkList.add(false);

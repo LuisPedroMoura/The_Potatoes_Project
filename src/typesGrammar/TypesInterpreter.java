@@ -1,6 +1,5 @@
 package typesGrammar;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +142,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			}
 
 			// Create derived type based on typeOp
-			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOp()).getCodes());
+			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOp()).getCode());
 
 			typesTable.put(typeName, t);
 			types.put(ctx, t);
@@ -156,49 +155,33 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	@Override
 	public Boolean visitTypeDerivedOr(TypeDerivedOrContext ctx) {
 		// Rule ID STRING COLON typeOpOr							
+
 		String typeName = ctx.ID().getText();
 
-		Boolean localDebug = debug && false;
+		// Temporary type (reference is needed for the visitor of rule typeOpOr)
+		Type t = new Type(0.0);				
 
-		Type t = new Type("temp", "temp");		//FIXME i need the private CTOR to be public :(
 		types.put(ctx, t);
 
 		Boolean valid = visit(ctx.typeOpOr());
 
 		if (valid) {
-			//if (debug) {
-			//	ErrorHandling.printInfo(ctx, "Type is or derived.");
-			//	ErrorHandling.printWarning(ctx, "[PVT Debug] Types Table: " + typesTable);
-			//}
-
 			// Semantic Analysis : Types can't be redefined
 			if (typesTable.containsKey(typeName)) {
 				ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
 				return false;
 			}
 
-			Collection<Factor> edgesToUpdate = typesGraph.getInEdges(t);
 
 			// Create derived type based on typeOpOr
-			t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCodes());
+			//t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCode());
+			t.setTypeName(typeName);
+			t.setPrintName(ctx.STRING().getText().replaceAll("\"", ""));
 
-			// [PVT Current Work] Update the types graph
+			// Update the types graph : done in each visitor for each alternative
 
-			if (localDebug) {
-				ErrorHandling.printInfo(ctx, "[PVT Debug]\tEDGES TO UPDATE: " + edgesToUpdate);
-			}
-			/*
-			for (Factor edge : edgesToUpdate) {
-				System.out.println("HELLO");
-				Type alt = typesGraph.getSource(edge);
-				typesGraph.removeEdge(edge);
-				typesGraph.addEdge(new Factor(edge.getFactor(), "parent"), t, alt);
-				typesGraph.addEdge(new Factor(edge.getFactor(), "child"), alt, t);
-			}
-			 */
 			// Update the Types Table
 			typesTable.put(typeName, t);
-
 
 			if (debug) 
 				ErrorHandling.printInfo(ctx, "Added Or Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
@@ -212,12 +195,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitTypeOpOr(TypeOpOrContext ctx) {
 		// Rule typeOpOrAlt (OR typeOpOrAlt)*	
 
-		Boolean localDebug = debug && false;
+		Boolean localDebug = debug && true;
 		if (localDebug) ErrorHandling.printInfo(ctx, "[PVT Debug] Parsing " + ctx.getText());
 
 		Boolean valid = true;
 
-		Type t = new Type("temp", "");
+		Type t = types.get(ctx.parent);
 
 		List<TypeOpOrAltContext> orTypeAlternatives = ctx.typeOpOrAlt(); 
 		for (TypeOpOrAltContext orAlt : orTypeAlternatives) {
@@ -228,11 +211,11 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				// Create the Type with a new alternative
 				Type alternative = types.get(orAlt);
 				Double factor    = values.get(orAlt);
-				t = Type.or(t, alternative, factor);
+				t.addOpType(alternative);
 
 				// Debug
 				if (localDebug) {
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + types.get(ctx.parent));
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + t);
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Type: "   + alternative);
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Factor: " + factor);
 					ErrorHandling.printWarning(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
@@ -240,8 +223,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				}
 
 				// [PVT Current Work] Update the types graph
-				typesGraph.addEdge(new Factor(factor, "parent"), alternative, types.get(ctx.parent));
-				typesGraph.addEdge(new Factor(factor, "child"), alternative, types.get(ctx.parent));
+				typesGraph.addEdge(new Factor(factor, "parent"), alternative, t);
+				typesGraph.addEdge(new Factor(factor, "child"), t, alternative);
 			}
 		}	
 
