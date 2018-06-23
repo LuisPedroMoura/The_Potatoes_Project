@@ -15,6 +15,9 @@ types {
 }
 
 */
+	
+	using "whatever";
+	
 	//--------------------
 	//declaration---------
 	//--------------------
@@ -38,7 +41,7 @@ types {
 				velocity v2 = calcVelocity(dist, (time) 2);
 			
 			println("array_declaration assignment_operator values_list");
-				Array<velocity> velocities = {v1, v2, (velocity)2, (velocity)9.0, (velocity)0.998};
+				Array<velocity, 10> velocities = {v1, v2, (velocity)2, (velocity)9.0, (velocity)0.998};
 				//error -> Array<velocity> velocities = { 2*9 };
 				//error -> sem cast
 		
@@ -49,7 +52,7 @@ types {
 			println("	-> function_call(var, operation(array_access / cast NUMBER))");
 				a = biggerAcceleration( globalAcceleration, velocities[0] / (time) 2 );
 			
-			println("whatever function")
+			println("whatever function");
 			boolean b = whatever();
 			println("result: " + b);
 	}
@@ -64,46 +67,83 @@ types {
 	}
 	
 	fun biggerAcceleration(acceleration a1, acceleration a2): acceleration{
-		if(a1>a2){ return a1; } 
-		return a2;
+		//eu sei q os if's sao parvos... era so para testes
+		if(a1!=(velocity)0 && a2!=(velocity)0){
+			if(a1>a2){ return a1; } 
+			else { return a2; }
+		}
+		else if(a1!=(velocity)0){ return a1; }
+		else { return a2; }
 	}
 	
 	fun distance2KiloDistance (Array<distance> dist) : Array<distance> {
 	
-		for(number i=0; i < length(dist); i++){
+		for(number i=0; i < length(dist); i=i+1){
 			dist[i] = dist[i] * 10^3;	// 10^-3 erro?									
 		}
-		
 		return dist;
 	}
 	
 	fun whatever() : boolean{
 	
-		Array<inch> inches = {(inch)2, (inch)9.0, (inch)0.998};
-		Array<inch> kiloInches = distance2KiloDistance(inches);
+		Array<inch, 10> inches = {(inch)2, (inch)9.0, (inch)0.998};
+		Array<inch, 10> kiloInches = distance2KiloDistance(inches);
 		
 		number i = 0;
 		while(i<length(inches)){
-			number n1 = inches[i] + -2;
-			number n2 = -2 + inches[i];
-			number n3 = inches[i] + -2 - 5;
-			number n4 = -inches[i] - 5;
-			println("inches[i] + -2 = " + n1);
-			println("-2 + inches[i] = " + n2);
-			println("inches[i] + -2 - 5 = " + n3);
-			println("-inches[i] - 5 = " + n4);
+			testOperations();
+			i = i+1;
 		}
 		
 		
 		
 		inch kinch = kiloInches[0];
 		when(kinch){
-			2 -> { return false; }
-			2000 -> { return true; }
+			(inch) 2 -> { return false; }
+			(inch) 2000 -> { return true; }
 		}
 		
 		return true;
 	
+	}
+	
+	
+	fun testOperations(): void{
+		
+		//com negativos
+		number n1 = inches[i] + -2;
+		number n2 = -2 + inches[i];
+		number n3 = inches[i] + -2 - 5;
+		number n4 = -inches[i] - 5;		
+		
+		//com parentesis
+		number n5 = n1 + n2 - n1 % 5 + 9 / n2 + n1; 
+		number n6 = (n1 + n2 - n1 % 5 + 9) / n2 + n1; 
+		number n7 = n1 + n2 - n1 % (5 + 9)/(n2 + n1); 
+		velocity v1 = (velocity)2 * n1 + (velocity)0.5 % 2 - (velocity)-2;
+		velocity v2 = (velocity) (2 * n1) + (velocity) (0.5 % 2) - -(velocity)2;
+		
+		//com potencia
+		velocity v3 = v1^2^3;
+		velocity v4 = v1^2 * n1 + ((velocity) 0.5 ^ - 2) + (velocity)-2; //review parse tree
+		velocity v5 = (v1^-2) * n1 + ((velocity) 0.5 ^ 2) + (velocity)-2;
+		
+		//varias divisoes
+		velocity v6 = (velocity) (6/6/5*5/6);
+		
+		/*
+		verificar
+		println("inches[i] + -2 = " + n1);
+		println("-2 + inches[i] = " + n2);
+		println("inches[i] + -2 - 5 = " + n3);
+		println("-inches[i] - 5 = " + n4);
+		println("((n1 + n2) - n1 % 5 + 9)/n2 + n1 = " + n5);
+		println("(velocity) 2 * n1 + ((velocity) 0.5 % 2) - -(velocity)2 = " + v1);
+		println("v1^2 * n1 + ((velocity) 0.5 ^ - 2) + -(velocity)2 = " + v2);	
+		println("v1^2 * n1 + ((velocity) 0.5 ^ - 2) + -(velocity)2 = " + v3);
+		println("(v1^-2) * n1 + ((velocity) 0.5 ^2) + -(velocity)2 = " + v4);
+		println("v1^2^3 = " + v5);	
+		*/
 	}
 	
 	
