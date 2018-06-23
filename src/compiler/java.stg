@@ -1,5 +1,5 @@
 
-<![MJ] DONE - don't delete!>
+<![MJ] DONE!>
 stats(stat) ::= <<
 	<if(stat)><stat; separator="\n"><endif>
 >>
@@ -7,10 +7,10 @@ stats(stat) ::= <<
 
 
 <!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
-<![MJ] DONE - don't delete!>
+<![MJ] DONE!>
 class(name,stat) ::= <<
 public class <name> {
    <stats(stat)>
@@ -31,7 +31,7 @@ DECLARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	>>
 !>
 
-<![MJ] DONE - don't delete!>
+<![MJ] DONE!>
 varDeclaration(type, var) ::= <<
 <type> <var> ;
 >>
@@ -42,18 +42,45 @@ varDeclaration(type, var) ::= <<
 ASSIGNMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
-<![MJ] DONE - don't delete!>
+<![MJ] DONE!>
 varAssignment(type, var, stat) ::= <<
 <type> <var> = <stat>;	
 
 >>
 
 
+
+<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FUNCTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+
+<![MJ] DONE!>
+main(stat)::= <<
+public static void main(String[] args) {
+   <stats(stat)>
+}
+>>
+
+
+<![MJ] REVIEW (LOWER PRIORITY) -> args!>
+function(name, return, arg) ::= <<
+public static <return> <name> ( <args(arg)> ) {
+   <stats(stat)>
+}
+>>
+
+<![MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it !>
+args(arg) ::= <<
+	<if(arg)>< <arg> separator=" "><endif>
+>>
+
+
+
 <!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CONTROL FLOW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
-<![IJ] NOT DONE YET...>
+<![IJ] NOT DONE YET...!>
 controlFlowAssignment(stat,cond,for,while,when,var,stat_true,stat_false) ::= <<
 
 	<stats(stat)>
@@ -100,28 +127,32 @@ controlFlowAssignment(stat,cond,for,while,when,var,stat_true,stat_false) ::= <<
 >>
 
 
+
+
 <!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FUNCTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+LOGICAL OPERATIONS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
-<![MJ] DONE - don't delete!>
-main(stat)::= <<
-public static void main(String[] args) {
-   <stats(stat)>
-}
+<![MJ] DONE!>
+logicalOperation( parenthesis0, logicalOper0, oper, logicalOper1, parenthesis1 ) ::= <<
+<parenthesis0> <logicalOper0> <oper> <logicalOper1> <parenthesis1>
+>>
+
+<![MJ] DONE!>
+logicalOperand(not, oper) ::= <<
+<not> <oper>
+>>
+
+<![MJ] DONE!>
+comparison(operation0, compareOper, operation1) ::= <<
+<operation0> <compareOper> <operation1>
 >>
 
 
-<! REVIEW -> args!>
-function(name, return, arg) ::= <<
-public static <return> <name> ( <args(arg)> ) {
-   <stats(stat)>
-}
->>
 
-<! REVIEW -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it !>
-args(arg) ::= <<
-	<if(arg)>< <arg> separator=" "><endif>
->>
+
+
+
+
 
 
