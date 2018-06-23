@@ -1,0 +1,10 @@
+types {
+// Basic Types (default is numeric)
+    meter	  "m"
+}
+
+prefixes {
+    DECA  "da"      : 10^1 
+    
+
+}

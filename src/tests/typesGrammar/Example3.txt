@@ -14,7 +14,11 @@ types {
 	meter	 "m"
 	inch 	 "inch"
 	yard 	 "yd"
-	distance "d"	: (-1+ 49725)meter 		 | (0.025)inch | (0.9)yard
-	mile 	 "mil" 	: (0.75)distance | meter		// should give error
+	time	 "s"	
+	distance "d"	: (-1+ 49725)meter 	| (0.025)inch | (0.9)yard
+	velocity "m/s"	: distance / time
+	velocitySquare "m^2/s" : velocity^2
+	//velocitySquare "m^2/s" : velocity * velocity
+	velocitySquare2 "m^2/s" : velocity * velocity
 }
 
