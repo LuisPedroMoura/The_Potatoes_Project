@@ -50,6 +50,57 @@ varAssignment(type, var, stat) ::= <<
 
 
 <!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CONTROL FLOW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+
+<![IJ] NOT DONE YET...>
+controlFlowAssignment(stat,cond,for,while,when,var,stat_true,stat_false) ::= <<
+
+	<stats(stat)>
+
+	if (!<cond>) goto L<var>1;                        
+		<!condition!>
+		if (!<var>) goto L<var>11;                        <!if False cond goto l11!>
+		<stats(stat_true)>                                <!A!>
+		goto L<var>22;                                    <!goto l22!>
+		
+		L<var>11:;                                        <!label l11:!>
+		<if(stat_false)>                                 
+		<stats(stat_false)>                               <!B!>
+		<endif>
+		
+		L<var>22:;										  <!label l22:!>                               		
+	goto L<var>5;                                    
+	
+	L<var>1:;                                        
+	if (!<for>) goto L<var>2;                        
+	<!for!> 
+	goto L<var>5;                                   
+
+	L<var>2:;                                       
+	if (!<while>) goto L<var>3;                       
+		<!while!>
+		L<var>33:;                                       <!label l33:!>
+		if (!<var>) goto L<var>44;                       <!if False cond goto l44!>
+		<stats(stat_true)>                               <!A!>
+		goto L<var>33;                                   <!goto l33!>
+
+		L<var>44:;										 <!label l44:!>
+		<stats(stat_false)>                              
+		<endif>
+	goto L<var>5;                                    
+
+
+	L<var>3:;                                        
+	<!when!>
+	
+	L<var>5:;	
+	<endif>									 
+
+>>
+
+
+<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FUNCTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
