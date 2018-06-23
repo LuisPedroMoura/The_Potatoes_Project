@@ -1,11 +1,14 @@
 package typesGrammar;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.Graph;
 import typesGrammar.TypesParser.PrefixContext;
 import typesGrammar.TypesParser.PrefixDeclarContext;
 import typesGrammar.TypesParser.TypeBasicContext;
@@ -25,6 +28,7 @@ import typesGrammar.TypesParser.ValueOpMultDivContext;
 import typesGrammar.TypesParser.ValueOpNumberContext;
 import typesGrammar.TypesParser.ValueOpOpPowerContext;
 import typesGrammar.TypesParser.ValueOpParenthesisContext;
+import utils.Factor;
 import utils.Prefix;
 import utils.Type;
 import utils.errorHandling.ErrorHandling;
@@ -35,23 +39,28 @@ import utils.errorHandling.ErrorHandling;
  * @author Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
-public class TypesInterpreter extends TypesParserBaseVisitor<Boolean> {
+public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// Static Field (Debug Only)
 	private static final boolean debug = true; 
 
 	// --------------------------------------------------------------------------
 	// Instance Fields 
-	private Map<String, Type>   typesTable 	  = new HashMap<>();
-	private Map<String, Prefix> prefixesTable = new HashMap<>();	
+	private Map<String, Type>    typesTable    = new HashMap<>();
+	private Graph<Type, Factor>  typesGraph    = new DirectedSparseGraph<>();
+	private Map<String, Prefix>  prefixesTable = new HashMap<>();	
 
-	private ParseTreeProperty<Type>   types   = new ParseTreeProperty<>();
-	private ParseTreeProperty<Double> values  = new ParseTreeProperty<>();
+	private ParseTreeProperty<Type>   types    = new ParseTreeProperty<>();
+	private ParseTreeProperty<Double> values   = new ParseTreeProperty<>();
 
 	// --------------------------------------------------------------------------
 	// Getters
 	public Map<String, Type> getTypesTable() {
 		return typesTable;
+	}
+
+	public Graph<Type, Factor> getTypesGraph() {
+		return typesGraph;
 	}
 
 	public Map<String, Prefix> getPrefixesTable() {
@@ -105,6 +114,9 @@ public class TypesInterpreter extends TypesParserBaseVisitor<Boolean> {
 		Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""));
 		typesTable.put(typeName, t);
 
+		// [PVT Current Work] Update the types graph
+		//typesGraph.addEdge(1.0, t, null);	// Edge to vertex base type (considered the base type equivalent to FIXME null for now)
+
 		if (debug) ErrorHandling.printInfo(ctx, "Added Basic Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
 		return true;
 	}
@@ -131,7 +143,6 @@ public class TypesInterpreter extends TypesParserBaseVisitor<Boolean> {
 
 			// Create derived type based on typeOp
 			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOp()).getCodes());
-			// TODO Connect Graph 
 
 			typesTable.put(typeName, t);
 			types.put(ctx, t);
@@ -146,26 +157,50 @@ public class TypesInterpreter extends TypesParserBaseVisitor<Boolean> {
 		// Rule ID STRING COLON typeOpOr							
 		String typeName = ctx.ID().getText();
 
+		Boolean localDebug = debug && false;
+
+		Type t = new Type("temp", "temp");		//FIXME i need the private CTOR to be public :(
+		types.put(ctx, t);
+
 		Boolean valid = visit(ctx.typeOpOr());
 
 		if (valid) {
-			// Semantic Analysis : Types can't be redefined
 			//if (debug) {
 			//	ErrorHandling.printInfo(ctx, "Type is or derived.");
-			//ErrorHandling.printWarning(ctx, "[PVT Debug] Types Table: " + typesTable);
+			//	ErrorHandling.printWarning(ctx, "[PVT Debug] Types Table: " + typesTable);
 			//}
+
+			// Semantic Analysis : Types can't be redefined
 			if (typesTable.containsKey(typeName)) {
 				ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
 				return false;
 			}
 
-			// Create derived type based on typeOpOr
-			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCodes());
-			// TODO Connect Graph 
+			Collection<Factor> edgesToUpdate = typesGraph.getInEdges(t);
 
+			// Create derived type based on typeOpOr
+			t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCodes());
+
+			// [PVT Current Work] Update the types graph
+
+			if (localDebug) {
+				ErrorHandling.printInfo(ctx, "[PVT Debug]\tEDGES TO UPDATE: " + edgesToUpdate);
+			}
+			/*
+			for (Factor edge : edgesToUpdate) {
+				System.out.println("HELLO");
+				Type alt = typesGraph.getSource(edge);
+				typesGraph.removeEdge(edge);
+				typesGraph.addEdge(new Factor(edge.getFactor(), "parent"), t, alt);
+				typesGraph.addEdge(new Factor(edge.getFactor(), "child"), alt, t);
+			}
+			 */
+			// Update the Types Table
 			typesTable.put(typeName, t);
-			types.put(ctx, t);
-			if (debug) ErrorHandling.printInfo(ctx, "Added Or Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+
+
+			if (debug) 
+				ErrorHandling.printInfo(ctx, "Added Or Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
 		}
 
 		return valid;
@@ -175,24 +210,46 @@ public class TypesInterpreter extends TypesParserBaseVisitor<Boolean> {
 	@Override
 	public Boolean visitTypeOpOr(TypeOpOrContext ctx) {
 		// Rule typeOpOrAlt (OR typeOpOrAlt)*	
+
 		Boolean localDebug = debug && false;
 		if (localDebug) ErrorHandling.printInfo(ctx, "[PVT Debug] Parsing " + ctx.getText());
+
 		Boolean valid = true;
 
 		Type t = new Type("temp", "");
+
 		List<TypeOpOrAltContext> orTypeAlternatives = ctx.typeOpOrAlt(); 
 		for (TypeOpOrAltContext orAlt : orTypeAlternatives) {
-			valid = valid && visit(orAlt);	// visit all types declared in the Or 
+			// visit all types declared in the Or 
+			valid = valid && visit(orAlt);	
+
 			if (valid) {
+				// Create the Type with a new alternative
+				Type alternative = types.get(orAlt);
+				Double factor    = values.get(orAlt);
+				t = Type.or(t, alternative, factor);
+
+				// Debug
 				if (localDebug) {
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tObtained type: " + types.get(orAlt));
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tObtained value: " + values.get(orAlt));
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + types.get(ctx.parent));
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Type: "   + alternative);
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Factor: " + factor);
+					ErrorHandling.printWarning(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
+							+ factor + ", " + alternative + ", " + factor);
 				}
-				t = Type.or(t, types.get(orAlt), values.get(orAlt));
+
+				// [PVT Current Work] Update the types graph
+				typesGraph.addEdge(new Factor(factor, "parent"), alternative, types.get(ctx.parent));
+				typesGraph.addEdge(new Factor(factor, "child"), alternative, types.get(ctx.parent));
 			}
 		}	
-		if (localDebug) ErrorHandling.printInfo(ctx, "[PVT Debug]\tObtained type: " + t);
+
+		if (localDebug) {
+			ErrorHandling.printInfo(ctx, "[PVT Debug]\tObtained type: " + t);
+		}
+
 		types.put(ctx, t);
+
 		return valid;
 	}
 
@@ -342,7 +399,7 @@ public class TypesInterpreter extends TypesParserBaseVisitor<Boolean> {
 		Prefix p = new Prefix(prefixName, ctx.STRING().getText().replaceAll("\"", ""), values.get(ctx.valueOp()));
 		prefixesTable.put(prefixName, p);
 
-		if (debug) ErrorHandling.printInfo(ctx, "Added " + p + "\n\tOriginal line: " + ctx.getText() + ")\n");
+		if (debug) ErrorHandling.printInfo(ctx, "Added " + p + "\n\tOriginal line: " + ctx.getText() + "\n");
 		return value;
 	}
 

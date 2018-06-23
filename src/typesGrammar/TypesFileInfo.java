@@ -14,6 +14,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import edu.uci.ics.jung.graph.Graph;
+import utils.Factor;
 import utils.Prefix;
 import utils.Type;
 import utils.errorHandling.ErrorHandling;
@@ -29,8 +31,9 @@ import utils.errorHandling.ErrorHandlingListener;
 public class TypesFileInfo {
 
 	// Instance Fields
-	private final Map<String, Prefix> prefixesTable;
-	private final Map<String, Type> typesTable;
+	private final Map<String, Prefix>  prefixesTable;
+	private final Map<String, Type>    typesTable;
+	private final Graph<Type, Factor>  typesGraph;
 
 	// --------------------------------------------------------------------------
 	// CTOR
@@ -39,22 +42,21 @@ public class TypesFileInfo {
 	 * Constructor
 	 * @param path path to the types file to be read
 	 */
+	@SuppressWarnings("resource")
 	public TypesFileInfo(String path) {
 		// create a stream from the file
 		InputStream fileStream = null;
-		try {
-			fileStream = new FileInputStream(new File(path)); 
-		}
-		catch(FileNotFoundException e) {
-			ErrorHandling.printError("Types file could not be found! Please check if the file exists and can be read.");
-			System.exit(1);
-		}
 
 		// create a CharStream that reads from the file:		
 		CharStream input = null;
+
 		try {
+			fileStream = new FileInputStream(new File(path)); 
 			input = CharStreams.fromStream(fileStream);
 			fileStream.close();
+		} catch(FileNotFoundException e) {
+			ErrorHandling.printError("Types file could not be found! Please check if the file exists and can be read.");
+			System.exit(1);
 		} catch (IOException e) {
 			err.println("Internal error reading the Types file! Please check if the file exists and can be read.");
 			System.exit(2);
@@ -80,6 +82,7 @@ public class TypesFileInfo {
 			// print LISP-style tree:
 			// System.out.println(tree.toStringTree(parser));
 			TypesInterpreter visitor0 = new TypesInterpreter();
+
 			if (!visitor0.visit(tree)) {
 				System.exit(3);  
 			}
@@ -87,12 +90,14 @@ public class TypesFileInfo {
 			// Information to be transmited to the Potatoes Semantic Checker
 			this.prefixesTable = visitor0.getPrefixesTable();
 			this.typesTable    = visitor0.getTypesTable();
+			this.typesGraph    = visitor0.getTypesGraph();
 		}
 		else {
 			// this code should be unreachable but is needed 
 			// since the fields are final
 			this.prefixesTable = null;
 			this.typesTable    = null;
+			this.typesGraph	   = null;
 		}
 	}
 
@@ -105,6 +110,15 @@ public class TypesFileInfo {
 	 */
 	public Map<String, Prefix> getPrefixesTable() {
 		return prefixesTable;
+	}
+
+	/**
+	 * Returns the graph of types defined in the file. 
+	 * Can be an empty graph (if no types were declared in the file).
+	 * @return typesGraph
+	 */
+	public Graph<Type, Factor> getTypesGraph() {
+		return typesGraph;
 	}
 
 	/**
@@ -161,13 +175,17 @@ public class TypesFileInfo {
 		StringBuilder builder = new StringBuilder();
 		builder.append("TypesMain [");
 		if (prefixesTable != null) {
-			builder.append("prefixesTable=");
+			builder.append("\n################################################################\nPrefixes Table: ");
 			builder.append(prefixesTable);
 			builder.append(", ");
 		}
 		if (typesTable != null) {
-			builder.append("typesTable=");
+			builder.append("\n################################################################\nTypes Table: ");
 			builder.append(typesTable);
+		}
+		if (typesGraph != null) {
+			builder.append("\n################################################################\nTypes Graph: ");
+			builder.append(typesGraph);
 		}
 		builder.append("]");
 		return builder.toString();
