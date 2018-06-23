@@ -17,16 +17,21 @@ import potatoesGrammar.PotatoesParser.ArrayDeclarationContext;
 import potatoesGrammar.PotatoesParser.ArrayLengthContext;
 import potatoesGrammar.PotatoesParser.ArrayTypeContext;
 import potatoesGrammar.PotatoesParser.Assignment_ArrayContext;
+import potatoesGrammar.PotatoesParser.Assignment_Array_FunctionCallContext;
+import potatoesGrammar.PotatoesParser.Assignment_Array_ValuesListContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ComparisonContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_ComparisonContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_FunctionCallContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_OperationContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_ValueContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_VarContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var_Not_BooleanContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_OperationContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ValueContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ValueListContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_VarContext;
+import potatoesGrammar.PotatoesParser.Assignment_Var__Not_BooleanContext;
 import potatoesGrammar.PotatoesParser.Assingment_Var_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.CastContext;
 import potatoesGrammar.PotatoesParser.Class_Content_AssignmentContext;
@@ -41,6 +46,7 @@ import potatoesGrammar.PotatoesParser.ConditionContext;
 import potatoesGrammar.PotatoesParser.ControlFlowStatementContext;
 import potatoesGrammar.PotatoesParser.Declaratio_AarrayContext;
 import potatoesGrammar.PotatoesParser.Declaration_VarContext;
+import potatoesGrammar.PotatoesParser.Declaration_arrayContext;
 import potatoesGrammar.PotatoesParser.ForLoopContext;
 import potatoesGrammar.PotatoesParser.FunctionCallContext;
 import potatoesGrammar.PotatoesParser.FunctionContext;
@@ -51,14 +57,18 @@ import potatoesGrammar.PotatoesParser.LogicalOperatorContext;
 import potatoesGrammar.PotatoesParser.Operation_Add_SubContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayAccessContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayLengthContext;
+import potatoesGrammar.PotatoesParser.Operation_CastContext;
 import potatoesGrammar.PotatoesParser.Operation_ExprContext;
 import potatoesGrammar.PotatoesParser.Operation_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.Operation_ModulusContext;
 import potatoesGrammar.PotatoesParser.Operation_Mult_DivContext;
+import potatoesGrammar.PotatoesParser.Operation_Mult_Div_ModContext;
+import potatoesGrammar.PotatoesParser.Operation_NUMBERContext;
 import potatoesGrammar.PotatoesParser.Operation_NumberContext;
 import potatoesGrammar.PotatoesParser.Operation_ParenthesisContext;
 import potatoesGrammar.PotatoesParser.Operation_PowerContext;
 import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
+import potatoesGrammar.PotatoesParser.Operation_VarContext;
 import potatoesGrammar.PotatoesParser.PrintContext;
 import potatoesGrammar.PotatoesParser.ProgramContext;
 import potatoesGrammar.PotatoesParser.Statement_AssignmentContext;
@@ -68,8 +78,18 @@ import potatoesGrammar.PotatoesParser.Statement_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.Statement_Function_ReturnContext;
 import potatoesGrammar.PotatoesParser.Statement_PrintContext;
 import potatoesGrammar.PotatoesParser.TypeContext;
+import potatoesGrammar.PotatoesParser.Type_ArrayTypeContext;
+import potatoesGrammar.PotatoesParser.Type_Boolean_TypeContext;
+import potatoesGrammar.PotatoesParser.Type_ID_TypeContext;
+import potatoesGrammar.PotatoesParser.Type_Number_TypeContext;
+import potatoesGrammar.PotatoesParser.Type_String_TypeContext;
+import potatoesGrammar.PotatoesParser.Type_Void_TypeContext;
 import potatoesGrammar.PotatoesParser.UsingContext;
 import potatoesGrammar.PotatoesParser.ValueContext;
+import potatoesGrammar.PotatoesParser.Value_BooleanContext;
+import potatoesGrammar.PotatoesParser.Value_Cast_NumberContext;
+import potatoesGrammar.PotatoesParser.Value_NumberContext;
+import potatoesGrammar.PotatoesParser.Value_StringContext;
 import potatoesGrammar.PotatoesParser.ValuesListContext;
 import potatoesGrammar.PotatoesParser.VarContext;
 import potatoesGrammar.PotatoesParser.VarDeclarationContext;
@@ -90,148 +110,228 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	TypesFileInfo typesFileInfo; // initialized in visitUsing();
 	Map<String, Type> typesTable = typesFileInfo.getTypesTable();
 	
-	protected ParseTreeProperty<Variable> mapVar = new ParseTreeProperty<>();
+	protected ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
 
-
-
-@Override
-	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
+// -----------------------
+// -----------------------
+	// OUT OF PLACE VISITORS
+// -----------------------
+	
+	@Override
+	public Boolean visitAssignment_Array_ValuesList(Assignment_Array_ValuesListContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitCode_Declaration(ctx);
+		return super.visitAssignment_Array_ValuesList(ctx);
 	}
 
 	@Override
-	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
+	public Boolean visitAssignment_Array_FunctionCall(Assignment_Array_FunctionCallContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitCode_Assignment(ctx);
+		return super.visitAssignment_Array_FunctionCall(ctx);
+	}
+
+
+
+	@Override
+	public Boolean visitAssignment_Var__Not_Boolean(Assignment_Var__Not_BooleanContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Var__Not_Boolean(ctx);
 	}
 
 	@Override
-	public Boolean visitCode_Function(Code_FunctionContext ctx) {
+	public Boolean visitOperation_NUMBER(Operation_NUMBERContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitCode_Function(ctx);
+		return super.visitOperation_NUMBER(ctx);
 	}
 
-	// --------------------------------------------------------------------------------------------------------------------
+	@Override
+	public Boolean visitOperation_Cast(Operation_CastContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_Cast(ctx);
+	}
+
+	@Override
+	public Boolean visitOperation_Mult_Div_Mod(Operation_Mult_Div_ModContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_Mult_Div_Mod(ctx);
+	}
+
+	@Override
+	public Boolean visitOperation_Var(Operation_VarContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_Var(ctx);
+	}
+	
+	
+	
+// --------------------------------------------------------------------------------------------------------------------
 // MAIN RULES----------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
-	@Override // [LM] Done
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE - DON'T DELETE FROM THIS FILE
 	public Boolean visitProgram(ProgramContext ctx) {
 		return visitChildren(ctx);
 	}
 	
-	@Override // [LM] Done
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitUsing(UsingContext ctx) {
 		path = getStringText(ctx.STRING().getText());
 		typesFileInfo = new TypesFileInfo(path);
+		mapCtxObj.put(ctx, path);
 		return true;
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitCode_Declaration(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitCode_Assignment(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Function(Code_FunctionContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitCode_Function(ctx);
+		return visitChildren(ctx);
 	}
 
 // --------------------------------------------------------------------------------------------------------------------	
 // CLASS - STATEMENTS-----------------------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Declaration(Statement_DeclarationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStatement_Declaration(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStatement_Assignment(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Control_Flow_Statement(Statement_Control_Flow_StatementContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStatement_Control_Flow_Statement(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_FunctionCall(Statement_FunctionCallContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStatement_FunctionCall(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Function_Return(Statement_Function_ReturnContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStatement_Function_Return(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Print(Statement_PrintContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStatement_Print(ctx);
+		return visitChildren(ctx);
 	}
 
 
 // --------------------------------------------------------------------------------------------------------------------	
 // CLASS - DECLARATIONS-----------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override
-	public Boolean visitDeclaratio_Aarray(Declaratio_AarrayContext ctx) {
+	
+	
+	
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitDeclaration_array(Declaration_arrayContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitDeclaratio_Aarray(ctx);
+		return super.visitDeclaration_array(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitDeclaration_Var(Declaration_VarContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitDeclaration_Var(ctx);
+		return visitChildren(ctx);
 	}
 	
 // --------------------------------------------------------------------------------------------------------------------
 // CLASS - ASSIGNMENTS-----------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override
-	public Boolean visitAssignment_Var_Declaration_Var(Assignment_Var_Declaration_VarContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Declaration_Var(ctx);
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
+		String type = (String) mapCtxObj.get(ctx.varDeclaration().type());
+		
+		// verify that assigned Variable is of Type boolean
+		if (type.equals("boolean")) {
+			Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
+			symbolTable.put(ctx.varDeclaration().var().ID().getText(), !b);
+			mapCtxObj.put(ctx, b);
+			return true;
+		}
+		
+		ErrorHandling.printError(ctx, "Type \"" + type + "\" and boolean are not compatible");
+		return false;
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Declaration_Value(ctx);
+		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
+		Object value = mapCtxObj.get(ctx.value());
+		
+		// assign boolean to boolean
+		if (value instanceof Boolean && typeName.equals("boolean")) {
+			Boolean b = (Boolean) value;
+			symbolTable.put(ctx.varDeclaration().var().ID().getText(), b);
+			mapCtxObj.put(ctx, b);
+			return true;
+		}
+		
+		// assign string to string
+		if (value instanceof String && typeName.equals("string")) {
+			String str = (String) value;
+			symbolTable.put(ctx.varDeclaration().var().ID().getText(), str);
+			mapCtxObj.put(ctx, str);
+			return true;
+		}
+		
+		// assign compatible types
+		if (typesTable.containsKey(typeName)) {
+			Variable a = (Variable) value;
+			Type type = typesTable.get(typeName);
+			if (a.convertTypeTo(type) == true) {
+				symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
+				mapCtxObj.put(ctx, a);
+				return true;
+			}
+		}
+		
+		// Types are not compatible
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with given Type");
+		return false;
 	}
 
-	@Override
+	@Override  // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Declaration_Comparison(Assignment_Var_Declaration_ComparisonContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Declaration_Comparison(ctx);
+		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
+		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
+		
+		// verify taht assigned var has type boolean
+		if (typeName.equals("boolean")) {
+			symbolTable.put(ctx.varDeclaration().var().ID().getText(), b);
+			mapCtxObj.put(ctx, b);
+			return true;
+		}
+		
+		// Types are not compatible
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with boolean");
+		return false;
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Declaration_Operation(Assignment_Var_Declaration_OperationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Declaration_Operation(ctx);
-	}
-
-	@Override
-	public Boolean visitAssignment_Array(Assignment_ArrayContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Array(ctx);
+		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
+		Variable a = (Variable) mapCtxObj.get(ctx.operation());
+		
+		if (a.convertTypeTo(typesTable.get(typeName))) {
+			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
+			mapCtxObj.put(ctx, a);
+			return true;
+		}
+		// Types are not compatible
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"");
+		return false;
 	}
 
 	@Override
@@ -240,22 +340,74 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		return super.visitAssignment_Var_Declaration_FunctionCall(ctx);
 	}
 
-	@Override
-	public Boolean visitAssignment_Var_Var(Assignment_Var_VarContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Var(ctx);
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitAssignment_Var_Not_Boolean(Assignment_Var_Not_BooleanContext ctx) {
+		String type = (String) mapCtxObj.get(ctx.var().ID());
+		
+		// verify that assigned Variable is of Type boolean
+		if (type.equals("boolean")) {
+			Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
+			symbolTable.put(ctx.var().ID().getText(), !b);
+			mapCtxObj.put(ctx, b);
+			return true;
+		}
+		
+		ErrorHandling.printError(ctx, "Type \"" + type + "\" and boolean are not compatible");
+		return false;
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Value(Assignment_Var_ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Value(ctx);
+		String typeName = (String) mapCtxObj.get(ctx.var().ID());
+		Object value = mapCtxObj.get(ctx.value());
+		
+		// assign boolean to boolean
+		if (value instanceof Boolean && typeName.equals("boolean")) {
+			Boolean b = (Boolean) value;
+			symbolTable.put(ctx.var().ID().getText(), b);
+			mapCtxObj.put(ctx, b);
+			return true;
+		}
+		
+		// assign string to string
+		if (value instanceof String && typeName.equals("string")) {
+			String str = (String) value;
+			symbolTable.put(ctx.var().ID().getText(), str);
+			mapCtxObj.put(ctx, str);
+			return true;
+		}
+		
+		// assign compatible types
+		if (typesTable.containsKey(typeName)) {
+			Variable a = (Variable) value;
+			Type type = typesTable.get(typeName);
+			if (a.convertTypeTo(type) == true) {
+				symbolTable.put(ctx.var().ID().getText(), a);
+				mapCtxObj.put(ctx, a);
+				return true;
+			}
+		}
+		
+		// Types are not compatible
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with given Type");
+		return false;
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Comparison(Assignment_Var_ComparisonContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Comparison(ctx);
+		String typeName = (String) mapCtxObj.get(ctx.var().ID());
+		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
+		
+		// verify taht assigned var has type boolean
+		if (typeName.equals("boolean")) {
+			symbolTable.put(ctx.var().ID().getText(), b);
+			mapCtxObj.put(ctx, b);
+			return true;
+		}
+		
+		// Types are not compatible
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with boolean");
+		return false;
 	}
 
 	@Override
@@ -382,8 +534,8 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // --------------------------------------------------------------------------------------------------------------------
 	@Override
 	public Boolean visitOperation_Modulus(Operation_ModulusContext ctx) {
-		Variable a = mapVar.get(ctx.operation(0));
-		Variable b = mapVar.get(ctx.operation(1));
+		Variable a = mapCtxObj.get(ctx.operation(0));
+		Variable b = mapCtxObj.get(ctx.operation(1));
 		
 		// verify that right side of mod operation is of Type Number
 		if (b.getType().getCode() != 1) {
@@ -393,7 +545,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		
 		Double moddedValue = a.getValue() % b.getValue();
 		a = new Variable (a.getType(), moddedValue);
-		mapVar.put(ctx,  a);
+		mapCtxObj.put(ctx,  a);
 		return true;
 	}
 
@@ -405,9 +557,9 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 
 	@Override
 	public Boolean visitOperation_Simetric(Operation_SimetricContext ctx) {
-		Variable a = mapVar.get(ctx.operation());
+		Variable a = mapCtxObj.get(ctx.operation());
 		a = new Variable(a.getType(), a.getValue() * -1);
-		mapVar.put(ctx, a);
+		mapCtxObj.put(ctx, a);
 		return true;
 	}
 
@@ -422,13 +574,13 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		Type numberType = new Type("Number", "", 1.0);
 		Double code = Double.parseDouble(ctx.NUMBER().getText());
 		Variable a = new Variable(numberType, code);
-		mapVar.put(ctx, a);
+		mapCtxObj.put(ctx, a);
 		return true;
 	}
 
 	@Override
 	public Boolean visitOperation_Parenthesis(Operation_ParenthesisContext ctx) {
-		mapVar.put(ctx, mapVar.get(ctx.operation()));
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.operation()));
 		return true;
 	}
 
@@ -457,7 +609,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		// Variable is declared
 		Variable a = (Variable) symbolTable.get(ctx.var().ID().getText());
 		
-		mapVar.put(ctx, a);
+		mapCtxObj.put(ctx, a);
 		return true;
 	}
 
@@ -469,8 +621,8 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 
 	@Override
 	public Boolean visitOperation_Mult_Div(Operation_Mult_DivContext ctx) {
-		Variable a = mapVar.get(ctx.operation(0));
-		Variable b = mapVar.get(ctx.operation(1));
+		Variable a = mapCtxObj.get(ctx.operation(0));
+		Variable b = mapCtxObj.get(ctx.operation(1));
 		
 		
 		return super.visitOperation_Mult_Div(ctx);
@@ -478,8 +630,8 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 
 	@Override
 	public Boolean visitOperation_Add_Sub(Operation_Add_SubContext ctx) {
-		Variable a = mapVar.get(ctx.operation(0));
-		Variable b = mapVar.get(ctx.operation(1));
+		Variable a = mapCtxObj.get(ctx.operation(0));
+		Variable b = mapCtxObj.get(ctx.operation(1));
 		
 		// verify that types are equals before adding or subtracting 
 		if (!a.getType().equals(b.getType())) {
@@ -491,17 +643,17 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		}
 		// types are equal adding and subtracting is possible
 		if (ctx.op.equals("+")) {
-			mapVar.put(ctx, Variable.add(a, b));
+			mapCtxObj.put(ctx, Variable.add(a, b));
 		}
 		else if (ctx.op.equals("-")) {
-			mapVar.put(ctx,  Variable.subtract(a, b));
+			mapCtxObj.put(ctx,  Variable.subtract(a, b));
 		}
 		return true;
 	}
 	
 	@Override
 	public Boolean visitCast(CastContext ctx) {
-		Variable a = mapVar.get(ctx.operation());
+		Variable a = mapCtxObj.get(ctx.operation());
 		
 		// cast is only possible if Variable is of Type Number (with code 1)
 		if (a.getType().getCode() != 1) {
@@ -510,7 +662,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		}
 		
 		// type is Number cast is possible
-		mapVar.put(ctx, new Variable(typesTable.get(ctx.ID().getText())));
+		mapCtxObj.put(ctx, new Variable(typesTable.get(ctx.ID().getText())));
 		return true;
 	}
 
@@ -556,19 +708,82 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		// TODO Auto-generated method stub
 		return super.visitVarDeclaration(ctx);
 	}
+	
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitType_Number_Type(Type_Number_TypeContext ctx) {
+		mapCtxObj.put(ctx, ctx.NUMBER_TYPE().getText());
+		return true;
+	}
 
-	@Override
-	public Boolean visitType(TypeContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitType(ctx);
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitType_Boolean_Type(Type_Boolean_TypeContext ctx) {
+		mapCtxObj.put(ctx, ctx.BOOLEAN_TYPE().getText());
+		return true;
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitType_String_Type(Type_String_TypeContext ctx) {
+		mapCtxObj.put(ctx, ctx.STRING_TYPE().getText());
+		return true;
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitType_Void_Type(Type_Void_TypeContext ctx) {
+		mapCtxObj.put(ctx, ctx.VOID_TYPE().getText());
+		return true;
 	}
 
 	@Override
-	public Boolean visitValue(ValueContext ctx) {
+	public Boolean visitType_ID_Type(Type_ID_TypeContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitValue(ctx);
+		return super.visitType_ID_Type(ctx);
 	}
 
+	@Override
+	public Boolean visitType_ArrayType(Type_ArrayTypeContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitType_ArrayType(ctx);
+	}
+	
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitValue_Cast_Number(Value_Cast_NumberContext ctx) {
+		String castType = ctx.cast().ID().getText();
+		
+		// verify that cast type exists
+		if (!typesTable.containsKey(castType)) {
+			ErrorHandling.printError("");
+			return false;
+		}
+		
+		// create new Variable and store it in mapCtxObj
+		Type type = typesTable.get(castType);
+		Double value = Double.parseDouble(ctx.NUMBER().getText());
+		Variable a = new Variable(type, value);
+		mapCtxObj.put(ctx, a);
+		return true;
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitValue_Number(Value_NumberContext ctx) {
+		Double number = Double.parseDouble(ctx.NUMBER().getText());
+		mapCtxObj.put(ctx, number);
+		return true;
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitValue_Boolean(Value_BooleanContext ctx) {
+		Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
+		mapCtxObj.put(ctx, b);
+		return true;
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitValue_String(Value_StringContext ctx) {
+		String str = getStringText(ctx.STRING().getText());
+		mapCtxObj.put(ctx, str);
+		return true;
+	}
+	
 	@Override
 	public Boolean visitValuesList(ValuesListContext ctx) {
 		// TODO Auto-generated method stub

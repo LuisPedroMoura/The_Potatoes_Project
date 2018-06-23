@@ -137,20 +137,6 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignment_Var_Declaration_FunctionCall(PotatoesParser.Assignment_Var_Declaration_FunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code assignment_Array_ValuesList}
-	 * labeled alternative in {@link PotatoesParser#assignment}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code assignment_Array_FunctionCall}
-	 * labeled alternative in {@link PotatoesParser#assignment}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code assignment_Var_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
@@ -193,18 +179,19 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssingment_Var_FunctionCall(PotatoesParser.Assingment_Var_FunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code assignment_Var__Not_Boolean}
+	 * Visit a parse tree produced by the {@code assignment_Array_ValuesList}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx);
+	T visitAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PotatoesParser#cast}.
+	 * Visit a parse tree produced by the {@code assignment_Array_FunctionCall}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCast(PotatoesParser.CastContext ctx);
+	T visitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PotatoesParser#function}.
 	 * @param ctx the parse tree
@@ -409,21 +396,85 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarDeclaration(PotatoesParser.VarDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PotatoesParser#type}.
+	 * Visit a parse tree produced by the {@code type_Number_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitType(PotatoesParser.TypeContext ctx);
+	T visitType_Number_Type(PotatoesParser.Type_Number_TypeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PotatoesParser#value}.
+	 * Visit a parse tree produced by the {@code type_Boolean_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitValue(PotatoesParser.ValueContext ctx);
+	T visitType_Boolean_Type(PotatoesParser.Type_Boolean_TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_String_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_String_Type(PotatoesParser.Type_String_TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_Void_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_Void_Type(PotatoesParser.Type_Void_TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_ID_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_ID_Type(PotatoesParser.Type_ID_TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code type_ArrayType}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType_ArrayType(PotatoesParser.Type_ArrayTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code value_Cast_Number}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValue_Cast_Number(PotatoesParser.Value_Cast_NumberContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code value_Number}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValue_Number(PotatoesParser.Value_NumberContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code value_Boolean}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValue_Boolean(PotatoesParser.Value_BooleanContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code value_String}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValue_String(PotatoesParser.Value_StringContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PotatoesParser#valuesList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitValuesList(PotatoesParser.ValuesListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PotatoesParser#cast}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCast(PotatoesParser.CastContext ctx);
 }

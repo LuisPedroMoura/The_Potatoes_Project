@@ -98,6 +98,12 @@ public class Variable {
 	
 	
 	public boolean convertTypeTo(Type type) {
+		
+		// Variable type is already the one we're trying to convert to
+		if (this.type == type){
+			return true;
+		}
+		
 		// get path from graph
 		// convert value using edges cost
 		// convert code to type code

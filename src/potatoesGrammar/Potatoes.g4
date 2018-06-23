@@ -26,8 +26,6 @@ statement			: declaration EOL								#statement_Declaration
 					| assignment EOL								#statement_Assignment
 					| controlFlowStatement							#statement_Control_Flow_Statement
 					| functionCall EOL								#statement_FunctionCall
-					// [IJ] - o return tem de estar dentro da statement
-					//      - controlar posteriormente os erros
 					| functionReturn								#statement_Function_Return
 					| print											#statement_Print
 					;
@@ -42,8 +40,6 @@ assignment			: varDeclaration '=' '!' BOOLEAN				#assignment_Var_Declaration_Not
 					| varDeclaration '=' comparison					#assignment_Var_Declaration_Comparison
 					| varDeclaration '=' operation					#assignment_Var_Declaration_Operation
 					| varDeclaration '=' functionCall				#assignment_Var_Declaration_FunctionCall
-					| arrayDeclaration '=' valuesList				#assignment_Array_ValuesList
-					| arrayDeclaration '=' functionCall				#assignment_Array_FunctionCall
 					
 					| var '=' '!' BOOLEAN							#assignment_Var_Not_Boolean
 					| var '=' value									#assignment_Var_Value
@@ -52,17 +48,15 @@ assignment			: varDeclaration '=' '!' BOOLEAN				#assignment_Var_Declaration_Not
 					| var '=' valuesList							#assignment_Var_ValueList
 					| var '=' functionCall							#assingment_Var_FunctionCall
 					
-					| arrayAccess '=' '!' BOOLEAN					#assignment_Var__Not_Boolean
+					| arrayDeclaration '=' valuesList				#assignment_Array_ValuesList
+					| arrayDeclaration '=' functionCall				#assignment_Array_FunctionCall
+					
+					| arrayAccess '=' '!' BOOLEAN					#assignment_Var_Not_Boolean
 					| arrayAccess '=' value							#assignment_Var_Value
 					| arrayAccess '=' comparison					#assignment_Var_Comparison
 					| arrayAccess '=' operation						#assignment_Var_Operation
 					| arrayAccess '=' valuesList					#assignment_Var_ValueList
 					| arrayAccess '=' functionCall					#assingment_Var_FunctionCall
-					;
-
-// CASTS-----------------------------------------------------------------------
-
-cast				: '(' ID ')'
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
@@ -164,29 +158,30 @@ print				: (PRINT | PRINTLN) '(' ((value | var) ('+' (value | var))* ) ')' EOL
 var					: ID
 					;
 
-// [LM] - to the tester: please verify what happens if declaration is: x z;
-//						 where x and z are both variables (because user created
-//						 types can only be solved into ID's)
 varDeclaration		: type var
-					| ID var	// to declare personalized type variables
 					;			
 
-type				: NUMBER_TYPE
-					| BOOLEAN_TYPE
-					| STRING_TYPE
-					| VOID_TYPE
-					| ID	// to declare personalized type variables
-					| arrayType
+type				: NUMBER_TYPE		# type_Number_Type
+					| BOOLEAN_TYPE		# type_Boolean_Type
+					| STRING_TYPE		# type_String_Type
+					| VOID_TYPE			# type_Void_Type
+					| ID				# type_ID_Type
+					| arrayType			# type_ArrayType
 					;
 	
-value				: cast NUMBER
-					| BOOLEAN
-					| STRING
+value				: cast NUMBER		# value_Cast_Number
+					| NUMBER			# value_Number
+					| BOOLEAN			# value_Boolean
+					| STRING			# value_String
 					;
 		
 valuesList			: '{' (value|var) (',' (value|var))* '}'
 					;
-				
+
+// CASTS-----------------------------------------------------------------------
+
+cast				: '(' ID ')'
+					;				
 
 //--------------------------------------------------------------------------
 //LEXER---------------------------------------------------------------------

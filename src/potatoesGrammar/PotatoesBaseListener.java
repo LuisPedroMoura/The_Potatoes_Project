@@ -234,30 +234,6 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterAssignment_Var_Not_Boolean(PotatoesParser.Assignment_Var_Not_BooleanContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -330,25 +306,25 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx) { }
+	@Override public void enterAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx) { }
+	@Override public void exitAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCast(PotatoesParser.CastContext ctx) { }
+	@Override public void enterAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCast(PotatoesParser.CastContext ctx) { }
+	@Override public void exitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -738,25 +714,121 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterType(PotatoesParser.TypeContext ctx) { }
+	@Override public void enterType_Number_Type(PotatoesParser.Type_Number_TypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitType(PotatoesParser.TypeContext ctx) { }
+	@Override public void exitType_Number_Type(PotatoesParser.Type_Number_TypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterValue(PotatoesParser.ValueContext ctx) { }
+	@Override public void enterType_Boolean_Type(PotatoesParser.Type_Boolean_TypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitValue(PotatoesParser.ValueContext ctx) { }
+	@Override public void exitType_Boolean_Type(PotatoesParser.Type_Boolean_TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterType_String_Type(PotatoesParser.Type_String_TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitType_String_Type(PotatoesParser.Type_String_TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterType_Void_Type(PotatoesParser.Type_Void_TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitType_Void_Type(PotatoesParser.Type_Void_TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterType_ID_Type(PotatoesParser.Type_ID_TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitType_ID_Type(PotatoesParser.Type_ID_TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterType_ArrayType(PotatoesParser.Type_ArrayTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitType_ArrayType(PotatoesParser.Type_ArrayTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterValue_Cast_Number(PotatoesParser.Value_Cast_NumberContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitValue_Cast_Number(PotatoesParser.Value_Cast_NumberContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterValue_Number(PotatoesParser.Value_NumberContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitValue_Number(PotatoesParser.Value_NumberContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterValue_Boolean(PotatoesParser.Value_BooleanContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitValue_Boolean(PotatoesParser.Value_BooleanContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterValue_String(PotatoesParser.Value_StringContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitValue_String(PotatoesParser.Value_StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -769,6 +841,18 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitValuesList(PotatoesParser.ValuesListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCast(PotatoesParser.CastContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCast(PotatoesParser.CastContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

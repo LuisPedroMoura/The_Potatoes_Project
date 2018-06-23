@@ -222,30 +222,6 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitAssignment_Var_Declaration_FunctionCall(PotatoesParser.Assignment_Var_Declaration_FunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code assignment_Array_ValuesList}
-	 * labeled alternative in {@link PotatoesParser#assignment}.
-	 * @param ctx the parse tree
-	 */
-	void enterAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code assignment_Array_ValuesList}
-	 * labeled alternative in {@link PotatoesParser#assignment}.
-	 * @param ctx the parse tree
-	 */
-	void exitAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code assignment_Array_FunctionCall}
-	 * labeled alternative in {@link PotatoesParser#assignment}.
-	 * @param ctx the parse tree
-	 */
-	void enterAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code assignment_Array_FunctionCall}
-	 * labeled alternative in {@link PotatoesParser#assignment}.
-	 * @param ctx the parse tree
-	 */
-	void exitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code assignment_Var_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
@@ -318,27 +294,29 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitAssingment_Var_FunctionCall(PotatoesParser.Assingment_Var_FunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code assignment_Var__Not_Boolean}
+	 * Enter a parse tree produced by the {@code assignment_Array_ValuesList}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void enterAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx);
+	void enterAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code assignment_Var__Not_Boolean}
+	 * Exit a parse tree produced by the {@code assignment_Array_ValuesList}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void exitAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx);
+	void exitAssignment_Array_ValuesList(PotatoesParser.Assignment_Array_ValuesListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PotatoesParser#cast}.
+	 * Enter a parse tree produced by the {@code assignment_Array_FunctionCall}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void enterCast(PotatoesParser.CastContext ctx);
+	void enterAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PotatoesParser#cast}.
+	 * Exit a parse tree produced by the {@code assignment_Array_FunctionCall}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void exitCast(PotatoesParser.CastContext ctx);
+	void exitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PotatoesParser#function}.
 	 * @param ctx the parse tree
@@ -682,25 +660,125 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitVarDeclaration(PotatoesParser.VarDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PotatoesParser#type}.
+	 * Enter a parse tree produced by the {@code type_Number_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterType(PotatoesParser.TypeContext ctx);
+	void enterType_Number_Type(PotatoesParser.Type_Number_TypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PotatoesParser#type}.
+	 * Exit a parse tree produced by the {@code type_Number_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitType(PotatoesParser.TypeContext ctx);
+	void exitType_Number_Type(PotatoesParser.Type_Number_TypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PotatoesParser#value}.
+	 * Enter a parse tree produced by the {@code type_Boolean_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterValue(PotatoesParser.ValueContext ctx);
+	void enterType_Boolean_Type(PotatoesParser.Type_Boolean_TypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PotatoesParser#value}.
+	 * Exit a parse tree produced by the {@code type_Boolean_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitValue(PotatoesParser.ValueContext ctx);
+	void exitType_Boolean_Type(PotatoesParser.Type_Boolean_TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code type_String_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterType_String_Type(PotatoesParser.Type_String_TypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code type_String_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitType_String_Type(PotatoesParser.Type_String_TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code type_Void_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterType_Void_Type(PotatoesParser.Type_Void_TypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code type_Void_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitType_Void_Type(PotatoesParser.Type_Void_TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code type_ID_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterType_ID_Type(PotatoesParser.Type_ID_TypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code type_ID_Type}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitType_ID_Type(PotatoesParser.Type_ID_TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code type_ArrayType}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterType_ArrayType(PotatoesParser.Type_ArrayTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code type_ArrayType}
+	 * labeled alternative in {@link PotatoesParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitType_ArrayType(PotatoesParser.Type_ArrayTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code value_Cast_Number}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void enterValue_Cast_Number(PotatoesParser.Value_Cast_NumberContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code value_Cast_Number}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void exitValue_Cast_Number(PotatoesParser.Value_Cast_NumberContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code value_Number}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void enterValue_Number(PotatoesParser.Value_NumberContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code value_Number}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void exitValue_Number(PotatoesParser.Value_NumberContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code value_Boolean}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void enterValue_Boolean(PotatoesParser.Value_BooleanContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code value_Boolean}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void exitValue_Boolean(PotatoesParser.Value_BooleanContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code value_String}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void enterValue_String(PotatoesParser.Value_StringContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code value_String}
+	 * labeled alternative in {@link PotatoesParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void exitValue_String(PotatoesParser.Value_StringContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PotatoesParser#valuesList}.
 	 * @param ctx the parse tree
@@ -711,4 +789,14 @@ public interface PotatoesListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitValuesList(PotatoesParser.ValuesListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PotatoesParser#cast}.
+	 * @param ctx the parse tree
+	 */
+	void enterCast(PotatoesParser.CastContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PotatoesParser#cast}.
+	 * @param ctx the parse tree
+	 */
+	void exitCast(PotatoesParser.CastContext ctx);
 }
