@@ -95,6 +95,16 @@ public class Variable {
 		double newValue = a.getValue() * -1;
 		return new Variable(a.getType(), newValue);
 	}
+	
+	
+	public boolean convertTypeTo(Type type) {
+		// get path from graph
+		// convert value using edges cost
+		// convert code to type code
+		return true;
+	}
+	
+	
 
 // --------------------------------------------------------------------------
 // OTHER METHODS	
