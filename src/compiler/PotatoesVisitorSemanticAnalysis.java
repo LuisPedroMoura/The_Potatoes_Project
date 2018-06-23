@@ -77,7 +77,7 @@ import utils.*;
 import utils.errorHandling.ErrorHandling;
 
 
-public class PotatoesVisitorCompiler extends PotatoesBaseVisitor<Boolean>  {
+public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean>  {
 	
 	// Static Field (Debug Only)
 	private static final boolean debug = true;
@@ -95,7 +95,7 @@ public class PotatoesVisitorCompiler extends PotatoesBaseVisitor<Boolean>  {
 	@Override
 	public Boolean visitProgram(ProgramContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitProgram(ctx);
+		return visitChildren(ctx);
 	}
 
 	@Override

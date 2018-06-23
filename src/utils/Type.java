@@ -30,7 +30,7 @@ public class Type {
 	private final String typeName;
 	private final String printName;
 	private final double code;
-	private List<Double> opTypes = new ArrayList<>();
+	private List<Type> opTypes = new ArrayList<>();
 	private List<Boolean> checkList = new ArrayList<>();
 
 // --------------------------------------------------------------------------
@@ -100,7 +100,7 @@ public class Type {
 // OPTYPES AND CHECKLIST MANIPULATIONS
 	
 	public void addOpType(Type type) {
-		opTypes.add(type.getCode());
+		opTypes.add(type);
 		checkList.add(false);
 	}
 	
@@ -109,11 +109,34 @@ public class Type {
 		
 		for (int i = 0; i < checkList.size(); i++) {
 			if (checkList.get(i) == false) {
-				if (opTypes.get(i) == code) {
-					
+				if (opTypes.get(i).getCode() == code) {
+					checkList.set(i, true);
+					return true;
 				}
 			}
 		}
+		return false;
+	}
+	
+	public Variable convertVariableToFirstPossibleTypeInOpTypeArray(Variable a) {
+		for (int i = 0; i < checkList.size(); i++) {
+			if (a.convertTypeTo(opTypes.get(i))) {
+				break;
+			}
+		}
+		return a;
+	}
+	
+	public Variable convertToMaxParent(Variable a) {
+		// while has parent, convert a.Type to parent.Type
+		return a;
+	}
+	
+	public boolean clearCheckList() {
+		for(int i = 0; i < checkList.size(); i++) {
+			checkList.set(i, false);
+		}
+		return true;
 	}
 	
 // --------------------------------------------------------------------------

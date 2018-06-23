@@ -24,7 +24,7 @@ public class PotatoesMain {
       if (parser.getNumberOfSyntaxErrors() == 0) {
          // print LISP-style tree:
          // System.out.println(tree.toStringTree(parser));
-         PotatoesVisitorCompiler visitor0 = new PotatoesVisitorCompiler();
+         PotatoesVisitorSemanticAnalysis visitor0 = new PotatoesVisitorSemanticAnalysis();
          visitor0.visit(tree);
       }
    }
