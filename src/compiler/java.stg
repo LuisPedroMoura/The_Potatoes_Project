@@ -1,0 +1,76 @@
+
+<![MJ] DONE - don't delete!>
+stats(stat) ::= <<
+	<if(stat)><stat; separator="\n"><endif>
+>>
+
+
+
+<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+
+<![MJ] DONE - don't delete!>
+class(name,stat) ::= <<
+public class <name> {
+   <stats(stat)>
+}
+>>
+
+
+
+<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DECLARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+
+<!
+	ARRAYS WILL BE THE LAST ONES
+	ARRAY '<' type ',' NUMBER'>' var
+	arrayDeclaration(type, name, size) ::= <<
+		
+	>>
+!>
+
+<![MJ] DONE - don't delete!>
+varDeclaration(type, var) ::= <<
+<type> <var> ;
+>>
+
+
+
+<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ASSIGNMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+
+<![MJ] DONE - don't delete!>
+varAssignment(type, var, stat) ::= <<
+<type> <var> = <stat>;	
+
+>>
+
+
+<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FUNCTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+
+<![MJ] DONE - don't delete!>
+main(stat)::= <<
+public static void main(String[] args) {
+   <stats(stat)>
+}
+>>
+
+
+<! REVIEW -> args!>
+function(name, return, arg) ::= <<
+public static <return> <name> ( <args(arg)> ) {
+   <stats(stat)>
+}
+>>
+
+<! REVIEW -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it !>
+args(arg) ::= <<
+	<if(arg)>< <arg> separator=" "><endif>
+>>
+
+
