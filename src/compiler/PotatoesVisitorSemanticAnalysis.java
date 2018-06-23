@@ -32,6 +32,9 @@ import potatoesGrammar.PotatoesParser.CastContext;
 import potatoesGrammar.PotatoesParser.Class_Content_AssignmentContext;
 import potatoesGrammar.PotatoesParser.Class_Content_DeclarationContext;
 import potatoesGrammar.PotatoesParser.Class_Content_FunctionContext;
+import potatoesGrammar.PotatoesParser.Code_AssignmentContext;
+import potatoesGrammar.PotatoesParser.Code_DeclarationContext;
+import potatoesGrammar.PotatoesParser.Code_FunctionContext;
 import potatoesGrammar.PotatoesParser.CompareOperatorContext;
 import potatoesGrammar.PotatoesParser.ComparisonContext;
 import potatoesGrammar.PotatoesParser.ConditionContext;
@@ -65,6 +68,7 @@ import potatoesGrammar.PotatoesParser.Statement_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.Statement_Function_ReturnContext;
 import potatoesGrammar.PotatoesParser.Statement_PrintContext;
 import potatoesGrammar.PotatoesParser.TypeContext;
+import potatoesGrammar.PotatoesParser.UsingContext;
 import potatoesGrammar.PotatoesParser.ValueContext;
 import potatoesGrammar.PotatoesParser.ValuesListContext;
 import potatoesGrammar.PotatoesParser.VarContext;
@@ -83,37 +87,63 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	private static final boolean debug = true;
 	
 	static String path;
-	TypesFileInfo typesFileInfo = new TypesFileInfo(path);
+	TypesFileInfo typesFileInfo; // initialized in visitUsing();
 	Map<String, Type> typesTable = typesFileInfo.getTypesTable();
 	
 	protected ParseTreeProperty<Variable> mapVar = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
 
-// --------------------------------------------------------------------------------------------------------------------
+
+
+@Override
+	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitCode_Declaration(ctx);
+	}
+
+	@Override
+	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitCode_Assignment(ctx);
+	}
+
+	@Override
+	public Boolean visitCode_Function(Code_FunctionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitCode_Function(ctx);
+	}
+
+	// --------------------------------------------------------------------------------------------------------------------
 // MAIN RULES----------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
-	@Override
+	@Override // [LM] Done
 	public Boolean visitProgram(ProgramContext ctx) {
-		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
-
-	@Override
-	public Boolean visitClass_Content_Declaration(Class_Content_DeclarationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitClass_Content_Declaration(ctx);
+	
+	@Override // [LM] Done
+	public Boolean visitUsing(UsingContext ctx) {
+		path = getStringText(ctx.STRING().getText());
+		typesFileInfo = new TypesFileInfo(path);
+		return true;
 	}
 
 	@Override
-	public Boolean visitClass_Content_Assignment(Class_Content_AssignmentContext ctx) {
+	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitClass_Content_Assignment(ctx);
+		return super.visitCode_Declaration(ctx);
 	}
 
 	@Override
-	public Boolean visitClass_Content_Function(Class_Content_FunctionContext ctx) {
+	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitClass_Content_Function(ctx);
+		return super.visitCode_Assignment(ctx);
+	}
+
+	@Override
+	public Boolean visitCode_Function(Code_FunctionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitCode_Function(ctx);
 	}
 
 // --------------------------------------------------------------------------------------------------------------------	
@@ -548,5 +578,10 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // AUXILIAR FUNCTIONS ---------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
 
+	public String getStringText(String str) {
+		str = str.substring(1, str.length() -1);
+		// FIXME escapes still need to be removed from antlr STRING token to have correct text.
+		return str;
+	}
 
 }

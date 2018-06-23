@@ -96,7 +96,7 @@ public class PotatoesBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDeclaration_Aarray(PotatoesParser.Declaration_AarrayContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDeclaration_array(PotatoesParser.Declaration_arrayContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -110,7 +110,7 @@ public class PotatoesBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAssignment_Var_Declaration_Var(PotatoesParser.Assignment_Var_Declaration_VarContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAssignment_Var_Declaration_Not_Boolean(PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -159,7 +159,7 @@ public class PotatoesBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAssignment_Var_Var(PotatoesParser.Assignment_Var_VarContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAssignment_Var_Not_Boolean(PotatoesParser.Assignment_Var_Not_BooleanContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -195,6 +195,13 @@ public class PotatoesBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitAssingment_Var_FunctionCall(PotatoesParser.Assingment_Var_FunctionCallContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

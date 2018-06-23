@@ -12,5 +12,20 @@
 			<attribute name="javadoc_location" value="http://www.stringtemplate.org/api"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="src/utils/jung2-2_0_1/collections-generic-4.01.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jrtom.github.io/jung/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/utils/jung2-2_0_1/jung-api-2.0.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jrtom.github.io/jung/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/utils/jung2-2_0_1/jung-graph-impl-2.0.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jrtom.github.io/jung/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -32,12 +32,12 @@ statement			: declaration EOL								#statement_Declaration
 					| print											#statement_Print
 					;
 					
-declaration			: arrayDeclaration								#declaration_Aarray
+declaration			: arrayDeclaration								#declaration_array
 					| varDeclaration								#declaration_Var
 					;
 
 
-assignment			: varDeclaration '=' '!'? var					#assignment_Var_Declaration_Var //boolean vars
+assignment			: varDeclaration '=' '!' BOOLEAN				#assignment_Var_Declaration_Not_Boolean
 					| varDeclaration '=' value						#assignment_Var_Declaration_Value
 					| varDeclaration '=' comparison					#assignment_Var_Declaration_Comparison
 					| varDeclaration '=' operation					#assignment_Var_Declaration_Operation
@@ -45,14 +45,14 @@ assignment			: varDeclaration '=' '!'? var					#assignment_Var_Declaration_Var /
 					| arrayDeclaration '=' valuesList				#assignment_Array_ValuesList
 					| arrayDeclaration '=' functionCall				#assignment_Array_FunctionCall
 					
-					| var '=' '!'? var								#assignment_Var_Var //boolean vars
+					| var '=' '!' BOOLEAN							#assignment_Var_Not_Boolean
 					| var '=' value									#assignment_Var_Value
 					| var '=' comparison							#assignment_Var_Comparison
 					| var '=' operation								#assignment_Var_Operation
 					| var '=' valuesList							#assignment_Var_ValueList
 					| var '=' functionCall							#assingment_Var_FunctionCall
 					
-					| arrayAccess '=' '!'? var						#assignment_Var_Var //boolean vars
+					| arrayAccess '=' '!' BOOLEAN					#assignment_Var__Not_Boolean
 					| arrayAccess '=' value							#assignment_Var_Value
 					| arrayAccess '=' comparison					#assignment_Var_Comparison
 					| arrayAccess '=' operation						#assignment_Var_Operation

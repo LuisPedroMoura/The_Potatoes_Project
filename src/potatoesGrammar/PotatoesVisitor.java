@@ -88,12 +88,12 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement_Print(PotatoesParser.Statement_PrintContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code declaration_Aarray}
+	 * Visit a parse tree produced by the {@code declaration_array}
 	 * labeled alternative in {@link PotatoesParser#declaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDeclaration_Aarray(PotatoesParser.Declaration_AarrayContext ctx);
+	T visitDeclaration_array(PotatoesParser.Declaration_arrayContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code declaration_Var}
 	 * labeled alternative in {@link PotatoesParser#declaration}.
@@ -102,12 +102,12 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDeclaration_Var(PotatoesParser.Declaration_VarContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code assignment_Var_Declaration_Var}
+	 * Visit a parse tree produced by the {@code assignment_Var_Declaration_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAssignment_Var_Declaration_Var(PotatoesParser.Assignment_Var_Declaration_VarContext ctx);
+	T visitAssignment_Var_Declaration_Not_Boolean(PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code assignment_Var_Declaration_Value}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
@@ -151,12 +151,12 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code assignment_Var_Var}
+	 * Visit a parse tree produced by the {@code assignment_Var_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAssignment_Var_Var(PotatoesParser.Assignment_Var_VarContext ctx);
+	T visitAssignment_Var_Not_Boolean(PotatoesParser.Assignment_Var_Not_BooleanContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code assignment_Var_Value}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
@@ -192,6 +192,13 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAssingment_Var_FunctionCall(PotatoesParser.Assingment_Var_FunctionCallContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assignment_Var__Not_Boolean}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PotatoesParser#cast}.
 	 * @param ctx the parse tree

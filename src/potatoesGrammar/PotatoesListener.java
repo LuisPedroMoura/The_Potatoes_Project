@@ -138,17 +138,17 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitStatement_Print(PotatoesParser.Statement_PrintContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code declaration_Aarray}
+	 * Enter a parse tree produced by the {@code declaration_array}
 	 * labeled alternative in {@link PotatoesParser#declaration}.
 	 * @param ctx the parse tree
 	 */
-	void enterDeclaration_Aarray(PotatoesParser.Declaration_AarrayContext ctx);
+	void enterDeclaration_array(PotatoesParser.Declaration_arrayContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code declaration_Aarray}
+	 * Exit a parse tree produced by the {@code declaration_array}
 	 * labeled alternative in {@link PotatoesParser#declaration}.
 	 * @param ctx the parse tree
 	 */
-	void exitDeclaration_Aarray(PotatoesParser.Declaration_AarrayContext ctx);
+	void exitDeclaration_array(PotatoesParser.Declaration_arrayContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code declaration_Var}
 	 * labeled alternative in {@link PotatoesParser#declaration}.
@@ -162,17 +162,17 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitDeclaration_Var(PotatoesParser.Declaration_VarContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code assignment_Var_Declaration_Var}
+	 * Enter a parse tree produced by the {@code assignment_Var_Declaration_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void enterAssignment_Var_Declaration_Var(PotatoesParser.Assignment_Var_Declaration_VarContext ctx);
+	void enterAssignment_Var_Declaration_Not_Boolean(PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code assignment_Var_Declaration_Var}
+	 * Exit a parse tree produced by the {@code assignment_Var_Declaration_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void exitAssignment_Var_Declaration_Var(PotatoesParser.Assignment_Var_Declaration_VarContext ctx);
+	void exitAssignment_Var_Declaration_Not_Boolean(PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code assignment_Var_Declaration_Value}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
@@ -246,17 +246,17 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code assignment_Var_Var}
+	 * Enter a parse tree produced by the {@code assignment_Var_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void enterAssignment_Var_Var(PotatoesParser.Assignment_Var_VarContext ctx);
+	void enterAssignment_Var_Not_Boolean(PotatoesParser.Assignment_Var_Not_BooleanContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code assignment_Var_Var}
+	 * Exit a parse tree produced by the {@code assignment_Var_Not_Boolean}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void exitAssignment_Var_Var(PotatoesParser.Assignment_Var_VarContext ctx);
+	void exitAssignment_Var_Not_Boolean(PotatoesParser.Assignment_Var_Not_BooleanContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code assignment_Var_Value}
 	 * labeled alternative in {@link PotatoesParser#assignment}.
@@ -317,6 +317,18 @@ public interface PotatoesListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAssingment_Var_FunctionCall(PotatoesParser.Assingment_Var_FunctionCallContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignment_Var__Not_Boolean}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignment_Var__Not_Boolean}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PotatoesParser#cast}.
 	 * @param ctx the parse tree

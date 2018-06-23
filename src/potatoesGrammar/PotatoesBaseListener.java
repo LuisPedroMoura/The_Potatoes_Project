@@ -150,13 +150,13 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDeclaration_Aarray(PotatoesParser.Declaration_AarrayContext ctx) { }
+	@Override public void enterDeclaration_array(PotatoesParser.Declaration_arrayContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDeclaration_Aarray(PotatoesParser.Declaration_AarrayContext ctx) { }
+	@Override public void exitDeclaration_array(PotatoesParser.Declaration_arrayContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -174,13 +174,13 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAssignment_Var_Declaration_Var(PotatoesParser.Assignment_Var_Declaration_VarContext ctx) { }
+	@Override public void enterAssignment_Var_Declaration_Not_Boolean(PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAssignment_Var_Declaration_Var(PotatoesParser.Assignment_Var_Declaration_VarContext ctx) { }
+	@Override public void exitAssignment_Var_Declaration_Not_Boolean(PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -258,13 +258,13 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAssignment_Var_Var(PotatoesParser.Assignment_Var_VarContext ctx) { }
+	@Override public void enterAssignment_Var_Not_Boolean(PotatoesParser.Assignment_Var_Not_BooleanContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAssignment_Var_Var(PotatoesParser.Assignment_Var_VarContext ctx) { }
+	@Override public void exitAssignment_Var_Not_Boolean(PotatoesParser.Assignment_Var_Not_BooleanContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -325,6 +325,18 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAssingment_Var_FunctionCall(PotatoesParser.Assingment_Var_FunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssignment_Var__Not_Boolean(PotatoesParser.Assignment_Var__Not_BooleanContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
