@@ -7,35 +7,37 @@ import java.util.List;
 
 
 /**
+ * 
  * <b>Type</b><p>
  * 
- * @author Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+ * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
 public class Type {
 
-	private static List<Integer> primes = new LinkedList<>();	
+	// Static Fields
+	private static List<Integer> primes;	
 	private static int index;
 
-// --------------------------------------------------------------------------
-// STATIC CONSTRUCTOR
+	// --------------------------------------------------------------------------
+	// Static CTOR
 	static { 
-		index = 0;
+		primes = new LinkedList<>();
+		index  = 0;
 		initPrimeNumbersList(1000);
 	}
 
-// --------------------------------------------------------------------------
-// INSTANCE FIELDS
-	
+	// --------------------------------------------------------------------------
+	// Instance Fields
+
 	private final String typeName;
 	private final String printName;
 	private final double code;
-	private List<Type> opTypes = new ArrayList<>();
+	private List<Type>	  opTypes 	= new ArrayList<>();
 	private List<Boolean> checkList = new ArrayList<>();
 
-// --------------------------------------------------------------------------
-// CONTRUCTORS
-	
+	// --------------------------------------------------------------------------
+	// CTORs
 	/**
 	 * Constructor for basic types<p>
 	 * Create a new basic type
@@ -45,7 +47,7 @@ public class Type {
 	public Type(String typeName, String printName) {
 		this(typeName, printName, (double) primes.get(index));
 		index++;
-		
+
 	}
 
 	/**
@@ -66,15 +68,15 @@ public class Type {
 	 * Create a new type based on another type 
 	 * @param code a unique prime number, or the result of operating with other codes
 	 */
-	private Type(Double code) {
+	public Type(Double code) {
 		this.typeName  = "temp";
 		this.printName = "";
 		this.code = code;
 	}
 
-// --------------------------------------------------------------------------
-// GETTERS / SETTERS
-	
+	// --------------------------------------------------------------------------
+	// Getters / Setters
+
 	/**
 	 * @return typeName
 	 */
@@ -96,17 +98,17 @@ public class Type {
 		return code;
 	}
 
-// --------------------------------------------------------------------------
-// OPTYPES AND CHECKLIST MANIPULATIONS
-	
+	// --------------------------------------------------------------------------
+	// Op Types & Checklist Manipulations
+
 	public void addOpType(Type type) {
 		opTypes.add(type);
 		checkList.add(false);
 	}
-	
+
 	public boolean checkType(Type type) {
 		Double code = type.getCode();
-		
+
 		for (int i = 0; i < checkList.size(); i++) {
 			if (checkList.get(i) == false) {
 				if (opTypes.get(i).getCode() == code) {
@@ -117,7 +119,7 @@ public class Type {
 		}
 		return false;
 	}
-	
+
 	public Variable convertVariableToFirstPossibleTypeInOpTypeArray(Variable a) {
 		for (int i = 0; i < checkList.size(); i++) {
 			if (a.convertTypeTo(opTypes.get(i))) {
@@ -126,21 +128,21 @@ public class Type {
 		}
 		return a;
 	}
-	
+
 	public Variable convertToMaxParent(Variable a) {
 		// while has parent, convert a.Type to parent.Type
 		return a;
 	}
-	
+
 	public boolean clearCheckList() {
 		for(int i = 0; i < checkList.size(); i++) {
 			checkList.set(i, false);
 		}
 		return true;
 	}
-	
-// --------------------------------------------------------------------------
-// OPERATIONS WITH TYPES (Multiplication and Division)
+
+	// --------------------------------------------------------------------------
+	// Operations with Types (Multiplication and Division)
 
 	/**
 	 * @return new Type with correspondent code
@@ -157,8 +159,8 @@ public class Type {
 	}
 
 
-// --------------------------------------------------------------------------
-// AUXILIAR METHODS
+	// --------------------------------------------------------------------------
+	// Auxiliar Methods
 
 	/**
 	 * @param n number of prime numbers to be generated
@@ -180,8 +182,8 @@ public class Type {
 			}
 		}
 	}
-// --------------------------------------------------------------------------
-// OTHER METHODS
+	// --------------------------------------------------------------------------
+	// Other Methods
 
 	@Override
 	public String toString() {
@@ -235,8 +237,4 @@ public class Type {
 			return false;
 		return true;
 	}
-
-
-	
-	
 }

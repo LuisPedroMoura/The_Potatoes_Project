@@ -16,7 +16,16 @@ antlr/src\.zip
 
 /target/*
 
-*Parser*Listener.java
-*Parser*Visitor.java
+
+TypesBaseListener.java
+TypesBaseVisitor.java
+TypesListener.java
+TypesVisitor.java
+
+PotatoesBaseListener.java
+PotatoesBaseVisitor.java
+PotatoesListener.java
+PotatoesVisitor.java
+
 *Lexer.java
 *Parser.java
