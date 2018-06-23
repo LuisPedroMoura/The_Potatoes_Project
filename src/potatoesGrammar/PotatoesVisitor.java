@@ -193,6 +193,55 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code assigmennt_Array_Var}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssigmennt_Array_Var(PotatoesParser.Assigmennt_Array_VarContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assignment_ArrayAccess_Not_Boolean}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignment_ArrayAccess_Not_Boolean(PotatoesParser.Assignment_ArrayAccess_Not_BooleanContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assignment_ArrayAccess_Value}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignment_ArrayAccess_Value(PotatoesParser.Assignment_ArrayAccess_ValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assignment_ArrayAccess_Comparison}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignment_ArrayAccess_Comparison(PotatoesParser.Assignment_ArrayAccess_ComparisonContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assignment_ArrayAccess_Operation}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignment_ArrayAccess_Operation(PotatoesParser.Assignment_ArrayAccess_OperationContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assignment_ArrayAccess_ValueList}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignment_ArrayAccess_ValueList(PotatoesParser.Assignment_ArrayAccess_ValueListContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assingment_ArrayAccess_FunctionCall}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssingment_ArrayAccess_FunctionCall(PotatoesParser.Assingment_ArrayAccess_FunctionCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PotatoesParser#function}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -247,23 +296,68 @@ public interface PotatoesVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCondition(PotatoesParser.ConditionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PotatoesParser#logicalOperation}.
+	 * Visit a parse tree produced by the {@code logicalOperation_Operation}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogicalOperation(PotatoesParser.LogicalOperationContext ctx);
+	T visitLogicalOperation_Operation(PotatoesParser.LogicalOperation_OperationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PotatoesParser#logicalOperand}.
+	 * Visit a parse tree produced by the {@code logicalOperation_Parenthesis}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogicalOperand(PotatoesParser.LogicalOperandContext ctx);
+	T visitLogicalOperation_Parenthesis(PotatoesParser.LogicalOperation_ParenthesisContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PotatoesParser#logicalOperator}.
+	 * Visit a parse tree produced by the {@code logicalOperation_logicalOperand}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogicalOperator(PotatoesParser.LogicalOperatorContext ctx);
+	T visitLogicalOperation_logicalOperand(PotatoesParser.LogicalOperation_logicalOperandContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logicalOperand_Comparison}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalOperand_Comparison(PotatoesParser.LogicalOperand_ComparisonContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logicalOperand_Not_Comparison}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalOperand_Not_Comparison(PotatoesParser.LogicalOperand_Not_ComparisonContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logicalOperand_Var}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalOperand_Var(PotatoesParser.LogicalOperand_VarContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logicalOperand_Not_Var}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalOperand_Not_Var(PotatoesParser.LogicalOperand_Not_VarContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logicalOperand_Value}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalOperand_Value(PotatoesParser.LogicalOperand_ValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logicalOperand_Not_Value}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogicalOperand_Not_Value(PotatoesParser.LogicalOperand_Not_ValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PotatoesParser#comparison}.
 	 * @param ctx the parse tree

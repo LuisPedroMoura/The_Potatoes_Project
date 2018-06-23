@@ -318,6 +318,90 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitAssignment_Array_FunctionCall(PotatoesParser.Assignment_Array_FunctionCallContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code assigmennt_Array_Var}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssigmennt_Array_Var(PotatoesParser.Assigmennt_Array_VarContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assigmennt_Array_Var}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssigmennt_Array_Var(PotatoesParser.Assigmennt_Array_VarContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignment_ArrayAccess_Not_Boolean}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignment_ArrayAccess_Not_Boolean(PotatoesParser.Assignment_ArrayAccess_Not_BooleanContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignment_ArrayAccess_Not_Boolean}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignment_ArrayAccess_Not_Boolean(PotatoesParser.Assignment_ArrayAccess_Not_BooleanContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignment_ArrayAccess_Value}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignment_ArrayAccess_Value(PotatoesParser.Assignment_ArrayAccess_ValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignment_ArrayAccess_Value}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignment_ArrayAccess_Value(PotatoesParser.Assignment_ArrayAccess_ValueContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignment_ArrayAccess_Comparison}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignment_ArrayAccess_Comparison(PotatoesParser.Assignment_ArrayAccess_ComparisonContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignment_ArrayAccess_Comparison}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignment_ArrayAccess_Comparison(PotatoesParser.Assignment_ArrayAccess_ComparisonContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignment_ArrayAccess_Operation}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignment_ArrayAccess_Operation(PotatoesParser.Assignment_ArrayAccess_OperationContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignment_ArrayAccess_Operation}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignment_ArrayAccess_Operation(PotatoesParser.Assignment_ArrayAccess_OperationContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignment_ArrayAccess_ValueList}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignment_ArrayAccess_ValueList(PotatoesParser.Assignment_ArrayAccess_ValueListContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignment_ArrayAccess_ValueList}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignment_ArrayAccess_ValueList(PotatoesParser.Assignment_ArrayAccess_ValueListContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assingment_ArrayAccess_FunctionCall}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssingment_ArrayAccess_FunctionCall(PotatoesParser.Assingment_ArrayAccess_FunctionCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assingment_ArrayAccess_FunctionCall}
+	 * labeled alternative in {@link PotatoesParser#assignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssingment_ArrayAccess_FunctionCall(PotatoesParser.Assingment_ArrayAccess_FunctionCallContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PotatoesParser#function}.
 	 * @param ctx the parse tree
 	 */
@@ -408,35 +492,113 @@ public interface PotatoesListener extends ParseTreeListener {
 	 */
 	void exitCondition(PotatoesParser.ConditionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PotatoesParser#logicalOperation}.
+	 * Enter a parse tree produced by the {@code logicalOperation_Operation}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalOperation(PotatoesParser.LogicalOperationContext ctx);
+	void enterLogicalOperation_Operation(PotatoesParser.LogicalOperation_OperationContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PotatoesParser#logicalOperation}.
+	 * Exit a parse tree produced by the {@code logicalOperation_Operation}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalOperation(PotatoesParser.LogicalOperationContext ctx);
+	void exitLogicalOperation_Operation(PotatoesParser.LogicalOperation_OperationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PotatoesParser#logicalOperand}.
+	 * Enter a parse tree produced by the {@code logicalOperation_Parenthesis}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalOperand(PotatoesParser.LogicalOperandContext ctx);
+	void enterLogicalOperation_Parenthesis(PotatoesParser.LogicalOperation_ParenthesisContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PotatoesParser#logicalOperand}.
+	 * Exit a parse tree produced by the {@code logicalOperation_Parenthesis}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalOperand(PotatoesParser.LogicalOperandContext ctx);
+	void exitLogicalOperation_Parenthesis(PotatoesParser.LogicalOperation_ParenthesisContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PotatoesParser#logicalOperator}.
+	 * Enter a parse tree produced by the {@code logicalOperation_logicalOperand}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalOperator(PotatoesParser.LogicalOperatorContext ctx);
+	void enterLogicalOperation_logicalOperand(PotatoesParser.LogicalOperation_logicalOperandContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PotatoesParser#logicalOperator}.
+	 * Exit a parse tree produced by the {@code logicalOperation_logicalOperand}
+	 * labeled alternative in {@link PotatoesParser#logicalOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalOperator(PotatoesParser.LogicalOperatorContext ctx);
+	void exitLogicalOperation_logicalOperand(PotatoesParser.LogicalOperation_logicalOperandContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code logicalOperand_Comparison}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalOperand_Comparison(PotatoesParser.LogicalOperand_ComparisonContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code logicalOperand_Comparison}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalOperand_Comparison(PotatoesParser.LogicalOperand_ComparisonContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code logicalOperand_Not_Comparison}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalOperand_Not_Comparison(PotatoesParser.LogicalOperand_Not_ComparisonContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code logicalOperand_Not_Comparison}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalOperand_Not_Comparison(PotatoesParser.LogicalOperand_Not_ComparisonContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code logicalOperand_Var}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalOperand_Var(PotatoesParser.LogicalOperand_VarContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code logicalOperand_Var}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalOperand_Var(PotatoesParser.LogicalOperand_VarContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code logicalOperand_Not_Var}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalOperand_Not_Var(PotatoesParser.LogicalOperand_Not_VarContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code logicalOperand_Not_Var}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalOperand_Not_Var(PotatoesParser.LogicalOperand_Not_VarContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code logicalOperand_Value}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalOperand_Value(PotatoesParser.LogicalOperand_ValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code logicalOperand_Value}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalOperand_Value(PotatoesParser.LogicalOperand_ValueContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code logicalOperand_Not_Value}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalOperand_Not_Value(PotatoesParser.LogicalOperand_Not_ValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code logicalOperand_Not_Value}
+	 * labeled alternative in {@link PotatoesParser#logicalOperand}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalOperand_Not_Value(PotatoesParser.LogicalOperand_Not_ValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PotatoesParser#comparison}.
 	 * @param ctx the parse tree

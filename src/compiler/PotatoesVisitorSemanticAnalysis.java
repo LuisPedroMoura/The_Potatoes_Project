@@ -10,13 +10,22 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import static java.lang.System.*;
 
+import typesGrammar.TypesFileInfo;
+import utils.*;
+import utils.errorHandling.ErrorHandling;
+
 import potatoesGrammar.PotatoesBaseVisitor;
 import potatoesGrammar.PotatoesParser;
 import potatoesGrammar.PotatoesParser.ArrayAccessContext;
 import potatoesGrammar.PotatoesParser.ArrayDeclarationContext;
 import potatoesGrammar.PotatoesParser.ArrayLengthContext;
 import potatoesGrammar.PotatoesParser.ArrayTypeContext;
-import potatoesGrammar.PotatoesParser.Assignment_ArrayContext;
+import potatoesGrammar.PotatoesParser.Assigmennt_Array_VarContext;
+import potatoesGrammar.PotatoesParser.Assignment_ArrayAccess_ComparisonContext;
+import potatoesGrammar.PotatoesParser.Assignment_ArrayAccess_Not_BooleanContext;
+import potatoesGrammar.PotatoesParser.Assignment_ArrayAccess_OperationContext;
+import potatoesGrammar.PotatoesParser.Assignment_ArrayAccess_ValueContext;
+import potatoesGrammar.PotatoesParser.Assignment_ArrayAccess_ValueListContext;
 import potatoesGrammar.PotatoesParser.Assignment_Array_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.Assignment_Array_ValuesListContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ComparisonContext;
@@ -25,18 +34,13 @@ import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_FunctionCallCon
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_Not_BooleanContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_OperationContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_ValueContext;
-import potatoesGrammar.PotatoesParser.Assignment_Var_Declaration_VarContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_Not_BooleanContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_OperationContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ValueContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ValueListContext;
-import potatoesGrammar.PotatoesParser.Assignment_Var_VarContext;
-import potatoesGrammar.PotatoesParser.Assignment_Var__Not_BooleanContext;
+import potatoesGrammar.PotatoesParser.Assingment_ArrayAccess_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.Assingment_Var_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.CastContext;
-import potatoesGrammar.PotatoesParser.Class_Content_AssignmentContext;
-import potatoesGrammar.PotatoesParser.Class_Content_DeclarationContext;
-import potatoesGrammar.PotatoesParser.Class_Content_FunctionContext;
 import potatoesGrammar.PotatoesParser.Code_AssignmentContext;
 import potatoesGrammar.PotatoesParser.Code_DeclarationContext;
 import potatoesGrammar.PotatoesParser.Code_FunctionContext;
@@ -44,7 +48,6 @@ import potatoesGrammar.PotatoesParser.CompareOperatorContext;
 import potatoesGrammar.PotatoesParser.ComparisonContext;
 import potatoesGrammar.PotatoesParser.ConditionContext;
 import potatoesGrammar.PotatoesParser.ControlFlowStatementContext;
-import potatoesGrammar.PotatoesParser.Declaratio_AarrayContext;
 import potatoesGrammar.PotatoesParser.Declaration_VarContext;
 import potatoesGrammar.PotatoesParser.Declaration_arrayContext;
 import potatoesGrammar.PotatoesParser.ForLoopContext;
@@ -52,19 +55,24 @@ import potatoesGrammar.PotatoesParser.FunctionCallContext;
 import potatoesGrammar.PotatoesParser.FunctionContext;
 import potatoesGrammar.PotatoesParser.FunctionReturnContext;
 import potatoesGrammar.PotatoesParser.LogicalOperandContext;
+import potatoesGrammar.PotatoesParser.LogicalOperand_ComparisonContext;
+import potatoesGrammar.PotatoesParser.LogicalOperand_Not_ComparisonContext;
+import potatoesGrammar.PotatoesParser.LogicalOperand_Not_ValueContext;
+import potatoesGrammar.PotatoesParser.LogicalOperand_Not_VarContext;
+import potatoesGrammar.PotatoesParser.LogicalOperand_ValueContext;
+import potatoesGrammar.PotatoesParser.LogicalOperand_VarContext;
 import potatoesGrammar.PotatoesParser.LogicalOperationContext;
+import potatoesGrammar.PotatoesParser.LogicalOperation_OperationContext;
+import potatoesGrammar.PotatoesParser.LogicalOperation_ParenthesisContext;
+import potatoesGrammar.PotatoesParser.LogicalOperation_logicalOperandContext;
 import potatoesGrammar.PotatoesParser.LogicalOperatorContext;
 import potatoesGrammar.PotatoesParser.Operation_Add_SubContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayAccessContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayLengthContext;
 import potatoesGrammar.PotatoesParser.Operation_CastContext;
-import potatoesGrammar.PotatoesParser.Operation_ExprContext;
 import potatoesGrammar.PotatoesParser.Operation_FunctionCallContext;
-import potatoesGrammar.PotatoesParser.Operation_ModulusContext;
-import potatoesGrammar.PotatoesParser.Operation_Mult_DivContext;
 import potatoesGrammar.PotatoesParser.Operation_Mult_Div_ModContext;
 import potatoesGrammar.PotatoesParser.Operation_NUMBERContext;
-import potatoesGrammar.PotatoesParser.Operation_NumberContext;
 import potatoesGrammar.PotatoesParser.Operation_ParenthesisContext;
 import potatoesGrammar.PotatoesParser.Operation_PowerContext;
 import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
@@ -96,9 +104,6 @@ import potatoesGrammar.PotatoesParser.VarDeclarationContext;
 import potatoesGrammar.PotatoesParser.WhenCaseContext;
 import potatoesGrammar.PotatoesParser.WhenContext;
 import potatoesGrammar.PotatoesParser.WhileLoopContext;
-import typesGrammar.TypesFileInfo;
-import utils.*;
-import utils.errorHandling.ErrorHandling;
 
 
 public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean>  {
@@ -118,25 +123,6 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	// OUT OF PLACE VISITORS
 // -----------------------
 	
-	@Override
-	public Boolean visitAssignment_Array_ValuesList(Assignment_Array_ValuesListContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Array_ValuesList(ctx);
-	}
-
-	@Override
-	public Boolean visitAssignment_Array_FunctionCall(Assignment_Array_FunctionCallContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Array_FunctionCall(ctx);
-	}
-
-
-
-	@Override
-	public Boolean visitAssignment_Var__Not_Boolean(Assignment_Var__Not_BooleanContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var__Not_Boolean(ctx);
-	}
 
 	@Override
 	public Boolean visitOperation_NUMBER(Operation_NUMBERContext ctx) {
@@ -232,9 +218,6 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // --------------------------------------------------------------------------------------------------------------------	
 // CLASS - DECLARATIONS-----------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
-	
-	
-	
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitDeclaration_array(Declaration_arrayContext ctx) {
 		// TODO Auto-generated method stub
@@ -252,6 +235,13 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
 		String type = (String) mapCtxObj.get(ctx.varDeclaration().type());
+		String varName = ctx.varDeclaration().var().ID().getText();
+		
+		// verify that variable to be created has valid name
+		if (typesTable.containsKey(varName)) {
+			ErrorHandling.printError(ctx, varName + " is a reserved word");
+			return false;
+		}
 		
 		// verify that assigned Variable is of Type boolean
 		if (type.equals("boolean")) {
@@ -269,6 +259,13 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	public Boolean visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		Object value = mapCtxObj.get(ctx.value());
+		String varName = ctx.varDeclaration().var().ID().getText();
+		
+		// verify that variable to be created has valid name
+		if (typesTable.containsKey(varName)) {
+			ErrorHandling.printError(ctx, varName + " is a reserved word");
+			return false;
+		}
 		
 		// assign boolean to boolean
 		if (value instanceof Boolean && typeName.equals("boolean")) {
@@ -306,6 +303,13 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	public Boolean visitAssignment_Var_Declaration_Comparison(Assignment_Var_Declaration_ComparisonContext ctx) {
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
+		String varName = ctx.varDeclaration().var().ID().getText();
+		
+		// verify that variable to be created has valid name
+		if (typesTable.containsKey(varName)) {
+			ErrorHandling.printError(ctx, varName + " is a reserved word");
+			return false;
+		}
 		
 		// verify taht assigned var has type boolean
 		if (typeName.equals("boolean")) {
@@ -323,6 +327,13 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	public Boolean visitAssignment_Var_Declaration_Operation(Assignment_Var_Declaration_OperationContext ctx) {
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		Variable a = (Variable) mapCtxObj.get(ctx.operation());
+		String varName = ctx.varDeclaration().var().ID().getText();
+		
+		// verify that variable to be created has valid name
+		if (typesTable.containsKey(varName)) {
+			ErrorHandling.printError(ctx, varName + " is a reserved word");
+			return false;
+		}
 		
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
@@ -410,10 +421,19 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		return false;
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Operation(Assignment_Var_OperationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Operation(ctx);
+		String typeName = (String) mapCtxObj.get(ctx.var().ID());
+		Variable a = (Variable) mapCtxObj.get(ctx.operation());
+		
+		if (a.convertTypeTo(typesTable.get(typeName))) {
+			symbolTable.put(ctx.var().ID().getText(), a);
+			mapCtxObj.put(ctx, a);
+			return true;
+		}
+		// Types are not compatible
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"");
+		return false;
 	}
 
 	@Override
@@ -428,7 +448,60 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		return super.visitAssingment_Var_FunctionCall(ctx);
 	}
 
+	@Override
+	public Boolean visitAssigmennt_Array_Var(Assigmennt_Array_VarContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssigmennt_Array_Var(ctx);
+	}
 	
+	@Override
+	public Boolean visitAssignment_Array_ValuesList(Assignment_Array_ValuesListContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Array_ValuesList(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_Array_FunctionCall(Assignment_Array_FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_Array_FunctionCall(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_ArrayAccess_Not_Boolean(Assignment_ArrayAccess_Not_BooleanContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_ArrayAccess_Not_Boolean(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_ArrayAccess_Value(Assignment_ArrayAccess_ValueContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_ArrayAccess_Value(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_ArrayAccess_Comparison(Assignment_ArrayAccess_ComparisonContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_ArrayAccess_Comparison(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_ArrayAccess_Operation(Assignment_ArrayAccess_OperationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_ArrayAccess_Operation(ctx);
+	}
+
+	@Override
+	public Boolean visitAssignment_ArrayAccess_ValueList(Assignment_ArrayAccess_ValueListContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssignment_ArrayAccess_ValueList(ctx);
+	}
+
+	@Override
+	public Boolean visitAssingment_ArrayAccess_FunctionCall(Assingment_ArrayAccess_FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitAssingment_ArrayAccess_FunctionCall(ctx);
+	}
+
 // --------------------------------------------------------------------------------------------------------------------	
 // FUNCTIONS-------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------	
@@ -459,22 +532,19 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // --------------------------------------------------------------------------------------------------------------------
 // CONTROL FLOW STATMENTS------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------	
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitControlFlowStatement(ControlFlowStatementContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitControlFlowStatement(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitForLoop(ForLoopContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitForLoop(ctx);
+		return visitChildren(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitWhileLoop(WhileLoopContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitWhileLoop(ctx);
+		return visitChildren(ctx);
 	}
 
 	@Override
@@ -499,22 +569,79 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // --------------------------------------------------------------------------------------------------------------------
 // LOGICAL OPERATIONS----------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
-	@Override
-	public Boolean visitLogicalOperation(LogicalOperationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperation(ctx);
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
+		return visitChildren(ctx);
+	}
+	
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
+		Boolean b1 = (Boolean) mapCtxObj.get(ctx.logicalOperation(0));
+		Boolean b2 = (Boolean) mapCtxObj.get(ctx.logicalOperation(1));
+		Boolean res = true;
+		
+		// logical AND
+		if (ctx.op.getText().equals("&&")) {
+			res = b1 && b2;
+		}
+		
+		// logical OR
+		if(ctx.op.getText().equals("||")) {
+			res = b1 || b2;
+		}
+		
+		return res;
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
+		return !visitChildren(ctx);
 	}
 
 	@Override
-	public Boolean visitLogicalOperand(LogicalOperandContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand(ctx);
+	public Boolean visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
+		String varName = ctx.var().ID().getText();
+		Boolean res;
+		// verify that variable exists
+		if (symbolTable.containsKey(varName)) {
+			if (symbolTable.get(varName) instanceof Boolean) {
+				
+			}
+		}
+		else {
+			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared");
+			return false;
+		}
+		
+		return super.visitLogicalOperand_Var(ctx);
 	}
 
 	@Override
-	public Boolean visitLogicalOperator(LogicalOperatorContext ctx) {
+	public Boolean visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
 		// TODO Auto-generated method stub
-		return super.visitLogicalOperator(ctx);
+		return super.visitLogicalOperand_Not_Var(ctx);
+	}
+
+	@Override
+	public Boolean visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitLogicalOperand_Value(ctx);
+	}
+
+	@Override
+	public Boolean visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitLogicalOperand_Not_Value(ctx);
 	}
 
 	@Override

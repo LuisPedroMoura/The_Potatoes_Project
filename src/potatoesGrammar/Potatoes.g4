@@ -50,13 +50,14 @@ assignment			: varDeclaration '=' '!' BOOLEAN				#assignment_Var_Declaration_Not
 					
 					| arrayDeclaration '=' valuesList				#assignment_Array_ValuesList
 					| arrayDeclaration '=' functionCall				#assignment_Array_FunctionCall
+					| arrayDeclaration '=' var						#assigmennt_Array_Var
 					
-					| arrayAccess '=' '!' BOOLEAN					#assignment_Var_Not_Boolean
-					| arrayAccess '=' value							#assignment_Var_Value
-					| arrayAccess '=' comparison					#assignment_Var_Comparison
-					| arrayAccess '=' operation						#assignment_Var_Operation
-					| arrayAccess '=' valuesList					#assignment_Var_ValueList
-					| arrayAccess '=' functionCall					#assingment_Var_FunctionCall
+					| arrayAccess '=' '!' BOOLEAN					#assignment_ArrayAccess_Not_Boolean
+					| arrayAccess '=' value							#assignment_ArrayAccess_Value
+					| arrayAccess '=' comparison					#assignment_ArrayAccess_Comparison
+					| arrayAccess '=' operation						#assignment_ArrayAccess_Operation
+					| arrayAccess '=' valuesList					#assignment_ArrayAccess_ValueList
+					| arrayAccess '=' functionCall					#assingment_ArrayAccess_FunctionCall
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
@@ -97,16 +98,17 @@ condition			: IF '(' logicalOperation ')' '{' statement* '}'
 					;
 
 // LOGICAL OPERATIONS----------------------------------------------------------
-logicalOperation	: logicalOperand (logicalOperator logicalOperand)?
+logicalOperation	: '(' logicalOperation ')'								# logicalOperation_Parenthesis
+					| logicalOperation op=('&&' | '||') logicalOperation	# logicalOperation_Operation
+					| logicalOperand										# logicalOperation_logicalOperand
 					;
 					
-logicalOperand 		: '!'? comparison
-					| '!'? var	// boolean var
-					| '!'? value // true or false
-					;
-					
-logicalOperator		: '&&'
-					| '||'
+logicalOperand 		: comparison						# logicalOperand_Comparison
+					| '!' comparison					# logicalOperand_Not_Comparison
+					| var								# logicalOperand_Var
+					| '!' var							# logicalOperand_Not_Var
+					| value								# logicalOperand_Value
+					| '!' value							# logicalOperand_Not_Value
 					;
 						
 comparison			: operation compareOperator operation

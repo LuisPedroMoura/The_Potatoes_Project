@@ -330,6 +330,90 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterAssigmennt_Array_Var(PotatoesParser.Assigmennt_Array_VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssigmennt_Array_Var(PotatoesParser.Assigmennt_Array_VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAssignment_ArrayAccess_Not_Boolean(PotatoesParser.Assignment_ArrayAccess_Not_BooleanContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssignment_ArrayAccess_Not_Boolean(PotatoesParser.Assignment_ArrayAccess_Not_BooleanContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAssignment_ArrayAccess_Value(PotatoesParser.Assignment_ArrayAccess_ValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssignment_ArrayAccess_Value(PotatoesParser.Assignment_ArrayAccess_ValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAssignment_ArrayAccess_Comparison(PotatoesParser.Assignment_ArrayAccess_ComparisonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssignment_ArrayAccess_Comparison(PotatoesParser.Assignment_ArrayAccess_ComparisonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAssignment_ArrayAccess_Operation(PotatoesParser.Assignment_ArrayAccess_OperationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssignment_ArrayAccess_Operation(PotatoesParser.Assignment_ArrayAccess_OperationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAssignment_ArrayAccess_ValueList(PotatoesParser.Assignment_ArrayAccess_ValueListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssignment_ArrayAccess_ValueList(PotatoesParser.Assignment_ArrayAccess_ValueListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAssingment_ArrayAccess_FunctionCall(PotatoesParser.Assingment_ArrayAccess_FunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAssingment_ArrayAccess_FunctionCall(PotatoesParser.Assingment_ArrayAccess_FunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunction(PotatoesParser.FunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -438,37 +522,109 @@ public class PotatoesBaseListener implements PotatoesListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogicalOperation(PotatoesParser.LogicalOperationContext ctx) { }
+	@Override public void enterLogicalOperation_Operation(PotatoesParser.LogicalOperation_OperationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogicalOperation(PotatoesParser.LogicalOperationContext ctx) { }
+	@Override public void exitLogicalOperation_Operation(PotatoesParser.LogicalOperation_OperationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogicalOperand(PotatoesParser.LogicalOperandContext ctx) { }
+	@Override public void enterLogicalOperation_Parenthesis(PotatoesParser.LogicalOperation_ParenthesisContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogicalOperand(PotatoesParser.LogicalOperandContext ctx) { }
+	@Override public void exitLogicalOperation_Parenthesis(PotatoesParser.LogicalOperation_ParenthesisContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogicalOperator(PotatoesParser.LogicalOperatorContext ctx) { }
+	@Override public void enterLogicalOperation_logicalOperand(PotatoesParser.LogicalOperation_logicalOperandContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogicalOperator(PotatoesParser.LogicalOperatorContext ctx) { }
+	@Override public void exitLogicalOperation_logicalOperand(PotatoesParser.LogicalOperation_logicalOperandContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalOperand_Comparison(PotatoesParser.LogicalOperand_ComparisonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalOperand_Comparison(PotatoesParser.LogicalOperand_ComparisonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalOperand_Not_Comparison(PotatoesParser.LogicalOperand_Not_ComparisonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalOperand_Not_Comparison(PotatoesParser.LogicalOperand_Not_ComparisonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalOperand_Var(PotatoesParser.LogicalOperand_VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalOperand_Var(PotatoesParser.LogicalOperand_VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalOperand_Not_Var(PotatoesParser.LogicalOperand_Not_VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalOperand_Not_Var(PotatoesParser.LogicalOperand_Not_VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalOperand_Value(PotatoesParser.LogicalOperand_ValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalOperand_Value(PotatoesParser.LogicalOperand_ValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalOperand_Not_Value(PotatoesParser.LogicalOperand_Not_ValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalOperand_Not_Value(PotatoesParser.LogicalOperand_Not_ValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
