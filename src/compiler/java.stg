@@ -20,14 +20,16 @@ public class <name> {
 DECLARATION***********************************************************************
 *********************************************************************************/
 
+// ARRAY DECLARATION--------------------------------------------------------------
 /*
 	ARRAYS WILL BE THE LAST ONES
 	ARRAY '<' type ',' NUMBER'>' var
 	arrayDeclaration(type, name, size) ::= <<
-		
+		<type> <name> [] = new <type> [<size>];
 	>>
 */
 
+// VAR DECLARATION---------------------------------------------------------------
 // [MJ] DONE!
 varDeclaration(type, var) ::= <<
 	<type> <var> ;
@@ -38,9 +40,15 @@ varDeclaration(type, var) ::= <<
 ASSIGNMENT************************************************************************
 *********************************************************************************/
 
+// VAR ASSIGNMENT----------------------------------------------------------------
 // [MJ] DONE
 varAssignment(type, var, stat) ::= <<
 	<type> <var> = <stat>;	
+>>
+
+// ARRAY ASSIGNMENT--------------------------------------------------------------
+arrayAssignment(type, var, stat) ::= <<
+
 >>
 
 
@@ -48,6 +56,7 @@ varAssignment(type, var, stat) ::= <<
 FUNCTION**************************************************************************
 *********************************************************************************/
 
+// FUNCTION MAIN------------------------------------------------------------------
 // [MJ] DONE
 main(stat)::= <<
 	public static void main(String[] args) {
@@ -55,6 +64,7 @@ main(stat)::= <<
 	}
 >>
 
+// FUNCTION ID--------------------------------------------------------------------
 // [MJ] REVIEW (LOWER PRIORITY) -> args
 function(name, return, arg) ::= <<
 	public static <return> <name> ( <args(arg)> ) {
@@ -67,31 +77,16 @@ args(arg) ::= <<
 	<if(arg)>< <arg> separator=" "><endif>
 >>
 
+// FUNCTION CALL------------------------------------------------------------------
+//...
+
 
 /*********************************************************************************
 CONTROL FLOW**********************************************************************
 *********************************************************************************/
-
 // [IJ] NOT DONE YET...
 
-forLoop(firstAssig, lOp, finalAssig, stat) ::= <<
-    for( <if(firstAssig)> firstAssig <endif> ; lOp ; finalAssig ) { <stats(stat)> }
->>
-
-whileLoop(lo, stat) ::= <<
-	<if(stat)>		while(lo){<stats(stat)>} 	
-	<else>			while(lo);				 	
-	<endif>	           
->>
-
-whenCase(var, valueList, statList) ::= <<
-    switch(var){
-        <statList: { y | <valueList: { x | case <x> : <if(<y>)> <stats(<y>)> break; <endif> } > } >
-		default: break;
-    }
->>
- 			
-// [IJ] NOT DONE
+// CONDITION----------------------------------------------------------------------
 condition(logicalOperationList, statList) ::= << 
 	<statList: 
 		{ y | <logicalOperationList: { x | if(<x>){<stats(<y>)>} }; separator="\nelse " >
@@ -100,36 +95,84 @@ condition(logicalOperationList, statList) ::= <<
 	> 
 >>
 
+// FOR LOOP-----------------------------------------------------------------------
+forLoop(firstAssig, lOp, finalAssig, stat) ::= <<
+    for( <if(firstAssig)> firstAssig <endif> ; lOp ; finalAssig ) { <stats(stat)> }
+>>
+
+// WHILE LOOP---------------------------------------------------------------------
+whileLoop(lo, stat) ::= <<
+	<if(stat)>		while(lo){<stats(stat)>} 	
+	<else>			while(lo);				 	
+	<endif>	           
+>>
+
+// WHEN---------------------------------------------------------------------------
+whenCase(var, valueList, statList) ::= <<
+    switch(var){
+        <statList: { y | <valueList: { x | case <x> : <if(<y>)> <stats(<y>)> break; <endif> } > } >
+		default: break;
+    }
+>>
+
 
 /*********************************************************************************
 LOGICAL OPERATIONS****************************************************************
 *********************************************************************************/
 
+// LOGICAL OPERATION----------------------------------------------------------------
 // [MJ] DONE
 logicalOperation( parenthesis0, logicalOper0, oper, logicalOper1, parenthesis1 ) ::= <<
 	<parenthesis0> <logicalOper0> <oper> <logicalOper1> <parenthesis1>
 >>
 
+// LOGICAL OPERAND------------------------------------------------------------------
 // [MJ] DONE
-logicalOperand(not, oper) ::= <<
-	<not> <oper>
->>
+logicalOperand(not, oper) ::= " <not> <oper> "
 
+// COMPARISON-----------------------------------------------------------------------
 // [MJ] DONE
 comparison(operation0, compareOper, operation1) ::= <<
 	<operation0> <compareOperators.(compareOper)> <operation1>
 >>
 
+// COMPARE OPERATORS----------------------------------------------------------------
 // [IJ]
-compareOperators ::= [ 
-	"==":"==", 
-	"!=":"!=", 
-	"<'":"<'", 
-	"<=":"<=", 
-	">":">", 
-	">=":">=", 
-	default:"null" 
+compareOperators ::= [  "==":"==", 
+						"!=":"!=", 
+						"<'":"<'", 
+						"<=":"<=", 
+						">":">", 
+						">=":">=", 
+						default:"null" 
 ]
+
+/*********************************************************************************
+OPERATIONS************************************************************************
+*********************************************************************************/
+
+//...
+
+
+/*********************************************************************************
+STRUCTURES************************************************************************
+*********************************************************************************/
+
+// ARRAY TYPE---------------------------------------------------------------------
+arrayType(type) ::= "<type> []"
+
+// ARRAY ACCESS-------------------------------------------------------------------
+//...
+
+// ARRAY LENGTH-------------------------------------------------------------------
+arrayLength(var) ::= " <var>.length() "
+
+
+/*********************************************************************************
+PRINTS****************************************************************************
+*********************************************************************************/
+
+//...
 
 typeValue ::= [ "number"  : "int",
 	"boolean" : "int", 
