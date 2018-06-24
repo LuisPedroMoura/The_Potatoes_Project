@@ -1,0 +1,24 @@
+// Types File Error Example 2
+// Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
+
+prefixes {
+    DECA  "da"      : 10^1 
+    HECTO "h"       : 10^2
+    PICO  "p"       : 10^-12
+    FEMTO "f"       : 10^(-15)
+}
+
+types {
+	// Basic Types (default is numeric)
+	
+	// ERROR: type must at least have a name and a print name between quote marks
+	meter	 
+	inch 	 "inch"
+	yard 	 "yd"
+
+	// Derived Types (types defined using other types)
+	distance "d"	: (1) meter 		 | (0.025) inch | (0.9) yard
+
+	// ERROR : each alternative must have a factor between ()
+	mile 	 "mil" 	: (0.75) distance | 2 meter
+}

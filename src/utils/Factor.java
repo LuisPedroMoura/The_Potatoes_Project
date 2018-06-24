@@ -15,6 +15,7 @@ public class Factor {
 	private final Double factor;
 	private final Boolean isChildToParent;
 
+	// --------------------------------------------------------------------------
 	// CTORs
 	/**
 	 * Constructor
@@ -27,6 +28,7 @@ public class Factor {
 		this.isChildToParent = isChildToParent;
 	}
 
+	// --------------------------------------------------------------------------
 	// Getters
 	/**
 	 * 
@@ -44,6 +46,7 @@ public class Factor {
 		return isChildToParent;
 	}
 
+	// --------------------------------------------------------------------------
 	// Other Methods
 	@Override
 	public String toString() {
@@ -60,6 +63,44 @@ public class Factor {
 		}
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((factor == null) ? 0 : factor.hashCode());
+		result = prime * result + ((isChildToParent == null) ? 0 : isChildToParent.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Factor other = (Factor) obj;
+		if (factor == null) {
+			if (other.factor != null) {
+				return false;
+			}
+		} else if (!factor.equals(other.factor)) {
+			return false;
+		}
+		if (isChildToParent == null) {
+			if (other.isChildToParent != null) {
+				return false;
+			}
+		} else if (!isChildToParent.equals(other.isChildToParent)) {
+			return false;
+		}
+		return true;
 	}
 
 

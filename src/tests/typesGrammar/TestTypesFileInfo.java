@@ -1,3 +1,4 @@
+package tests.typesGrammar;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
