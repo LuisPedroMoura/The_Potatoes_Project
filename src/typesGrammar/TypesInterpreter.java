@@ -33,7 +33,7 @@ import utils.Type;
 import utils.errorHandling.ErrorHandling;
 
 /**
- * 
+ * es
  * <b>TypesInterpreter</b><p>
  * 
  * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)

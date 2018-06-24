@@ -2,8 +2,16 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import compiler.PotatoesVisitorSemanticAnalysis;
+import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
+import edu.uci.ics.jung.graph.Graph;
+import typesGrammar.TypesFileInfo;
+import utils.errorHandling.ErrorHandling;
 
 /**
  * 
@@ -11,12 +19,14 @@ import java.util.List;
  * 
  * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
+ * @param <V>
  */
-public class Type {
+public class Type<V> {
 
 	// Static Fields
 	private static List<Integer> primes;	
 	private static int index;
+	private static Graph<Type, Factor> typesGraph = PotatoesVisitorSemanticAnalysis.getTypesFileInfo().getTypesGraph();
 
 	// --------------------------------------------------------------------------
 	// Static CTOR
@@ -125,14 +135,18 @@ public class Type {
 		}
 		return false;
 	}
+	
+	public boolean convertTypeTo(Type newType) {
+		
+	}
 
-	public Variable convertVariableToFirstPossibleTypeInOpTypeArray(Variable a) {
+	public Type convertVariableToFirstPossibleTypeInOpTypeArray(Type typeToConvert) {
 		for (int i = 0; i < checkList.size(); i++) {
-			if (a.convertTypeTo(opTypes.get(i))) {
+			if (typeToConvert.convertTypeTo(opTypes.get(i))) {
 				break;
 			}
 		}
-		return a;
+		return typeToConvert;
 	}
 
 	public Variable convertToMaxParent(Variable a) {
