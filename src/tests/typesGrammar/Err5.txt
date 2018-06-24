@@ -1,0 +1,34 @@
+// Types File Error Example 5
+// Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
+
+types {
+    // Basic Types (default is numeric)
+    meter	   "m"
+    inch	   "in"
+    
+    energy     "J" 
+    time       "s"
+    resistance "R" 
+    current	   "A"  
+     
+    person     "p"
+    penguin    "pp"
+
+    // Derived Types 
+    distance  		  "dist" : (1) meter  | (2) inch
+    animals 		  "a" 	 : (1) person | (1) penguin 
+
+    // SEMANTIC ERROR
+	animalsLand		  "al"	 : (2) person | (4) penguin | (1) animalsLand  
+	
+	power     		  "W"    : energy / time
+   	voltage      	  "V"    : resistance * current
+	velocity          "m/s"	 : distance / time
+}
+
+prefixes {
+    DECA  "da"      : 10^1 
+    HECTO "h"       : 10^2
+    PICO  "p"       : 10^-12
+    FEMTO "f"       : 10^(-15)
+}

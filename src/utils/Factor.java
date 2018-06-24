@@ -13,25 +13,22 @@ public class Factor {
 
 	// Instance Fields
 	private final Double factor;
-	private final Boolean isParentToChild;
+	private final Boolean isChildToParent;
 
+	// --------------------------------------------------------------------------
 	// CTORs
 	/**
 	 * Constructor
-	 * @param string {@code parent} it's a factor from {@code Type a} to {@code Type b}, else {@code child}
+	 * @param boolean {@code true} it's a factor from Child -> Parent, else {@code false}
 	 * @param factor 
 	 */
-	public Factor(Double factor, String string) {
-		if (string.trim().toLowerCase().equals("parent")) {
-			this.factor = factor;
-			isParentToChild = true;
-		}
-		else {
-			this.factor = 1/factor;
-			isParentToChild = false;
-		}
+	public Factor(Double factor, Boolean isChildToParent) {
+		if (isChildToParent) this.factor = 1 / factor;
+		else this.factor = factor;
+		this.isChildToParent = isChildToParent;
 	}
 
+	// --------------------------------------------------------------------------
 	// Getters
 	/**
 	 * 
@@ -43,12 +40,13 @@ public class Factor {
 
 	/**
 	 * 
-	 * @return {@code true} if factor is for Parent -> Child, else {@code false}
+	 * @return {@code true} if factor is for Child -> Parent, else {@code false}
 	 */
-	public Boolean getIsParentToChild() {
-		return isParentToChild;
+	public Boolean getIsChildToParent() {
+		return isChildToParent;
 	}
 
+	// --------------------------------------------------------------------------
 	// Other Methods
 	@Override
 	public String toString() {
@@ -59,12 +57,50 @@ public class Factor {
 			builder.append(factor);
 			builder.append(", ");
 		}
-		if (isParentToChild != null) {
-			builder.append("isParentToChild=");
-			builder.append(isParentToChild);
+		if (isChildToParent != null) {
+			builder.append("isChildToParent=");
+			builder.append(isChildToParent);
 		}
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((factor == null) ? 0 : factor.hashCode());
+		result = prime * result + ((isChildToParent == null) ? 0 : isChildToParent.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Factor other = (Factor) obj;
+		if (factor == null) {
+			if (other.factor != null) {
+				return false;
+			}
+		} else if (!factor.equals(other.factor)) {
+			return false;
+		}
+		if (isChildToParent == null) {
+			if (other.isChildToParent != null) {
+				return false;
+			}
+		} else if (!isChildToParent.equals(other.isChildToParent)) {
+			return false;
+		}
+		return true;
 	}
 
 

@@ -1,3 +1,4 @@
+package tests.typesGrammar;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
@@ -77,7 +78,7 @@ public class TestTypesFileInfo {
 		vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Type>() {
 			@Override
 			public String transform(Type v) {
-				return v.toString();
+				return v.getTypeName();
 			}});
 		vv.setVertexToolTipTransformer(new Transformer<Type, String>() {
 			@Override
@@ -144,6 +145,7 @@ public class TestTypesFileInfo {
 
 	// Skip all vertices that are not in the visible area. 
 	// NOTE: See notes at the end of this method!
+	@SuppressWarnings("unused")
 	private static <V, E> void doNotPaintInvisibleVertices(VisualizationViewer<V, E> vv) {
 		Predicate<Context<Graph<V, E>, V>> vertexIncludePredicate = new Predicate<Context<Graph<V,E>,V>>() {
 			Dimension size = new Dimension();

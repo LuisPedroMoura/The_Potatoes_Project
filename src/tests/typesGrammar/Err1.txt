@@ -1,9 +1,9 @@
-// Types File Example 1
+// Types File Error Example 1
 // Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
-types {
-    meter "m"
-}
+
+// ERROR : Types can't be defined outside types{}
+meter "m"
 
 prefixes {
     DECA  "da"      : 10^1 

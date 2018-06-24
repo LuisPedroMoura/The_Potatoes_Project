@@ -10,23 +10,23 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import typesGrammar.TypesParser.PrefixContext;
 import typesGrammar.TypesParser.PrefixDeclarContext;
-import typesGrammar.TypesParser.TypeBasicContext;
 import typesGrammar.TypesParser.TypeContext;
-import typesGrammar.TypesParser.TypeDerivedContext;
-import typesGrammar.TypesParser.TypeDerivedOrContext;
-import typesGrammar.TypesParser.TypeOpIDContext;
-import typesGrammar.TypesParser.TypeOpMultDivContext;
 import typesGrammar.TypesParser.TypeOpOrAltContext;
 import typesGrammar.TypesParser.TypeOpOrContext;
-import typesGrammar.TypesParser.TypeOpParenthesisContext;
-import typesGrammar.TypesParser.TypeOpPowerContext;
+import typesGrammar.TypesParser.Type_BasicContext;
+import typesGrammar.TypesParser.Type_DerivedContext;
+import typesGrammar.TypesParser.Type_Derived_OrContext;
+import typesGrammar.TypesParser.Type_Op_IDContext;
+import typesGrammar.TypesParser.Type_Op_MultDivContext;
+import typesGrammar.TypesParser.Type_Op_ParenthesisContext;
+import typesGrammar.TypesParser.Type_Op_PowerContext;
 import typesGrammar.TypesParser.TypesDeclarContext;
 import typesGrammar.TypesParser.TypesFileContext;
-import typesGrammar.TypesParser.ValueOpAddSubContext;
-import typesGrammar.TypesParser.ValueOpMultDivContext;
-import typesGrammar.TypesParser.ValueOpNumberContext;
-import typesGrammar.TypesParser.ValueOpOpPowerContext;
-import typesGrammar.TypesParser.ValueOpParenthesisContext;
+import typesGrammar.TypesParser.Value_AddSubContext;
+import typesGrammar.TypesParser.Value_MultDivContext;
+import typesGrammar.TypesParser.Value_NumberContext;
+import typesGrammar.TypesParser.Value_ParenthesisContext;
+import typesGrammar.TypesParser.Value_PowerContext;
 import utils.Factor;
 import utils.Prefix;
 import utils.Type;
@@ -88,23 +88,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		for (TypeContext type : typesDeclared) {
 			//if (debug) ErrorHandling.printInfo(ctx, "Processing type " + type.getText() + "...");
 			valid = valid && visit(type);	// visit all declared types
-			//System.out.println();
 		}	
 
 		return valid;
 	}
 
 	@Override
-	public Boolean visitTypeBasic(TypeBasicContext ctx) {
+	public Boolean visitType_Basic(Type_BasicContext ctx) {
 		// Rule ID STRING
 
 		String typeName = ctx.ID().getText();
 
 		// Semantic Analysis : Types can't be redefined
-		//if (debug) {
-		//ErrorHandling.printInfo(ctx, "Type is basic.");
-		//ErrorHandling.printWarning(ctx, "[PVT Debug] Types Table: " + typesTable);
-		//}
 		if (typesTable.containsKey(typeName)) {
 			ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
 			return false;
@@ -114,28 +109,27 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""));
 		typesTable.put(typeName, t);
 
-		// [PVT Current Work] Update the types graph
-		//typesGraph.addEdge(1.0, t, null);	// Edge to vertex base type (considered the base type equivalent to FIXME null for now)
+		// [PVT Current Work] Update the types graph FIXME
+		//typesGraph.addEdge(1.0, t, null);	// Edge to vertex base type (considered the base type equivalent to null for now)
 
-		if (debug) ErrorHandling.printInfo(ctx, "Added Basic Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "Added Basic Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+		}
+
 		return true;
 	}
 
 	@Override
-	public Boolean visitTypeDerived(TypeDerivedContext ctx) {
+	public Boolean visitType_Derived(Type_DerivedContext ctx) {
 		// Rule ID STRING COLON typeOp 						
 
 		String typeName = ctx.ID().getText();
 
-		// Semantic Analysis : Types can't be redefined
-		//if (debug) {
-		//ErrorHandling.printInfo(ctx, "Type is derived.");
-
+		// Semantic Analysis
 		Boolean valid = visit(ctx.typeOp());
 
 		if (valid) {
-			//ErrorHandling.printWarning(ctx, "[PVT Debug] Types Table: " + typesTable);
-			//}
+			// Semantic Analysis : Types can't be redefined
 			if (typesTable.containsKey(typeName)) {
 				ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
 				return false;
@@ -144,23 +138,27 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			// Create derived type based on typeOp
 			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOp()).getCode());
 
+			// Update Types & Symbol Tables
 			typesTable.put(typeName, t);
 			types.put(ctx, t);
 
-			if (debug) ErrorHandling.printInfo(ctx, "Added Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "Added Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+			}
 		}
 		return valid;
 	}
 
 	@Override
-	public Boolean visitTypeDerivedOr(TypeDerivedOrContext ctx) {
+	public Boolean visitType_Derived_Or(Type_Derived_OrContext ctx) {
 		// Rule ID STRING COLON typeOpOr							
 
 		String typeName = ctx.ID().getText();
 
 		// Temporary type (reference is needed for the visitor of rule typeOpOr)
 		Type t = new Type(0.0);				
-
+		t.setPrintName(ctx.STRING().getText().replaceAll("\"", ""));
+		t.setTypeName(typeName);
 		types.put(ctx, t);
 
 		Boolean valid = visit(ctx.typeOpOr());
@@ -172,17 +170,17 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				return false;
 			}
 
-
 			// Create derived type based on typeOpOr
-			t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCode());
+			//t = new Type(typeName, , types.get(ctx.typeOpOr()).getCode());
 
 			// Update the types graph : done in each visitor for each alternative
 
 			// Update the Types Table
 			typesTable.put(typeName, t);
 
-			if (debug) 
+			if (debug) {
 				ErrorHandling.printInfo(ctx, "Added Or Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+			}
 		}
 
 		return valid;
@@ -193,12 +191,13 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitTypeOpOr(TypeOpOrContext ctx) {
 		// Rule typeOpOrAlt (OR typeOpOrAlt)*	
 
-		Boolean localDebug = debug && false;
-		if (localDebug) ErrorHandling.printInfo(ctx, "[PVT Debug] Parsing " + ctx.getText());
+		Boolean localDebug = debug && true;
+		if (localDebug) {
+			ErrorHandling.printInfo(ctx, "[PVT Debug] Parsing " + ctx.getText());
+		}
 
 		Boolean valid = true;
-
-		Type t = new Type(0.0);
+		Type t = types.get(ctx.parent);
 
 		List<TypeOpOrAltContext> orTypeAlternatives = ctx.typeOpOrAlt(); 
 		for (TypeOpOrAltContext orAlt : orTypeAlternatives) {
@@ -213,16 +212,16 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 				// Debug
 				if (localDebug) {
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + types.get(ctx.parent));
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + t);
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Type: "   + alternative);
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Factor: " + factor);
-					ErrorHandling.printWarning(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
 							+ factor + ", " + alternative + ", " + factor);
 				}
 
 				// [PVT Current Work] Update the types graph
-				typesGraph.addEdge(new Factor(factor, "parent"), alternative, types.get(ctx.parent));
-				typesGraph.addEdge(new Factor(factor, "child"), types.get(ctx.parent), alternative);
+				typesGraph.addEdge(new Factor(factor, true), alternative, t);
+				typesGraph.addEdge(new Factor(factor, false), t, alternative);
 			}
 		}	
 
@@ -237,25 +236,28 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	@Override
 	public Boolean visitTypeOpOrAlt(TypeOpOrAltContext ctx) {
-		// Rule valueOp ID
-		Boolean valid = visit(ctx.valueOp());
+		// Rule value ID
+
+		Boolean valid = visit(ctx.value());
 
 		String typeName = ctx.ID().getText();
 
-		// Semantic Analysis : Verify it the type already exists
-		if (!typesTable.containsKey(typeName)) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
-			return false;
-		}
+		if (valid) {
+			// Semantic Analysis : Verify it the type already exists
+			if (!typesTable.containsKey(typeName)) {
+				ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
+				return false;
+			}
 
-		types.put(ctx, typesTable.get(typeName));
-		values.put(ctx, values.get(ctx.valueOp()));
+			types.put(ctx, typesTable.get(typeName));
+			values.put(ctx, values.get(ctx.value()));
+		}
 
 		return valid;
 	}
 
 	@Override
-	public Boolean visitTypeOpParenthesis(TypeOpParenthesisContext ctx) {
+	public Boolean visitType_Op_Parenthesis(Type_Op_ParenthesisContext ctx) {
 		// Rule PAR_OPEN typeOp PAR_CLOSE					
 
 		Boolean valid = visit(ctx.typeOp());
@@ -267,24 +269,29 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeOpMultDiv(TypeOpMultDivContext ctx) {
+	public Boolean visitType_Op_MultDiv(Type_Op_MultDivContext ctx) {
 		// Rule typeOp op=(MULTIPLY | DIVIDE) typeOp	
 
 		Boolean valid = visit(ctx.typeOp(0)) && visit(ctx.typeOp(1));
 
-		Type a = types.get(ctx.typeOp(0));
-		Type b = types.get(ctx.typeOp(1));
+		if (valid) {
+			Type a = types.get(ctx.typeOp(0));
 
-		types.put(ctx, Type.multiply(a, b));
+			Type b = types.get(ctx.typeOp(1));
+
+			types.put(ctx, Type.multiply(a, b));
+		}
 
 		return valid;
 	}
 
 	@Override
-	public Boolean visitTypeOpPower(TypeOpPowerContext ctx) {
+	public Boolean visitType_Op_Power(Type_Op_PowerContext ctx) {
 		// Rule <assoc=right> ID POWER INT					
+		Boolean localDebug = debug && false;
+
 		String typeName = ctx.ID().getText();
-		boolean localDebug = debug && false;
+
 		// Semantic Analysis : Verify it the type already exists
 		if (!typesTable.containsKey(typeName)) {
 			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
@@ -325,7 +332,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeOpID(TypeOpIDContext ctx) {
+	public Boolean visitType_Op_ID(Type_Op_IDContext ctx) {
 		// Rule ID										
 
 		// Creating an aux method to verify the ID (thus eliminating the need to 
@@ -351,18 +358,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		// Rule ... (prefix NEW_LINE+)*  ...
 
 		Boolean valid = true;
+
 		List<PrefixContext> prefixesDeclared = ctx.prefix(); 
 		for (PrefixContext prefix : prefixesDeclared) {
 			//if (debug) ErrorHandling.printInfo(ctx, "Processing prefix " + prefix.getText() + "...");			
 			valid = valid && visit(prefix);	// visit all declared prefixes
-			//System.out.println();
 		}	
 		return valid;
 	}
 
 	@Override
 	public Boolean visitPrefix(PrefixContext ctx) {
-		// Rule ID STRING COLON valueOp
+		// Rule ID STRING COLON value
 
 		String prefixName = ctx.ID().getText();
 
@@ -375,68 +382,79 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			value = false;
 		}
 
-		value = value && visit(ctx.valueOp());
+		value = value && visit(ctx.value());
 
 		// Create prefix
-		Prefix p = new Prefix(prefixName, ctx.STRING().getText().replaceAll("\"", ""), values.get(ctx.valueOp()));
+		Prefix p = new Prefix(prefixName, ctx.STRING().getText().replaceAll("\"", ""), values.get(ctx.value()));
 		prefixesTable.put(prefixName, p);
 
-		if (debug) ErrorHandling.printInfo(ctx, "Added " + p + "\n\tOriginal line: " + ctx.getText() + "\n");
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "Added " + p + "\n\tOriginal line: " + ctx.getText() + "\n");
+		}
+
 		return value;
 	}
 
 	// --------------------------------------------------------------
 	// Value Callbacks 
 	@Override
-	public Boolean visitValueOpParenthesis(ValueOpParenthesisContext ctx) {
-		Boolean valid = visit(ctx.valueOp());
+	public Boolean visitValue_Parenthesis(Value_ParenthesisContext ctx) {
+		Boolean valid = visit(ctx.value());
+
 		if (valid) {
-			values.put(ctx, values.get(ctx.valueOp()));
+			values.put(ctx, values.get(ctx.value()));
 		}
+
 		return valid;
 	}
 
 	@Override
-	public Boolean visitValueOpAddSub(ValueOpAddSubContext ctx) {
-		Boolean valid = visit(ctx.valueOp(0)) && visit(ctx.valueOp(1));
+	public Boolean visitValue_AddSub(Value_AddSubContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
+
 		if (valid) {
-			Double op1 = values.get(ctx.valueOp(0));
-			Double op2 = values.get(ctx.valueOp(1));
+			Double op1 = values.get(ctx.value(0));
+			Double op2 = values.get(ctx.value(1));
 			Double result;
 			if (ctx.op.getText().equals("+")) result = op1 + op2; 
 			else result = op1 - op2;
 			values.put(ctx, result);	
 		}
+
 		return valid;
 	}
 
 	@Override
-	public Boolean visitValueOpOpPower(ValueOpOpPowerContext ctx) {
-		Boolean valid = visit(ctx.valueOp(0)) && visit(ctx.valueOp(1));
+	public Boolean visitValue_Power(Value_PowerContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
+
 		if (valid) {
-			Double op 	 = values.get(ctx.valueOp(0));
-			Double power = values.get(ctx.valueOp(1));
+			Double op 	 = values.get(ctx.value(0));
+			Double power = values.get(ctx.value(1));
 			values.put(ctx, Math.pow(op, power));	
 		}
+
 		return valid;
 	}
 
 	@Override
-	public Boolean visitValueOpMultDiv(ValueOpMultDivContext ctx) {
-		Boolean valid = visit(ctx.valueOp(0)) && visit(ctx.valueOp(1));
+	public Boolean visitValue_MultDiv(Value_MultDivContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
+
 		if (valid) {
-			Double op1 = values.get(ctx.valueOp(0));
-			Double op2 = values.get(ctx.valueOp(1));
+			Double op1 = values.get(ctx.value(0));
+			Double op2 = values.get(ctx.value(1));
 			Double result;
 			if (ctx.op.getText().equals("*")) result = op1 * op2; 
 			else result = op1 / op2;
 			values.put(ctx, result);	
 		}
+
 		return valid;
 	}
 
 	@Override
-	public Boolean visitValueOpNumber(ValueOpNumberContext ctx) {
+	public Boolean visitValue_Number(Value_NumberContext ctx) {
 		try {
 			Double result = Double.parseDouble(ctx.NUMBER().getText());
 			values.put(ctx, result);

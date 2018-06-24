@@ -23,39 +23,38 @@ typesFile	: prefixDeclar? typesDeclar	  EOF
 prefixDeclar: 'prefixes' '{' prefix* '}' 
 			;
 					
-prefix		: ID STRING ':' valueOp
+prefix		: ID STRING ':' value
 	  		;
 	  			
 // Types ------------------------
 typesDeclar	: 'types' '{' type* '}' 
 			;
 					
-type		: ID STRING 				 			#TypeBasic
-			| ID STRING ':' typeOp 					#TypeDerived
-			| ID STRING ':' typeOpOr 				#TypeDerivedOr
+type		: ID STRING 				 			#Type_Basic
+			| ID STRING ':' typeOp 					#Type_Derived
+			| ID STRING ':' typeOpOr 				#Type_Derived_Or
 	  		;
 	  		
-typeOpOr	: typeOpOrAlt ('|' typeOpOrAlt)*					
+typeOpOr	: typeOpOrAlt ('|' typeOpOrAlt)*							
 			;
 
-typeOpOrAlt : valueOp ID;
+typeOpOrAlt : '(' value ')' ID;
 	
-typeOp		: '(' typeOp ')'						#TypeOpParenthesis
-			| typeOp op=('*' | '/') typeOp			#TypeOpMultDiv
-			| <assoc=right> ID '^' NUMBER			#TypeOpPower
-			| ID									#TypeOpID
+typeOp		: '(' typeOp ')'						#Type_Op_Parenthesis
+			| typeOp op=('*' | '/') typeOp			#Type_Op_MultDiv
+			| <assoc=right> ID '^' NUMBER			#Type_Op_Power
+			| ID									#Type_Op_ID
 			;
 
 // Value ------------------------		
-valueOp		: '(' valueOp ')' 						#ValueOpParenthesis
-			| <assoc=right> valueOp '^' valueOp		#ValueOpOpPower
-			| valueOp op=('/' | '*') valueOp		#ValueOpMultDiv
-			| valueOp op=('+' | '-') valueOp 		#ValueOpAddSub
-			| NUMBER								#ValueOpNumber
+value		: '(' value ')' 						#Value_Parenthesis
+			| <assoc=right> value '^' value			#Value_Power
+			| value op=('/' | '*') value			#Value_MultDiv
+			| value op=('+' | '-') value 			#Value_AddSub
+			| NUMBER								#Value_Number
 			;
 			
 // -----------------------------------------------------------------------------
-//NEW_LINE			: '\r'? '\n';
 ID					: LETTER (LETTER | DIGIT)*;
 STRING				: QUOTE_MARK (ESC | . )*? QUOTE_MARK;
 NUMBER				: '0' | ('-' | '+')? INT ('.' DIGIT+)? ;

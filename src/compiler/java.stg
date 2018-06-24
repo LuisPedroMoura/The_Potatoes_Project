@@ -1,19 +1,10 @@
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // DICTIONARIES /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-type				: NUMBER_TYPE		# type_Number_Type
-					| BOOLEAN_TYPE		# type_Boolean_Type
-					| STRING_TYPE		# type_String_Type
-					| VOID_TYPE			# type_Void_Type
-					| ID				# type_ID_Type
-					| arrayType			# type_ArrayType
-					;
-*/
-
 //[MJ] REVIEW (LOWER PRIORITY) -> array type
-typeV ::= [
+typeValue ::= [
    "number"	:"double",
    "string"	:"String",
    "boolean":"boolean",
@@ -23,6 +14,7 @@ typeV ::= [
 
 	
 //[MJ] REVIEW -> ^
+// <, and <= -> error
 operators ::= [
 	"("		:"(",
 	")"		:")",
@@ -40,28 +32,31 @@ operators ::= [
 ]
 
 
+//
+booleanValue ::= [ "false":"0", "true":"1", default:"null" ]
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // TEMPLATES ////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//[MJ] DONE
+
+// [MJ] DONE
 stats(stat) ::= <<
 	<if(stat)><stat; separator="\n"><endif>
 >>
-
 
 
 //-------------------------------------------------------------------------------
 //CLASS--------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
-//[MJ] DONE
+// [MJ] DONE
 class(name,stat) ::= <<
 public class <name> {
    <stats(stat)>
 }
 >>
-
 
 //-------------------------------------------------------------------------------
 //DECLARATION--------------------------------------------------------------------
@@ -75,68 +70,110 @@ public class <name> {
 
 //[MJ] DONE
 varDeclaration(type, var) ::= <<
-<typeV.(type)> <var> ; <\n>
+<typeValue.(type)> <var> ; <\n>
 >>
 
+//-------------------------------------------------------------------------------
+//DECLARATION--------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+
+
+// ARRAY DECLARATION--------------------------------------------------------------
+/*
+	ARRAYS WILL BE THE LAST ONES
+	ARRAY '<' type ',' NUMBER'>' var
+	arrayDeclaration(type, name, size) ::= <<
+		<type> <name> [] = new <type> [<size>];
+	>>
+*/
+
+// VAR DECLARATION---------------------------------------------------------------
+// [MJ] DONE
+varDeclaration(type, var) ::= <<
+<typeValue.(type)> <var> ;
+>>
 
 
 //-------------------------------------------------------------------------------
 //ASSIGNMENT---------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
+// VAR ASSIGNMENT----------------------------------------------------------------
 //[MJ] DONE
 varAssignment(type, var, stat) ::= <<
-<typeV.(type)> <var> = <stat>; <\n>	
+<typeValue.(type)> <var> = <stat>; <\n>	
 >>
+
+// ARRAY ASSIGNMENT--------------------------------------------------------------
+arrayAssignment(type, var, stat) ::= <<
+
+>>
+
 
 //-------------------------------------------------------------------------------
 //FUNCTION-----------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
-//[MJ] DONE
+// FUNCTION MAIN------------------------------------------------------------------
 main(stat)::= <<
-public static void main(String[] args) {
-   <stats(stat)>
-}
+	public static void main(String[] args) {
+		<stats(stat)>
+	}
 >>
 
 
-//[MJ] REVIEW (LOWER PRIORITY) -> args
+// FUNCTION ID--------------------------------------------------------------------
+// [MJ] REVIEW (LOWER PRIORITY) -> args
 function(name, return, arg) ::= <<
-public static <return> <name> ( <args(arg)> ) {
-   <stats(stat)>
-}
+	public static <return> <name> ( <args(arg)> ) {
+		<stats(stat)>
+	}
 >>
 
-//[MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it 
+
+
+// [MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it 
 args(arg) ::= <<
-	<if(arg)>< <arg> separator=" "><endif>
+<if(arg)>< <arg> separator=" "><endif>
 >>
 
+// FUNCTION CALL------------------------------------------------------------------
 
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-CONTROL FLOW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+/*********************************************************************************
+CONTROL FLOW**********************************************************************
+*********************************************************************************/
 
-<! compareOperator	:'==' | '!=' | '<' | '<=' | '>' | '>='; !> compareOperators ::= [ "==":"==", "!=":"!=", "<'":"<'", "<=":"<=", ">":">", ">=":">=", default:"null" ]
+// [IJ] NOT DONE YET...
 
-<![IJ] NOT DONE YET...!>
+// CONDITION----------------------------------------------------------------------
+condition(logicalOperationList, statList) ::= << 
+	<statList: 
+		{ y | <logicalOperationList: { x | if(<x>){<stats(<y>)>} }; separator="\nelse " >
+			  <if(y)> {<stats(<y>)>} <endif> <! last else !>
+		}
+	> 
+>>
 
-<! whileLoop		:                                       !> whileLoop(lo, stat) ::= <<
-<!                    WHILE '(' logicalOperation ')'        !>   L<lo>33:;      if (!<lo>) goto L<lo>44;
-<!                    ( '{' statement* '}' | EOL )          !>   <stats(stat)>  goto L<lo>33;             
-<! 					;                                       !>   L<lo>44:;		<endif>
- 			
-<! condition		:                                       !> condition(l1,l2, s1, s2, s3) ::= <<
-<!                    IF '(' l1=logicalOperation ')'        !>   if (!<l1>)     goto L<l1>11;
-<!                    '{' s1=statement* '}'                 !>   <stats(s1)>    goto L<l1>22;   L<l1>11:; 
-<! 					  ( ELSE IF '(' l2=logicalOperation ')' !>   <if(!<l2>)>    goto L<l2>33;                               
-<!                      '{' s2=statement* '}'               !>   <stats(s2)>    goto L<l2>44;   L<l2>33:;                    
-<!                    )*                                    !>                                         
-<! 					  ( ELSE '{' s3=statement* '}'          !>   <stats(s3)>                                
-<!                    )?                                    !>   <endif>        L<l2>44:;	                      
-<! 					;                                       !> >> 
+// FOR LOOP-----------------------------------------------------------------------
+forLoop(firstAssig, lOp, finalAssig, stat) ::= <<
+    for( <if(firstAssig)> firstAssig <endif> ; lOp ; finalAssig ) { <stats(stat)> }
+>>
+
+// WHILE LOOP---------------------------------------------------------------------
+whileLoop(lo, stat) ::= <<
+	<if(stat)>		while(lo){<stats(stat)>} 	
+	<else>			while(lo);				 	
+	<endif>	           
+>>
+
+// WHEN---------------------------------------------------------------------------
+whenCase(var, valueList, statList) ::= <<
+    switch(var){
+        <statList: { y | <valueList: { x | case <x> : <if(<y>)> <stats(<y>)> break; <endif> } > } >
+		default: break;
+    }
+>>
 
 
 //-------------------------------------------------------------------------------
@@ -160,19 +197,29 @@ comparison(operation0, compareOperator, operation1) ::= <<
 >>
 
 
-<! type				: NUMBER_TYPE		                    !> typeValue ::= [ "number"  : "int",
-<! 					| BOOLEAN_TYPE		                    !>                 "boolean" : "int", 
-<! 					| STRING_TYPE		                    !>                 "string"  : "String",
-<! 					| VOID_TYPE			                    !>                 "void"    : "void", 
-<! 					| ID				                    !>                 
-<! 					| arrayType			                    !>
-<! 					;                                       !>                 default   : "null" ]
-	
+//-------------------------------------------------------------------------------
+//OPERATIONS---------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-<! BOOLEAN          : 'false' | 'true';                     !> booleanValue ::= [ "false":"0", "true":"1", default:"null" ]
+//...
 
 
+//-------------------------------------------------------------------------------
+//STRUCTURES---------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+
+// ARRAY TYPE---------------------------------------------------------------------
+arrayType(type) ::= "<type> []"
+
+// ARRAY ACCESS-------------------------------------------------------------------
+//...
+
+// ARRAY LENGTH-------------------------------------------------------------------
+arrayLength(var) ::= " <var>.length() "
 
 
+//-------------------------------------------------------------------------------
+//PRINTS-------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-
+//...
