@@ -1,30 +1,10 @@
-types {
-// Basic Types (default is numeric)
+// Types File Example 1
+// Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
-    meter	  "m"
-    inch	  "in"
-    time      "s"
-    absTemp   "K"   
-    energy    "J"  
-    
-    pessoa    "p"
-    
-    
-    // Derived Types
-    distance  		  "dist"   : (1) meter | (2) inch
-    power     		  "W"   : energy / time
-    //temp      		  "C"   : 0.5 * absTemp
-    velocity          "m/s"	: distance / time
-    
-    //animais 		  "a" 	: (1) pessoa | (1) vaca
-	//animaisTerrestres "at"	: (2) pessoa | (4) vaca
-	
+types {
+    meter "m"
 }
 
 prefixes {
     DECA  "da"      : 10^1 
-    HECTO "h"       : 10^2
-    PICO  "p"       : 10^-12
-    FEMTO "f"       : 10^(-15)
-    
 }

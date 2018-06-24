@@ -1,5 +1,5 @@
-// Types Grammar Example 2
-// Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+// Types File Example 2
+// Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
 prefixes {
     DECA  "da"      : 10^1 
@@ -13,8 +13,8 @@ types {
 	meter	 "m"
 	inch 	 "inch"
 	yard 	 "yd"
-	distance "d"	: (1)meter 		 | (0.025)inch | (0.9)yard
-	mile 	 "mil" 	: (0.75)distance | (2)meter
-	//mile "mil" : 5 
-	//mile "mil" : (1) ((1) meter)
+
+	// Derived Types (types defined using other types)
+	distance "d"	: (1) meter 		 | (0.025) inch | (0.9) yard
+	mile 	 "mil" 	: (0.75) distance | (2) meter
 }
