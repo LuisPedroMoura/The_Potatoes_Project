@@ -38,7 +38,7 @@ type		: ID STRING 				 			#Type_Basic
 typeOpOr	: typeOpOrAlt ('|' typeOpOrAlt)*							
 			;
 
-typeOpOrAlt : value ID;
+typeOpOrAlt : '(' value ')' ID;
 	
 typeOp		: '(' typeOp ')'						#Type_Op_Parenthesis
 			| typeOp op=('*' | '/') typeOp			#Type_Op_MultDiv
@@ -55,7 +55,6 @@ value		: '(' value ')' 						#Value_Parenthesis
 			;
 			
 // -----------------------------------------------------------------------------
-//NEW_LINE			: '\r'? '\n';
 ID					: LETTER (LETTER | DIGIT)*;
 STRING				: QUOTE_MARK (ESC | . )*? QUOTE_MARK;
 NUMBER				: '0' | ('-' | '+')? INT ('.' DIGIT+)? ;

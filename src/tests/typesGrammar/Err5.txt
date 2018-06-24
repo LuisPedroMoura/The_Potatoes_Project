@@ -1,4 +1,4 @@
-// Types File Example 4
+// Types File Error Example 5
 // Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
 types {
@@ -17,7 +17,9 @@ types {
     // Derived Types 
     distance  		  "dist" : (1) meter  | (2) inch
     animals 		  "a" 	 : (1) person | (1) penguin 
-	animalsLand		  "al"	 : (2) person | (4) penguin 
+
+    // SEMANTIC ERROR
+	animalsLand		  "al"	 : (2) person | (4) penguin | (1) animalsLand  
 	
 	power     		  "W"    : energy / time
    	voltage      	  "V"    : resistance * current
