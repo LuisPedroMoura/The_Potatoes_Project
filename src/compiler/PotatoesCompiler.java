@@ -1,5 +1,6 @@
 package compiler;
 
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.stringtemplate.v4.*;
 
 import potatoesGrammar.PotatoesBaseVisitor;
@@ -70,6 +71,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	protected STGroup stg = null;
 	
+
 	
 	// --------------------------------------------------------------------------------------------------------------------
 	// MAIN RULES----------------------------------------------------------------------------------------------------------

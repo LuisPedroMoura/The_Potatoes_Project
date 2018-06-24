@@ -65,21 +65,25 @@ public class Type<V> {
 	 * @param name	for example 'distance'
 	 * @param printName	for example 'm' (meter)
 	 * @param code a unique prime number, or the result of operating with other codes
+	 * @throws ArithmeticException if the code can't be represented by a double (overflow). See {@link https://stackoverflow.com/questions/31974837/can-doubles-or-bigdecimal-overflow}.
 	 */
 	public Type(String typeName, String printName, Double code) {
 		this.typeName = typeName;
 		this.printName = printName;
-		this.code = code;
+		if (Double.isInfinite(code) || Double.isNaN(code)) throw new ArithmeticException("overflow");
+		this.code = code; 
 	}
 
 	/**
 	 * Constructor for temporary types<p>
 	 * Create a new type based on another type 
 	 * @param code a unique prime number, or the result of operating with other codes
+	 * @throws ArithmeticException if the code can't be represented by a double (overflow). See {@link https://stackoverflow.com/questions/31974837/can-doubles-or-bigdecimal-overflow}.
 	 */
 	public Type(Double code) {
 		this.typeName  = "temp";
 		this.printName = "";
+		if (Double.isInfinite(code) || Double.isNaN(code)) throw new ArithmeticException("overflow");
 		this.code = code;
 	}
 
