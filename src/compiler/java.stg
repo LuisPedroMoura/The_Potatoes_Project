@@ -100,14 +100,19 @@ whileLoop(lo, stat) ::= <<
 	<if(stat)>		while(lo){<stats(stat)>} 	<endif>
 	<if(!stat)>		while(lo);				 	<endif>	           
 >>
+
+whenCase(var, valueList, statList) ::= <<
+    switch(var){
+        <statList: { y | <valueList: { x | case <x> : <if(<y>)> <stats(<y>)> break; <endif> } > } >
+		default: break;
+    }
+>>
  			
 <![IJ] NOT DONE!>
 condition(logicalOperationList, statList) ::= << 
 	<statList: 
-		{ y | <logicalOperationList:
-				  <if(x)>  { x | if(<x>){<stats(<y>)>} }; separator=\"\nelse \" <endif>
-				  <if(!x)> {<stats(<y>)>} 										<endif>
-			  > 
+		{ y | <logicalOperationList: { x | if(<x>){<stats(<y>)>} }; separator="\nelse " >
+			  <if(y)> {<stats(<y>)>} <endif> <! last else !>
 		}
 	> 
 
