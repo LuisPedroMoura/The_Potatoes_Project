@@ -11,7 +11,11 @@ package utils;
  */
 public class Factor {
 
+	// Static Constants
+	private static long count = 0;
+
 	// Instance Fields
+	private final long id;
 	private final Double factor;
 	private final Boolean isChildToParent;
 
@@ -26,6 +30,8 @@ public class Factor {
 		if (isChildToParent) this.factor = 1 / factor;
 		else this.factor = factor;
 		this.isChildToParent = isChildToParent;
+		id = count;
+		count++;
 	}
 
 	// --------------------------------------------------------------------------
@@ -70,6 +76,7 @@ public class Factor {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((factor == null) ? 0 : factor.hashCode());
+		result = prime * result + (int) (id ^ (id >>> 32));
 		result = prime * result + ((isChildToParent == null) ? 0 : isChildToParent.hashCode());
 		return result;
 	}
@@ -91,6 +98,9 @@ public class Factor {
 				return false;
 			}
 		} else if (!factor.equals(other.factor)) {
+			return false;
+		}
+		if (id != other.id) {
 			return false;
 		}
 		if (isChildToParent == null) {
