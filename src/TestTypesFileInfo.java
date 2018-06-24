@@ -144,6 +144,7 @@ public class TestTypesFileInfo {
 
 	// Skip all vertices that are not in the visible area. 
 	// NOTE: See notes at the end of this method!
+	@SuppressWarnings("unused")
 	private static <V, E> void doNotPaintInvisibleVertices(VisualizationViewer<V, E> vv) {
 		Predicate<Context<Graph<V, E>, V>> vertexIncludePredicate = new Predicate<Context<Graph<V,E>,V>>() {
 			Dimension size = new Dimension();
