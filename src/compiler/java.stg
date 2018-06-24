@@ -102,15 +102,16 @@ whileLoop(lo, stat) ::= <<
 >>
  			
 <![IJ] NOT DONE!>
-condition(logicalOperationList, statList) ::= <<
-	if(<logicalOperation1>)
-		{<stats(stat1)>}
-	else if(<logicalOperation2>)
-		{<stats(stat2)>}                  
-	else 
-		{<stats(stat3)>}                                                                       
->> 
+condition(logicalOperationList, statList) ::= << 
+	<statList: 
+		{ y | <logicalOperationList:
+				  <if(x)>  { x | if(<x>){<y>} }; separator=\"\nelse \" <endif>
+				  <if(!x)> {<y>}  <endif>
+			  > 
+		}
+	> 
 
+>>
 
 <!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 LOGICAL OPERATIONS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
