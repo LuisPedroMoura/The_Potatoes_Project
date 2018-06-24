@@ -1,16 +1,14 @@
-
-<![MJ] DONE!>
+// [MJ] DONE
 stats(stat) ::= <<
 	<if(stat)><stat; separator="\n"><endif>
 >>
 
 
+/*********************************************************************************
+CLASS*****************************************************************************
+*********************************************************************************/
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-<![MJ] DONE!>
+// [MJ] DONE
 class(name,stat) ::= <<
 public class <name> {
    <stats(stat)>
@@ -18,87 +16,72 @@ public class <name> {
 >>
 
 
+/*********************************************************************************
+DECLARATION***********************************************************************
+*********************************************************************************/
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-DECLARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-<!
+/*
 	ARRAYS WILL BE THE LAST ONES
 	ARRAY '<' type ',' NUMBER'>' var
 	arrayDeclaration(type, name, size) ::= <<
 		
 	>>
-!>
+*/
 
-<![MJ] DONE!>
+// [MJ] DONE!
 varDeclaration(type, var) ::= <<
-<type> <var> ;
+	<type> <var> ;
 >>
 
 
+/*********************************************************************************
+ASSIGNMENT************************************************************************
+*********************************************************************************/
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ASSIGNMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-<![MJ] DONE!>
+// [MJ] DONE
 varAssignment(type, var, stat) ::= <<
-<type> <var> = <stat>;	
-
+	<type> <var> = <stat>;	
 >>
 
 
+/*********************************************************************************
+FUNCTION**************************************************************************
+*********************************************************************************/
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FUNCTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-<![MJ] DONE!>
+// [MJ] DONE
 main(stat)::= <<
-public static void main(String[] args) {
-   <stats(stat)>
-}
+	public static void main(String[] args) {
+		<stats(stat)>
+	}
 >>
 
-
-<![MJ] REVIEW (LOWER PRIORITY) -> args!>
+// [MJ] REVIEW (LOWER PRIORITY) -> args
 function(name, return, arg) ::= <<
-public static <return> <name> ( <args(arg)> ) {
-   <stats(stat)>
-}
+	public static <return> <name> ( <args(arg)> ) {
+		<stats(stat)>
+	}
 >>
 
-<![MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it !>
+// [MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it 
 args(arg) ::= <<
 	<if(arg)>< <arg> separator=" "><endif>
 >>
 
 
+/*********************************************************************************
+CONTROL FLOW**********************************************************************
+*********************************************************************************/
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-CONTROL FLOW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-compareOperators ::= [ 
-	"==":"==", 
-	"!=":"!=", 
-	"<'":"<'", 
-	"<=":"<=", 
-	">":">", 
-	">=":">=", 
-	default:"null" 
-]
-
-<![IJ] NOT DONE YET...!>
+// [IJ] NOT DONE YET...
 
 forLoop(firstAssig, lOp, finalAssig, stat) ::= <<
     for( <if(firstAssig)> firstAssig <endif> ; lOp ; finalAssig ) { <stats(stat)> }
 >>
 
 whileLoop(lo, stat) ::= <<
-	<if(stat)>		while(lo){<stats(stat)>} 	<endif>
-	<if(!stat)>		while(lo);				 	<endif>	           
+	<if(stat)>		while(lo){<stats(stat)>} 	
+	<else>			while(lo);				 	
+	<endif>	           
 >>
 
 whenCase(var, valueList, statList) ::= <<
@@ -108,35 +91,45 @@ whenCase(var, valueList, statList) ::= <<
     }
 >>
  			
-<![IJ] NOT DONE!>
+// [IJ] NOT DONE
 condition(logicalOperationList, statList) ::= << 
 	<statList: 
 		{ y | <logicalOperationList: { x | if(<x>){<stats(<y>)>} }; separator="\nelse " >
 			  <if(y)> {<stats(<y>)>} <endif> <! last else !>
 		}
 	> 
-
 >>
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-LOGICAL OPERATIONS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
-<![MJ] DONE!>
+/*********************************************************************************
+LOGICAL OPERATIONS****************************************************************
+*********************************************************************************/
+
+// [MJ] DONE
 logicalOperation( parenthesis0, logicalOper0, oper, logicalOper1, parenthesis1 ) ::= <<
-<parenthesis0> <logicalOper0> <oper> <logicalOper1> <parenthesis1>
+	<parenthesis0> <logicalOper0> <oper> <logicalOper1> <parenthesis1>
 >>
 
-<![MJ] DONE!>
+// [MJ] DONE
 logicalOperand(not, oper) ::= <<
-<not> <oper>
+	<not> <oper>
 >>
 
-<![MJ] DONE!>
+// [MJ] DONE
 comparison(operation0, compareOper, operation1) ::= <<
-<operation0> <compareOper> <operation1>
+	<operation0> <compareOperators.(compareOper)> <operation1>
 >>
 
+// [IJ]
+compareOperators ::= [ 
+	"==":"==", 
+	"!=":"!=", 
+	"<'":"<'", 
+	"<=":"<=", 
+	">":">", 
+	">=":">=", 
+	default:"null" 
+]
 
 typeValue ::= [ "number"  : "int",
 	"boolean" : "int", 
@@ -148,9 +141,3 @@ typeValue ::= [ "number"  : "int",
 ]
 	
 booleanValue ::= [ "false":"0", "true":"1", default:"null" ]
-
-
-
-
-
-
