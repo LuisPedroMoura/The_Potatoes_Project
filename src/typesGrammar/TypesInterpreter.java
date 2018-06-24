@@ -42,7 +42,7 @@ import utils.errorHandling.ErrorHandling;
 public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = true; 
+	private static final boolean debug = false; 
 
 	// --------------------------------------------------------------------------
 	// Instance Fields 
@@ -174,9 +174,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 
 			// Create derived type based on typeOpOr
-			//t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCode());
-			t.setTypeName(typeName);
-			t.setPrintName(ctx.STRING().getText().replaceAll("\"", ""));
+			t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCode());
 
 			// Update the types graph : done in each visitor for each alternative
 
@@ -195,12 +193,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitTypeOpOr(TypeOpOrContext ctx) {
 		// Rule typeOpOrAlt (OR typeOpOrAlt)*	
 
-		Boolean localDebug = debug && true;
+		Boolean localDebug = debug && false;
 		if (localDebug) ErrorHandling.printInfo(ctx, "[PVT Debug] Parsing " + ctx.getText());
 
 		Boolean valid = true;
 
-		Type t = types.get(ctx.parent);
+		Type t = new Type(0.0);
 
 		List<TypeOpOrAltContext> orTypeAlternatives = ctx.typeOpOrAlt(); 
 		for (TypeOpOrAltContext orAlt : orTypeAlternatives) {
@@ -215,7 +213,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 				// Debug
 				if (localDebug) {
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + t);
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + types.get(ctx.parent));
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Type: "   + alternative);
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Factor: " + factor);
 					ErrorHandling.printWarning(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
@@ -223,8 +221,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				}
 
 				// [PVT Current Work] Update the types graph
-				typesGraph.addEdge(new Factor(factor, "parent"), alternative, t);
-				typesGraph.addEdge(new Factor(factor, "child"), t, alternative);
+				typesGraph.addEdge(new Factor(factor, "parent"), alternative, types.get(ctx.parent));
+				typesGraph.addEdge(new Factor(factor, "child"), types.get(ctx.parent), alternative);
 			}
 		}	
 

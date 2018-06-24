@@ -1,4 +1,6 @@
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
@@ -17,10 +19,10 @@ import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.BasicEdgeRenderer;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import typesGrammar.TypesFileInfo;
 import utils.Factor;
@@ -56,30 +58,27 @@ public class TestTypesFileInfo {
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		Dimension size = new Dimension(800,800);
+
+
 		VisualizationViewer<Type, Factor> vv = new VisualizationViewer<Type, Factor>(new FRLayout<Type, Factor>(g, size));
 		DefaultModalGraphMouse<String, Double> graphMouse = new DefaultModalGraphMouse<String, Double>();
 		vv.setGraphMouse(graphMouse); 
+		vv.setPreferredSize(new Dimension(800,800)); //Sets the viewing area size
+		// Vertex Customization
+		Transformer<Type,Paint> vertexPaint = new Transformer<Type,Paint>() {
+			@Override
+			public Paint transform(Type i) {
+				return Color.GREEN;
+			}
+		}; 
 
+		vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
+		vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 		vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Type>() {
 			@Override
 			public String transform(Type v) {
 				return v.toString();
 			}});
-
-		vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<Factor>() {
-			@Override
-			public String transform(Factor v) {
-				return v.toString();
-			}});
-		improvePerformance(vv);
-
-		// EDGE LABEL POSITION
-		vv.getRenderContext().setEdgeLabelClosenessTransformer(new ConstantDirectionalEdgeValueTransformer<Type, Factor>(0.5d, 0.5d));
-		int labelOffset = vv.getRenderContext().getLabelOffset();
-		if (labelOffset >= 0) {
-			vv.getRenderContext().setLabelOffset(labelOffset);
-		}
-
 		vv.setVertexToolTipTransformer(new Transformer<Type, String>() {
 			@Override
 			public String transform(Type v) {
@@ -87,11 +86,27 @@ public class TestTypesFileInfo {
 				return v.toString();
 			}});
 
+		// Edge Customization
+		/*vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<Factor>() {
+			@Override
+			public String transform(Factor v) {
+				return v.toString();
+			}});
+
+		vv.getRenderContext().setEdgeLabelClosenessTransformer(new ConstantDirectionalEdgeValueTransformer<Type, Factor>(1d, 1d));
+
+		int labelOffset = vv.getRenderContext().getLabelOffset();
+		if (labelOffset >= 0) {
+			vv.getRenderContext().setLabelOffset(labelOffset);
+		}
+		 */
 		vv.setEdgeToolTipTransformer(new Transformer<Factor, String>() {
 			@Override
 			public String transform(Factor v) {
 				return v.toString();
 			}});
+
+		improvePerformance(vv);
 
 		f.getContentPane().add(vv);
 		f.setSize(size);
@@ -113,7 +128,7 @@ public class TestTypesFileInfo {
 		// May be helpful for performance in general, but not appropriate 
 		// when there are multiple edges between a pair of nodes: Draw
 		// the edges not as curves, but as straight lines:
-		vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<V,E>());
+		vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.QuadCurve<V,E>());
 
 		// May be helpful for painting performance: Omit the arrow heads
 		// of directed edges
