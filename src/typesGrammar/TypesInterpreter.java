@@ -10,23 +10,23 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import typesGrammar.TypesParser.PrefixContext;
 import typesGrammar.TypesParser.PrefixDeclarContext;
-import typesGrammar.TypesParser.TypeBasicContext;
 import typesGrammar.TypesParser.TypeContext;
-import typesGrammar.TypesParser.TypeDerivedContext;
-import typesGrammar.TypesParser.TypeDerivedOrContext;
-import typesGrammar.TypesParser.TypeOpIDContext;
-import typesGrammar.TypesParser.TypeOpMultDivContext;
 import typesGrammar.TypesParser.TypeOpOrAltContext;
 import typesGrammar.TypesParser.TypeOpOrContext;
-import typesGrammar.TypesParser.TypeOpParenthesisContext;
-import typesGrammar.TypesParser.TypeOpPowerContext;
+import typesGrammar.TypesParser.Type_BasicContext;
+import typesGrammar.TypesParser.Type_DerivedContext;
+import typesGrammar.TypesParser.Type_Derived_OrContext;
+import typesGrammar.TypesParser.Type_Op_IDContext;
+import typesGrammar.TypesParser.Type_Op_MultDivContext;
+import typesGrammar.TypesParser.Type_Op_ParenthesisContext;
+import typesGrammar.TypesParser.Type_Op_PowerContext;
 import typesGrammar.TypesParser.TypesDeclarContext;
 import typesGrammar.TypesParser.TypesFileContext;
-import typesGrammar.TypesParser.ValueOpAddSubContext;
-import typesGrammar.TypesParser.ValueOpMultDivContext;
-import typesGrammar.TypesParser.ValueOpNumberContext;
-import typesGrammar.TypesParser.ValueOpOpPowerContext;
-import typesGrammar.TypesParser.ValueOpParenthesisContext;
+import typesGrammar.TypesParser.Value_AddSubContext;
+import typesGrammar.TypesParser.Value_MultDivContext;
+import typesGrammar.TypesParser.Value_NumberContext;
+import typesGrammar.TypesParser.Value_ParenthesisContext;
+import typesGrammar.TypesParser.Value_PowerContext;
 import utils.Factor;
 import utils.Prefix;
 import utils.Type;
@@ -94,7 +94,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeBasic(TypeBasicContext ctx) {
+	public Boolean visitType_Basic(Type_BasicContext ctx) {
 		// Rule ID STRING
 
 		String typeName = ctx.ID().getText();
@@ -120,7 +120,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeDerived(TypeDerivedContext ctx) {
+	public Boolean visitType_Derived(Type_DerivedContext ctx) {
 		// Rule ID STRING COLON typeOp 						
 
 		String typeName = ctx.ID().getText();
@@ -150,7 +150,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeDerivedOr(TypeDerivedOrContext ctx) {
+	public Boolean visitType_Derived_Or(Type_Derived_OrContext ctx) {
 		// Rule ID STRING COLON typeOpOr							
 
 		String typeName = ctx.ID().getText();
@@ -236,9 +236,9 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	@Override
 	public Boolean visitTypeOpOrAlt(TypeOpOrAltContext ctx) {
-		// Rule valueOp ID
+		// Rule value ID
 
-		Boolean valid = visit(ctx.valueOp());
+		Boolean valid = visit(ctx.value());
 
 		String typeName = ctx.ID().getText();
 
@@ -250,14 +250,14 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			}
 
 			types.put(ctx, typesTable.get(typeName));
-			values.put(ctx, values.get(ctx.valueOp()));
+			values.put(ctx, values.get(ctx.value()));
 		}
 
 		return valid;
 	}
 
 	@Override
-	public Boolean visitTypeOpParenthesis(TypeOpParenthesisContext ctx) {
+	public Boolean visitType_Op_Parenthesis(Type_Op_ParenthesisContext ctx) {
 		// Rule PAR_OPEN typeOp PAR_CLOSE					
 
 		Boolean valid = visit(ctx.typeOp());
@@ -269,7 +269,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeOpMultDiv(TypeOpMultDivContext ctx) {
+	public Boolean visitType_Op_MultDiv(Type_Op_MultDivContext ctx) {
 		// Rule typeOp op=(MULTIPLY | DIVIDE) typeOp	
 
 		Boolean valid = visit(ctx.typeOp(0)) && visit(ctx.typeOp(1));
@@ -286,7 +286,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeOpPower(TypeOpPowerContext ctx) {
+	public Boolean visitType_Op_Power(Type_Op_PowerContext ctx) {
 		// Rule <assoc=right> ID POWER INT					
 		Boolean localDebug = debug && false;
 
@@ -332,7 +332,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeOpID(TypeOpIDContext ctx) {
+	public Boolean visitType_Op_ID(Type_Op_IDContext ctx) {
 		// Rule ID										
 
 		// Creating an aux method to verify the ID (thus eliminating the need to 
@@ -369,7 +369,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	@Override
 	public Boolean visitPrefix(PrefixContext ctx) {
-		// Rule ID STRING COLON valueOp
+		// Rule ID STRING COLON value
 
 		String prefixName = ctx.ID().getText();
 
@@ -382,10 +382,10 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			value = false;
 		}
 
-		value = value && visit(ctx.valueOp());
+		value = value && visit(ctx.value());
 
 		// Create prefix
-		Prefix p = new Prefix(prefixName, ctx.STRING().getText().replaceAll("\"", ""), values.get(ctx.valueOp()));
+		Prefix p = new Prefix(prefixName, ctx.STRING().getText().replaceAll("\"", ""), values.get(ctx.value()));
 		prefixesTable.put(prefixName, p);
 
 		if (debug) {
@@ -398,23 +398,23 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// --------------------------------------------------------------
 	// Value Callbacks 
 	@Override
-	public Boolean visitValueOpParenthesis(ValueOpParenthesisContext ctx) {
-		Boolean valid = visit(ctx.valueOp());
+	public Boolean visitValue_Parenthesis(Value_ParenthesisContext ctx) {
+		Boolean valid = visit(ctx.value());
 
 		if (valid) {
-			values.put(ctx, values.get(ctx.valueOp()));
+			values.put(ctx, values.get(ctx.value()));
 		}
 
 		return valid;
 	}
 
 	@Override
-	public Boolean visitValueOpAddSub(ValueOpAddSubContext ctx) {
-		Boolean valid = visit(ctx.valueOp(0)) && visit(ctx.valueOp(1));
+	public Boolean visitValue_AddSub(Value_AddSubContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
 
 		if (valid) {
-			Double op1 = values.get(ctx.valueOp(0));
-			Double op2 = values.get(ctx.valueOp(1));
+			Double op1 = values.get(ctx.value(0));
+			Double op2 = values.get(ctx.value(1));
 			Double result;
 			if (ctx.op.getText().equals("+")) result = op1 + op2; 
 			else result = op1 - op2;
@@ -425,12 +425,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitValueOpOpPower(ValueOpOpPowerContext ctx) {
-		Boolean valid = visit(ctx.valueOp(0)) && visit(ctx.valueOp(1));
+	public Boolean visitValue_Power(Value_PowerContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
 
 		if (valid) {
-			Double op 	 = values.get(ctx.valueOp(0));
-			Double power = values.get(ctx.valueOp(1));
+			Double op 	 = values.get(ctx.value(0));
+			Double power = values.get(ctx.value(1));
 			values.put(ctx, Math.pow(op, power));	
 		}
 
@@ -438,12 +438,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitValueOpMultDiv(ValueOpMultDivContext ctx) {
-		Boolean valid = visit(ctx.valueOp(0)) && visit(ctx.valueOp(1));
+	public Boolean visitValue_MultDiv(Value_MultDivContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
 
 		if (valid) {
-			Double op1 = values.get(ctx.valueOp(0));
-			Double op2 = values.get(ctx.valueOp(1));
+			Double op1 = values.get(ctx.value(0));
+			Double op2 = values.get(ctx.value(1));
 			Double result;
 			if (ctx.op.getText().equals("*")) result = op1 * op2; 
 			else result = op1 / op2;
@@ -454,7 +454,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitValueOpNumber(ValueOpNumberContext ctx) {
+	public Boolean visitValue_Number(Value_NumberContext ctx) {
 		try {
 			Double result = Double.parseDouble(ctx.NUMBER().getText());
 			values.put(ctx, result);
