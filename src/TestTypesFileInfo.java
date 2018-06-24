@@ -123,7 +123,7 @@ public class TestTypesFileInfo {
 		vv.getRenderingHints().remove(RenderingHints.KEY_ANTIALIASING);
 
 		// Skip vertices that are not inside the visible area. 
-		doNotPaintInvisibleVertices(vv);
+		//doNotPaintInvisibleVertices(vv);
 
 		// May be helpful for performance in general, but not appropriate 
 		// when there are multiple edges between a pair of nodes: Draw
@@ -135,7 +135,7 @@ public class TestTypesFileInfo {
 		Predicate<Context<Graph<V, E>, E>> edgeArrowPredicate = new Predicate<Context<Graph<V,E>,E>>() {
 			@Override
 			public boolean evaluate(Context<Graph<V, E>, E> arg0) {
-				return false;
+				return true;
 			}
 		};
 		vv.getRenderContext().setEdgeArrowPredicate(edgeArrowPredicate);
