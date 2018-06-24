@@ -1,5 +1,12 @@
 package utils;
 
+import java.util.Collection;
+import java.util.List;
+
+import compiler.PotatoesVisitorSemanticAnalysis;
+import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
+import edu.uci.ics.jung.graph.Graph;
+
 /**
  * <b>Variable</b><p>
  * To be used on the general purpose language<p>
@@ -13,8 +20,9 @@ public class Variable {
 // --------------------------------------------------------------------------
 // INSTANCE FIELDS
 	
-	private final Type type;
-	private final double value;
+	private Type type;
+	private double value;
+	private static Graph<Type, Factor> typesGraph = PotatoesVisitorSemanticAnalysis.getTypesFileInfo().getTypesGraph();
 
 // --------------------------------------------------------------------------
 // INSTANCE FIELDS
@@ -97,16 +105,46 @@ public class Variable {
 	}
 	
 	
-	public boolean convertTypeTo(Type type) {
+	public boolean convertTypeTo(Type newType) {
+		// verify that newType exists
+		if (!typesGraph.containsVertex(newType)) {
+			return false;
+		}
 		
 		// Variable type is already the one we're trying to convert to
-		if (this.type == type){
+		if (newType.getCode() == this.type.getCode()){
+			return true;
+		}
+		
+		Collection<Type> vertices = typesGraph.getVertices();
+		
+		// Variable type is already the one we're trying to convert to
+		if (newType.getCode() == this.type.getCode()){
 			return true;
 		}
 		
 		// get path from graph
+		DijkstraShortestPath<Type, Factor> d= new DijkstraShortestPath<>(typesGraph);
+		List<Factor> factors;
+		try {
+			factors = d.getPath(this.type, newType);
+		}
+		catch (IllegalArgumentException e) {
+			return false;
+		}
+		
 		// convert value using edges cost
+		for(Factor f : factors) {
+			this.value *= f.getFactor();
+		}
+		
 		// convert code to type code
+		this.type = newType;
+		return true;
+	}
+	
+	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type t) {
+		Type newType = t.convertVariableToFirstPossibleTypeInOpTypeArray(type);
 		return true;
 	}
 	

@@ -65,7 +65,6 @@ import potatoesGrammar.PotatoesParser.LogicalOperationContext;
 import potatoesGrammar.PotatoesParser.LogicalOperation_OperationContext;
 import potatoesGrammar.PotatoesParser.LogicalOperation_ParenthesisContext;
 import potatoesGrammar.PotatoesParser.LogicalOperation_logicalOperandContext;
-import potatoesGrammar.PotatoesParser.LogicalOperatorContext;
 import potatoesGrammar.PotatoesParser.Operation_Add_SubContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayAccessContext;
 import potatoesGrammar.PotatoesParser.Operation_ArrayLengthContext;
@@ -112,41 +111,28 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	private static final boolean debug = true;
 	
 	static String path;
-	TypesFileInfo typesFileInfo; // initialized in visitUsing();
-	Map<String, Type> typesTable = typesFileInfo.getTypesTable();
+	private static TypesFileInfo typesFileInfo; // initialized in visitUsing();
+	private static Map<String, Type> typesTable = typesFileInfo.getTypesTable();
 	
-	protected ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
+	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
-
-// -----------------------
-// -----------------------
-	// OUT OF PLACE VISITORS
-// -----------------------
 	
-
-	@Override
-	public Boolean visitOperation_NUMBER(Operation_NUMBERContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitOperation_NUMBER(ctx);
+	private static Type destinationType;
+	
+	public static ParseTreeProperty<Object> getMapCtxObj(){
+		return mapCtxObj;
+	}
+	
+	public static TypesFileInfo getTypesFileInfo() {
+		return typesFileInfo;
 	}
 
-	@Override
-	public Boolean visitOperation_Cast(Operation_CastContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitOperation_Cast(ctx);
-	}
+// -----------------------
+// -----------------------
+// OUT OF PLACE VISITORS
+// -----------------------
 
-	@Override
-	public Boolean visitOperation_Mult_Div_Mod(Operation_Mult_Div_ModContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitOperation_Mult_Div_Mod(ctx);
-	}
 
-	@Override
-	public Boolean visitOperation_Var(Operation_VarContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitOperation_Var(ctx);
-	}
 	
 	
 	
@@ -326,6 +312,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Declaration_Operation(Assignment_Var_Declaration_OperationContext ctx) {
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
+		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
 		Variable a = (Variable) mapCtxObj.get(ctx.operation());
 		String varName = ctx.varDeclaration().var().ID().getText();
 		
@@ -424,6 +411,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Operation(Assignment_Var_OperationContext ctx) {
 		String typeName = (String) mapCtxObj.get(ctx.var().ID());
+		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
 		Variable a = (Variable) mapCtxObj.get(ctx.operation());
 		
 		if (a.convertTypeTo(typesTable.get(typeName))) {
@@ -571,6 +559,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.logicalOperation()));
 		return visitChildren(ctx);
 	}
 	
@@ -583,18 +572,21 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		// logical AND
 		if (ctx.op.getText().equals("&&")) {
 			res = b1 && b2;
+			mapCtxObj.put(ctx, res);
 		}
 		
 		// logical OR
 		if(ctx.op.getText().equals("||")) {
 			res = b1 || b2;
+			mapCtxObj.put(ctx, res);
 		}
 		
-		return res;
+		return true;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.getChild(0)));
 		return visitChildren(ctx);
 	}
 
@@ -612,10 +604,16 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	public Boolean visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
 		String varName = ctx.var().ID().getText();
 		Boolean res;
+		
 		// verify that variable exists
 		if (symbolTable.containsKey(varName)) {
-			if (symbolTable.get(varName) instanceof Boolean) {
-				
+			Object object = symbolTable.get(varName);
+			if (object instanceof Boolean) {
+				res = (Boolean) object;
+			}
+			else {
+				ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean");
+				return false;
 			}
 		}
 		else {
@@ -623,7 +621,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 			return false;
 		}
 		
-		return super.visitLogicalOperand_Var(ctx);
+		return res;
 	}
 
 	@Override
@@ -659,29 +657,62 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // --------------------------------------------------------------------------------------------------------------------
 // OPERATIONS------------------------------------------------------------------	
 // --------------------------------------------------------------------------------------------------------------------
-	@Override
-	public Boolean visitOperation_Modulus(Operation_ModulusContext ctx) {
-		Variable a = mapCtxObj.get(ctx.operation(0));
-		Variable b = mapCtxObj.get(ctx.operation(1));
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitOperation_Cast(Operation_CastContext ctx) {
+		Variable a = (Variable) mapCtxObj.get(ctx.operation());
 		
-		// verify that right side of mod operation is of Type Number
-		if (b.getType().getCode() != 1) {
-			ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number");
+		// cast is only possible if Variable is of Type Number (with code 1)
+		if (a.getType().getCode() != 1) {
+			ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" cannot be casted. Only number type can be casted");
 			return false;
 		}
 		
-		Double moddedValue = a.getValue() % b.getValue();
-		a = new Variable (a.getType(), moddedValue);
-		mapCtxObj.put(ctx,  a);
+		// type is number cast is possible
+		Variable res = new Variable(typesTable.get(ctx.cast().ID().getText()), a.getValue());
+		mapCtxObj.put(ctx, res);
+		return true;
+	}
+	
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitOperation_Parenthesis(Operation_ParenthesisContext ctx) {
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.operation()));
 		return true;
 	}
 
 	@Override
-	public Boolean visitOperation_FunctionCall(Operation_FunctionCallContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitOperation_FunctionCall(ctx);
+	public Boolean visitOperation_Mult_Div_Mod(Operation_Mult_Div_ModContext ctx) {
+		Variable a = (Variable) mapCtxObj.get(ctx.operation(0));
+		Variable b = (Variable) mapCtxObj.get(ctx.operation(1));
+		String op = ctx.op.getText();
+		
+		// Modulos operation
+		if (op.equals("%")) {
+			// verify that right side of mod operation is of Type Number
+			if (b.getType().getCode() == 1) {
+				Double moddedValue = a.getValue() % b.getValue();
+				a = new Variable (a.getType(), moddedValue);
+				mapCtxObj.put(ctx,  a);
+			}
+			else {
+				ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number");
+				return false;
+			}
+		}
+		
+		if (op.equals("*")) {
+			boolean checkType = destinationType.checkType(a.getType());
+			if (checkType == false) {
+				
+			}
+			
+			
+			
+			
+			
+		}
+		return true;
 	}
-
+	
 	@Override
 	public Boolean visitOperation_Simetric(Operation_SimetricContext ctx) {
 		Variable a = mapCtxObj.get(ctx.operation());
@@ -689,32 +720,72 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		mapCtxObj.put(ctx, a);
 		return true;
 	}
-
+	
+	@Override
+	public Boolean visitOperation_Add_Sub(Operation_Add_SubContext ctx) {
+		Variable a = mapCtxObj.get(ctx.operation(0));
+		Variable b = mapCtxObj.get(ctx.operation(1));
+		
+		// verify that types are equals before adding or subtracting 
+		if (!a.getType().equals(b.getType())) {
+			// if types are not equal, try to convert Variable 'b' Type into 'a' Type
+			if (!b.convertTypeTo(a.getType())) {
+				ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" is not compatible with \"" + b.getType() + "\"");
+				return false;
+			}
+		}
+		// types are equal adding and subtracting is possible
+		if (ctx.op.equals("+")) {
+			mapCtxObj.put(ctx, Variable.add(a, b));
+		}
+		else if (ctx.op.equals("-")) {
+			mapCtxObj.put(ctx,  Variable.subtract(a, b));
+		}
+		return true;
+	}
+	
+	@Override
+	public Boolean visitOperation_Power(Operation_PowerContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_Power(ctx);
+	}
+	
+	@Override
+	public Boolean visitOperation_Var(Operation_VarContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_Var(ctx);
+	}
+	
+	@Override
+	public Boolean visitOperation_FunctionCall(Operation_FunctionCallContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitOperation_FunctionCall(ctx);
+	}
+	
 	@Override
 	public Boolean visitOperation_ArrayAccess(Operation_ArrayAccessContext ctx) {
 		// TODO Auto-generated method stub
 		return super.visitOperation_ArrayAccess(ctx);
 	}
-
-	@Override
-	public Boolean visitOperation_NUMBER(Operation_NumberContext ctx) {
-		Type numberType = new Type("Number", "", 1.0);
-		Double code = Double.parseDouble(ctx.NUMBER().getText());
-		Variable a = new Variable(numberType, code);
-		mapCtxObj.put(ctx, a);
-		return true;
-	}
-
-	@Override
-	public Boolean visitOperation_Parenthesis(Operation_ParenthesisContext ctx) {
-		mapCtxObj.put(ctx, mapCtxObj.get(ctx.operation()));
-		return true;
-	}
-
+	
 	@Override
 	public Boolean visitOperation_ArrayLength(Operation_ArrayLengthContext ctx) {
 		// TODO Auto-generated method stub
 		return super.visitOperation_ArrayLength(ctx);
+	}
+	
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitOperation_NUMBER(Operation_NUMBERContext ctx) {
+		Type numberType = new Type("number", "", 1.0);
+		Double value = Double.parseDouble(ctx.NUMBER().getText());
+		Variable a = new Variable(numberType, value);
+		mapCtxObj.put(ctx, a);
+		return true;
+	}
+	
+	@Override
+	public Boolean visitOperation_Modulus(Operation_ModulusContext ctx) {
+		
 	}
 
 	@Override
@@ -740,11 +811,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		return true;
 	}
 
-	@Override
-	public Boolean visitOperation_Power(Operation_PowerContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitOperation_Power(ctx);
-	}
+	
 
 	@Override
 	public Boolean visitOperation_Mult_Div(Operation_Mult_DivContext ctx) {
@@ -755,43 +822,9 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		return super.visitOperation_Mult_Div(ctx);
 	}
 
-	@Override
-	public Boolean visitOperation_Add_Sub(Operation_Add_SubContext ctx) {
-		Variable a = mapCtxObj.get(ctx.operation(0));
-		Variable b = mapCtxObj.get(ctx.operation(1));
-		
-		// verify that types are equals before adding or subtracting 
-		if (!a.getType().equals(b.getType())) {
-			// if types are not equal, try to convert Variable 'b' Type into 'a' Type
-			if (!b.convertTypeTo(a.getType())) {
-				ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" is not compatible with \"" + b.getType() + "\"");
-				return false;
-			}
-		}
-		// types are equal adding and subtracting is possible
-		if (ctx.op.equals("+")) {
-			mapCtxObj.put(ctx, Variable.add(a, b));
-		}
-		else if (ctx.op.equals("-")) {
-			mapCtxObj.put(ctx,  Variable.subtract(a, b));
-		}
-		return true;
-	}
 	
-	@Override
-	public Boolean visitCast(CastContext ctx) {
-		Variable a = mapCtxObj.get(ctx.operation());
-		
-		// cast is only possible if Variable is of Type Number (with code 1)
-		if (a.getType().getCode() != 1) {
-			ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" cannot be casted. Only Number type can be casted");
-			return false;
-		}
-		
-		// type is Number cast is possible
-		mapCtxObj.put(ctx, new Variable(typesTable.get(ctx.ID().getText())));
-		return true;
-	}
+	
+
 
 // --------------------------------------------------------------------------------------------------------------------
 // STRUCTURES - ARRAYS------------------------------------------------------------------	
@@ -915,6 +948,11 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	public Boolean visitValuesList(ValuesListContext ctx) {
 		// TODO Auto-generated method stub
 		return super.visitValuesList(ctx);
+	}
+	
+	@Override
+	public Boolean visitCast(CastContext ctx) {
+		
 	}
 // --------------------------------------------------------------------------------------------------------------------
 // AUXILIAR FUNCTIONS ---------------------------------------------------------------------------------------------
