@@ -11,7 +11,7 @@ types {
     
     
     // Derived Types
-    distance  		  "m"   : (1) meter | (2) inch
+    distance  		  "dist"   : (1) meter | (2) inch
     power     		  "W"   : energy / time
     //temp      		  "C"   : 0.5 * absTemp
     velocity          "m/s"	: distance / time

@@ -160,7 +160,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		// Temporary type (reference is needed for the visitor of rule typeOpOr)
 		Type t = new Type(0.0);				
-
+		t.setPrintName(ctx.STRING().getText().replaceAll("\"", ""));
+		t.setTypeName(typeName);
 		types.put(ctx, t);
 
 		Boolean valid = visit(ctx.typeOpOr());
@@ -174,7 +175,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 
 			// Create derived type based on typeOpOr
-			t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOpOr()).getCode());
+			//t = new Type(typeName, , types.get(ctx.typeOpOr()).getCode());
 
 			// Update the types graph : done in each visitor for each alternative
 
@@ -193,12 +194,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitTypeOpOr(TypeOpOrContext ctx) {
 		// Rule typeOpOrAlt (OR typeOpOrAlt)*	
 
-		Boolean localDebug = debug && false;
+		Boolean localDebug = true;
 		if (localDebug) ErrorHandling.printInfo(ctx, "[PVT Debug] Parsing " + ctx.getText());
 
 		Boolean valid = true;
 
-		Type t = new Type(0.0);
+		Type t = types.get(ctx.parent);
 
 		List<TypeOpOrAltContext> orTypeAlternatives = ctx.typeOpOrAlt(); 
 		for (TypeOpOrAltContext orAlt : orTypeAlternatives) {
@@ -213,16 +214,16 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 				// Debug
 				if (localDebug) {
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + types.get(ctx.parent));
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + t);
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Type: "   + alternative);
 					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Factor: " + factor);
-					ErrorHandling.printWarning(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
+					ErrorHandling.printInfo(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
 							+ factor + ", " + alternative + ", " + factor);
 				}
 
 				// [PVT Current Work] Update the types graph
-				typesGraph.addEdge(new Factor(factor, "parent"), alternative, types.get(ctx.parent));
-				typesGraph.addEdge(new Factor(factor, "child"), types.get(ctx.parent), alternative);
+				typesGraph.addEdge(new Factor(factor, true), alternative, t);
+				typesGraph.addEdge(new Factor(factor, false), t, alternative);
 			}
 		}	
 

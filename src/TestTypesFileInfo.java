@@ -77,7 +77,7 @@ public class TestTypesFileInfo {
 		vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Type>() {
 			@Override
 			public String transform(Type v) {
-				return v.toString();
+				return v.getTypeName();
 			}});
 		vv.setVertexToolTipTransformer(new Transformer<Type, String>() {
 			@Override

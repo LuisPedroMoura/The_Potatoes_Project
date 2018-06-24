@@ -193,7 +193,37 @@ public class Type {
 
 	@Override
 	public String toString() {
-		return printName;
+		/*
+		// For Debug Purposes Only
+		StringBuilder builder = new StringBuilder();
+		builder.append("Type [");
+		if (typeName != null) {
+			builder.append("typeName=");
+			builder.append(typeName);
+			builder.append(", ");
+		}
+		if (printName != null) {
+			builder.append("printName=");
+			builder.append(printName);
+			builder.append(", ");
+		}
+		builder.append("code=");
+		builder.append(code);
+		builder.append(", ");
+		if (opTypes != null) {
+			builder.append("opTypes=");
+			builder.append(opTypes);
+			builder.append(", ");
+		}
+		if (checkList != null) {
+			builder.append("checkList=");
+			builder.append(checkList);
+		}
+		builder.append("]");
+		return builder.toString();
+		 */
+		return typeName;
+		// return printName;
 	}
 
 	@Override
