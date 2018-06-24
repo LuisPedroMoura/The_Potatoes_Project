@@ -16,7 +16,7 @@ types {
 
     // Derived Types 
     distance  		  "dist" : (1) meter  | (2) inch
-    animals 		  "a" 	 : (1) person | (1) penguin 
+    animals 		  "a" 	 : (1) person | (1) penguin | (1) animals
 	animalsLand		  "al"	 : (2) person | (4) penguin 
 	
 	power     		  "W"    : energy / time
