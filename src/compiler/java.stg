@@ -92,21 +92,21 @@ compareOperators ::= [
 
 <![IJ] NOT DONE YET...!>
 
+forLoop(firstAssig, lOp, finalAssig, stat) ::= <<
+    for( <if(firstAssig)> firstAssig <endif> ; lOp ; finalAssig ) { <stats(stat)> }
+>>
+
 whileLoop(lo, stat) ::= <<
-	<if(stat)>
-		while(lo){<stats(stat)>}
-	<endif>
-	<if(!stat)>
-		while(lo);
-	<endif>	           
+	<if(stat)>		while(lo){<stats(stat)>} 	<endif>
+	<if(!stat)>		while(lo);				 	<endif>	           
 >>
  			
 <![IJ] NOT DONE!>
 condition(logicalOperationList, statList) ::= << 
 	<statList: 
 		{ y | <logicalOperationList:
-				  <if(x)>  { x | if(<x>){<y>} }; separator=\"\nelse \" <endif>
-				  <if(!x)> {<y>}  <endif>
+				  <if(x)>  { x | if(<x>){<stats(<y>)>} }; separator=\"\nelse \" <endif>
+				  <if(!x)> {<stats(<y>)>} 										<endif>
 			  > 
 		}
 	> 
