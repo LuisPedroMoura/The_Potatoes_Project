@@ -1,16 +1,61 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// DICTIONARIES /////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-<![MJ] DONE!>
+/*
+type				: NUMBER_TYPE		# type_Number_Type
+					| BOOLEAN_TYPE		# type_Boolean_Type
+					| STRING_TYPE		# type_String_Type
+					| VOID_TYPE			# type_Void_Type
+					| ID				# type_ID_Type
+					| arrayType			# type_ArrayType
+					;
+*/
+
+//[MJ] REVIEW (LOWER PRIORITY) -> array type
+typeV ::= [
+   "number"	:"double",
+   "string"	:"String",
+   "boolean":"boolean",
+   ""		:"",
+   default	:"double"
+]
+
+	
+//[MJ] REVIEW -> ^
+operators ::= [
+	"("		:"(",
+	")"		:")",
+   	"*"		:"*",
+   	"/"		:"/",
+   	"%"		:"%",
+   	"+"		:"+",
+   	"-"		:"-",
+   	"=="	:"==",
+   	"!="	:"!=",
+   	"&&"	:"&&",
+   	"||"	:"||",
+   	"!"		:"!",
+   default	:""
+]
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// TEMPLATES ////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//[MJ] DONE
 stats(stat) ::= <<
 	<if(stat)><stat; separator="\n"><endif>
 >>
 
 
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+//-------------------------------------------------------------------------------
+//CLASS--------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-<![MJ] DONE!>
+//[MJ] DONE
 class(name,stat) ::= <<
 public class <name> {
    <stats(stat)>
@@ -18,43 +63,37 @@ public class <name> {
 >>
 
 
+//-------------------------------------------------------------------------------
+//DECLARATION--------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-DECLARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-<!
+/*
 	ARRAYS WILL BE THE LAST ONES
 	ARRAY '<' type ',' NUMBER'>' var
-	arrayDeclaration(type, name, size) ::= <<
-		
-	>>
-!>
+	arrayDeclaration(type, name, size)
+*/
 
-<![MJ] DONE!>
+//[MJ] DONE
 varDeclaration(type, var) ::= <<
-<type> <var> ;
+<typeV.(type)> <var> ; <\n>
 >>
 
 
 
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ASSIGNMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
+//-------------------------------------------------------------------------------
+//ASSIGNMENT---------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-<![MJ] DONE!>
+//[MJ] DONE
 varAssignment(type, var, stat) ::= <<
-<type> <var> = <stat>;	
-
+<typeV.(type)> <var> = <stat>; <\n>	
 >>
 
+//-------------------------------------------------------------------------------
+//FUNCTION-----------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FUNCTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-<![MJ] DONE!>
+//[MJ] DONE
 main(stat)::= <<
 public static void main(String[] args) {
    <stats(stat)>
@@ -62,14 +101,14 @@ public static void main(String[] args) {
 >>
 
 
-<![MJ] REVIEW (LOWER PRIORITY) -> args!>
+//[MJ] REVIEW (LOWER PRIORITY) -> args
 function(name, return, arg) ::= <<
 public static <return> <name> ( <args(arg)> ) {
    <stats(stat)>
 }
 >>
 
-<![MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it !>
+//[MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it 
 args(arg) ::= <<
 	<if(arg)>< <arg> separator=" "><endif>
 >>
@@ -100,25 +139,24 @@ CONTROL FLOW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 <! 					;                                       !> >> 
 
 
+//-------------------------------------------------------------------------------
+//LOGICAL OPERATIONS-------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
-
-<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-LOGICAL OPERATIONS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
-
-<![MJ] DONE!>
-logicalOperation( parenthesis0, logicalOper0, oper, logicalOper1, parenthesis1 ) ::= <<
-<parenthesis0> <logicalOper0> <oper> <logicalOper1> <parenthesis1>
+//[MJ] REVIEW -> parenthesis really necessary? not? use just comparison
+logicalOperation( parenthesis0, logicalOperand0, operator, logicalOperand1, parenthesis1 ) ::= <<
+<operators.(parenthesis0)> <logicalOperand0> <operators.(operator)> <logicalOperand1> <operators.(parenthesis1)>
 >>
 
-<![MJ] DONE!>
-logicalOperand(not, oper) ::= <<
-<not> <oper>
+
+//[MJ] DONE
+logicalOperand(not, operand) ::= <<
+<operators.(not)><operand>
 >>
 
-<![MJ] DONE!>
-comparison(operation0, compareOper, operation1) ::= <<
-<operation0> <compareOper> <operation1>
+//[MJ] DONE
+comparison(operation0, compareOperator, operation1) ::= <<
+<operation0> <compareOperator> <operation1>
 >>
 
 
