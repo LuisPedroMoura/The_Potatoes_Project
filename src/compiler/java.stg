@@ -62,21 +62,6 @@ public class <name> {
 //DECLARATION--------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
-/*
-	ARRAYS WILL BE THE LAST ONES
-	ARRAY '<' type ',' NUMBER'>' var
-	arrayDeclaration(type, name, size)
-*/
-
-//[MJ] DONE
-varDeclaration(type, var) ::= <<
-<typeValue.(type)> <var> ; <\n>
->>
-
-//-------------------------------------------------------------------------------
-//DECLARATION--------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-
 
 // ARRAY DECLARATION--------------------------------------------------------------
 /*
@@ -88,9 +73,9 @@ varDeclaration(type, var) ::= <<
 */
 
 // VAR DECLARATION---------------------------------------------------------------
-// [MJ] DONE
+//[MJ] DONE
 varDeclaration(type, var) ::= <<
-<typeValue.(type)> <var> ;
+<typeValue.(type)> <var> ; <\n>
 >>
 
 
@@ -105,9 +90,9 @@ varAssignment(type, var, stat) ::= <<
 >>
 
 // ARRAY ASSIGNMENT--------------------------------------------------------------
-arrayAssignment(type, var, stat) ::= <<
+/*arrayAssignment(type, var, stat) ::= <<
 
->>
+>>*/
 
 
 //-------------------------------------------------------------------------------
@@ -149,10 +134,10 @@ CONTROL FLOW********************************************************************
 // CONDITION----------------------------------------------------------------------
 condition(logicalOperationList, statList) ::= << 
 	<statList: 
-		{ y | <logicalOperationList: { x | if(<x>){<stats(<y>)>} }; separator="\nelse " >
-			  <if(y)> {<stats(<y>)>} <endif> <! last else !>
-		}
-	> 
+		{ y | <trunc(logicalOperationList):{ n | if  (<n>){<stats(y)>}}; separator="\nelse ">
+			  <last(logicalOperationList) :{ n | else(<n>){<stats(y)>}}>    
+		}                               
+	>                         
 >>
 
 // FOR LOOP-----------------------------------------------------------------------
@@ -170,7 +155,7 @@ whileLoop(lo, stat) ::= <<
 // WHEN---------------------------------------------------------------------------
 whenCase(var, valueList, statList) ::= <<
     switch(var){
-        <statList: { y | <valueList: { x | case <x> : <if(<y>)> <stats(<y>)> break; <endif> } > } >
+        <statList: { y | <valueList: { x | case <x> : <if(y)> <stats(y)> break; <endif> } > } >
 		default: break;
     }
 >>
