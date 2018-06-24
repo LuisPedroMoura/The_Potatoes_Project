@@ -13,8 +13,9 @@ typeValue ::= [
 ]
 
 	
-//[MJ] REVIEW -> ^
-// <, and <= -> error
+//[MJ] REVIEW 	-> ^
+// 				-> <, and <= -> error
+//				-> ( ) are needed?
 operators ::= [
 	"("		:"(",
 	")"		:")",
@@ -28,12 +29,16 @@ operators ::= [
    	"&&"	:"&&",
    	"||"	:"||",
    	"!"		:"!",
-   default	:""
+   default	:"" //because of assignments of vars already declared
 ]
 
 
 //
-booleanValue ::= [ "false":"0", "true":"1", default:"null" ]
+booleanValue ::= [
+	"false":"0",
+	"true":"1",
+	default:"null"
+]
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +48,7 @@ booleanValue ::= [ "false":"0", "true":"1", default:"null" ]
 
 // [MJ] DONE
 stats(stat) ::= <<
-	<if(stat)><stat; separator="\n"><endif>
+<if(stat)><stat; separator="\n"><endif>
 >>
 
 
@@ -192,8 +197,8 @@ logicalOperand(not, operand) ::= <<
 >>
 
 //[MJ] DONE
-comparison(operation0, compareOperator, operation1) ::= <<
-<operation0> <compareOperator> <operation1>
+comparison(operand0, compareOperator, operand1) ::= <<
+<operand0> <compareOperator> <operand1>
 >>
 
 
@@ -201,7 +206,16 @@ comparison(operation0, compareOperator, operation1) ::= <<
 //OPERATIONS---------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
-//...
+//[MJ] DONE
+operations(resultType, var, operand0, operation, operand1) ::= <<
+<varAssignment(resultType, var, operationConcatenation(operand0, operation, operand1))>
+>>
+
+operationConcatenation(operand0, operation, operand1) ::= <<
+<operand0><operation><operand1>
+>>
+
+
 
 
 //-------------------------------------------------------------------------------

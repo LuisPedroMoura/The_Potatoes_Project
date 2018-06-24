@@ -77,7 +77,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// MAIN RULES----------------------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------
 	
-	//[MJ] DONE - don't delete
+	//[MJ] DONE
 	@Override
 	public ST visitProgram(ProgramContext ctx) {
 		stg = new STGroupFile("java.stg");
