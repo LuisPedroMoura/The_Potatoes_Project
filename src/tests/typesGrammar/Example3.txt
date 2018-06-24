@@ -1,6 +1,5 @@
-// Types Grammar Example 3
-// This example will generate an error for the last type (mile)
-// Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+// Types File Example 3
+// Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
 prefixes {
     DECA  "da"      : 10^1 
@@ -15,10 +14,11 @@ types {
 	inch 	 "inch"
 	yard 	 "yd"
 	time	 "s"	
-	distance "d"	: (-1+ 49725)meter 	| (0.025)inch | (0.9)yard
-	velocity "m/s"	: distance / time
-	velocitySquare "m^2/s" : velocity^2
-	//velocitySquare "m^2/s" : velocity * velocity
+
+	// Derived Types
+	distance "d"			: (-1+ 49725)meter 	| (0.025)inch | (0.9)yard
+	velocity "m/s"			: distance / time
+	velocitySquare  "m^2/s" : velocity^2
 	velocitySquare2 "m^2/s" : velocity * velocity
 }
 
