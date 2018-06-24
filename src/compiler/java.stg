@@ -80,26 +80,36 @@ args(arg) ::= <<
 CONTROL FLOW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
-<! compareOperator	:'==' | '!=' | '<' | '<=' | '>' | '>='; !> compareOperators ::= [ "==":"==", "!=":"!=", "<'":"<'", "<=":"<=", ">":">", ">=":">=", default:"null" ]
+compareOperators ::= [ 
+	"==":"==", 
+	"!=":"!=", 
+	"<'":"<'", 
+	"<=":"<=", 
+	">":">", 
+	">=":">=", 
+	default:"null" 
+]
 
 <![IJ] NOT DONE YET...!>
 
-<! whileLoop		:                                       !> whileLoop(lo, stat) ::= <<
-<!                    WHILE '(' logicalOperation ')'        !>   L<lo>33:;      if (!<lo>) goto L<lo>44;
-<!                    ( '{' statement* '}' | EOL )          !>   <stats(stat)>  goto L<lo>33;             
-<! 					;                                       !>   L<lo>44:;		<endif>
+whileLoop(lo, stat) ::= <<
+	<if(stat)>
+		while(lo){<stats(stat)>}
+	<endif>
+	<if(!stat)>
+		while(lo);
+	<endif>	           
+>>
  			
-<! condition		:                                       !> condition(l1,l2, s1, s2, s3) ::= <<
-<!                    IF '(' l1=logicalOperation ')'        !>   if (!<l1>)     goto L<l1>11;
-<!                    '{' s1=statement* '}'                 !>   <stats(s1)>    goto L<l1>22;   L<l1>11:; 
-<! 					  ( ELSE IF '(' l2=logicalOperation ')' !>   <if(!<l2>)>    goto L<l2>33;                               
-<!                      '{' s2=statement* '}'               !>   <stats(s2)>    goto L<l2>44;   L<l2>33:;                    
-<!                    )*                                    !>                                         
-<! 					  ( ELSE '{' s3=statement* '}'          !>   <stats(s3)>                                
-<!                    )?                                    !>   <endif>        L<l2>44:;	                      
-<! 					;                                       !> >> 
-
-
+<![IJ] NOT DONE!>
+condition(logicalOperationList, statList) ::= <<
+	if(<logicalOperation1>)
+		{<stats(stat1)>}
+	else if(<logicalOperation2>)
+		{<stats(stat2)>}                  
+	else 
+		{<stats(stat3)>}                                                                       
+>> 
 
 
 <!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -122,16 +132,16 @@ comparison(operation0, compareOper, operation1) ::= <<
 >>
 
 
-<! type				: NUMBER_TYPE		                    !> typeValue ::= [ "number"  : "int",
-<! 					| BOOLEAN_TYPE		                    !>                 "boolean" : "int", 
-<! 					| STRING_TYPE		                    !>                 "string"  : "String",
-<! 					| VOID_TYPE			                    !>                 "void"    : "void", 
-<! 					| ID				                    !>                 
-<! 					| arrayType			                    !>
-<! 					;                                       !>                 default   : "null" ]
+typeValue ::= [ "number"  : "int",
+	"boolean" : "int", 
+	"string"  : "String",
+	"void"    : "void", 
+	<! | ID         !>                 
+	<! | arrayType	!>
+	default   : "null" 
+]
 	
-
-<! BOOLEAN          : 'false' | 'true';                     !> booleanValue ::= [ "false":"0", "true":"1", default:"null" ]
+booleanValue ::= [ "false":"0", "true":"1", default:"null" ]
 
 
 
