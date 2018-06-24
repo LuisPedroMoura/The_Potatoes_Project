@@ -23,6 +23,7 @@ public class Variable {
 	private Type type;
 	private double value;
 	private static Graph<Type, Factor> typesGraph = PotatoesVisitorSemanticAnalysis.getTypesFileInfo().getTypesGraph();
+	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<>(typesGraph);
 
 // --------------------------------------------------------------------------
 // INSTANCE FIELDS
@@ -116,18 +117,15 @@ public class Variable {
 			return true;
 		}
 		
-		Collection<Type> vertices = typesGraph.getVertices();
-		
 		// Variable type is already the one we're trying to convert to
 		if (newType.getCode() == this.type.getCode()){
 			return true;
 		}
 		
 		// get path from graph
-		DijkstraShortestPath<Type, Factor> d= new DijkstraShortestPath<>(typesGraph);
 		List<Factor> factors;
 		try {
-			factors = d.getPath(this.type, newType);
+			factors = dijkstra.getPath(this.type, newType);
 		}
 		catch (IllegalArgumentException e) {
 			return false;
@@ -143,8 +141,76 @@ public class Variable {
 		return true;
 	}
 	
-	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type t) {
-		Type newType = t.convertVariableToFirstPossibleTypeInOpTypeArray(type);
+	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
+		List<Type> unchecked = type.getUncheckedOpTypes();
+		
+		for (Type t : unchecked) {
+			if(convertTypeTo(t)) {
+				type.checkType(t);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
+		List<Type> opTypes = destinationType.getOpTypes();
+		
+		for (Type t : opTypes) {
+			if (convertTypeTo(t)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean convertTypeToMaxParentType() {
+		Type parent = this.type;
+		boolean hasParent = true;
+		
+		while(hasParent) {
+			List<Factor> edges = (List<Factor>) typesGraph.getOutEdges(parent);
+			for (Factor f : edges) {
+				if (f.getIsChildToParent() == true) {
+					parent = typesGraph.getDest(f);
+					break;
+				}
+			}
+			hasParent = false;	
+		}
+		return true;
+	}
+	
+	public boolean MultDivCheckConvertType(Type destinationType) {
+		boolean checkType = false;
+		boolean convertToUnchecked = false;
+		boolean convertToFirstPossible = false;
+		
+		checkType = destinationType.checkType(this.type);
+		
+		// check if destinationType has opType of v.getType. If yes Variable is not changed
+		// Check destinationType checkList if available. If not, try to convert to unchecked type
+		if (checkType == true) {
+			return true;
+		}
+		convertToUnchecked = this.convertTypeToFirstUncheckedTypeInOpTypeArray(destinationType);
+
+		// if it was possible to convert to unchecked type return Variable
+		// else to to convert to first possible in list
+		// this step warrants that compatible units with multiple Inheritance can be resolved
+		if (convertToUnchecked == true) {
+			return true;
+		}
+		convertToFirstPossible = this.convertTypeToFirstPossibleTypeInOpTypeArrayOf(destinationType);
+		
+		// if method got this far, then teh Variable type is not compatible at all with destinationType
+		// still, instances with simple Inheritance will still be resolved
+		// instances with multiple inheritance may or may not be resolved correctly (error will be detected)
+		if (convertToFirstPossible == true) {
+			return true;
+		}
+		this.convertTypeToMaxParentType();
+		
 		return true;
 	}
 	
