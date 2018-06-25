@@ -20,8 +20,13 @@ import utils.errorHandling.ErrorHandlingListener;
  * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
-public class PotatoesCompile {
+public class PotatoesMain {
 	public static void main(String[] args) throws Exception {
+		if (args.length != 1) {
+			err.println("Usage: PotatoesMain <file to compile>");
+			System.exit(10);
+		}
+
 		// create a stream from the file
 		InputStream fileStream = null;
 
