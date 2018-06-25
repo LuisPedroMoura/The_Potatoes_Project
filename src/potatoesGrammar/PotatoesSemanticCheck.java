@@ -53,7 +53,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		path = getStringText(ctx.STRING().getText());
 		typesFileInfo = new TypesFileInfo(path);
 		mapCtxObj.put(ctx, path);
-		if(debug) {ErrorHandling.printInfo(ctx, "Types File path is: " + path);}
+		if (debug) {ErrorHandling.printInfo(ctx, "Types File path is: " + path);}
 		return true;
 	}
 
@@ -164,6 +164,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			Boolean b = (Boolean) value;
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), b);
 			mapCtxObj.put(ctx, b);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.varDeclaration().var().ID().getText());}
 			return true;
 		}
 
@@ -172,6 +173,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			String str = (String) value;
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), str);
 			mapCtxObj.put(ctx, str);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned string str=" + str + " to " + ctx.varDeclaration().var().ID().getText());}
 			return true;
 		}
 
@@ -182,6 +184,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if (a.convertTypeTo(type) == true) {
 				symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 				mapCtxObj.put(ctx, a);
+				if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
+				"val=" + a.getValue() + " to " + ctx.varDeclaration().var().ID().getText());}
 				return true;
 			}
 		}
@@ -203,10 +207,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 
-		// verify taht assigned var has type boolean
+		// verify that assigned var has type boolean
 		if (typeName.equals("boolean")) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), b);
 			mapCtxObj.put(ctx, b);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.varDeclaration().var().ID().getText());}
 			return true;
 		}
 
@@ -231,6 +236,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
+			"val=" + a.getValue() + " to " + ctx.varDeclaration().var().ID().getText());}
 			return true;
 		}
 		// Types are not compatible
@@ -252,7 +259,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (type.equals("boolean")) {
 			Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
 			symbolTable.put(ctx.var().ID().getText(), !b);
-			mapCtxObj.put(ctx, b);
+			mapCtxObj.put(ctx, !b);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var().ID().getText());}
 			return true;
 		}
 
@@ -270,6 +278,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			Boolean b = (Boolean) value;
 			symbolTable.put(ctx.var().ID().getText(), b);
 			mapCtxObj.put(ctx, b);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var().ID().getText());}
 			return true;
 		}
 
@@ -278,6 +287,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			String str = (String) value;
 			symbolTable.put(ctx.var().ID().getText(), str);
 			mapCtxObj.put(ctx, str);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned string str=" + str + " to " + ctx.var().ID().getText());}
 			return true;
 		}
 
@@ -288,6 +298,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if (a.convertTypeTo(type) == true) {
 				symbolTable.put(ctx.var().ID().getText(), a);
 				mapCtxObj.put(ctx, a);
+				if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
+				"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
 				return true;
 			}
 		}
@@ -302,10 +314,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String typeName = (String) mapCtxObj.get(ctx.var().ID());
 		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
 
-		// verify taht assigned var has type boolean
+		// verify that assigned var has type boolean
 		if (typeName.equals("boolean")) {
 			symbolTable.put(ctx.var().ID().getText(), b);
 			mapCtxObj.put(ctx, b);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var().ID().getText());}
 			return true;
 		}
 
@@ -323,6 +336,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
+			"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
 			return true;
 		}
 		// Types are not compatible
@@ -453,12 +468,25 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return super.visitWhenCase(ctx);
 	}
 
-	@Override
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCondition(ConditionContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitCondition(ctx);
+		return visitChildren(ctx);
 	}
 
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitIfCondition(IfConditionContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitElseIfCondition(ElseIfConditionContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
+	public Boolean visitElseCondition(ElseConditionContext ctx) {
+		return visitChildren(ctx);
+	}
 
 	// --------------------------------------------------------------------------------------------------------------------
 	// LOGICAL OPERATIONS----------------------------------------------------------

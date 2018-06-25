@@ -1,6 +1,5 @@
 package utils;
 
-import java.util.Collection;
 import java.util.List;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
