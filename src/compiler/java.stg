@@ -136,9 +136,9 @@ args(arg) ::= <<
 // FUNCTION CALL------------------------------------------------------------------
 
 
-/*********************************************************************************
-CONTROL FLOW**********************************************************************
-*********************************************************************************/
+//-------------------------------------------------------------------------------
+//CONTROL FLOW-------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 // [IJ] DONE
 // CONDITION----------------------------------------------------------------------
@@ -188,45 +188,6 @@ switch(<var>){
 whenCase(value, stat) ::= <<
 case <value>: <if(stat)><stats(stat)> <\n>break;<\n> <endif>
 >>
-
-//-------------------------------------------------------------------------------
-//LOGICAL OPERATIONS-------------------------------------------------------------
-//-------------------------------------------------------------------------------
-
-//[MJ] REVIEW -> parenthesis really necessary? not? use just comparison
-logicalOperation( parenthesis0, logicalOperand0, operator, logicalOperand1, parenthesis1 ) ::= <<
-<operators.(parenthesis0)> <logicalOperand0> <operators.(operator)> <logicalOperand1> <operators.(parenthesis1)>
->>
-
-
-//[MJ] DONE
-logicalOperand(not, operand) ::= <<
-<operators.(not)><operand>
->>
-
-//[MJ] DONE
-comparison(operand0, compareOperator, operand1, stat) ::= <<
-<stats(stat)>
-<operationConcatenation(operand0,compareOperator,operand1)>
->>
-
-
-//-------------------------------------------------------------------------------
-//OPERATIONS---------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-
-//[MJ] DONE
-operations(resultType, var, operand0, operation, operand1, stat) ::= <<
-<stats(stat)>
-<varAssignment(resultType, var, operationConcatenation(operand0, operation, operand1))>
->>
-
-operationConcatenation(operand0, operation, operand1) ::= <<
-<operand0><operation><operand1>
->>
-
-
-
 
 //-------------------------------------------------------------------------------
 //STRUCTURES---------------------------------------------------------------------

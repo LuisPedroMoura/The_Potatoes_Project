@@ -293,23 +293,27 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//[MJ] DOING -> comparison
 	@Override
 	public ST visitAssignment_Var_Declaration_Comparison(Assignment_Var_Declaration_ComparisonContext ctx) {
+		//get ST of var declaration
 		ST varDeclaration =  visit(ctx.varDeclaration());
-			
-		String typeValue = (String) varDeclaration.getAttribute("type");
 		
+		//create a ST for this assignment
 		ST assignment = stg.getInstanceOf("varAssignment");
-		assignment.add("type", typeValue);
-		assignment.add("var", varDeclaration.getAttribute("var"));
 		
+		//get typeValue from var declaration ST and add it to assignment ST
+		assignment.add("type", (String) varDeclaration.getAttribute("type"));
+		//get the new var name to this assignment from var declaration ST and add it 
+		assignment.add("var", varDeclaration.getAttribute("var"));
+
+		//get ST of comparison
 		ST comparison = visit(ctx.comparison());
 		String compare =((String) comparison.getAttribute("operand0")) +
 						((String) comparison.getAttribute("compareOperator")) +
 						((String) comparison.getAttribute("operand1"));
 		
+		//add all the other declarations created when visit operation
 		assignment.add("stat", (String) comparison.getAttribute("stat"));
 		assignment.add("value", compare);
-		
-		
+				
 		return assignment;
 	}
 
@@ -515,24 +519,43 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// --------------------------------------------------------------------------------------------------------------------
 
 	
-	//[MJ] DOING -> OPERATIONS
+	//[MJ] DONE
 	@Override
 	public ST visitComparison(ComparisonContext ctx) {
-		ST comparison = stg.getInstanceOf("comparison");
+		ST assign = stg.getInstanceOf("varAssignment");
 		
 		ST operation0 = visit(ctx.operation(0));
 		ST operation1 = visit(ctx.operation(1));
 		
-		comparison.add("stat",(String) operation0.getAttribute("stat"));
-		comparison.add("stat",(String) operation1.getAttribute("stat"));
+		assign.add("stat",(String) operation0.render());
+		assign.add("stat",(String) operation1.render());
 		
-		comparison.add("operand0", operation0.getAttribute("var"));
-		comparison.add("compareOperator",ctx.compareOperator().getText());
-		comparison.add("operand1", operation1.getAttribute("var"));
+		assign.add("type", "Boolean");
 		
-		return comparison;
+		String varName = "var"+varCounter;
+		assign.add("var", varName);
+		
+		varCounter++;
+		
+		String varNameOp0 =  (String) operation0.getAttribute("var");
+		String varNameOp1 =  (String) operation1.getAttribute("var");
+		String compareOp = ctx.compareOperator().getText();
+		
+		String comparison = varNameOp0 + compareOp + varNameOp1;
+		assign.add("value", comparison);
+		
+		 if(symbolTableValue.get(varNameOp0) instanceof Double && 
+			symbolTableValue.get(varNameOp1) instanceof Double ) {
+			 
+			Double doubleOp0 = (Double) symbolTableValue.get(varNameOp0);
+			Double doubleOp1 = (Double) symbolTableValue.get(varNameOp1);
+			Boolean result = getBooleanResult(doubleOp0, doubleOp1, compareOp);
+			updateSymbolsTable(varName, varName, result);
+		}		
+		return assign;
 	}
 
+	
 	
 	@Override
 	public ST visitCompareOperator(CompareOperatorContext ctx) {
@@ -555,6 +578,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST oldVariable = visit(ctx.operation());
 		
 		ST newVariable = stg.getInstanceOf("varAssignment");
+		newVariable.add("stat", oldVariable.render());//all the declarations until now
 		newVariable.add("type", "Double");
 		String newName = "var"+varCounter;
 		newVariable.add("var", newName);
@@ -587,18 +611,21 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String nameVarA = (String) op0.getAttribute("var");
 		String nameVarB = (String) op1.getAttribute("var");
 		
+		//all the declarations done until now
+		newVariable.add("stat", op0.render());
+		newVariable.add("stat", op1.render());
 		
 		newVariable.add("type", "Double");
 		newVariable.add("var", newName);
 		
 		if (ctx.op.getText().equals("*")) {
-			newVariable.add("value", nameVarA+" * "+nameVarB);
+			newVariable.add("value", nameVarA + " * " + nameVarB);
 		}
 		else if (ctx.op.getText().equals("/")) {
-			newVariable.add("value", nameVarA+" / "+nameVarB);
+			newVariable.add("value", nameVarA + " / " + nameVarB);
 		}
 		else if (ctx.op.getText().equals("%")) {
-			newVariable.add("value", nameVarA+" % "+nameVarB);
+			newVariable.add("value", nameVarA + " % " + nameVarB);
 		}
 		
 		Variable result = (Variable) mapCtxObj.get(ctx);
@@ -619,6 +646,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST oldVariable = visit(ctx.operation());
 		
 		ST newVariable = stg.getInstanceOf("varAssignment");
+		
+		newVariable.add("stat", oldVariable.render());//all the declarations until now
 		newVariable.add("type", "Double");
 		String newName = "var"+varCounter;
 		newVariable.add("var", newName);
@@ -646,14 +675,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String nameVarB = (String) op1.getAttribute("var");
 		
 		
-		newVariable.add("type", "Double");
+		//all the declarations done until now
+		newVariable.add("stat", op0.render());
+		newVariable.add("stat", op1.render());
+		
+		newVariable.add("resultType", "Double");
 		newVariable.add("var", newName);
 		
 		if (ctx.op.getText().equals("+")) {
-			newVariable.add("value", nameVarA+" + "+nameVarB);
+			newVariable.add("value", nameVarA + " + " + nameVarB);
 		}
 		else if (ctx.op.getText().equals("-")) {
-			newVariable.add("value", nameVarA+" - "+nameVarB);
+			newVariable.add("value", nameVarA + " - " + nameVarB);
 		}
 		
 		Variable result = (Variable) mapCtxObj.get(ctx);
@@ -899,6 +932,20 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		symbolTableValue.put(originalName, value);
 		symbolTableName.put(originalName, newName);
 	}
+	
+	//[MJ] DONE
+		public static Boolean getBooleanResult(Double doubleOp0, Double doubleOp1, String op) {
+			switch(op) {
+				case "==" : return doubleOp0 == doubleOp1; 
+				case "!=" : return doubleOp0 != doubleOp1; 
+				case "<"  : return doubleOp0 < doubleOp1; 
+				case "<=" : return doubleOp0 == doubleOp1; 
+				case ">"  : return doubleOp0 == doubleOp1; 
+				case ">=" : return doubleOp0 == doubleOp1;
+			}
+			return false;
+			
+		}
 	
 	//-------------------------------------------------------------------------------------------------------------------------------------
 	//OUT OF PLACE-------------------------------------------------------------------------------------------------------------------------
