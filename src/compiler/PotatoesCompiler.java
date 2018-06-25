@@ -93,6 +93,7 @@ import potatoesGrammar.PotatoesParser.VarDeclarationContext;
 import potatoesGrammar.PotatoesParser.WhenCaseContext;
 import potatoesGrammar.PotatoesParser.WhenContext;
 import potatoesGrammar.PotatoesParser.WhileLoopContext;
+import potatoesGrammar.PotatoesSemanticCheck;
 /**
  * <b>PotatoesCompiler</b><p>
  * 
