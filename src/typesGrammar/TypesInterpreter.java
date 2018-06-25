@@ -156,9 +156,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		String typeName = ctx.ID().getText();
 
 		// Temporary type (reference is needed for the visitor of rule typeOpOr)
-		Type t = new Type(0.0);				
-		t.setPrintName(ctx.STRING().getText().replaceAll("\"", ""));
-		t.setTypeName(typeName);
+		Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""));
 		types.put(ctx, t);
 
 		Boolean valid = visit(ctx.typeOpOr());
