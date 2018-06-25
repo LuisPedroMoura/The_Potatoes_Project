@@ -120,7 +120,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 // --------------------------------------------------------------------------------------------------------------------
 // MAIN RULES----------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
-	@Override // [LM] Done - DON'T DELETE FROM THIS FILE - DON'T DELETE FROM THIS FILE
+	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitProgram(ProgramContext ctx) {
 		return visitChildren(ctx);
 	}
@@ -128,6 +128,7 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitUsing(UsingContext ctx) {
 		path = getStringText(ctx.STRING().getText());
+		if(debug) {ErrorHandling.printInfo("path to Types File is: " + path);}
 		typesFileInfo = new TypesFileInfo(path);
 		mapCtxObj.put(ctx, path);
 		return true;
@@ -214,7 +215,8 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 		if (type.equals("boolean")) {
 			Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), !b);
-			mapCtxObj.put(ctx, b);
+			mapCtxObj.put(ctx, !b);
+			if(debug) {ErrorHandling.printInfo("boolean value is " + b);}
 			return true;
 		}
 		
