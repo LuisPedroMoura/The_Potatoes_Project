@@ -5,9 +5,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import compiler.PotatoesVisitorSemanticAnalysis;
-import edu.uci.ics.jung.graph.Graph;
-
 /**
  * 
  * <b>Type</b><p>
@@ -16,7 +13,7 @@ import edu.uci.ics.jung.graph.Graph;
  * @version May-June 2018
  * @param <V>
  */
-public class Type<V> {
+public class Type {
 
 	// Static Fields
 	private static List<Integer> primes;	
@@ -103,7 +100,7 @@ public class Type<V> {
 	public double getCode() {
 		return code;
 	}
-	
+
 	/**
 	 * @return opTypes List
 	 */
@@ -139,9 +136,9 @@ public class Type<V> {
 		}
 		return false;
 	}
-	
+
 	public List<Type> getUncheckedOpTypes(){
-		List<Type> list = null;
+		List<Type> list = new LinkedList<>();
 		for (int i = 0; i < checkList.size(); i++) {
 			if (checkList.get(i) == false) {
 				list.add(opTypes.get(i));
