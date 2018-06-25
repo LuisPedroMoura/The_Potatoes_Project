@@ -522,6 +522,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.logicalOperation()));
+		if(debug) {ErrorHandling.printInfo(ctx, "visited logicalOperation_Parenthesis");}
 		return visitChildren(ctx);
 	}
 
@@ -535,12 +536,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (ctx.op.getText().equals("&&")) {
 			res = b1 && b2;
 			mapCtxObj.put(ctx, res);
+			if(debug) {ErrorHandling.printInfo(ctx, "logical operation of " + b1 + " AND " + b2 + " returns " + res);}
 		}
 
 		// logical OR
 		if(ctx.op.getText().equals("||")) {
 			res = b1 || b2;
 			mapCtxObj.put(ctx, res);
+			if(debug) {ErrorHandling.printInfo(ctx, "logical operation of " + b1 + " OR " + b2 + " returns " + res);}
 		}
 
 		return true;
@@ -572,6 +575,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			Object object = symbolTable.get(varName);
 			if (object instanceof Boolean) {
 				res = (Boolean) object;
+				mapCtxObj.put(ctx, res);
 			}
 			else {
 				ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean!");
@@ -582,7 +586,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
 			return false;
 		}
-
 		return res;
 	}
 
