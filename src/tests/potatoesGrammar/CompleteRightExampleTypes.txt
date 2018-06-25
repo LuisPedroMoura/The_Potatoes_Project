@@ -4,12 +4,10 @@ types {
     inch	  	"in"
     time      	"s"
     
-	volume		"m^3"	: meter*meter*meter
-    
     // Derived Types
     distance  		"m"   	: (1) meter | (2) inch
     velocity        "m/s"	: distance / time
-	
+	volume		"m^3"	: meter*meter*meter
     meterAcceleration	"m/s^2"	: velocity/time
 	inchAcceleration	"in/s^2": inch/time^2
 	acceleration	"a"	: (1) meterAcceleration | (2) inchAcceleration

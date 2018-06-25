@@ -273,7 +273,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
 			return false;
 		}
-
+		
+		if(debug) {ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));}
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
@@ -651,7 +652,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_CAST] Visited Operation Cast");
 			ErrorHandling.printInfo(ctx, "[OP_CAST] variable a " + a);
-			ErrorHandling.printInfo(ctx, "[OP_CAST] cast can happen? " + (a.getType().getCode() != 1));
+			ErrorHandling.printInfo(ctx, "[OP_CAST] cast can happen? " + (a.getType().getCode() == 1.0));
 		}
 
 		// cast is only possible if Variable is of Type Number (with code 1)
