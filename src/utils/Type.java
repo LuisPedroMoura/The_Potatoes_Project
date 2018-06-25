@@ -108,6 +108,10 @@ public class Type {
 		return opTypes;
 	}
 
+	public void setOpTypes(List<Type> opTypes) {
+		this.opTypes = opTypes;
+	}
+
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
 	}

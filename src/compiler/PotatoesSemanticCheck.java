@@ -1,5 +1,6 @@
 package compiler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -725,11 +726,33 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// variables are converted, do the operation
 		if (op.equals("*")) {
-			mapCtxObj.put(ctx, Variable.multiply(a, b));
+			Variable res = Variable.multiply(a, b);
+			Double resCode = res.getType().getCode();
+			Collection<Type> types = typesTable.values();
+			for (Type t : types) {
+				if (t.getCode() == resCode) {
+					res.getType().setTypeName(t.getTypeName());
+					res.getType().setPrintName(t.getPrintName());
+					break;
+				}
+				
+			}
+			mapCtxObj.put(ctx, res);
 		}
 
 		if (op.equals("/")) {
-			mapCtxObj.put(ctx, Variable.divide(a, b));
+			Variable res = Variable.divide(a, b);
+			Double resCode = res.getType().getCode();
+			Collection<Type> types = typesTable.values();
+			for (Type t : types) {
+				if (t.getCode() == resCode) {
+					res.getType().setTypeName(t.getTypeName());
+					res.getType().setPrintName(t.getPrintName());
+					break;
+				}
+				
+			}
+			mapCtxObj.put(ctx, res);
 		}	
 		return true;
 	}

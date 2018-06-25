@@ -1,14 +1,14 @@
 // Potatoes File Example 1
 // Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
-using "Example1_Types.txt";
+using "C:\Users\LuisMoura\Dropbox\UA\2-Ano\LFA\Projeto\lfa-1718-g13\src\tests\global\Example1_Types.txt";
 
 //OK -> atribuiçao dum adimensional com cast
 number n = 5;
 volume v1 = (volume) n;
 inch i1 = (inch) 3;
 meter m1 = (meter) 2;
-distance d2 = (distance) i1 / m1;
+distance d2 = (distance) (i1 / m1);
 		
 //ERRO SINTATICO
 number n1 = v1;

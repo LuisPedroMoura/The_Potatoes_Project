@@ -53,6 +53,8 @@ public class Variable {
 		return value;
 	}
 	
+	
+	
 // --------------------------------------------------------------------------
 // OPERATIONS WITH VARIABLES
 	
