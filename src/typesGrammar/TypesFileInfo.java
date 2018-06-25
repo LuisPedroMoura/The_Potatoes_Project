@@ -2,11 +2,7 @@ package typesGrammar;
 
 import static java.lang.System.err;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Map;
 
 import org.antlr.v4.runtime.CharStream;
@@ -98,6 +94,7 @@ public class TypesFileInfo {
 			this.prefixesTable = null;
 			this.typesTable    = null;
 			this.typesGraph	   = null;
+			System.exit(3);
 		}
 	}
 
