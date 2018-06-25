@@ -8,25 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
-import typesGrammar.TypesParser.PrefixContext;
-import typesGrammar.TypesParser.PrefixDeclarContext;
-import typesGrammar.TypesParser.TypeContext;
-import typesGrammar.TypesParser.TypeOpOrAltContext;
-import typesGrammar.TypesParser.TypeOpOrContext;
-import typesGrammar.TypesParser.Type_BasicContext;
-import typesGrammar.TypesParser.Type_DerivedContext;
-import typesGrammar.TypesParser.Type_Derived_OrContext;
-import typesGrammar.TypesParser.Type_Op_IDContext;
-import typesGrammar.TypesParser.Type_Op_MultDivContext;
-import typesGrammar.TypesParser.Type_Op_ParenthesisContext;
-import typesGrammar.TypesParser.Type_Op_PowerContext;
-import typesGrammar.TypesParser.TypesDeclarContext;
-import typesGrammar.TypesParser.TypesFileContext;
-import typesGrammar.TypesParser.Value_AddSubContext;
-import typesGrammar.TypesParser.Value_MultDivContext;
-import typesGrammar.TypesParser.Value_NumberContext;
-import typesGrammar.TypesParser.Value_ParenthesisContext;
-import typesGrammar.TypesParser.Value_PowerContext;
+import typesGrammar.TypesParser.*;
 import utils.Factor;
 import utils.Prefix;
 import utils.Type;
@@ -71,6 +53,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// Callbacks 
 	@Override
 	public Boolean visitTypesFile(TypesFileContext ctx) {
+		typesTable.put(new Type("number", "", 1.0));
+
 		// Rule NEW_LINE* prefixDeclar?  typesDeclar NEW_LINE*
 		return ctx.prefixDeclar() != null ? visit(ctx.prefixDeclar()) && visit(ctx.typesDeclar()) 
 				: visit(ctx.typesDeclar());
