@@ -5,11 +5,13 @@
 
 //[MJ] REVIEW (LOWER PRIORITY) -> array type
 typeValue ::= [
-   "number"	:"double",
+   "number"	:"Double",
    "string"	:"String",
-   "boolean":"boolean",
+   "boolean":"Boolean",
+   "void"	:"void",
+   "id"		:"Double",
    ""		:"",
-   default	:"double"
+   default	:"null"
 ]
 
 	
@@ -35,8 +37,8 @@ operators ::= [
 
 //
 booleanValue ::= [
-	"false":"0",
-	"true":"1",
+	"false"	:"false",
+	"true"	:"true",
 	default:"null"
 ]
 
@@ -77,11 +79,6 @@ public class <name> {
 	>>
 */
 
-// VAR DECLARATION---------------------------------------------------------------
-//[MJ] DONE
-varDeclaration(type, var) ::= <<
-<typeValue.(type)> <var> ; <\n>
->>
 
 
 //-------------------------------------------------------------------------------
@@ -159,7 +156,7 @@ whileLoop(lo, stat) ::= <<
 
 // WHEN---------------------------------------------------------------------------
 whenCase(var, valueList, statList) ::= <<
-    switch(var){
+    switch(<var>){
         <statList: { y | <valueList: { x | case <x> : <if(y)> <stats(y)> break; <endif> } > } >
 		default: break;
     }
@@ -222,3 +219,23 @@ arrayLength(var) ::= " <var>.length() "
 //-------------------------------------------------------------------------------
 
 //...
+
+
+//-------------------------------------------------------------------------------
+// VARS AND TYPES--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+//[MJ] DONE
+varDeclaration(type, var) ::= <<
+<type> <var>
+>>
+
+//[MJ] DONE
+value(value) ::=<<
+<value>
+>>
+
+//[MJ] DONE
+type(type) ::=<<
+<typeValue.(type)>
+>>
