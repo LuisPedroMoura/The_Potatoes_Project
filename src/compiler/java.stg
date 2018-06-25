@@ -54,7 +54,7 @@ statements(stat, controlflow) ::= <<
 
 // [MJ] DONE
 stats(stat) ::= <<
-<if(stat)> <stat:{s | <s>;} ; separator="\n"><endif>
+<if(stat)> <stat:{s | <s>;<\n>}><endif>
 >>
 
 //[IJ] - DONE
@@ -141,22 +141,20 @@ CONTROL FLOW********************************************************************
 
 // [IJ] DONE
 // CONDITION----------------------------------------------------------------------
-condition(stat, logicalOperation0, logicalOperation1, stat1, stat2, stat3) ::= << 
-<stats(stat)>
-<if(logicalOperation0)>if(<logicalOperation0>){
-	<stats(stat1)>
-}<if(stat2)>
-else<if(logicalOperation1)> if(<logicalOperation1>){
-	<stats(stat2)>
-}<if(stat3)>
-else {
-	<stats(stat3)>
-}<endif><else> {
-	<stats(stat2)>
-}<endif><elseif(stat3)>
-else {
-	<stats(stat3)>
-}<endif><endif>	
+ifCondition(logicalOperation, stat) ::= <<
+<if(stat)>if(<logicalOperation>){
+	<stats(stat)>
+}<endif>
+>>
+elseIfCondition(logicalOperation, stat) ::= <<
+<if(stat)>else if(<logicalOperation>){
+	<stats(stat)>
+}<endif>
+>>
+elseCondition(stat) ::= <<
+<if(stat)>else {
+	<stats(stat)>
+}<endif>
 >>
 
 // [IJ] DONE
