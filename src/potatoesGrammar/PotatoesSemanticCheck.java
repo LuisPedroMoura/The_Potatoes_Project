@@ -53,6 +53,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		path = getStringText(ctx.STRING().getText());
 		typesFileInfo = new TypesFileInfo(path);
 		mapCtxObj.put(ctx, path);
+		if(debug) {ErrorHandling.printInfo(ctx, "Types File path is: " + path);}
 		return true;
 	}
 
@@ -137,7 +138,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (type.equals("boolean")) {
 			Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), !b);
-			mapCtxObj.put(ctx, b);
+			mapCtxObj.put(ctx, !b);
+			if(debug) {ErrorHandling.printInfo(ctx, "boolean variable has value: " + !b);}
 			return true;
 		}
 
@@ -680,6 +682,20 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitOperation_Var(Operation_VarContext ctx) {
+		Object obj = mapCtxObj.get(ctx.var());
+		
+		// verify that var is not of type string
+		if (obj instanceof String) {
+			ErrorHandling.printError("Cannot operato with string");
+			return false;
+		}
+		// verify that var is not of type boolean	
+		if (obj instanceof Boolean) {
+			ErrorHandling.printError("Cannot operate with boolean");
+			return false;
+		}
+		
+		// var is of type Variable
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.var()));
 		return true;
 	}
