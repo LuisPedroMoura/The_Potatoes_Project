@@ -1,10 +1,12 @@
-package potatoesGrammar;
+package compiler;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import potatoesGrammar.PotatoesBaseVisitor;
+import potatoesGrammar.PotatoesParser;
 import potatoesGrammar.PotatoesParser.*;
 import typesGrammar.TypesFileInfo;
 import utils.Type;

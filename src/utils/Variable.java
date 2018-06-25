@@ -2,9 +2,9 @@ package utils;
 
 import java.util.List;
 
+import compiler.PotatoesSemanticCheck;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
-import potatoesGrammar.PotatoesSemanticCheck;
 
 /**
  * <b>Variable</b><p>
