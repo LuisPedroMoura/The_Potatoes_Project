@@ -128,6 +128,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String type = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		String varName = ctx.varDeclaration().var().ID().getText();
 
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] Visited visitAssignment_Var_Declaration_NotBoolean");
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] type " + type);
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] varName " + varName);
+		}
+
 		// verify that variable to be created has valid name
 		if (typesTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
@@ -152,6 +158,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		Object value = mapCtxObj.get(ctx.value());
 		String varName = ctx.varDeclaration().var().ID().getText();
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] Visited visitAssignment_Var_Declaration_Value");
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] typeName " + typeName);
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] varName " + varName);
+		}
+
 
 		// verify that variable to be created has valid name
 		if (typesTable.containsKey(varName)) {
@@ -201,6 +214,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
 		String varName = ctx.varDeclaration().var().ID().getText();
 
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] Visited visitAssignment_Var_Declaration_Comparison");
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] typeName " + typeName);
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] b " + b);
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] varName " + varName);
+		}
+
 		// verify that variable to be created has valid name
 		if (typesTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
@@ -227,6 +247,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable a = (Variable) mapCtxObj.get(ctx.operation());
 		String varName = ctx.varDeclaration().var().ID().getText();
 
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Operation");
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] typeName " + typeName);
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] variable " + a);
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] varName " + varName);
+		}
+
 		// verify that variable to be created has valid name
 		if (typesTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
@@ -241,7 +269,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return true;
 		}
 		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"");
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"!");
 		return false;
 	}
 
@@ -305,7 +333,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with given Type");
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with given Type!");
 		return false;
 	}
 
@@ -323,7 +351,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with boolean");
+		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with boolean!");
 		return false;
 	}
 
@@ -546,12 +574,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				res = (Boolean) object;
 			}
 			else {
-				ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean");
+				ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean!");
 				return false;
 			}
 		}
 		else {
-			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared");
+			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
 			return false;
 		}
 
@@ -595,14 +623,25 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitOperation_Cast(Operation_CastContext ctx) {
 		Variable a = (Variable) mapCtxObj.get(ctx.operation());
 
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_CAST] Visited Operation Cast");
+			ErrorHandling.printInfo(ctx, "[OP_CAST] variable a " + a);
+			ErrorHandling.printInfo(ctx, "[OP_CAST] cast can happen? " + (a.getType().getCode() != 1));
+		}
+
 		// cast is only possible if Variable is of Type Number (with code 1)
 		if (a.getType().getCode() != 1) {
-			ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" cannot be casted. Only number type can be casted");
+			ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" cannot be casted. Only number type can be casted!");
 			return false;
 		}
 
 		// type is number cast is possible
 		Variable res = new Variable(typesTable.get(ctx.cast().ID().getText()), a.getValue());
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_CAST] variable res " + res);
+		}
+
 		mapCtxObj.put(ctx, res);
 		return true;
 	}
@@ -619,6 +658,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable b = (Variable) mapCtxObj.get(ctx.operation(1));
 		String op = ctx.op.getText();
 
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] Visiting Operation Mult_Div_Mod");
+			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable a " + a);
+			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable b " + b);
+			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op		 " + op);
+		}
+
 		// MODULOS OPERATION
 		if (op.equals("%")) {
 			// verify that right side of mod operation is of Type Number
@@ -628,7 +674,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				mapCtxObj.put(ctx, a);
 				return true;
 			}
-			ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number");
+			ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number!");
 			return false;
 
 		}
@@ -640,13 +686,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			a.MultDivCheckConvertType(destinationType);
 		}
 		catch (Exception e) {
-			ErrorHandling.printWarning(ctx, "Variable has multiple inheritance. Operation may not be resolved");
+			ErrorHandling.printWarning(ctx, "Variable has multiple inheritance. Operation may not be resolved!");
 		}
 
 		try {
 			b.MultDivCheckConvertType(destinationType);
 		} catch (Exception e) {
-			ErrorHandling.printWarning(ctx, "Variable has multiple inheritance. Operation may not be resolved");
+			ErrorHandling.printWarning(ctx, "Variable has multiple inheritance. Operation may not be resolved!");
 		}
 
 		// variables are converted, do the operation
@@ -672,11 +718,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable a = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable b = (Variable) mapCtxObj.get(ctx.operation(1));
 
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] Visiting Operation Add_Sub");
+			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable a " + a);
+			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable b " + b);
+		}
+
 		// verify that types are equals before adding or subtracting 
 		if (!a.getType().equals(b.getType())) {
 			// if types are not equal, try to convert Variable 'b' type into 'a' type
 			if (!b.convertTypeTo(a.getType())) {
-				ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" is not compatible with \"" + b.getType() + "\"");
+				ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" is not compatible with \"" + b.getType() + "\"!");
 				return false;
 			}
 		}
@@ -698,12 +750,19 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// verify that power is of type number
 		if (!pow.getType().getTypeName().equals("number")) {
-			ErrorHandling.printError(ctx, "Power must be a number or a Varible with type number");
+			ErrorHandling.printError(ctx, "Power must be a number or a variable with type number!");
 			return false;
 		}
 
 		Variable res = Variable.power(v, pow);
 		mapCtxObj.put(ctx, res);
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_POWER] Visited Operation Power");
+			ErrorHandling.printInfo(ctx, "[OP_POWER] variable " + v);
+			ErrorHandling.printInfo(ctx, "[OP_POWER] power " + pow);
+			ErrorHandling.printInfo(ctx, "[OP_POWER] result " + res);
+		}
 
 		return true;
 	}
@@ -711,18 +770,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitOperation_Var(Operation_VarContext ctx) {
 		Object obj = mapCtxObj.get(ctx.var());
-		
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_VAR] Visited Operation Variable");
+			ErrorHandling.printInfo(ctx, "[OP_VAR] obj " + obj);
+		}
+
 		// verify that var is not of type string
 		if (obj instanceof String) {
-			ErrorHandling.printError("Cannot operato with string");
+			ErrorHandling.printError(ctx, "Cannot operate with string!");
 			return false;
 		}
 		// verify that var is not of type boolean	
 		if (obj instanceof Boolean) {
-			ErrorHandling.printError("Cannot operate with boolean");
+			ErrorHandling.printError(ctx, "Cannot operate with boolean!");
 			return false;
 		}
-		
+
 		// var is of type Variable
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.var()));
 		return true;
@@ -752,6 +816,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Double value = Double.parseDouble(ctx.NUMBER().getText());
 		Variable a = new Variable(numberType, value);
 		mapCtxObj.put(ctx, a);
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_NUMBER] Visited Operation Number");
+			ErrorHandling.printInfo(ctx, "[OP_NUMBER] NumberType " + numberType);
+			ErrorHandling.printInfo(ctx, "[OP_NUMBER] Value " + value);
+			ErrorHandling.printInfo(ctx, "[OP_NUMBER] Variable " + a);
+		}
+
 		return true;
 	}
 
@@ -839,7 +911,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// verify that cast type exists
 		if (!typesTable.containsKey(castType)) {
-			ErrorHandling.printError("");
+			ErrorHandling.printError(ctx, "Cast Type \"" + castType + "\" + is not defined!");
 			return false;
 		}
 
@@ -848,6 +920,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Double value = Double.parseDouble(ctx.NUMBER().getText());
 		Variable a = new Variable(type, value);
 		mapCtxObj.put(ctx, a);
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[CAST] Visited Cast");
+			ErrorHandling.printInfo(ctx, "[CAST] CastType " + type);
+			ErrorHandling.printInfo(ctx, "[CAST] Value " + value);
+			ErrorHandling.printInfo(ctx, "[CAST] Variable " + a);
+		}
 		return true;
 	}
 
