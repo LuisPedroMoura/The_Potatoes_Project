@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import potatoesGrammar.PotatoesBaseVisitor;
 import potatoesGrammar.PotatoesParser.*;
+import tests.typesGrammar.TestGraph;
 import typesGrammar.TypesFileInfo;
 import utils.Type;
 import utils.Variable;
@@ -25,8 +26,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	private static final boolean debug = true;
 
 	static String path;
-	private static TypesFileInfo typesFileInfo; // initialized in visitUsing();
-	private static Map<String, Type> typesTable;
+	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
+	private static 	 Map<String, Type> typesTable;
 
 	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
@@ -56,7 +57,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		typesTable = typesFileInfo.getTypesTable();
 		mapCtxObj.put(ctx, path);
 
-		if (debug) {ErrorHandling.printInfo(ctx, "Types File path is: " + path);}
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "Types File path is: " + path);
+			ErrorHandling.printInfo(ctx, typesFileInfo.toString());
+			new TestGraph(typesFileInfo.getTypesGraph());
+		}
 		return true;
 	}
 
