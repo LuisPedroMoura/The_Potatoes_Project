@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.tree.*;
 
 import potatoesGrammar.PotatoesLexer;
 import potatoesGrammar.PotatoesParser;
+import potatoesGrammar.PotatoesSemanticCheck;
 
 public class PotatoesMain {
    public static void main(String[] args) throws Exception {
@@ -24,7 +25,7 @@ public class PotatoesMain {
       if (parser.getNumberOfSyntaxErrors() == 0) {
          // print LISP-style tree:
          // System.out.println(tree.toStringTree(parser));
-         PotatoesVisitorSemanticAnalysis visitor0 = new PotatoesVisitorSemanticAnalysis();
+         PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
          visitor0.visit(tree);
       }
    }

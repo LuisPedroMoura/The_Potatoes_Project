@@ -3,9 +3,9 @@ package utils;
 import java.util.Collection;
 import java.util.List;
 
-import compiler.PotatoesVisitorSemanticAnalysis;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
+import potatoesGrammar.PotatoesSemanticCheck;
 
 /**
  * <b>Variable</b><p>
@@ -22,7 +22,7 @@ public class Variable {
 	
 	private Type type;
 	private double value;
-	private static Graph<Type, Factor> typesGraph = PotatoesVisitorSemanticAnalysis.getTypesFileInfo().getTypesGraph();
+	private static Graph<Type, Factor> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
 	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<>(typesGraph);
 
 // --------------------------------------------------------------------------

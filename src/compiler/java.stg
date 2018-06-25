@@ -47,12 +47,20 @@ booleanValue ::= [
 // TEMPLATES ////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//[IJ] - DONE
+statements(stat, controlflow) ::= <<
+<stats(stat)><controlflowstats(controlflow)>
+>>
 
 // [MJ] DONE
 stats(stat) ::= <<
-<if(stat)><stat; separator="\n"><endif>
+<if(stat)> <stat:{s | <s>;} ; separator="\n"><endif>
 >>
 
+//[IJ] - DONE
+controlflowstats(controlflow) ::= <<
+<if(controlflow)><controlflow; separator="\n"><endif>
+>>
 
 //-------------------------------------------------------------------------------
 //CLASS--------------------------------------------------------------------------
@@ -61,7 +69,7 @@ stats(stat) ::= <<
 // [MJ] DONE
 class(name,stat) ::= <<
 public class <name> {
-   <stats(stat)>
+	<stats(stat)>
 }
 >>
 
@@ -88,7 +96,7 @@ public class <name> {
 // VAR ASSIGNMENT----------------------------------------------------------------
 //[MJ] DONE
 varAssignment(type, var, stat) ::= <<
-<typeValue.(type)> <var> = <stat>; <\n>	
+<typeValue.(type)> <var> = <stat>
 >>
 
 // ARRAY ASSIGNMENT--------------------------------------------------------------
@@ -102,9 +110,9 @@ varAssignment(type, var, stat) ::= <<
 //-------------------------------------------------------------------------------
 
 // FUNCTION MAIN------------------------------------------------------------------
-main(stat)::= <<
+main(stat, controlflow)::= <<
 	public static void main(String[] args) {
-		<stats(stat)>
+		<statements(stat, controlflow)>
 	}
 >>
 
@@ -121,7 +129,7 @@ function(name, return, arg) ::= <<
 
 // [MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it 
 args(arg) ::= <<
-<if(arg)>< <arg> separator=" "><endif>
+<if(arg)><arg; separator=" "><endif>
 >>
 
 // FUNCTION CALL------------------------------------------------------------------
@@ -131,37 +139,56 @@ args(arg) ::= <<
 CONTROL FLOW**********************************************************************
 *********************************************************************************/
 
-// [IJ] NOT DONE YET...
-
+// [IJ] DONE
 // CONDITION----------------------------------------------------------------------
-condition(logicalOperationList, statList) ::= << 
-	<statList: 
-		{ y | <trunc(logicalOperationList):{ n | if  (<n>){<stats(y)>}}; separator="\nelse ">
-			  <last(logicalOperationList) :{ n | else(<n>){<stats(y)>}}>    
-		}                               
-	>                         
+condition(stat, logicalOperation0, logicalOperation1, stat1, stat2, stat3) ::= << 
+<stats(stat)>
+<if(logicalOperation0)>if(<logicalOperation0>){
+	<stats(stat1)>
+}<if(stat2)>
+else<if(logicalOperation1)> if(<logicalOperation1>){
+	<stats(stat2)>
+}<if(stat3)>
+else {
+	<stats(stat3)>
+}<endif><else> {
+	<stats(stat2)>
+}<endif><elseif(stat3)>
+else {
+	<stats(stat3)>
+}<endif><endif>	
 >>
 
+// [IJ] DONE
 // FOR LOOP-----------------------------------------------------------------------
-forLoop(firstAssig, lOp, finalAssig, stat) ::= <<
-    for( <if(firstAssig)> firstAssig <endif> ; lOp ; finalAssig ) { <stats(stat)> }
+forLoop(firstAssig, logicalOperation, finalAssig, stat) ::= <<
+for(<if(firstAssig)><firstAssig><endif>; <logicalOperation>; <finalAssig>) { 
+	<stats(stat)>
+}
 >>
 
+// [IJ] DONE
 // WHILE LOOP---------------------------------------------------------------------
-whileLoop(lo, stat) ::= <<
-	<if(stat)>		while(lo){<stats(stat)>} 	
-	<else>			while(lo);				 	
-	<endif>	           
+whileLoop(logicalOperation, stat) ::= <<
+<if(stat)>while(<logicalOperation>){
+<stats(stat)>
+}<else>
+while(<logicalOperation>);
+<endif>	           
 >>
 
+// [IJ] NOT DONE YET...
 // WHEN---------------------------------------------------------------------------
-whenCase(var, valueList, statList) ::= <<
-    switch(<var>){
-        <statList: { y | <valueList: { x | case <x> : <if(y)> <stats(y)> break; <endif> } > } >
-		default: break;
-    }
+when(var, valueList, statList) ::= <<
+switch(<var>){
+	<statList: { s | <valueList: { v | <whenCase(v,s)> }> }>
+	<whenCase2(value, stat)>
+	default: break;
+}
 >>
-
+whenCase(value, stat) ::= <<
+case <value>: <if(stat)><stats(stat)> <\n>break;<\n> <endif>
+>>
 
 //-------------------------------------------------------------------------------
 //LOGICAL OPERATIONS-------------------------------------------------------------
