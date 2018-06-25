@@ -2,16 +2,11 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import compiler.PotatoesVisitorSemanticAnalysis;
-import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
-import typesGrammar.TypesFileInfo;
-import utils.errorHandling.ErrorHandling;
 
 /**
  * 
@@ -26,7 +21,6 @@ public class Type<V> {
 	// Static Fields
 	private static List<Integer> primes;	
 	private static int index;
-	private static Graph<Type, Factor> typesGraph = PotatoesVisitorSemanticAnalysis.getTypesFileInfo().getTypesGraph();
 
 	// --------------------------------------------------------------------------
 	// Static CTOR
@@ -209,7 +203,7 @@ public class Type<V> {
 
 	@Override
 	public String toString() {
-		/*
+		
 		// For Debug Purposes Only
 		StringBuilder builder = new StringBuilder();
 		builder.append("Type [");
@@ -237,8 +231,8 @@ public class Type<V> {
 		}
 		builder.append("]");
 		return builder.toString();
-		 */
-		return typeName;
+		 
+		//return typeName;
 		// return printName;
 	}
 

@@ -105,16 +105,22 @@ public class Variable {
 		return new Variable(a.getType(), newValue);
 	}
 	
+	public static Variable power(Variable a, Variable b) {
+		
+		// Variable b type==number is already checked in Visitor
+		
+		Double newValue = Math.pow(a.getValue(), b.getValue());
+		Double newCode = Math.pow(a.getType().getCode(), b.getValue());
+		Type newType = new Type ("", "", newCode); // Type names don't need to be corrected, assignment will resolve
+		Variable res = new Variable(newType, newValue);
+		return res;
+	}
+	
 	
 	public boolean convertTypeTo(Type newType) {
 		// verify that newType exists
 		if (!typesGraph.containsVertex(newType)) {
 			return false;
-		}
-		
-		// Variable type is already the one we're trying to convert to
-		if (newType.getCode() == this.type.getCode()){
-			return true;
 		}
 		
 		// Variable type is already the one we're trying to convert to
@@ -181,37 +187,38 @@ public class Variable {
 		return true;
 	}
 	
-	public boolean MultDivCheckConvertType(Type destinationType) {
+	public boolean MultDivCheckConvertType(Type destinationType) throws Exception {
 		boolean checkType = false;
 		boolean convertToUnchecked = false;
 		boolean convertToFirstPossible = false;
 		
 		checkType = destinationType.checkType(this.type);
 		
-		// check if destinationType has opType of v.getType. If yes Variable is not changed
-		// Check destinationType checkList if available. If not, try to convert to unchecked type
+		// check this type in destinationType checkList. This type does not change
+		// else, if direct check is not possible try to convert this type to one of the unchecked types
 		if (checkType == true) {
 			return true;
 		}
 		convertToUnchecked = this.convertTypeToFirstUncheckedTypeInOpTypeArray(destinationType);
 
-		// if it was possible to convert to unchecked type return Variable
-		// else to to convert to first possible in list
-		// this step warrants that compatible units with multiple Inheritance can be resolved
+		// if this type was converted to an unchecked type, return true
+		// else try to to convert to first possible checked type in destinationType checkList
+		// this step warrants that COMPATIBLE units with multiple inheritance can be resolved
 		if (convertToUnchecked == true) {
 			return true;
 		}
 		convertToFirstPossible = this.convertTypeToFirstPossibleTypeInOpTypeArrayOf(destinationType);
 		
-		// if method got this far, then teh Variable type is not compatible at all with destinationType
-		// still, instances with simple Inheritance will still be resolved
-		// instances with multiple inheritance may or may not be resolved correctly (error will be detected)
+		// if this type was converted to an checked type, retrun true
+		// else, means that the type is NOT COMPATIBLE with any destinationType type in checklist
+		// still, instances with simple inheritance will still be resolved
+		// instances with multiple inheritance may or may not be resolved correctly (but errors will be detected)
 		if (convertToFirstPossible == true) {
 			return true;
 		}
 		this.convertTypeToMaxParentType();
 		
-		return true;
+		throw new Exception();
 	}
 	
 	
