@@ -90,13 +90,14 @@ public class <name> {
 
 
 //-------------------------------------------------------------------------------
-//ASSIGNMENT---------------------------------------------------------------------
+//CLASS - ASSIGNMENTS------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
 // VAR ASSIGNMENT----------------------------------------------------------------
 //[MJ] DONE
-varAssignment(type, var, stat) ::= <<
-<typeValue.(type)> <var> = <stat>
+varAssignment(type, var, value, stat ) ::= <<
+<stats(stat)>
+<varDeclaration(type, var)> = <value>
 >>
 
 // ARRAY ASSIGNMENT--------------------------------------------------------------
@@ -204,8 +205,9 @@ logicalOperand(not, operand) ::= <<
 >>
 
 //[MJ] DONE
-comparison(operand0, compareOperator, operand1) ::= <<
-<operand0> <compareOperator> <operand1>
+comparison(operand0, compareOperator, operand1, stat) ::= <<
+<stats(stat)>
+<operationConcatenation(operand0,compareOperator,operand1)>
 >>
 
 
@@ -214,7 +216,8 @@ comparison(operand0, compareOperator, operand1) ::= <<
 //-------------------------------------------------------------------------------
 
 //[MJ] DONE
-operations(resultType, var, operand0, operation, operand1) ::= <<
+operations(resultType, var, operand0, operation, operand1, stat) ::= <<
+<stats(stat)>
 <varAssignment(resultType, var, operationConcatenation(operand0, operation, operand1))>
 >>
 
