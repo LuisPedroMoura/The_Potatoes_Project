@@ -2,7 +2,9 @@ types {
     // Basic Types (numeric by default)
     meter	  	"m"
     inch	  	"in"
-    time      	"s" 
+    time      	"s"
+    
+	volume		"m^3"	: meter*meter*meter
     
     // Derived Types
     distance  		"m"   	: (1) meter | (2) inch

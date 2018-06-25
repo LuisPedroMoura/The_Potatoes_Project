@@ -795,7 +795,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitOperation_Var(Operation_VarContext ctx) {
 		visitChildren(ctx);
-		Object obj = mapCtxObj.get(ctx.var());
+		Object obj = symbolTable.get(ctx.var().ID().getText());
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_VAR] Visited Operation Variable");
@@ -960,7 +960,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitValue_Number(Value_NumberContext ctx) {
 		Double number = Double.parseDouble(ctx.NUMBER().getText());
-		mapCtxObj.put(ctx, number);
+		Type numberType = new Type("number", "", 1.0);
+		Variable a = new Variable(numberType, number);
+		mapCtxObj.put(ctx, a);
 		return true;
 	}
 

@@ -117,9 +117,11 @@ public class Variable {
 	
 	
 	public boolean convertTypeTo(Type newType) {
-		// verify that newType exists
-		if (!typesGraph.containsVertex(newType)) {
-			return false;
+		// verify that newType exists and its not number
+		if (!newType.getTypeName().equals("number")) {
+			if (!typesGraph.containsVertex(newType)) {
+				return false;
+			}
 		}
 		
 		// Variable type is already the one we're trying to convert to

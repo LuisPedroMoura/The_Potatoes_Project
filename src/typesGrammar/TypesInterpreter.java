@@ -53,7 +53,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// Callbacks 
 	@Override
 	public Boolean visitTypesFile(TypesFileContext ctx) {
-		typesTable.put(new Type("number", "", 1.0));
+		typesTable.put("number", new Type("number", "", 1.0));
 
 		// Rule NEW_LINE* prefixDeclar?  typesDeclar NEW_LINE*
 		return ctx.prefixDeclar() != null ? visit(ctx.prefixDeclar()) && visit(ctx.typesDeclar()) 

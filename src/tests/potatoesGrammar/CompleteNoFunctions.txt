@@ -57,58 +57,58 @@ types {
 //			println("result: " + b);
 	}
 	
-	fun calcVelocity(distance d, time t): velocity{
-		return d / t; 
-	}
+//	fun calcVelocity(distance d, time t): velocity{
+//		return d / t; 
+//	}
 	
-	fun calcGlobalAcceleration(): acceleration{
+//	fun calcGlobalAcceleration(): acceleration{
 		acceleration a = dist/t^2;
-		return a;
-	}
+//		return a;
+//	}
 	
-	fun biggerAcceleration(acceleration a1, acceleration a2): acceleration{
-		//eu sei q os if's sao parvos... era so para testes
-		if(a1!=(velocity)0 && a2!=(velocity)0){
-			if(a1>a2){ return a1; } 
-			else { return a2; }
-		}
-		else if(a1!=(velocity)0){ return a1; }
-		else { return a2; }
-	}
+//	fun biggerAcceleration(acceleration a1, acceleration a2): acceleration{
+//		//eu sei q os if's sao parvos... era so para testes
+//		if(a1!=(velocity)0 && a2!=(velocity)0){
+//			if(a1>a2){ return a1; } 
+//			else { return a2; }
+//		}
+//		else if(a1!=(velocity)0){ return a1; }
+//		else { return a2; }
+//	}
 	
-	fun distance2KiloDistance (Array<distance> dist) : Array<distance> {
+//	fun distance2KiloDistance (Array<distance> dist) : Array<distance> {
 	
-		for(number i=0; i < length(dist); i=i+1){
-			dist[i] = dist[i] * 10^3;	// 10^-3 erro?									
-		}
-		return dist;
-	}
+//		for(number i=0; i < length(dist); i=i+1){
+//			dist[i] = dist[i] * 10^3;	// 10^-3 erro?									
+//		}
+//		return dist;
+//	}
 	
-	fun whatever() : boolean{
+//	fun whatever() : boolean{
 	
-		Array<inch, 10> inches = {(inch)2, (inch)9.0, (inch)0.998};
-		Array<inch, 10> kiloInches = distance2KiloDistance(inches);
+//		Array<inch, 10> inches = {(inch)2, (inch)9.0, (inch)0.998};
+//		Array<inch, 10> kiloInches = distance2KiloDistance(inches);
 		
-		number i = 0;
-		while(i<length(inches)){
-			testOperations();
-			i = i+1;
-		}
+//		number i = 0;
+//		while(i<length(inches)){
+//			testOperations();
+//			i = i+1;
+//		}
 		
 		
 		
-		inch kinch = kiloInches[0];
-		when(kinch){
-			(inch) 2 -> { return false; }
-			(inch) 2000 -> { return true; }
-		}
+//		inch kinch = kiloInches[0];
+//		when(kinch){
+//			(inch) 2 -> { return false; }
+//			(inch) 2000 -> { return true; }
+//		}
 		
-		return true;
+//		return true;
 	
-	}
+//	}
 	
 	
-	fun testOperations(): void{
+//	fun testOperations(): void{
 		
 		//com negativos
 		number n1 = inches[i] + -2;
@@ -144,11 +144,11 @@ types {
 		println("(v1^-2) * n1 + ((velocity) 0.5 ^2) + -(velocity)2 = " + v4);
 		println("v1^2^3 = " + v5);	
 		*/
-	}
+//	}
 	
 	
 	
 	
 	
 	
-		
+	
