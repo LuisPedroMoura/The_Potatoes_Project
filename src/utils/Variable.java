@@ -53,6 +53,8 @@ public class Variable {
 		return value;
 	}
 	
+	
+	
 // --------------------------------------------------------------------------
 // OPERATIONS WITH VARIABLES
 	
@@ -117,14 +119,19 @@ public class Variable {
 	
 	
 	public boolean convertTypeTo(Type newType) {
-		// verify that newType exists
-		if (!typesGraph.containsVertex(newType)) {
-			return false;
-		}
 		
 		// Variable type is already the one we're trying to convert to
 		if (newType.getCode() == this.type.getCode()){
+System.out.println("CONVERT_TYPE_TO - same type no convertion needed");	
 			return true;
+		}
+		
+		// verify that newType exists and its not number
+		if (!newType.getTypeName().equals("number")) {
+			if (!typesGraph.containsVertex(newType)) {
+System.out.println("CONVERT_TYPE_TO - not contained in graph");				
+				return false;
+			}
 		}
 		
 		// get path from graph
@@ -133,6 +140,7 @@ public class Variable {
 			factors = dijkstra.getPath(this.type, newType);
 		}
 		catch (IllegalArgumentException e) {
+System.out.println("CONVERT_TYPE_TO - no path to convert, not compatible");	
 			return false;
 		}
 		
@@ -143,6 +151,7 @@ public class Variable {
 		
 		// convert code to type code
 		this.type = newType;
+System.out.println("CONVERT_TYPE_TO - converted");			
 		return true;
 	}
 	

@@ -1,0 +1,38 @@
+// Potatoes File Example 1
+// Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
+
+using "C:\Users\LuisMoura\Dropbox\UA\2-Ano\LFA\Projeto\lfa-1718-g13\src\tests\global\Example1_Types.txt";
+
+//OK -> atribuiçao dum adimensional com cast
+number n = 5;
+volume v1 = (volume) n;
+inch i1 = (inch) 3;
+meter m1 = (meter) 2;
+distance d2 = (distance) (i1 / m1);
+		
+//ERRO SINTATICO
+number n1 = v1;
+		
+//OK -> soma/subtração entre tipos que derivam de distance
+distance d1 = i1 + m1; // d1 = i1*8 + m1*0.5;
+distance d1 = i1 - m1; // d1 = i1*8 - m1*0.5;
+	
+//ERRO SINTATICO -> multiplicação/divisão entre 2 tipos q derivam distance
+distance d2 = i1 * d1;	//distance^2
+distance d2 = i1 / d1;	//adimensional
+		
+		
+//ERRO -> soma/subtração entre adimensional e var 
+//	   -> seria necessário inferências
+meter m2 = 3 + m1; 
+meter m2 = 3 - m1; 	
+		
+//OK -> multiplicação/divisão entre adimensional e tipo que também deriva distance 
+meter m2 = 3 * i1; 	// i1 é convertido para meter, logo m1 = 3 * 3*8/0.5;
+meter m2 = 3 / i1; 	// i1 é convertido para meter, logo m1 = 3 / 3*8/0.5;			
+		
+//OK -> multiplicações entre tipos q derivam distance
+volume v2 = m1 * m1 * m1;
+volume v2 = d1 * d1 * d1;
+volume v2 = i1 * m1 * d1;
+			

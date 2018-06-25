@@ -1,5 +1,6 @@
 package compiler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import potatoesGrammar.PotatoesBaseVisitor;
 import potatoesGrammar.PotatoesParser.*;
+import tests.typesGrammar.TestGraph;
 import typesGrammar.TypesFileInfo;
 import utils.Type;
 import utils.Variable;
@@ -25,8 +27,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	private static final boolean debug = true;
 
 	static String path;
-	private static TypesFileInfo typesFileInfo; // initialized in visitUsing();
-	private static Map<String, Type> typesTable;
+	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
+	private static 	 Map<String, Type> typesTable;
 
 	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
@@ -56,7 +58,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		typesTable = typesFileInfo.getTypesTable();
 		mapCtxObj.put(ctx, path);
 
-		if (debug) {ErrorHandling.printInfo(ctx, "Types File path is: " + path);}
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "Types File path is: " + path);
+			ErrorHandling.printInfo(ctx, typesFileInfo.toString());
+			new TestGraph(typesFileInfo.getTypesGraph());
+		}
 		return true;
 	}
 
@@ -268,7 +274,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
 			return false;
 		}
-
+		
+		if(debug) {ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));}
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
@@ -646,7 +653,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_CAST] Visited Operation Cast");
 			ErrorHandling.printInfo(ctx, "[OP_CAST] variable a " + a);
-			ErrorHandling.printInfo(ctx, "[OP_CAST] cast can happen? " + (a.getType().getCode() != 1));
+			ErrorHandling.printInfo(ctx, "[OP_CAST] cast can happen? " + (a.getType().getCode() == 1.0));
 		}
 
 		// cast is only possible if Variable is of Type Number (with code 1)
@@ -719,11 +726,33 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// variables are converted, do the operation
 		if (op.equals("*")) {
-			mapCtxObj.put(ctx, Variable.multiply(a, b));
+			Variable res = Variable.multiply(a, b);
+			Double resCode = res.getType().getCode();
+			Collection<Type> types = typesTable.values();
+			for (Type t : types) {
+				if (t.getCode() == resCode) {
+					res.getType().setTypeName(t.getTypeName());
+					res.getType().setPrintName(t.getPrintName());
+					break;
+				}
+				
+			}
+			mapCtxObj.put(ctx, res);
 		}
 
 		if (op.equals("/")) {
-			mapCtxObj.put(ctx, Variable.divide(a, b));
+			Variable res = Variable.divide(a, b);
+			Double resCode = res.getType().getCode();
+			Collection<Type> types = typesTable.values();
+			for (Type t : types) {
+				if (t.getCode() == resCode) {
+					res.getType().setTypeName(t.getTypeName());
+					res.getType().setPrintName(t.getPrintName());
+					break;
+				}
+				
+			}
+			mapCtxObj.put(ctx, res);
 		}	
 		return true;
 	}
@@ -795,7 +824,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitOperation_Var(Operation_VarContext ctx) {
 		visitChildren(ctx);
-		Object obj = mapCtxObj.get(ctx.var());
+		Object obj = symbolTable.get(ctx.var().ID().getText());
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_VAR] Visited Operation Variable");
@@ -960,7 +989,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitValue_Number(Value_NumberContext ctx) {
 		Double number = Double.parseDouble(ctx.NUMBER().getText());
-		mapCtxObj.put(ctx, number);
+		Type numberType = new Type("number", "", 1.0);
+		Variable a = new Variable(numberType, number);
+		mapCtxObj.put(ctx, a);
 		return true;
 	}
 

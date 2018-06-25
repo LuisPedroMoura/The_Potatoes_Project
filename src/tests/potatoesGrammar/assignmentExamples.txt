@@ -7,6 +7,9 @@
 	distance	"d"		: (0.5) meter | (8) inch
 	volume		"m^3"	: meter*meter*meter
 */
+
+using "C:\\Users\\LuisMoura\\Dropbox\\UA\\2-Ano\\LFA\\Projeto\\lfa-1718-g13\\src\\tests\\potatoesGrammar\\CompleteRightExampleTypes.txt";
+
 		//OK -> atribuiçao dum adimensional com cast
 		///*
 		number n = 5;
