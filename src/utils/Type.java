@@ -2,16 +2,8 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import compiler.PotatoesVisitorSemanticAnalysis;
-import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
-import edu.uci.ics.jung.graph.Graph;
-import typesGrammar.TypesFileInfo;
-import utils.errorHandling.ErrorHandling;
 
 /**
  * 
@@ -21,12 +13,11 @@ import utils.errorHandling.ErrorHandling;
  * @version May-June 2018
  * @param <V>
  */
-public class Type<V> {
+public class Type {
 
 	// Static Fields
 	private static List<Integer> primes;	
 	private static int index;
-	private static Graph<Type, Factor> typesGraph = PotatoesVisitorSemanticAnalysis.getTypesFileInfo().getTypesGraph();
 
 	// --------------------------------------------------------------------------
 	// Static CTOR
@@ -109,7 +100,7 @@ public class Type<V> {
 	public double getCode() {
 		return code;
 	}
-	
+
 	/**
 	 * @return opTypes List
 	 */
@@ -145,7 +136,7 @@ public class Type<V> {
 		}
 		return false;
 	}
-	
+
 	public List<Type> getUncheckedOpTypes(){
 		List<Type> list = null;
 		for (int i = 0; i < checkList.size(); i++) {
