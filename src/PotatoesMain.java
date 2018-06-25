@@ -1,4 +1,7 @@
+
 import static java.lang.System.err;
+import static java.lang.System.exit;
+import static java.lang.System.out;
 
 import java.io.*;
 
@@ -24,7 +27,7 @@ public class PotatoesMain {
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1) {
 			err.println("Usage: PotatoesMain <file to compile>");
-			System.exit(10);
+			exit(10);
 		}
 
 		// create a stream from the file
@@ -34,16 +37,19 @@ public class PotatoesMain {
 		CharStream input = null;
 
 		try {
-			fileStream = new FileInputStream(new File(args[0])); 
+			File f = new File(args[0]);
+			fileStream = new FileInputStream(f); 
+			out.println("Compiling \"" + f.getAbsolutePath() + "\"...");
 			input = CharStreams.fromStream(fileStream);
 			fileStream.close();
 		} catch(FileNotFoundException e) {
-			ErrorHandling.printError("File \"" + args[0] + "\" could not be found! Please check if the file exists and can be read.");
-			System.exit(1);
+			err.println("File \"" + args[0] + "\" could not be found! Please check if the file exists and can be read.");
+			exit(1);
 		} catch (IOException e) {
 			err.println("Internal error reading the Types file! Please check if the file exists and can be read.");
-			System.exit(2);
+			exit(2);
 		}
+
 
 		// create a lexer that feeds off of input CharStream:
 		PotatoesLexer lexer = new PotatoesLexer(input);
@@ -65,8 +71,7 @@ public class PotatoesMain {
 			// System.out.println(tree.toStringTree(parser));
 			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
 			if (visitor0.visit(tree)) {
-				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully");
-				ErrorHandling.printInfo("Compiling \"" + args[0] + "\"...");
+				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
 				//PotatoesCompiler visitor1 = new PotatoesCompiler();
 				//visitor1.visit(tree);
 			}
