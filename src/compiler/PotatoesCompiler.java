@@ -89,6 +89,7 @@ import potatoesGrammar.PotatoesParser.VarDeclarationContext;
 import potatoesGrammar.PotatoesParser.WhenCaseContext;
 import potatoesGrammar.PotatoesParser.WhenContext;
 import potatoesGrammar.PotatoesParser.WhileLoopContext;
+import potatoesGrammar.PotatoesSemanticCheck;
 /**
  * <b>PotatoesCompiler</b><p>
  * 
@@ -98,7 +99,7 @@ import potatoesGrammar.PotatoesParser.WhileLoopContext;
 public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	protected STGroup stg = null;
-	protected ParseTreeProperty<Object> mapCtxObj = PotatoesVisitorSemanticAnalysis.getMapCtxObj();
+	protected ParseTreeProperty<Object> mapCtxObj = PotatoesSemanticCheck.getMapCtxObj();
 	
 	private int varCounter = 0;
 	
