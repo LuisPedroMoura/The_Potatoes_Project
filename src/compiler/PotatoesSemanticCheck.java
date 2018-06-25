@@ -1,10 +1,11 @@
-package potatoesGrammar;
+package compiler;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import potatoesGrammar.PotatoesBaseVisitor;
 import potatoesGrammar.PotatoesParser.*;
 import typesGrammar.TypesFileInfo;
 import utils.Type;
@@ -25,7 +26,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	static String path;
 	private static TypesFileInfo typesFileInfo; // initialized in visitUsing();
-	private static Map<String, Type> typesTable = typesFileInfo.getTypesTable();
+	private static Map<String, Type> typesTable;
 
 	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
@@ -52,7 +53,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitUsing(UsingContext ctx) {
 		path = getStringText(ctx.STRING().getText());
 		typesFileInfo = new TypesFileInfo(path);
+		typesTable = typesFileInfo.getTypesTable();
 		mapCtxObj.put(ctx, path);
+
 		if (debug) {ErrorHandling.printInfo(ctx, "Types File path is: " + path);}
 		return true;
 	}
@@ -198,7 +201,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 				mapCtxObj.put(ctx, a);
 				if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-				"val=" + a.getValue() + " to " + ctx.varDeclaration().var().ID().getText());}
+						"val=" + a.getValue() + " to " + ctx.varDeclaration().var().ID().getText());}
 				return true;
 			}
 		}
@@ -265,7 +268,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-			"val=" + a.getValue() + " to " + ctx.varDeclaration().var().ID().getText());}
+					"val=" + a.getValue() + " to " + ctx.varDeclaration().var().ID().getText());}
 			return true;
 		}
 		// Types are not compatible
@@ -327,7 +330,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				symbolTable.put(ctx.var().ID().getText(), a);
 				mapCtxObj.put(ctx, a);
 				if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-				"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
+						"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
 				return true;
 			}
 		}
@@ -365,7 +368,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			symbolTable.put(ctx.var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-			"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
+					"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
 			return true;
 		}
 		// Types are not compatible

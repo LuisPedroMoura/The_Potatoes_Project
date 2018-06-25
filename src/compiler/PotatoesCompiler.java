@@ -95,7 +95,6 @@ import potatoesGrammar.PotatoesParser.VarDeclarationContext;
 import potatoesGrammar.PotatoesParser.WhenCaseContext;
 import potatoesGrammar.PotatoesParser.WhenContext;
 import potatoesGrammar.PotatoesParser.WhileLoopContext;
-import potatoesGrammar.PotatoesSemanticCheck;
 /**
  * <b>PotatoesCompiler</b><p>
  * 
@@ -108,6 +107,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	protected static ParseTreeProperty<Object> mapCtxObj = PotatoesSemanticCheck.getMapCtxObj();
 	protected static Map<String, String> symbolTableName = new HashMap<>();
 	protected static Map<String, Object> symbolTableValue = new HashMap<>();
+
 	
 	private int varCounter = 0;
 	
@@ -426,25 +426,34 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// CONTROL FLOW STATMENTS----------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
 	
-	
+	// [IJ]
 	@Override
 	public ST visitControlFlowStatement(ControlFlowStatementContext ctx) {
-		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
 
-	
+	// [IJ] - NOT DONE
 	@Override
 	public ST visitForLoop(ForLoopContext ctx) {
-		// TODO Auto-generated method stub
-		return visitChildren(ctx);
+		
+		ST forLoop = stg.getInstanceOf("forLoop");
+		forLoop.add("firstAssig", visit(ctx.assignment(0)).render());					
+		forLoop.add("logicalOperation", visit(ctx.logicalOperation()).render());				
+		forLoop.add("finalAssig", visit(ctx.assignment(1)).render());						
+		// forLoop.add("stat", visit(ctx.statement()).render());
+		
+		return forLoop;
 	}
 
-	
+	// [IJ] - NOT DONE
 	@Override
 	public ST visitWhileLoop(WhileLoopContext ctx) {
-		// TODO Auto-generated method stub
-		return visitChildren(ctx);
+
+		ST whileLoop = stg.getInstanceOf("whileLoop");
+		whileLoop.add("logicalOperation", visit(ctx.logicalOperation()).render());
+		// whileLoop.add("stat", visit(ctx.statement()).render());
+		
+		return whileLoop;
 	}
 
 	
@@ -461,11 +470,43 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
-	
+	// [IJ] - DONE
 	@Override
 	public ST visitCondition(ConditionContext ctx) {
-		// TODO Auto-generated method stub
 		return visitChildren(ctx);
+	}
+	
+	// [IJ] - NOT DONE
+	@Override 
+	public ST visitIfCondition(IfConditionContext ctx) { 
+		
+		ST ifCondition = stg.getInstanceOf("ifCondition");
+		ifCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
+		// ifCondition.add("stat", visit(ctx.statement()).render());
+		
+		return ifCondition;
+	}
+
+	// [IJ] - NOT DONE
+	@Override 
+	public ST visitElseIfCondition(ElseIfConditionContext ctx) { 
+
+		ST elseIfCondition = stg.getInstanceOf("elseIfCondition");
+		elseIfCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
+		// elseIfCondition.add("stat", visit(ctx.statement()).render());
+		
+		return elseIfCondition;
+	}
+
+	// [IJ] - NOT DONE
+	@Override 
+	public ST visitElseCondition(ElseConditionContext ctx) { 
+
+		ST elseCondition = stg.getInstanceOf("elseCondition");
+		// elseCondition.add("stat", visit(ctx.statement()).render());
+		
+		return elseCondition;
+
 	}
 
 	
@@ -868,7 +909,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 	
 	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitAssigmennt_Array_Var(potatoesGrammar.PotatoesParser.Assigmennt_Array_VarContext)
+	 * @see potatoesGrammar.PotatoesBaseVisitor#visitAssignment_Array_Var(potatoesGrammar.PotatoesParser.Assignment_Array_VarContext)
 	 */
 	@Override
 	public ST visitAssignment_Array_Var(Assignment_Array_VarContext ctx) {
@@ -876,7 +917,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return super.visitAssignment_Array_Var(ctx);
 	}
 
-	
 	/* (non-Javadoc)
 	 * @see potatoesGrammar.PotatoesBaseVisitor#visitAssignment_ArrayAccess_Not_Boolean(potatoesGrammar.PotatoesParser.Assignment_ArrayAccess_Not_BooleanContext)
 	 */
@@ -928,6 +968,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 
 
 	/* (non-Javadoc)
+<<<<<<< HEAD
 	 * @see potatoesGrammar.PotatoesBaseVisitor#visitAssingment_ArrayAccess_FunctionCall(potatoesGrammar.PotatoesParser.Assingment_ArrayAccess_FunctionCallContext)
 	 */
 	@Override
@@ -938,6 +979,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 
 
 	/* (non-Javadoc)
+=======
+>>>>>>> 080f728d10dac15436c87518d60b7feb464b29d4
 	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperation_Operation(potatoesGrammar.PotatoesParser.LogicalOperation_OperationContext)
 	 */
 	@Override
@@ -1026,38 +1069,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return super.visitLogicalOperand_Not_Value(ctx);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitIfCondition(potatoesGrammar.PotatoesParser.IfConditionContext)
-	 */
-	@Override
-	public ST visitIfCondition(IfConditionContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitIfCondition(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitElseIfCondition(potatoesGrammar.PotatoesParser.ElseIfConditionContext)
-	 */
-	@Override
-	public ST visitElseIfCondition(ElseIfConditionContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitElseIfCondition(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitElseCondition(potatoesGrammar.PotatoesParser.ElseConditionContext)
-	 */
-	@Override
-	public ST visitElseCondition(ElseConditionContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitElseCondition(ctx);
-	}
-
-
-	
 	
 	
 }

@@ -16,7 +16,7 @@ types {
 
 */
 	
-	using "whatever";
+	using "C:\\Users\\LuisMoura\\Dropbox\\UA\\2-Ano\\LFA\\Projeto\\lfa-1718-g13\\src\\tests\\potatoesGrammar\\CompleteRightExampleTypes.txt";
 	
 	//--------------------
 	//declaration---------
