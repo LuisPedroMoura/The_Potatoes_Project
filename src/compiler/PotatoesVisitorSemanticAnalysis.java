@@ -692,24 +692,24 @@ public class PotatoesVisitorSemanticAnalysis extends PotatoesBaseVisitor<Boolean
 				Double moddedValue = a.getValue() % b.getValue();
 				a = new Variable (a.getType(), moddedValue);
 				mapCtxObj.put(ctx,  a);
+				return true;
 			}
-			else {
-				ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number");
-				return false;
-			}
+			ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number");
+			return false;
+
 		}
 		
+		a.MultDivCheckConvertType(destinationType);
+		b.MultDivCheckConvertType(destinationType);
+		Variable res;
+
 		if (op.equals("*")) {
-			boolean checkType = destinationType.checkType(a.getType());
-			if (checkType == false) {
-				
-			}
-			
-			
-			
-			
-			
+			res = Variable.multiply(a, b);
 		}
+		
+		if (op.equals("/")) {
+			res = Variable.divide(a, b);
+		}	
 		return true;
 	}
 	

@@ -56,7 +56,6 @@ public class Type<V> {
 	public Type(String typeName, String printName) {
 		this(typeName, printName, (double) primes.get(index));
 		index++;
-
 	}
 
 	/**
@@ -110,6 +109,13 @@ public class Type<V> {
 	public double getCode() {
 		return code;
 	}
+	
+	/**
+	 * @return opTypes List
+	 */
+	public List<Type> getOpTypes() {
+		return opTypes;
+	}
 
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
@@ -140,22 +146,14 @@ public class Type<V> {
 		return false;
 	}
 	
-	public boolean convertTypeTo(Type newType) {
-		
-	}
-
-	public Type convertVariableToFirstPossibleTypeInOpTypeArray(Type typeToConvert) {
+	public List<Type> getUncheckedOpTypes(){
+		List<Type> list = null;
 		for (int i = 0; i < checkList.size(); i++) {
-			if (typeToConvert.convertTypeTo(opTypes.get(i))) {
-				break;
+			if (checkList.get(i) == false) {
+				list.add(opTypes.get(i));
 			}
 		}
-		return typeToConvert;
-	}
-
-	public Variable convertToMaxParent(Variable a) {
-		// while has parent, convert a.Type to parent.Type
-		return a;
+		return list;
 	}
 
 	public boolean clearCheckList() {

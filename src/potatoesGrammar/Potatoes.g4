@@ -50,14 +50,14 @@ assignment			: varDeclaration '=' '!' BOOLEAN				#assignment_Var_Declaration_Not
 					
 					| arrayDeclaration '=' valuesList				#assignment_Array_ValuesList
 					| arrayDeclaration '=' functionCall				#assignment_Array_FunctionCall
-					| arrayDeclaration '=' var						#assigmennt_Array_Var
+					| arrayDeclaration '=' var						#assignment_Array_Var
 					
 					| arrayAccess '=' '!' BOOLEAN					#assignment_ArrayAccess_Not_Boolean
 					| arrayAccess '=' value							#assignment_ArrayAccess_Value
 					| arrayAccess '=' comparison					#assignment_ArrayAccess_Comparison
 					| arrayAccess '=' operation						#assignment_ArrayAccess_Operation
 					| arrayAccess '=' valuesList					#assignment_ArrayAccess_ValueList
-					| arrayAccess '=' functionCall					#assingment_ArrayAccess_FunctionCall
+					| arrayAccess '=' functionCall					#assignment_ArrayAccess_FunctionCall
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
