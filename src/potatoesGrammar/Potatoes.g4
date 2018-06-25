@@ -92,10 +92,18 @@ whenCase			: value '->' '{' statement* '}'
  					;
 		
 //[MJ] must have scopes for the sake of simplicity 
-condition			: IF '(' logicalOperation ')' '{' statement* '}'
-					  (ELSE IF '(' logicalOperation ')' '{' statement* '}')*
-					  (ELSE '{' statement* '}')?
+condition			: ifCondition elseIfCondition* elseCondition?
 					;
+
+ifCondition			: IF '(' logicalOperation ')' '{' statement* '}'
+					;
+					
+elseIfCondition		: ELSE IF '(' logicalOperation ')' '{' statement* '}'
+					;
+					
+elseCondition		: ELSE '{' statement* '}'
+					;
+
 
 // LOGICAL OPERATIONS----------------------------------------------------------
 logicalOperation	: '(' logicalOperation ')'								# logicalOperation_Parenthesis

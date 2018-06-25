@@ -43,10 +43,13 @@ import potatoesGrammar.PotatoesParser.ConditionContext;
 import potatoesGrammar.PotatoesParser.ControlFlowStatementContext;
 import potatoesGrammar.PotatoesParser.Declaration_VarContext;
 import potatoesGrammar.PotatoesParser.Declaration_arrayContext;
+import potatoesGrammar.PotatoesParser.ElseConditionContext;
+import potatoesGrammar.PotatoesParser.ElseIfConditionContext;
 import potatoesGrammar.PotatoesParser.ForLoopContext;
 import potatoesGrammar.PotatoesParser.FunctionCallContext;
 import potatoesGrammar.PotatoesParser.FunctionContext;
 import potatoesGrammar.PotatoesParser.FunctionReturnContext;
+import potatoesGrammar.PotatoesParser.IfConditionContext;
 import potatoesGrammar.PotatoesParser.LogicalOperand_ComparisonContext;
 import potatoesGrammar.PotatoesParser.LogicalOperand_Not_ComparisonContext;
 import potatoesGrammar.PotatoesParser.LogicalOperand_Not_ValueContext;
@@ -92,6 +95,7 @@ import potatoesGrammar.PotatoesParser.VarDeclarationContext;
 import potatoesGrammar.PotatoesParser.WhenCaseContext;
 import potatoesGrammar.PotatoesParser.WhenContext;
 import potatoesGrammar.PotatoesParser.WhileLoopContext;
+import potatoesGrammar.PotatoesSemanticCheck;
 /**
  * <b>PotatoesCompiler</b><p>
  * 
@@ -101,9 +105,9 @@ import potatoesGrammar.PotatoesParser.WhileLoopContext;
 public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	protected static STGroup stg = null;
-	protected static ParseTreeProperty<Object> mapCtxObj = PotatoesVisitorSemanticAnalysis.getMapCtxObj();
+	protected static ParseTreeProperty<Object> mapCtxObj = PotatoesSemanticCheck.getMapCtxObj();
 	protected static Map<String, String> symbolTableName = new HashMap<>();
-	protected static Map<String, Variable> symbolTableValue = new HashMap<>();
+	protected static Map<String, Object> symbolTableValue = new HashMap<>();
 	
 	private int varCounter = 0;
 	
@@ -212,11 +216,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//[MJ] DONE -> review just to be sure everything is right right
 	@Override
 	public ST visitDeclaration_Var(Declaration_VarContext ctx) {
-		ST declaration_Var = visitChildren(ctx);
-				
-		symbolTable.put((String)declaration_Var.getAttribute("var"), null);
+		ST declarationVar = visit(ctx.varDeclaration());
 		
-		return declaration_Var;
+		String originalName = ctx.varDeclaration().var().getText();	
+		String newName = (String)declarationVar.getAttribute("var");
+		updateSymbolsTable(originalName, newName, null);
+		
+		return declarationVar;
 	}
 
 	
@@ -228,17 +234,20 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
 		ST varDeclaration =  visit(ctx.varDeclaration());
+		
 		ST assignment = stg.getInstanceOf("varAssignment");
 
 		assignment.add("type", varDeclaration.getAttribute("type"));
 		
-		String var = (String) varDeclaration.getAttribute("var");
-		assignment.add("var", var);
+		String varNewName = (String) varDeclaration.getAttribute("var");
+		assignment.add("var", varNewName);
 		
-		Boolean b = (Boolean) mapCtxObj.get(ctx);
-		assignment.add("stat", "! "+b);
+		Boolean notB = (Boolean) mapCtxObj.get(ctx);
+		assignment.add("value", "! "+ !notB); // because in semantic the value was already negated
 		
-		symbolTable.put(var, !b);
+		String originalName = ctx.varDeclaration().var().getText();	
+				
+		updateSymbolsTable(originalName, varNewName, notB);
 		
 		return assignment;
 	}
@@ -248,33 +257,35 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
 		ST varDeclaration =  visit(ctx.varDeclaration());
 		ST assignment = stg.getInstanceOf("varAssignment");
-		
+				
 		String typeValue = (String) varDeclaration.getAttribute("type");
 		assignment.add("type", typeValue);
 		
-		String var = (String) varDeclaration.getAttribute("var");
-		assignment.add("var", var);
+		String varNewName = (String) varDeclaration.getAttribute("var");
+		assignment.add("var", varNewName);
 		
 		if(typeValue.equals("Double")) {
 			Double d = (Double) mapCtxObj.get(ctx);
 			assignment.add("stat", d);
 			
-			symbolTable.put(var, d);
+			String originalName = ctx.varDeclaration().var().getText();	
+			updateSymbolsTable(originalName, varNewName, d);
 		}
 		else if(typeValue.equals("String")) {
 			String s = (String) mapCtxObj.get(ctx);
 			assignment.add("stat", s);
 			
-			symbolTable.put(var, s);
+			String originalName = ctx.varDeclaration().var().getText();	
+			updateSymbolsTable(originalName, varNewName, s);
 		}
 		else { //typeValue.equals("Boolean")
 			Boolean b = (Boolean) mapCtxObj.get(ctx);
 			assignment.add("stat", b);
 			
-			symbolTable.put(var, b);
+			String originalName = ctx.varDeclaration().var().getText();	
+			updateSymbolsTable(originalName, varNewName, b);
 		}
-		
-		
+	
 		return assignment;
 	}
 
@@ -792,13 +803,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitValue_Cast_Number(potatoesGrammar.PotatoesParser.Value_Cast_NumberContext)
-	 */
+	//[MJ] DONE -> review just to be sure everything is right right
 	@Override
 	public ST visitValue_Cast_Number(Value_Cast_NumberContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitValue_Cast_Number(ctx);
+		Variable var = (Variable) mapCtxObj.get(ctx);
+		ST value = stg.getInstanceOf("value");
+		value.add("value", var.getValue());
+		return value;
 	}
 
 
@@ -843,7 +854,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//OTHER ONES---------------------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------------------------
 	
-	protected static void updateSymbolsTable(String originalName,String newName, Variable value) {
+	protected static void updateSymbolsTable(String originalName,String newName, Object value) {
 		symbolTableValue.put(originalName, value);
 		symbolTableName.put(originalName, newName);
 	}
@@ -1013,6 +1024,36 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
 		// TODO Auto-generated method stub
 		return super.visitLogicalOperand_Not_Value(ctx);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see potatoesGrammar.PotatoesBaseVisitor#visitIfCondition(potatoesGrammar.PotatoesParser.IfConditionContext)
+	 */
+	@Override
+	public ST visitIfCondition(IfConditionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitIfCondition(ctx);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see potatoesGrammar.PotatoesBaseVisitor#visitElseIfCondition(potatoesGrammar.PotatoesParser.ElseIfConditionContext)
+	 */
+	@Override
+	public ST visitElseIfCondition(ElseIfConditionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitElseIfCondition(ctx);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see potatoesGrammar.PotatoesBaseVisitor#visitElseCondition(potatoesGrammar.PotatoesParser.ElseConditionContext)
+	 */
+	@Override
+	public ST visitElseCondition(ElseConditionContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitElseCondition(ctx);
 	}
 
 
