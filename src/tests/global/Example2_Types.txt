@@ -1,0 +1,6 @@
+types {
+	meter		"m"
+    inch	  	"in"
+	distance	"d"		: (0.5) meter | (8) inch
+	volume		"m^3"	: meter*meter*meter
+}

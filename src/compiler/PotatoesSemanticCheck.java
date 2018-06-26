@@ -2,8 +2,10 @@ package compiler;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import potatoesGrammar.PotatoesBaseVisitor;
@@ -24,7 +26,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -48,7 +50,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE - DON'T DELETE FROM THIS FILE
 	public Boolean visitProgram(ProgramContext ctx) {
-		return visitChildren(ctx);
+		List<ParseTree> list = ctx.children;
+		Boolean valid = true;
+		for (ParseTree p : list) {
+			Boolean result =  visit(p);
+			System.out.println("Visited " + p.getText() + " : " + result);
+			valid = valid && result;
+		}
+		//return visitChildren(ctx);
+		return valid;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -60,7 +70,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Types File path is: " + path);
-			ErrorHandling.printInfo(ctx, typesFileInfo.toString());
+			//ErrorHandling.printInfo(ctx, typesFileInfo.toString());
 			new TestGraph(typesFileInfo.getTypesGraph());
 		}
 		return true;
@@ -68,16 +78,40 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
+		List<ParseTree> list = ctx.children;
+		Boolean valid = true;
+		for (ParseTree p : list) {
+			Boolean result =  visit(p);
+			System.out.println("Visited " + p.getText() + " : " + result);
+			valid = valid && result;
+		}
+
 		return visitChildren(ctx);
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
+		List<ParseTree> list = ctx.children;
+		Boolean valid = true;
+		for (ParseTree p : list) {
+			Boolean result =  visit(p);
+			System.out.println("Visited " + p.getText() + " : " + result);
+			valid = valid && result;
+		}
+
 		return visitChildren(ctx);
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Function(Code_FunctionContext ctx) {
+		List<ParseTree> list = ctx.children;
+		Boolean valid = true;
+		for (ParseTree p : list) {
+			Boolean result =  visit(p);
+			System.out.println("Visited " + p.getText() + " : " + result);
+			valid = valid && result;
+		}
+
 		return visitChildren(ctx);
 	}
 
@@ -140,7 +174,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
 		destinationType.clearCheckList();
 		// visit(ctx.BOOLEAN());
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] Visited visitAssignment_Var_Declaration_NotBoolean");
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] type " + typeName);
@@ -175,7 +209,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType.clearCheckList();
 		visit(ctx.value());
 		Object value = mapCtxObj.get(ctx.value());
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] Visited visitAssignment_Var_Declaration_Value");
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] typeName " + typeName);
@@ -235,7 +269,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType.clearCheckList();
 		visit(ctx.comparison());
 		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] Visited visitAssignment_Var_Declaration_Comparison");
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] typeName " + typeName);
@@ -318,7 +352,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var().ID().getText());}
 			return true;
 		}
-		
+
 		// if assigned variable is not boolean
 		if (obj instanceof Variable) {
 			Variable temp = (Variable) obj;
@@ -328,7 +362,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (obj instanceof String) {
 			ErrorHandling.printError(ctx, "Type \"string\" and \"boolean\" are not compatible");
 		}
-		
+
 		return false;
 	}
 
@@ -686,14 +720,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printInfo(ctx, "[OP_CAST] variable a " + a);
 			ErrorHandling.printInfo(ctx, "[OP_CAST] cast can happen? " + (a.getType().getCode() == 1.0) + "\n");
 		}
-		
+
 		// cast is to a compatible type. Cast is not needed, direct atribution is possible
 		if (a.typeIsCompatible(typesTable.get(ctx.cast().ID().getText()))) {
 			ErrorHandling.printWarning(ctx, "Variable was not casted. Cast from \"" + a.getType().getTypeName() + "\" to \"" + ctx.cast().ID().getText() + 
-			"\" is not necessary. Direct assignment is possible.");
+					"\" is not necessary. Direct assignment is possible.");
 			return true;
 		}
-		
+
 		// cast is only possible if Variable is of Type Number (with code 1)
 		if (a.getType().getCode() != 1) {
 			ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" cannot be casted. Only number type can be casted!");
@@ -854,7 +888,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable a = new Variable(temp);
 		temp = (Variable) mapCtxObj.get(ctx.operation(1));
 		Variable pow = new Variable(temp);
-		
+
 		// verify that power is of type number
 		if (!pow.getType().getTypeName().equals("number")) {
 			ErrorHandling.printError(ctx, "Power must be a number or a variable with type number!");
@@ -866,7 +900,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_POWER] Visited Operation Power");
-			ErrorHandling.printInfo(ctx, "[OP_POWER] variable " + v);
+			ErrorHandling.printInfo(ctx, "[OP_POWER] variable " + a);
 			ErrorHandling.printInfo(ctx, "[OP_POWER] power " + pow);
 			ErrorHandling.printInfo(ctx, "[OP_POWER] result " + res + "\n");
 		}

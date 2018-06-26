@@ -23,7 +23,7 @@ import utils.errorHandling.ErrorHandling;
 public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = true; 
+	private static final boolean debug = false; 
 
 	// --------------------------------------------------------------------------
 	// Instance Fields 
