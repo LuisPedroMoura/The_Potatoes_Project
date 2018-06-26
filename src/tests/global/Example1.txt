@@ -3,36 +3,35 @@
 
 using "Example1_Types.txt";
 
-//OK -> atribuiçao dum adimensional com cast
+//OK -> assigning dimensionless with cast
 number n = 5;
 volume v1 = (volume) n;
 inch i1 = (inch) 3;
 meter m1 = (meter) 2;
 distance d2 = (distance) (i1 / m1);
 		
-//ERRO SINTATICO
+//SINTAX ERROR
 number n1 = v1;
 		
-//OK -> soma/subtração entre tipos que derivam de distance
+//OK -> assigning sum/subtraction between derived types
 distance d1 = i1 + m1; // d1 = i1*8 + m1*0.5;
-distance d1 = i1 - m1; // d1 = i1*8 - m1*0.5;
+distance d3 = i1 - m1; // d1 = i1*8 - m1*0.5;
 	
-//ERRO SINTATICO -> multiplicação/divisão entre 2 tipos q derivam distance
+//SINTAX ERROR -> assigning multiplication/division between derived types (creates new dimention)
 distance d2 = i1 * d1;	//distance^2
-distance d2 = i1 / d1;	//adimensional
+distance d2 = i1 / d1;	//dimensionless
 		
 		
-//ERRO -> soma/subtração entre adimensional e var 
-//	   -> seria necessário inferências
+//ERROR -> sum/subtraction between dimensionless and dimentional 
 meter m2 = 3 + m1; 
 meter m2 = 3 - m1; 	
 		
-//OK -> multiplicação/divisão entre adimensional e tipo que também deriva distance 
-meter m2 = 3 * i1; 	// i1 é convertido para meter, logo m1 = 3 * 3*8/0.5;
-meter m2 = 3 / i1; 	// i1 é convertido para meter, logo m1 = 3 / 3*8/0.5;			
+//OK -> assigning multiplication/division between dimensionless and derived type 
+meter m2 = 3 * i1; 	// i1 is converted to meter
+meter m2 = 3 / i1; 	// i1 is converted to meter	
 		
-//OK -> multiplicações entre tipos q derivam distance
+//OK -> assigning multiplication/division between types that will result in correct dimention
 volume v2 = m1 * m1 * m1;
 volume v2 = d1 * d1 * d1;
 volume v2 = i1 * m1 * d1;
-			
+*/		

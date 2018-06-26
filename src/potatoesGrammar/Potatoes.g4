@@ -35,13 +35,13 @@ declaration			: arrayDeclaration								#declaration_array
 					;
 
 
-assignment			: varDeclaration '=' '!' BOOLEAN				#assignment_Var_Declaration_Not_Boolean
+assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Boolean
 					| varDeclaration '=' value						#assignment_Var_Declaration_Value
 					| varDeclaration '=' comparison					#assignment_Var_Declaration_Comparison
 					| varDeclaration '=' operation					#assignment_Var_Declaration_Operation
 					| varDeclaration '=' functionCall				#assignment_Var_Declaration_FunctionCall
 					
-					| var '=' '!' BOOLEAN							#assignment_Var_Not_Boolean
+					| var '=' '!' var							#assignment_Var_Not_Boolean
 					| var '=' value									#assignment_Var_Value
 					| var '=' comparison							#assignment_Var_Comparison
 					| var '=' operation								#assignment_Var_Operation
@@ -160,7 +160,9 @@ arrayLength			: LENGTH '(' var ')'
 
 // PRINTS----------------------------------------------------------------------
 
-print				: (PRINT | PRINTLN) '(' (printVar ('+'printVar)* ) ')' EOL
+print				: PRINT  '(' (printVar ('+'printVar)* ) ')' EOL		# print_Print
+					| PRINTLN '(' (printVar ('+'printVar)* ) ')' EOL	# print_Println
+					| PRINT  '(' (printVar ('+'printVar)* ) ')' EOL
 					;
 
 printVar			: value | var
