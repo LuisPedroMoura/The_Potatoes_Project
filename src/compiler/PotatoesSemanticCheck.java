@@ -608,106 +608,132 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
-		visit(ctx.logicalOperation());
-		mapCtxObj.put(ctx, mapCtxObj.get(ctx.logicalOperation()));
+		boolean valid = visit(ctx.logicalOperation());
+		
+		if(valid) {
+			return true;
+		}
+		ErrorHandling.printError(ctx, "Logical operands must have value boolean");
 		if(debug) {ErrorHandling.printInfo(ctx, "visited logicalOperation_Parenthesis");}
-		return visitChildren(ctx);
+		return false;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
-		visitChildren(ctx);
-		Boolean b1 = (Boolean) mapCtxObj.get(ctx.logicalOperation(0));
-		Boolean b2 = (Boolean) mapCtxObj.get(ctx.logicalOperation(1));
-		Boolean res = true;
-
-		// logical AND
-		if (ctx.op.getText().equals("&&")) {
-			res = b1 && b2;
-			mapCtxObj.put(ctx, res);
-			if(debug) {ErrorHandling.printInfo(ctx, "logical operation of " + b1 + " AND " + b2 + " returns " + res);}
+		boolean validOp0 = visit(ctx.logicalOperation(0));
+		boolean validOp1 = visit(ctx.logicalOperation(1));
+		
+		if (validOp0 && validOp1) {
+			return true;
 		}
-
-		// logical OR
-		if(ctx.op.getText().equals("||")) {
-			res = b1 || b2;
-			mapCtxObj.put(ctx, res);
-			if(debug) {ErrorHandling.printInfo(ctx, "logical operation of " + b1 + " OR " + b2 + " returns " + res);}
-		}
-
-		return true;
+		ErrorHandling.printError(ctx, "Logical operands must have value boolean");
+		return false;
+		
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
-		visitChildren(ctx);
+		boolean valid = visit(ctx.logicalOperand());
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.logicalOperand()));
-		return visitChildren(ctx);
+		return valid;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
-		return visitChildren(ctx);
+		return visit(ctx.comparison());
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
-		return !visitChildren(ctx);
+		return visit(ctx.comparison());
 	}
 
 	@Override
 	public Boolean visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
-		visitChildren(ctx);
 		String varName = ctx.var().ID().getText();
-		Boolean res;
 
 		// verify that variable exists
 		if (symbolTable.containsKey(varName)) {
-			Object object = symbolTable.get(varName);
-			if (object instanceof Boolean) {
-				res = (Boolean) object;
-				mapCtxObj.put(ctx, res);
+			Object obj = symbolTable.get(varName);
+			if (obj instanceof Boolean) {
+				mapCtxObj.put(ctx, obj);
+				return true;
 			}
-			else {
-				ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean!");
-				return false;
-			}
-		}
-		else {
-			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
+			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean!");
 			return false;
 		}
-		return res;
+		ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
+		return false;
 	}
 
 	@Override
 	public Boolean visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Not_Var(ctx);
+		String varName = ctx.var().ID().getText();
+
+		// verify that variable exists
+		if (symbolTable.containsKey(varName)) {
+			Object obj = symbolTable.get(varName);
+			if (obj instanceof Boolean) {
+				mapCtxObj.put(ctx, obj);
+				return true;
+			}
+			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean!");
+			return false;
+		}
+		ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
+		return false;
 	}
 
 	@Override
 	public Boolean visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Value(ctx);
+		boolean valid = visit(ctx.value());
+		Object obj = mapCtxObj.get(ctx.value());
+		
+		if (valid) {
+			if (obj instanceof Boolean) {
+				mapCtxObj.put(ctx, obj);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	@Override
 	public Boolean visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Not_Value(ctx);
+		boolean valid = visit(ctx.value());
+		Object obj = mapCtxObj.get(ctx.value());
+		
+		if (valid) {
+			if (obj instanceof Boolean) {
+				mapCtxObj.put(ctx, obj);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	@Override
 	public Boolean visitComparison(ComparisonContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitComparison(ctx);
+		boolean validOp0 = visit(ctx.operation(0));
+		boolean validOp1 = visit(ctx.operation(1));
+		
+		if (validOp0 && validOp1) {
+			Object obj0 = mapCtxObj.get(ctx.operation(0));
+			Variable a = (Variable) obj0;
+			Object obj1 = mapCtxObj.get(ctx.operation(1));
+			Variable b = (Variable) obj1;
+			
+			boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
+			return comparisonIsPossible;
+		}
+		return false;
 	}
 
 	@Override
 	public Boolean visitCompareOperator(CompareOperatorContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitCompareOperator(ctx);
+		return true;
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------
@@ -959,14 +985,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitOperation_NUMBER(Operation_NUMBERContext ctx) {
-		Type numberType = new Type("number", "", 1.0);
 		Double value = Double.parseDouble(ctx.NUMBER().getText());
-		Variable a = new Variable(typesTable.get(numberType), value);
+		Variable a = new Variable(typesTable.get("number"), value);
 		mapCtxObj.put(ctx, a);
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_NUMBER] Visited Operation Number");
-			ErrorHandling.printInfo(ctx, "[OP_NUMBER] NumberType " + numberType);
 			ErrorHandling.printInfo(ctx, "[OP_NUMBER] Value " + value);
 			ErrorHandling.printInfo(ctx, "[OP_NUMBER] Variable " + a + "\n");
 		}
