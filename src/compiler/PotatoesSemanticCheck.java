@@ -1,9 +1,18 @@
 package compiler;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
@@ -25,7 +34,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -69,11 +78,70 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Types File path is: " + path);
-			//ErrorHandling.printInfo(ctx, typesFileInfo.toString());
+			ErrorHandling.printInfo(ctx, typesFileInfo.toString());
 			new TestGraph(typesFileInfo.getTypesGraph());
+
+			Map<String, Type> map = typesFileInfo.getTypesTable();
+
+			JFrame f = new JFrame("View Table");
+			f.setSize(557, 597);
+			f.setResizable(true);
+			f.setVisible(true);
+			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			f.setLocationRelativeTo(null);
+
+			JPanel contents = new JPanel();
+			contents.setBorder(new EmptyBorder(5, 5, 5, 5));
+			contents.setLayout(new BorderLayout(0, 0));
+			f.setContentPane(contents);
+
+			JTable table = new JTable(map.size() * 100,2);
+			//JTable.createScrollPaneForTable(table);
+			//table.setAutoResizeMode();
+			int row=0;
+			for(Map.Entry<String,Type> entry: map.entrySet()){
+				table.setValueAt(entry.getKey(),row,0);
+				table.setValueAt(entry.getValue(),row,1);
+				row++;
+				for (Type t : entry.getValue().getOpTypes()) {
+					table.setValueAt("opType entry from " + entry.getKey() + " is " ,row,0);
+					table.setValueAt(t,row,1);
+					row++;
+				}
+			}
+
+			table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
+
+			for (int column = 0; column < table.getColumnCount(); column++)
+			{
+				TableColumn tableColumn = table.getColumnModel().getColumn(column);
+				int preferredWidth = tableColumn.getMinWidth();
+				int maxWidth = tableColumn.getMaxWidth();
+
+				for (int row1 = 0; row1 < table.getRowCount(); row1++)
+				{
+					TableCellRenderer cellRenderer = table.getCellRenderer(row1, column);
+					Component c = table.prepareRenderer(cellRenderer, row1, column);
+					int width = c.getPreferredSize().width + table.getIntercellSpacing().width;
+					preferredWidth = Math.max(preferredWidth, width);
+
+					//  We've exceeded the maximum width, no need to check other rows
+
+					if (preferredWidth >= maxWidth)
+					{
+						preferredWidth = maxWidth;
+						break;
+					}
+				}
+
+				tableColumn.setPreferredWidth( preferredWidth );
+			}
+
+			contents.add(table);
 		}
 		return true;
 	}
+
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
@@ -279,31 +347,31 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(ctx.varDeclaration());
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		String varName = ctx.varDeclaration().var().ID().getText();
-		
+
 		// verify that variable to be created has valid name
 		if (typesTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
 			return false;
 		}
-		
+
 		destinationType = typesTable.get(typeName);
 		destinationType.clearCheckList();
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
 			ErrorHandling.printInfo(ctx, "--- destinationType is " + destinationType);
 		}
-		
+
 		visit(ctx.operation());
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
 		}
 
-		
+
 
 		if(debug) {ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));}
 		if (a.convertTypeTo(typesTable.get(typeName))) {
@@ -327,7 +395,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitAssignment_Var_Not_Boolean(Assignment_Var_Not_BooleanContext ctx) {
 		visit(ctx.var());
 		Object obj = symbolTable.get(ctx.var().ID().getText());
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NOT_BOOLEAN] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
@@ -363,7 +431,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType.clearCheckList();
 		visit(ctx.value());
 		Object value = mapCtxObj.get(ctx.value());
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
@@ -414,7 +482,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType.clearCheckList();
 		visit(ctx.comparison());
 		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
@@ -443,7 +511,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(ctx.operation());
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
-		
+
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
@@ -555,7 +623,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitPrint(PrintContext ctx) {
 		return true;
 	}
-	
+
 	@Override
 	public Boolean visitPrintVar(PrintVarContext ctx) {
 		return visitChildren(ctx);

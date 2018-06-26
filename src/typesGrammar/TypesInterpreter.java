@@ -70,7 +70,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		List<TypeContext> typesDeclared = ctx.type(); 
 		for (TypeContext type : typesDeclared) {
 			//if (debug) ErrorHandling.printInfo(ctx, "Processing type " + type.getText() + "...");
-			valid = valid && visit(type);	// visit all declared types
+			Boolean visit = visit(type);		// visit all declared types
+			valid = visit;	
 		}	
 
 		return valid;
@@ -88,12 +89,15 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			return false;
 		}
 
+		// temp is a reserved type
+		if (typeName.equals("temp")) {
+			ErrorHandling.printError(ctx, "Type \" temp \" is reserved and can't be defined!");
+			return false;
+		}
+
 		// Create basic type
 		Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""));
 		typesTable.put(typeName, t);
-
-		// [PVT Current Work] Update the types graph FIXME
-		//typesGraph.addEdge(1.0, t, null);	// Edge to vertex base type (considered the base type equivalent to null for now)
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Added Basic Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
@@ -105,11 +109,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	@Override
 	public Boolean visitType_Derived(Type_DerivedContext ctx) {
 		// Rule ID STRING COLON typeOp 						
-
+		//System.out.println("-----------------------\n" + ctx.getText() + "\n");
 		String typeName = ctx.ID().getText();
 
 		// Semantic Analysis
 		Boolean valid = visit(ctx.typeOp());
+
 
 		if (valid) {
 			// Semantic Analysis : Types can't be redefined
@@ -118,16 +123,20 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				return false;
 			}
 
+			// temp is a reserved type
+			if (typeName.equals("temp")) {
+				ErrorHandling.printError(ctx, "Type \" temp \" is reserved and can't be defined!");
+				return false;
+			}
+
 			// Create derived type based on typeOp
 			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOp()).getCode());
-			//Type t = types.get(ctx.typeOp());		// FIXME overflow issue
-			//t.setTypeName(typeName);
-			//t.setPrintName(ctx.STRING().getText().replaceAll("\"", ""));
-			t.addOpType(types.get(ctx.typeOp()));	//FIXME
+			types.get(ctx.typeOp()).getOpTypes().forEach(c -> t.addOpType(c));
 
 			// Update Types & Symbol Tables
 			typesTable.put(typeName, t);
-			types.put(ctx, t);
+			types.put(ctx, t);		
+			//if (t.getTypeName().equals("temp")) System.out.println("ATTENTION!! ADDED TEMP at visit_derived" + ctx.getText());
 
 			if (debug) {
 				ErrorHandling.printInfo(ctx, "Added Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
@@ -187,7 +196,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		List<TypeOpOrAltContext> orTypeAlternatives = ctx.typeOpOrAlt(); 
 		for (TypeOpOrAltContext orAlt : orTypeAlternatives) {
 			// visit all types declared in the Or 
-			valid = valid && visit(orAlt);	
+			Boolean visit = visit(orAlt);
+			valid = valid && visit;	
 
 			if (valid) {
 				// Create the Type with a new alternative
@@ -204,7 +214,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 							+ factor + ", " + alternative + ", " + factor);
 				}
 
-				// [PVT Current Work] Update the types graph
+				// Update the types graph
 				typesGraph.addEdge(new Factor(factor, true), alternative, t);
 				typesGraph.addEdge(new Factor(factor, false), t, alternative);
 			}
@@ -257,10 +267,14 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitType_Op_MultDiv(Type_Op_MultDivContext ctx) {
 		// Rule typeOp op=(MULTIPLY | DIVIDE) typeOp	
 
-		Boolean valid = visit(ctx.typeOp(0)) && visit(ctx.typeOp(1));
+		Boolean valid1 = visit(ctx.typeOp(0));
+		Boolean valid2 = visit(ctx.typeOp(1));
+		Boolean valid  = valid1 && valid2;
 
 		if (valid) {
+
 			Type a = types.get(ctx.typeOp(0));
+
 			Type b = types.get(ctx.typeOp(1));
 
 			Type res;
@@ -269,10 +283,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			else
 				res = Type.divide(a, b);
 
-			res.addOpType(a);
-			res.addOpType(b);
+			if (a.getTypeName().equals("temp")) a.getOpTypes().forEach(c -> res.addOpType(c));
+			else res.addOpType(a);
+
+			if (b.getTypeName().equals("temp")) b.getOpTypes().forEach(d -> res.addOpType(d));
+			else res.addOpType(b);
 
 			types.put(ctx, res);
+
+			//System.out.println("visit_mult_div a: " + a);
+			//System.out.println("visit_mult_div b: " + b);
+			//System.out.println("visit_mult_div res: " + res);
+			//if (res.getTypeName().equals("temp")) System.out.println("ATTENTION!! ADDED TEMP at visit_mult_div " + ctx.getText());
 		}
 
 		return valid;
@@ -311,12 +333,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		if (power < 0) {
 			power = Math.abs(power);
 			for (int i = 0; i < power - 1; i++) {
-				t = Type.divide(t, t);
+				Type res = Type.divide(t, t);
+				if (t.getTypeName().equals("temp")) t.getOpTypes().forEach(opType -> res.addOpType(opType));
+				else res.addOpType(t);
+				t = res;
 			}
 		} 
 		else {
-			for (int i = 0; i < power - 1; i++) {
-				t = Type.multiply(t, t);
+			for (int i = 0; i < power - 1; i++) {			
+				Type res = Type.multiply(t, t);
+				if (t.getTypeName().equals("temp")) t.getOpTypes().forEach(opType -> res.addOpType(opType));
+				else res.addOpType(t);
+				t = res;
 			}
 		}
 
