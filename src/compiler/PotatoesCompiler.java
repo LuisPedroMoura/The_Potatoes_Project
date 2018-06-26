@@ -35,6 +35,7 @@ import potatoesGrammar.PotatoesParser.Assignment_Var_ValueContext;
 import potatoesGrammar.PotatoesParser.Assignment_Var_ValueListContext;
 import potatoesGrammar.PotatoesParser.Assingment_Var_FunctionCallContext;
 import potatoesGrammar.PotatoesParser.CastContext;
+import potatoesGrammar.PotatoesParser.CodeContext;
 import potatoesGrammar.PotatoesParser.Code_AssignmentContext;
 import potatoesGrammar.PotatoesParser.Code_DeclarationContext;
 import potatoesGrammar.PotatoesParser.Code_FunctionContext;
@@ -98,9 +99,10 @@ import potatoesGrammar.PotatoesParser.WhenCaseContext;
 import potatoesGrammar.PotatoesParser.WhenContext;
 import potatoesGrammar.PotatoesParser.WhileLoopContext;
 /**
+ * 
  * <b>PotatoesCompiler</b><p>
  * 
- * @author Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+ * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
 public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
@@ -123,8 +125,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		stg = new STGroupFile("java.stg");
 	    ST classContent = stg.getInstanceOf("class");
 	    classContent.add("name", "MyClass");
-	    classContent.add("stat", visitChildren(ctx));
-	      
+	    for(CodeContext context : ctx.code()) {
+	    	classContent.add("stat", visit(context));
+	    }
 	    return classContent;
 	}
 	
