@@ -1,7 +1,7 @@
 // Potatoes File Example 1
 // Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
-using "C:\Users\LuisMoura\Dropbox\UA\2-Ano\LFA\Projeto\lfa-1718-g13\src\tests\global\Example1_Types.txt";
+using "Example1_Types.txt";
 
 //OK -> atribuiçao dum adimensional com cast
 number n = 5;
