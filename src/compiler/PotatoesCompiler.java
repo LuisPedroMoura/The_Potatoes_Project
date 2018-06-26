@@ -5,6 +5,7 @@ import utils.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.stringtemplate.v4.*;
 
@@ -439,12 +440,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// [IJ] - NOT DONE
 	@Override
 	public ST visitForLoop(ForLoopContext ctx) {
-		
+		visitChildren(ctx);
 		ST forLoop = stg.getInstanceOf("forLoop");
-		forLoop.add("firstAssig", visit(ctx.assignment(0)).render());					
+		forLoop.add("firstAssignment", visit(ctx.assignment(0)).render());					
 		forLoop.add("logicalOperation", visit(ctx.logicalOperation()).render());				
-		forLoop.add("finalAssig", visit(ctx.assignment(1)).render());						
-		// forLoop.add("stat", visit(ctx.statement()).render());
+		forLoop.add("finalAssignment", visit(ctx.assignment(1)).render());						
+		
+		// cast ParseTree -> test 
+		ST stat =  visit((ParseTree) ctx.statement());
+		forLoop.add("stat", stat.render());
 		
 		return forLoop;
 	}
@@ -455,7 +459,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 
 		ST whileLoop = stg.getInstanceOf("whileLoop");
 		whileLoop.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		// whileLoop.add("stat", visit(ctx.statement()).render());
+		// cast ParseTree -> test 
+		whileLoop.add("stat", visit((ParseTree) ctx.statement()).render());
 		
 		return whileLoop;
 	}
@@ -473,10 +478,34 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
+	condition(firstStatement) ::<<
+	<stats(firstStatement)>
+>>
 
+ifCondition(logicalOperation, bodyStatement) ::= <<
+<if(bodyStatement)>if(<logicalOperation>){
+	<stats(bodyStatement)>
+}<endif>
+>>
+
+elseIfCondition(logicalOperation, bodyStatement) ::= <<
+<if(bodyStatement)>else if(<logicalOperation>){
+	<stats(bodyStatement)>
+}<endif>
+>>
+
+elseCondition(bodyStatement) ::= <<
+<if(bodyStatement)>else {
+	<stats(bodyStatement)>
+}<endif>
+>>
+	
+	
 	// [IJ] - DONE
 	@Override
 	public ST visitCondition(ConditionContext ctx) {
+		ST condition = stg.getInstanceOf("condition");
+		
 		return visitChildren(ctx);
 	}
 	
@@ -486,7 +515,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		ST ifCondition = stg.getInstanceOf("ifCondition");
 		ifCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		// ifCondition.add("stat", visit(ctx.statement()).render());
+		// cast ParseTree -> test 
+		ifCondition.add("stat", visit((ParseTree) ctx.statement()).render());
 		
 		return ifCondition;
 	}
@@ -497,7 +527,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 
 		ST elseIfCondition = stg.getInstanceOf("elseIfCondition");
 		elseIfCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		// elseIfCondition.add("stat", visit(ctx.statement()).render());
+		// cast ParseTree -> test 
+		elseIfCondition.add("stat", visit((ParseTree) ctx.statement()).render());
 		
 		return elseIfCondition;
 	}
@@ -507,7 +538,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitElseCondition(ElseConditionContext ctx) { 
 
 		ST elseCondition = stg.getInstanceOf("elseCondition");
-		// elseCondition.add("stat", visit(ctx.statement()).render());
+		// cast ParseTree -> test 
+		elseCondition.add("stat", visit((ParseTree) ctx.statement()).render());
 		
 		return elseCondition;
 
