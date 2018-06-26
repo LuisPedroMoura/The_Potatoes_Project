@@ -19,6 +19,9 @@ public class Variable {
 	// --------------------------------------------------------------------------
 	// INSTANCE FIELDS
 
+	// Static Field (Debug Only)
+		private static final boolean debug = true;
+	
 	private Type type;
 	private double value;
 	private static Graph<Type, Factor> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
@@ -65,9 +68,6 @@ public class Variable {
 		return value;
 	}
 	
-
-
-
 	// --------------------------------------------------------------------------
 	// OPERATIONS WITH VARIABLES
 
@@ -146,14 +146,14 @@ public class Variable {
 
 		// variable type is already the one we're trying to convert to
 		if (newType.getCode() == this.type.getCode()){
-//System.out.println("CONVERT_TYPE_TO - same type no convertion needed");	
+		if(debug) {System.out.println("CONVERT_TYPE_TO - same type no convertion needed");}	
 			return true;
 		}
 
 		// verify that newType exists and its not number
 		if (!newType.getTypeName().equals("number")) {
 			if (!typesGraph.containsVertex(newType)) {
-//System.out.println("CONVERT_TYPE_TO - not contained in graph");				
+				if(debug) {System.out.println("CONVERT_TYPE_TO - not contained in graph");	}			
 				return false;
 			}
 		}
@@ -164,7 +164,7 @@ public class Variable {
 			factors = dijkstra.getPath(this.type, newType);
 		}
 		catch (IllegalArgumentException e) {
-//System.out.println("CONVERT_TYPE_TO - no path to convert, not compatible");	
+			if(debug) {System.out.println("CONVERT_TYPE_TO - no path to convert, not compatible");	}
 			return false;
 		}
 
@@ -175,13 +175,18 @@ public class Variable {
 
 		// convert code to type code
 		this.type = newType;
-//System.out.println("CONVERT_TYPE_TO - converted");			
+		if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
 		return true;
 	}
 
 	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
 		List<Type> unchecked = type.getUncheckedOpTypes();
-
+		if(debug) { System.out.print("Trying to check an unchecked type. List is ");
+			for (Type utype : unchecked) {
+				System.out.print(utype.getTypeName());
+			}
+			System.out.println();
+		}
 		for (Type t : unchecked) {
 			if(convertTypeTo(t)) {
 				type.checkType(t);
@@ -193,7 +198,12 @@ public class Variable {
 
 	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
 		List<Type> opTypes = destinationType.getOpTypes();
-
+		if(debug) { System.out.print("Trying to convert to first possible checked. List is ");
+			for (Type utype : opTypes) {
+				System.out.print(utype.getTypeName());
+			}
+			System.out.println();
+		}
 		for (Type t : opTypes) {
 			if (convertTypeTo(t)) {
 				return true;
@@ -211,6 +221,7 @@ public class Variable {
 			for (Factor f : edges) {
 				if (f.getIsChildToParent() == true) {
 					parent = typesGraph.getDest(f);
+					if(debug) {System.out.println(parent + " -> ");}
 					break;
 				}
 			}

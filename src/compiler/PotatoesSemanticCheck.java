@@ -279,23 +279,31 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(ctx.varDeclaration());
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		String varName = ctx.varDeclaration().var().ID().getText();
-		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
-		destinationType.clearCheckList();
-		visit(ctx.operation());
-		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
-		Variable a = new Variable(temp);
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Operation");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
-			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
-		}
-
+		
 		// verify that variable to be created has valid name
 		if (typesTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
 			return false;
 		}
+		
+		destinationType = typesTable.get(typeName);
+		destinationType.clearCheckList();
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Operation");
+			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
+			ErrorHandling.printInfo(ctx, "--- destinationType is " + destinationType);
+		}
+		
+		visit(ctx.operation());
+		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
+		Variable a = new Variable(temp);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
+		}
+
+		
 
 		if(debug) {ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));}
 		if (a.convertTypeTo(typesTable.get(typeName))) {
@@ -447,10 +455,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			mapCtxObj.put(ctx, a);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
 					"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
+			destinationType.clearCheckList();
 			return true;
 		}
 		// Types are not compatible
 		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"");
+		destinationType.clearCheckList();
 		return false;
 	}
 
@@ -816,6 +826,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// assignment will ultimately check teh result, but possible problems will be flagged with an Exception
 		try {
 			a.MultDivCheckConvertType(destinationType);
+			if(debug) {ErrorHandling.printInfo(ctx, "Variable a was converted to " + a);}
 		}
 		catch (Exception e) {
 			ErrorHandling.printWarning(ctx, "Variable has multiple inheritance. Operation may not be resolved!");
@@ -823,7 +834,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		try {
 			b.MultDivCheckConvertType(destinationType);
-		} catch (Exception e) {
+			if(debug) {ErrorHandling.printInfo(ctx, "Variable b was converted to " + b);}
+		}
+		catch (Exception e) {
 			ErrorHandling.printWarning(ctx, "Variable has multiple inheritance. Operation may not be resolved!");
 		}
 
@@ -841,7 +854,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				} 
 
 			} 
-			if (debug) { ErrorHandling.printInfo(ctx, "result of multiplication is Variable" + res);}
+			if (debug) { ErrorHandling.printInfo(ctx, "result of multiplication is Variable " + res);}
 			mapCtxObj.put(ctx, res); 
 		}
 
@@ -858,7 +871,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				} 
 
 			} 
-			if (debug) { ErrorHandling.printInfo(ctx, "result of division is Variable" + res);}
+			if (debug) { ErrorHandling.printInfo(ctx, "result of division is Variable " + res);}
 			mapCtxObj.put(ctx, res);
 		}	
 		return true;
@@ -904,12 +917,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// types are equal adding and subtracting is possible
 		if (ctx.op.getText().equals("+")) {
 			Variable res = Variable.add(a, b);
-			if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable" + res);}
+			if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable " + res);}
 			mapCtxObj.put(ctx, res);
 		}
 		else if (ctx.op.getText().equals("-")) {
 			Variable res = Variable.subtract(a, b);
-			if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable" + res);}
+			if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable " + res);}
 			mapCtxObj.put(ctx, res);
 		}
 		return true;
