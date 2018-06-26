@@ -25,7 +25,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -281,7 +281,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String varName = ctx.varDeclaration().var().ID().getText();
 		
 		// verify that variable to be created has valid name
-		if (typesTable.containsKey(varName)) {
+		if (symbolTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
 			return false;
 		}
