@@ -25,7 +25,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -104,9 +104,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
-		Boolean result =  visit(ctx.assignment());
-		System.out.println("Visited " + ctx.assignment().getText() + " : " + result);
-		return result;
+		boolean valid =  visit(ctx.assignment());
+		if(debug) {ErrorHandling.printInfo(ctx, "Visited " + ctx.assignment().getText() + " : " + valid);}
+		return valid;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
