@@ -29,6 +29,7 @@ operators ::= [
    	"=="	:"==",
    	"!="	:"!=",
    	"&&"	:"&&",
+   	"<"		:"<",
    	"||"	:"||",
    	"!"		:"!",
    default	:"" //because of assignments of vars already declared
@@ -95,9 +96,9 @@ public class <name> {
 
 // VAR ASSIGNMENT----------------------------------------------------------------
 //[MJ] DONE
-varAssignment(type, var, value, stat ) ::= <<
+varAssignment(type, var, operation, stat ) ::= <<
 <stats(stat)>
-<varDeclaration(type, var)> = <value>
+<varDeclaration(type, var)> = <operation>
 >>
 
 // ARRAY ASSIGNMENT--------------------------------------------------------------
