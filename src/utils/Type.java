@@ -76,19 +76,19 @@ public class Type {
 		if (Double.isInfinite(code) || Double.isNaN(code)) throw new ArithmeticException("overflow");
 		this.code = code;
 	}
-	
+
 	/** 
-	   * Copy Constructor 
-	   * @param type 
-	   * @throws NullPointerException if a is null (ie new Type (null)) 
-	   */ 
-	  public Type(Type type) { 
-	    this.typeName  = type.typeName; 
-	    this.printName = type.printName; 
-	    this.code      = type.code; 
-	    this.opTypes   = new ArrayList<>(type.opTypes); 
-	    this.checkList = new ArrayList<>(type.checkList); 
-	  }
+	 * Copy Constructor 
+	 * @param type 
+	 * @throws NullPointerException if a is null (ie new Type (null)) 
+	 */ 
+	public Type(Type type) { 
+		this.typeName  = type.typeName; 
+		this.printName = type.printName; 
+		this.code      = type.code; 
+		this.opTypes   = new ArrayList<>(type.opTypes); 
+		this.checkList = new ArrayList<>(type.checkList); 
+	}
 
 	// --------------------------------------------------------------------------
 	// Getters / Setters

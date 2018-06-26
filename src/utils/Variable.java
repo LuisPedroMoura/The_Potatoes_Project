@@ -64,6 +64,7 @@ public class Variable {
 	public double getValue() {
 		return value;
 	}
+	
 
 
 

@@ -25,7 +25,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -49,19 +49,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE - DON'T DELETE FROM THIS FILE
 	public Boolean visitProgram(ProgramContext ctx) {
-		/*List<ParseTree> list = ctx.children;
-		Boolean valid = true;
-		for (ParseTree p : list) {
-			Boolean result =  visit(p);
-			System.out.println("Visited " + p.getText() + " : " + result);
-			valid = valid && result;
-		}
-		//return visitChildren(ctx);
-		 */
 		Boolean valid = visit(ctx.using());
 		List<CodeContext> codesInstructions = ctx.code();
 		for (CodeContext c : codesInstructions) {
-			valid = valid && visit(c);
+			Boolean res = visit(c);
+			if (debug) ErrorHandling.printInfo("Visiting " + c.getText() + " : " + res);
+			valid = valid && res;
 		}
 
 		return valid;
@@ -84,14 +77,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
-		/*List<ParseTree> list = ctx.children;
-		Boolean valid = true;
-		for (ParseTree p : list) {
-			Boolean result =  visit(p);
-			System.out.println("Visited " + p.getText() + " : " + result);
-			valid = valid && result;
-		}*/
-
 		return visit(ctx.declaration());
 	}
 
@@ -104,14 +89,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Function(Code_FunctionContext ctx) {
-		/*List<ParseTree> list = ctx.children;
-		Boolean valid = true;
-		for (ParseTree p : list) {
-			Boolean result =  visit(p);
-			System.out.println("Visited " + p.getText() + " : " + result);
-			valid = valid && result;
-		}
-		 */	
 		return visitChildren(ctx);
 	}
 
@@ -123,15 +100,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean result =  visit(ctx.declaration());
 		System.out.println("Visited " + ctx.declaration().getText() + " : " + result);
 		return result;
-
-
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
-		Boolean result =  visit(ctx.assignment());
-		System.out.println("Visited " + ctx.assignment().getText() + " : " + result);
-		return result;
+		boolean valid =  visit(ctx.assignment());
+		if(debug) {ErrorHandling.printInfo(ctx, "Visited " + ctx.assignment().getText() + " : " + valid);}
+		return valid;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -613,7 +588,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
 		boolean valid = visit(ctx.logicalOperation());
-		
+
 		if(valid) {
 			return true;
 		}
@@ -626,13 +601,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
 		boolean validOp0 = visit(ctx.logicalOperation(0));
 		boolean validOp1 = visit(ctx.logicalOperation(1));
-		
+
 		if (validOp0 && validOp1) {
 			return true;
 		}
 		ErrorHandling.printError(ctx, "Logical operands must have value boolean");
 		return false;
-		
+
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -692,14 +667,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
 		boolean valid = visit(ctx.value());
 		Object obj = mapCtxObj.get(ctx.value());
-		
+
 		if (valid) {
 			if (obj instanceof Boolean) {
 				mapCtxObj.put(ctx, obj);
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -707,14 +682,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
 		boolean valid = visit(ctx.value());
 		Object obj = mapCtxObj.get(ctx.value());
-		
+
 		if (valid) {
 			if (obj instanceof Boolean) {
 				mapCtxObj.put(ctx, obj);
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -722,13 +697,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitComparison(ComparisonContext ctx) {
 		boolean validOp0 = visit(ctx.operation(0));
 		boolean validOp1 = visit(ctx.operation(1));
-		
+
 		if (validOp0 && validOp1) {
 			Object obj0 = mapCtxObj.get(ctx.operation(0));
 			Variable a = (Variable) obj0;
 			Object obj1 = mapCtxObj.get(ctx.operation(1));
 			Variable b = (Variable) obj1;
-			
+
 			boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
 			return comparisonIsPossible;
 		}
