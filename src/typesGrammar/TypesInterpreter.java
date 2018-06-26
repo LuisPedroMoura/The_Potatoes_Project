@@ -260,8 +260,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			Type a = types.get(ctx.typeOp(0));
 
 			Type b = types.get(ctx.typeOp(1));
-
-			types.put(ctx, Type.multiply(a, b));
+			
+			Type res = Type.multiply(a,b);
+			res.addOpType(a);
+			res.addOpType(b);
+			
+			types.put(ctx, res);
 		}
 
 		return valid;

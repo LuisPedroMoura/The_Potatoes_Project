@@ -117,10 +117,21 @@ public class Variable {
 		return res;
 	}
 	
+	public boolean typeIsCompatible(Type type){
+		// get path from graph, if exists is compatible
+		List<Factor> factors;
+		try {
+			factors = dijkstra.getPath(this.type, type);
+		}
+		catch (IllegalArgumentException e) {
+			return false;
+		}
+		return true;
+	}
 	
 	public boolean convertTypeTo(Type newType) {
 		
-		// Variable type is already the one we're trying to convert to
+		// variable type is already the one we're trying to convert to
 		if (newType.getCode() == this.type.getCode()){
 System.out.println("CONVERT_TYPE_TO - same type no convertion needed");	
 			return true;

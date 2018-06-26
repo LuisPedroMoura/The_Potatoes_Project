@@ -655,7 +655,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printInfo(ctx, "[OP_CAST] variable a " + a);
 			ErrorHandling.printInfo(ctx, "[OP_CAST] cast can happen? " + (a.getType().getCode() == 1.0));
 		}
-
+		
+		// cast is to a compatible type. Cast is not needed, direct atribution is possible
+		if (a.typeIsCompatible(typesTable.get(ctx.cast().ID().getText()))) {
+			ErrorHandling.printWarning(ctx, "Variable was not casted. Cast from \"" + a.getType().getTypeName() + "\" to \"" + ctx.cast().ID().getText() + 
+			"\" is not necessary. Direct assignment is possible.");
+			return true;
+		}
+		
 		// cast is only possible if Variable is of Type Number (with code 1)
 		if (a.getType().getCode() != 1) {
 			ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" cannot be casted. Only number type can be casted!");
