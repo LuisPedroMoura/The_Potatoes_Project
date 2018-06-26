@@ -279,7 +279,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
 			return false;
 		}
-		
+
 		if(debug) {ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));}
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
@@ -753,32 +753,34 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// variables are converted, do the operation
 		if (op.equals("*")) {
-			Variable res = Variable.multiply(a, b);
-			Double resCode = res.getType().getCode();
-			Collection<Type> types = typesTable.values();
-			for (Type t : types) {
-				if (t.getCode() == resCode) {
-					res.getType().setTypeName(t.getTypeName());
-					res.getType().setPrintName(t.getPrintName());
-					break;
-				}
-				
-			}
-			mapCtxObj.put(ctx, res);
+			//mapCtxObj.put(ctx, Variable.multiply(a, b));
+			Variable res = Variable.multiply(a, b); 
+			Double resCode = res.getType().getCode(); 
+			Collection<Type> types = typesTable.values(); 
+			for (Type t : types) { 
+				if (t.getCode() == resCode) { 
+					res.getType().setTypeName(t.getTypeName()); 
+					res.getType().setPrintName(t.getPrintName()); 
+					break; 
+				} 
+
+			} 
+			mapCtxObj.put(ctx, res); 
 		}
 
 		if (op.equals("/")) {
-			Variable res = Variable.divide(a, b);
-			Double resCode = res.getType().getCode();
-			Collection<Type> types = typesTable.values();
-			for (Type t : types) {
-				if (t.getCode() == resCode) {
-					res.getType().setTypeName(t.getTypeName());
-					res.getType().setPrintName(t.getPrintName());
-					break;
-				}
-				
-			}
+			//mapCtxObj.put(ctx, Variable.divide(a, b));
+			Variable res = Variable.divide(a, b); 
+			Double resCode = res.getType().getCode(); 
+			Collection<Type> types = typesTable.values(); 
+			for (Type t : types) { 
+				if (t.getCode() == resCode) { 
+					res.getType().setTypeName(t.getTypeName()); 
+					res.getType().setPrintName(t.getPrintName()); 
+					break; 
+				} 
+
+			} 
 			mapCtxObj.put(ctx, res);
 		}	
 		return true;
