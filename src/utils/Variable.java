@@ -117,10 +117,21 @@ public class Variable {
 		return res;
 	}
 	
+	public boolean typeIsCompatible(Type type){
+		// get path from graph, if exists is compatible
+		List<Factor> factors;
+		try {
+			factors = dijkstra.getPath(this.type, type);
+		}
+		catch (IllegalArgumentException e) {
+			return false;
+		}
+		return true;
+	}
 	
 	public boolean convertTypeTo(Type newType) {
 		
-		// Variable type is already the one we're trying to convert to
+		// variable type is already the one we're trying to convert to
 		if (newType.getCode() == this.type.getCode()){
 System.out.println("CONVERT_TYPE_TO - same type no convertion needed");	
 			return true;
@@ -196,9 +207,19 @@ System.out.println("CONVERT_TYPE_TO - converted");
 	}
 	
 	public boolean MultDivCheckConvertType(Type destinationType) throws Exception {
+		boolean typeIsCompatible = false;
 		boolean checkType = false;
 		boolean convertToUnchecked = false;
 		boolean convertToFirstPossible = false;
+		
+		typeIsCompatible = convertTypeTo(destinationType);
+		
+		// check if destinatioType and variable are of the same dimention
+		// as the asignement may be to a OR Type, and a cast might be applies,
+		// converting to the destinationType is necessary
+		if (typeIsCompatible == true) {
+			return true;
+		}
 		
 		checkType = destinationType.checkType(this.type);
 		
