@@ -1,0 +1,5 @@
+// Potatoes File Example 2
+// Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
+
+using "Example2_Types.txt";
+number n = 5;
