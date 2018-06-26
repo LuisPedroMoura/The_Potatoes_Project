@@ -20,7 +20,7 @@ using "CompleteRightExampleTypes.txt";
 		//*/
 		
 		//ERRO SINTATICO
-		number n1 = v1;
+		//number n1 = v1;
 		
 		//OK -> soma/subtração entre tipos que derivam de distance
 		///*
@@ -43,19 +43,19 @@ using "CompleteRightExampleTypes.txt";
 		*/
 		
 		//OK -> multiplicação/divisão entre adimensional e tipo que também deriva distance 
-		///*
+		/*
 		meter m2 = 3 * i1; 	// i1 é convertido para meter, logo m1 = 3 * 3*8/0.5;
 		meter m2 = 3 / i1; 	// i1 é convertido para meter, logo m1 = 3 / 3*8/0.5;
-		//*/			
+		*/			
 		
 		
 		//OK -> multiplicações entre tipos q derivam distance
-		///*
+		/*
 		// m1 = 2
 		// i1 = 3
 		// d1 = 
 		volume v2 = m1 * m1 * m1;
 		volume v2 = d1 * d1 * d1;
 		volume v2 = i1 * m1 * d1;
-		//*/
+		*/
 			
