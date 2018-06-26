@@ -212,8 +212,8 @@ arrayLength(var) ::= " <var>.length() "
 //-------------------------------------------------------------------------------
 //PRINTS-------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-print(type, value, valueOrVarList) ::<<
-<printType.(type)>(<if(valueOrVarList)> <valueOrVarList; separator="+"><endif>);
+print(type, valueOrVarList) ::= <<
+<printType.(type)>(<if(valueOrVarList)> <valueOrVarList><endif>)
 >>
 
 //-------------------------------------------------------------------------------
