@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import potatoesGrammar.PotatoesBaseVisitor;
@@ -50,7 +49,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE - DON'T DELETE FROM THIS FILE
 	public Boolean visitProgram(ProgramContext ctx) {
-		List<ParseTree> list = ctx.children;
+		/*List<ParseTree> list = ctx.children;
 		Boolean valid = true;
 		for (ParseTree p : list) {
 			Boolean result =  visit(p);
@@ -58,6 +57,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			valid = valid && result;
 		}
 		//return visitChildren(ctx);
+		 */
+		Boolean valid = visit(ctx.using());
+		List<CodeContext> codesInstructions = ctx.code();
+		for (CodeContext c : codesInstructions) {
+			valid = valid && visit(c);
+		}
+
 		return valid;
 	}
 
@@ -78,40 +84,34 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
-		List<ParseTree> list = ctx.children;
+		/*List<ParseTree> list = ctx.children;
 		Boolean valid = true;
 		for (ParseTree p : list) {
 			Boolean result =  visit(p);
 			System.out.println("Visited " + p.getText() + " : " + result);
 			valid = valid && result;
-		}
+		}*/
 
-		return visitChildren(ctx);
+		return visit(ctx.declaration());
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
-		List<ParseTree> list = ctx.children;
-		Boolean valid = true;
-		for (ParseTree p : list) {
-			Boolean result =  visit(p);
-			System.out.println("Visited " + p.getText() + " : " + result);
-			valid = valid && result;
-		}
-
-		return visitChildren(ctx);
+		Boolean result =  visit(ctx.assignment());
+		System.out.println("Visited " + ctx.assignment().getText() + " : " + result);
+		return result;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Function(Code_FunctionContext ctx) {
-		List<ParseTree> list = ctx.children;
+		/*List<ParseTree> list = ctx.children;
 		Boolean valid = true;
 		for (ParseTree p : list) {
 			Boolean result =  visit(p);
 			System.out.println("Visited " + p.getText() + " : " + result);
 			valid = valid && result;
 		}
-
+		 */	
 		return visitChildren(ctx);
 	}
 
@@ -120,12 +120,18 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------	
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Declaration(Statement_DeclarationContext ctx) {
-		return visitChildren(ctx);
+		Boolean result =  visit(ctx.declaration());
+		System.out.println("Visited " + ctx.declaration().getText() + " : " + result);
+		return result;
+
+
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
-		return visitChildren(ctx);
+		Boolean result =  visit(ctx.assignment());
+		System.out.println("Visited " + ctx.assignment().getText() + " : " + result);
+		return result;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -135,7 +141,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_FunctionCall(Statement_FunctionCallContext ctx) {
-		return visitChildren(ctx);
+		return visit(ctx.functionCall());
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -154,8 +160,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------	
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitDeclaration_array(Declaration_arrayContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitDeclaration_array(ctx);
+		return visitChildren(ctx);
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -335,8 +340,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitAssignment_Var_Declaration_FunctionCall(Assignment_Var_Declaration_FunctionCallContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_Declaration_FunctionCall(ctx);
+		return visitChildren(ctx);
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -940,7 +944,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitOperation_Var(Operation_VarContext ctx) {
-		visitChildren(ctx);
+		visit(ctx.var());
 		Object obj = symbolTable.get(ctx.var().ID().getText());
 
 		if (debug) {
