@@ -802,7 +802,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// verify that right side of mod operation is of Type Number
 			if (b.getType().getCode() == 1) {
 				Double moddedValue = a.getValue() % b.getValue();
-				a = new Variable (a.getType(), moddedValue);
+				a = new Variable (typesTable.get(a.getType().getTypeName()), moddedValue);
 				mapCtxObj.put(ctx, a);
 				return true;
 			}
@@ -841,6 +841,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				} 
 
 			} 
+			if (debug) { ErrorHandling.printInfo(ctx, "result of multiplication is Variable" + res);}
 			mapCtxObj.put(ctx, res); 
 		}
 
@@ -857,6 +858,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				} 
 
 			} 
+			if (debug) { ErrorHandling.printInfo(ctx, "result of division is Variable" + res);}
 			mapCtxObj.put(ctx, res);
 		}	
 		return true;
@@ -901,10 +903,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// types are equal adding and subtracting is possible
 		if (ctx.op.getText().equals("+")) {
-			mapCtxObj.put(ctx, Variable.add(a, b));
+			Variable res = Variable.add(a, b);
+			if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable" + res);}
+			mapCtxObj.put(ctx, res);
 		}
 		else if (ctx.op.getText().equals("-")) {
-			mapCtxObj.put(ctx,  Variable.subtract(a, b));
+			Variable res = Variable.subtract(a, b);
+			if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable" + res);}
+			mapCtxObj.put(ctx, res);
 		}
 		return true;
 	}

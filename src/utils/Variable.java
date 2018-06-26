@@ -270,7 +270,7 @@ public class Variable {
 
 	@Override
 	public String toString() {
-		return value + " " + type;
+		return "value " + value + ", type " + type;
 	}
 
 	@Override
