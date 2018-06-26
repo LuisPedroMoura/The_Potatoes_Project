@@ -155,13 +155,13 @@ public class Type {
 	}
 
 	public List<Type> getUncheckedOpTypes(){
-		List<Type> list = new LinkedList<>();
+		List<Type> unchecked = new LinkedList<>();
 		for (int i = 0; i < checkList.size(); i++) {
 			if (checkList.get(i) == false) {
-				list.add(opTypes.get(i));
+				unchecked.add(opTypes.get(i));
 			}
 		}
-		return list;
+		return unchecked;
 	}
 
 	public boolean clearCheckList() {
