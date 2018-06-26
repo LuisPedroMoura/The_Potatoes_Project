@@ -35,17 +35,18 @@ public class Variable {
 		this.type = type;
 		this.value = value;
 	}
-
+	
 	/** 
-	 * 
-	 * Copy Constructor 
-	 * @param a 
-	 * @throws NullPointerException if a is null (ie new Variable (null)) 
-	 */ 
-	public Variable(Variable a) { 
-		this.type = new Type(a.type); 
-		this.value  = a.value; 
-	}
+	   * 
+	   * Copy Constructor 
+	   * @param a 
+	   * @throws NullPointerException if a is null (ie new Variable (null)) 
+	   */ 
+	  public Variable(Variable a) { 
+	    this.type = new Type(a.type); 
+	    this.value  = a.value; 
+	  }
+
 
 	// --------------------------------------------------------------------------
 	// GETTERS / SETTERS
