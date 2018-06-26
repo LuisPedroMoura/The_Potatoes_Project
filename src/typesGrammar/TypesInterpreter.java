@@ -15,7 +15,6 @@ import utils.Type;
 import utils.errorHandling.ErrorHandling;
 
 /**
- * es
  * <b>TypesInterpreter</b><p>
  * 
  * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
@@ -24,7 +23,7 @@ import utils.errorHandling.ErrorHandling;
 public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = false; 
+	private static final boolean debug = true; 
 
 	// --------------------------------------------------------------------------
 	// Instance Fields 
@@ -121,6 +120,10 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 			// Create derived type based on typeOp
 			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOp()).getCode());
+			//Type t = types.get(ctx.typeOp());		// FIXME overflow issue
+			//t.setTypeName(typeName);
+			//t.setPrintName(ctx.STRING().getText().replaceAll("\"", ""));
+			t.addOpType(types.get(ctx.typeOp()));	//FIXME
 
 			// Update Types & Symbol Tables
 			typesTable.put(typeName, t);
@@ -258,10 +261,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		if (valid) {
 			Type a = types.get(ctx.typeOp(0));
-
 			Type b = types.get(ctx.typeOp(1));
 
-			types.put(ctx, Type.multiply(a, b));
+			Type res;
+			if (ctx.op.getText().equals("*"))
+				res = Type.multiply(a, b);
+			else
+				res = Type.divide(a, b);
+
+			res.addOpType(a);
+			res.addOpType(b);
+
+			types.put(ctx, res);
 		}
 
 		return valid;

@@ -3,6 +3,7 @@
 
 types {
     meter "m"
+    volume		"m^3"	: meter*meter*meter
 }
 
 prefixes {
