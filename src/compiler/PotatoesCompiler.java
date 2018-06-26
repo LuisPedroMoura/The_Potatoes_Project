@@ -597,8 +597,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST print = stg.getInstanceOf("print");
 		
 		if(!ctx.PRINT().getText().isEmpty()) print.add("type",ctx.PRINTLN().getText());
-		if(!ctx.PRINTLN().getText().isEmpty()) print.add("type",ctx.PRINT().getText());
-
+		else if(!ctx.PRINTLN().getText().isEmpty()) print.add("type",ctx.PRINT().getText());
+		else
+			assert false: "semantic error";
 		for(int i = 0; i<ctx.printVar().size()-1; i++)
 			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
 
@@ -613,6 +614,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
+	
 	
 	
 	
@@ -1085,11 +1087,33 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 	}
 
-	
+	// [IJ] - to be tested
 	@Override
 	public ST visitOperation_Power(Operation_PowerContext ctx) {
-		// TODO Auto-generated method stub
-		return visitChildren(ctx);
+		ST newVariable = stg.getInstanceOf("varAssignment");
+		
+		ST op0 = visit(ctx.operation(0));
+		ST op1 = visit(ctx.operation(1));
+		String nameVarA = (String) op0.getAttribute("var");
+		String nameVarB = (String) op1.getAttribute("var");
+		newVariable.add("stat", op0.render());
+		newVariable.add("stat", op1.render());
+		
+		newVariable.add("type", "Double");
+
+		String newName = getNewVarName();
+		newVariable.add("var", newName);
+		
+		Variable a = (Variable) mapCtxObj.get(ctx.operation(0));
+		Variable b = (Variable) mapCtxObj.get(ctx.operation(1));		
+		b.convertTypeTo(a.getType());		
+		newVariable.add("operation", "(Double) Math.pow(" + nameVarA + "," + nameVarB + ")");
+
+		//Variable result = (Variable) mapCtxObj.get(ctx);
+		//updateSymbolsTable(newName, newName, result);
+		updateSymbolsTable(newName, newName);
+		
+		return newVariable;		
 	}
 	
 	//[MJ] DONE -> review just to be sure everything is right right
