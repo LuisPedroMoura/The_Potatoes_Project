@@ -29,7 +29,7 @@ types {
 	distance dist = (distance) 10;
 	time t = (time) 5;
 	
-	fun main{
+//	fun main{
 	
 	
 		//--------------------
@@ -55,32 +55,32 @@ types {
 //			println("whatever function");
 //			boolean b = whatever();
 //			println("result: " + b);
-	}
+//	}
 	
 //	fun calcVelocity(distance d, time t): velocity{
 //		return d / t; 
 //	}
 	
 //	fun calcGlobalAcceleration(): acceleration{
-		acceleration a = dist/t^2;
+//		acceleration a = dist/t^2;
 //		return a;
 //	}
 	
 //	fun biggerAcceleration(acceleration a1, acceleration a2): acceleration{
 //		//eu sei q os if's sao parvos... era so para testes
-//		if(a1!=(velocity)0 && a2!=(velocity)0){
-//			if(a1>a2){ return a1; } 
-//			else { return a2; }
-//		}
-//		else if(a1!=(velocity)0){ return a1; }
-//		else { return a2; }
+		if(a1!=(velocity)0 && a2!=(velocity)0){
+			if(a1>a2){ return a1; } 
+			else { return a2; }
+		}
+		else if(a1!=(velocity)0){ return a1; }
+		else { return a2; }
 //	}
 	
 //	fun distance2KiloDistance (Array<distance> dist) : Array<distance> {
 	
-//		for(number i=0; i < length(dist); i=i+1){
-//			dist[i] = dist[i] * 10^3;	// 10^-3 erro?									
-//		}
+		for(number i=0; i < length(dist); i=i+1){
+			dist[i] = dist[i] * 10^3;	// 10^-3 erro?									
+		}
 //		return dist;
 //	}
 	
@@ -90,10 +90,10 @@ types {
 //		Array<inch, 10> kiloInches = distance2KiloDistance(inches);
 		
 //		number i = 0;
-//		while(i<length(inches)){
-//			testOperations();
-//			i = i+1;
-//		}
+		while(i<length(inches)){
+			testOperations();
+			i = i+1;
+		}
 		
 		
 		

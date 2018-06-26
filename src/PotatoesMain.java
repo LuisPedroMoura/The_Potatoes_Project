@@ -38,6 +38,8 @@ public class PotatoesMain {
 		// create a CharStream that reads from the file:		
 		CharStream input = null;
 
+		System.out.println("inputed file: "+ args[0]);
+		String name = args[0].substring(0, args[0].length()-5);
 		try {
 			File f = new File(args[0]);
 			fileStream = new FileInputStream(f); 
@@ -76,10 +78,11 @@ public class PotatoesMain {
 				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
 				PotatoesCompiler visitor1 = new PotatoesCompiler();
 				ST program = visitor1.visit(tree);
-				PrintWriter pw = new PrintWriter(new File(args[0]+".java"));
+				program.add("name", name);
+				PrintWriter pw = new PrintWriter(new File(name+".java"));
                 pw.print(program.render());
                 pw.close();
-                System.out.println(args[0]+".java"+" file created!");
+                System.out.println(name+" file created!");
 			}
 		}
 	}

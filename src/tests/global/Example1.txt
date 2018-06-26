@@ -15,7 +15,7 @@ number n1 = v1;
 		
 //OK -> assigning sum/subtraction between derived types
 distance d1 = i1 + m1; // d1 = i1*8 + m1*0.5;
-distance d1 = i1 - m1; // d1 = i1*8 - m1*0.5;
+distance d3 = i1 - m1; // d1 = i1*8 - m1*0.5;
 	
 //SINTAX ERROR -> assigning multiplication/division between derived types (creates new dimention)
 distance d2 = i1 * d1;	//distance^2
@@ -34,4 +34,4 @@ meter m2 = 3 / i1; 	// i1 is converted to meter
 volume v2 = m1 * m1 * m1;
 volume v2 = d1 * d1 * d1;
 volume v2 = i1 * m1 * d1;
-			
+*/		

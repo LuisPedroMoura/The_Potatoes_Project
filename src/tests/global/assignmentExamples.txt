@@ -10,52 +10,82 @@
 
 using "CompleteRightExampleTypes.txt";
 
-		//OK -> atribuiçao dum adimensional com cast
-		///*
-		number n = 5;
-		volume v1 = (volume) n;
-		inch i1 = (inch) 3;
-		meter m1 = (meter) 2;
-		distance d2 = (distance) (i1 / m1);
-		//*/
-		
-		//ERRO SINTATICO
-		number n1 = v1;
-		
-		//OK -> soma/subtração entre tipos que derivam de distance
-		///*
-		distance d1 = i1 + m1; // d1 = i1*8 + m1*0.5;
-		distance d1 = i1 - m1; // d1 = i1*8 - m1*0.5;
-		//*/
-		
-		//ERRO SINTATICO -> multiplicação/divisão entre 2 tipos q derivam distance
-		/*
-		distance d2 = i1 * d1;	//distance^2
-		distance d2 = i1 / d1;	//adimensional
-		*/
-		
-		
-		//ERRO -> soma/subtração entre adimensional e var 
-		//	   -> seria necessário inferências
-		/*
-		meter m2 = 3 + m1; 
-		meter m2 = 3 - m1; 	
-		*/
-		
-		//OK -> multiplicação/divisão entre adimensional e tipo que também deriva distance 
-		///*
-		meter m2 = 3 * i1; 	// i1 é convertido para meter, logo m1 = 3 * 3*8/0.5;
-		meter m2 = 3 / i1; 	// i1 é convertido para meter, logo m1 = 3 / 3*8/0.5;
-		//*/			
-		
-		
-		//OK -> multiplicações entre tipos q derivam distance
-		///*
-		// m1 = 2
-		// i1 = 3
-		// d1 = 
-		volume v2 = m1 * m1 * m1;
-		volume v2 = d1 * d1 * d1;
-		volume v2 = i1 * m1 * d1;
-		//*/
-			
+	//OK -> atribuiçao dum adimensional com cast
+	number n = 5;
+	volume v1 = (volume) n;
+	inch i1 = (inch) 3;
+	meter m1 = (meter) 2;
+	distance d2 = (distance) (i1 / m1);
+
+
+	//ERRO SINTATICO
+	//number n1 = v1;
+
+	//OK -> soma/subtração entre tipos que derivam de distance
+	distance d1 = i1 + m1; // d1 = i1*8 + m1*0.5;
+	distance d3 = i1 - m1; // d1 = i1*8 - m1*0.5;
+	
+
+	//ERRO SINTATICO -> multiplicação/divisão entre 2 tipos q derivam distance
+	/*
+	distance d2 = i1 * d1;	//distance^2
+	distance d2 = i1 / d1;	//adimensional
+	*/
+
+
+	//ERRO -> soma/subtração entre adimensional e var 
+	//	   -> seria necessário inferências
+	/*
+	meter m2 = 3 + m1; 
+	meter m2 = 3 - m1; 	
+	*/
+
+	//OK -> multiplicação/divisão entre adimensional e tipo que também deriva distance 
+	meter m2 = 3 * i1; 	// i1 é convertido para meter, logo m1 = 3 * 3*8/0.5;
+	meter m2 = 3 / i1; 	// i1 é convertido para meter, logo m1 = 3 / 3*8/0.5;
+	
+
+
+	//OK -> multiplicações entre tipos q derivam distance
+	// m1 = 2
+	// i1 = 3
+	// d1 = 
+	volume v2 = m1 * m1 * m1;
+	volume v2 = d1 * d1 * d1;
+	volume v2 = i1 * m1 * d1;
+
+
+
+	//com negativos
+	number n1 = 2 + -2;
+	number n2 = -2 + 2;
+	number n3 = 2 + -2 - 5;
+	number n4 = -2 - 5;		
+
+	//com parentesis
+	number n5 = n1 + n2 - n1 % 5 + 9 / n2 + n1; 
+	number n6 = (n1 + n2 - n1 % 5 + 9) / n2 + n1; 
+	number n7 = n1 + n2 - n1 % (5 + 9)/(n2 + n1); 
+	velocity v1 = (velocity)2 * n1 + (velocity)0.5 % 2 - (velocity)-2;
+	velocity v2 = (velocity) (2 * n1) + (velocity) (0.5 % 2) - -(velocity)2;
+
+	/*
+	//com potencia
+	velocity v3 = v1^2^3;
+	velocity v4 = v1^2 * n1 + ((velocity) 0.5 ^ - 2) + (velocity)-2; //review parse tree
+	velocity v5 = (v1^-2) * n1 + ((velocity) 0.5 ^ 2) + (velocity)-2;
+	*/
+
+	//varias divisoes
+	velocity v6 = (velocity) (6/6/5*5/6);
+	
+	
+	//com booleanos
+	boolean b1 = true;
+	boolean b2 = n1 == n2;
+	boolean b3 = n1 > n2;
+	boolean b4 = n1 >= n2;
+	boolean b5 = n1 < n2;
+	boolean b6 = n1 <= n2;
+	boolean b7 = !b1;
+	
