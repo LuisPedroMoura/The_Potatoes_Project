@@ -160,7 +160,9 @@ arrayLength			: LENGTH '(' var ')'
 
 // PRINTS----------------------------------------------------------------------
 
-print				: (PRINT | PRINTLN) '(' (printVar ('+'printVar)* ) ')' EOL
+print				: PRINT  '(' (printVar ('+'printVar)* ) ')' EOL		# print_Print
+					| PRINTLN '(' (printVar ('+'printVar)* ) ')' EOL	# print_Println
+					| PRINT  '(' (printVar ('+'printVar)* ) ')' EOL
 					;
 
 printVar			: value | var

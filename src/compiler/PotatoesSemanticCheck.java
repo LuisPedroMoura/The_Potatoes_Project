@@ -97,11 +97,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------	
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Declaration(Statement_DeclarationContext ctx) {
-		Boolean result =  visit(ctx.declaration());
-		//if(debug) {ErrorHandling.printInfo("Visited " + ctx.declaration().getText() + " : " + result);}
-		return result;
+		return visit(ctx.declaration());
 	}
-
+	
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
 		boolean valid =  visit(ctx.assignment());
@@ -281,7 +279,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String varName = ctx.varDeclaration().var().ID().getText();
 		
 		// verify that variable to be created has valid name
-		if (typesTable.containsKey(varName)) {
+		if (symbolTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is a reserved word");
 			return false;
 		}
@@ -303,9 +301,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
 		}
 
-		
-
 		if(debug) {ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));}
+		
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);

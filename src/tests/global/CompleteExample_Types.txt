@@ -1,0 +1,17 @@
+types {
+
+	meter		"m"
+	doubleMeter "dm"
+    
+    distance "d" : (1)meter | (1/2)doubleMeter | (1/2.5)bar
+    
+    area "m^2"	: meter*meter
+    volume "m^3": area*meter
+    crazyVolume "mdmtm" : meter*doubleMeter*tripleMeter
+    
+    kilo		"kg"
+    doubleKilo	"dkg"
+    
+    weight "w": (1)kilo | (1/2)doubleKilo | (1/5)bar
+	
+}
