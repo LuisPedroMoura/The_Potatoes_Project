@@ -1,5 +1,0 @@
-#!/bin/bash  
-echo -e "LFA Project 28 June 2018\nInes Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)\n"
-echo -e "Compiling ..." $1
-java -ea Compile $1
-echo -e "Done! Compiled file to file " $1.java

@@ -5,6 +5,7 @@ import utils.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.stringtemplate.v4.*;
 
@@ -71,6 +72,7 @@ import potatoesGrammar.PotatoesParser.Operation_PowerContext;
 import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
 import potatoesGrammar.PotatoesParser.Operation_VarContext;
 import potatoesGrammar.PotatoesParser.PrintContext;
+import potatoesGrammar.PotatoesParser.PrintVarContext;
 import potatoesGrammar.PotatoesParser.ProgramContext;
 import potatoesGrammar.PotatoesParser.Statement_AssignmentContext;
 import potatoesGrammar.PotatoesParser.Statement_Control_Flow_StatementContext;
@@ -194,13 +196,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
-
 	@Override
 	public ST visitStatement_Print(Statement_PrintContext ctx) {
-		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
-
 	
 	// --------------------------------------------------------------------------------------------------------------------	
 	// CLASS - DECLARATIONS------------------------------------------------------------------------------------------------
@@ -557,43 +556,64 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
+	// [IJ] 
 	@Override
 	public ST visitPrint(PrintContext ctx) {
+		ST print = stg.getInstanceOf("print");
+		
+		if(!ctx.PRINT().getText().isEmpty()) print.add("type",ctx.PRINTLN().getText());
+		if(!ctx.PRINTLN().getText().isEmpty()) print.add("type",ctx.PRINT().getText());
+
+		for(int i = 0; i<ctx.printVar().size()-1; i++)
+			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
+
+		print.add("valueOrVarList", visit(ctx.printVar(ctx.printVar().size()-1)).render());
+
+		return print;
+	}
+	
+	// [IJ] - DONE
+	@Override
+	public ST visitPrintVar(PrintVarContext ctx) {
 		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
+	
+	
 	
 	// --------------------------------------------------------------------------------------------------------------------
 	// CONTROL FLOW STATMENTS----------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
 	
-	// [IJ]
+	// [IJ] - DONE
 	@Override
 	public ST visitControlFlowStatement(ControlFlowStatementContext ctx) {
 		return visitChildren(ctx);
 	}
 
-	// [IJ] - NOT DONE
+	// [IJ] - DONE
 	@Override
 	public ST visitForLoop(ForLoopContext ctx) {
 		
 		ST forLoop = stg.getInstanceOf("forLoop");
-		forLoop.add("firstAssig", visit(ctx.assignment(0)).render());					
+		forLoop.add("firstAssignment", visit(ctx.assignment(0)).render());					
 		forLoop.add("logicalOperation", visit(ctx.logicalOperation()).render());				
-		forLoop.add("finalAssig", visit(ctx.assignment(1)).render());						
-		// forLoop.add("stat", visit(ctx.statement()).render());
+		forLoop.add("finalAssignment", visit(ctx.assignment(1)).render());						
+		for(int i = 0; i<ctx.statement().size(); i++)
+			forLoop.add("stat", visit(ctx.statement(i)).render());
 		
 		return forLoop;
 	}
 
-	// [IJ] - NOT DONE
+	// [IJ] - DONE
 	@Override
 	public ST visitWhileLoop(WhileLoopContext ctx) {
 
 		ST whileLoop = stg.getInstanceOf("whileLoop");
 		whileLoop.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		// whileLoop.add("stat", visit(ctx.statement()).render());
-		
+		for(int i = 0; i<ctx.statement().size(); i++)
+			whileLoop.add("stat", visit(ctx.statement(i)).render());
+
 		return whileLoop;
 	}
 
@@ -610,44 +630,43 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
-
+	
 	// [IJ] - DONE
 	@Override
 	public ST visitCondition(ConditionContext ctx) {
 		return visitChildren(ctx);
 	}
 	
-	// [IJ] - NOT DONE
+	// [IJ] - DONE
 	@Override 
 	public ST visitIfCondition(IfConditionContext ctx) { 
-		
 		ST ifCondition = stg.getInstanceOf("ifCondition");
 		ifCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		// ifCondition.add("stat", visit(ctx.statement()).render());
-		
+		for(int i = 0; i<ctx.statement().size(); i++)
+			ifCondition.add("stat", visit(ctx.statement(i)).render());
+
 		return ifCondition;
 	}
 
-	// [IJ] - NOT DONE
+	// [IJ] - DONE
 	@Override 
 	public ST visitElseIfCondition(ElseIfConditionContext ctx) { 
-
 		ST elseIfCondition = stg.getInstanceOf("elseIfCondition");
 		elseIfCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		// elseIfCondition.add("stat", visit(ctx.statement()).render());
+		for(int i = 0; i<ctx.statement().size(); i++)
+			elseIfCondition.add("stat", visit(ctx.statement(i)).render());
 		
 		return elseIfCondition;
 	}
 
-	// [IJ] - NOT DONE
+	// [IJ] -  DONE
 	@Override 
 	public ST visitElseCondition(ElseConditionContext ctx) { 
-
 		ST elseCondition = stg.getInstanceOf("elseCondition");
-		// elseCondition.add("stat", visit(ctx.statement()).render());
+		for(int i = 0; i<ctx.statement().size(); i++)
+			elseCondition.add("stat", visit(ctx.statement(i)).render());
 		
 		return elseCondition;
-
 	}
 
 	

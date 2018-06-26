@@ -16,7 +16,7 @@ using "C:\\Users\\LuisMoura\\Dropbox\\UA\\2-Ano\\LFA\\Projeto\\lfa-1718-g13\\src
 		volume v1 = (volume) n;
 		inch i1 = (inch) 3;
 		meter m1 = (meter) 2;
-		distance d2 = (distance) i1 / m1;
+		distance d2 = (distance) (i1 / m1);
 		//*/
 		
 		//ERRO SINTATICO
@@ -51,6 +51,9 @@ using "C:\\Users\\LuisMoura\\Dropbox\\UA\\2-Ano\\LFA\\Projeto\\lfa-1718-g13\\src
 		
 		//OK -> multiplicações entre tipos q derivam distance
 		///*
+		// m1 = 2
+		// i1 = 3
+		// d1 = 
 		volume v2 = m1 * m1 * m1;
 		volume v2 = d1 * d1 * d1;
 		volume v2 = i1 * m1 * d1;

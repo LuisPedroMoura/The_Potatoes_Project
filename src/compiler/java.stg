@@ -14,6 +14,12 @@ typeValue ::= [
    default	:"null"
 ]
 
+printType ::= [
+   "print"	:"System.out.print",
+   "println":"System.out.println",
+   default	:"null"
+]
+
 	
 //[MJ] REVIEW 	-> ^
 // 				-> <, and <= -> error
@@ -161,8 +167,8 @@ elseCondition(stat) ::= <<
 
 // [IJ] DONE
 // FOR LOOP-----------------------------------------------------------------------
-forLoop(firstAssig, logicalOperation, finalAssig, stat) ::= <<
-for(<if(firstAssig)><firstAssig><endif>; <logicalOperation>; <finalAssig>) { 
+forLoop(firstAssignment, logicalOperation, finalAssignment, stat) ::= <<
+for(<if(firstAssignment)><firstAssignment><endif>; <logicalOperation>; <finalAssignment>) {
 	<stats(stat)>
 }
 >>
@@ -207,9 +213,9 @@ arrayLength(var) ::= " <var>.length() "
 //-------------------------------------------------------------------------------
 //PRINTS-------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-
-//...
-
+print(type, valueOrVarList) ::= <<
+<printType.(type)>(<if(valueOrVarList)> <valueOrVarList><endif>)
+>>
 
 //-------------------------------------------------------------------------------
 // VARS AND TYPES--------------------------------------------------------------------------

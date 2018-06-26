@@ -108,9 +108,9 @@ public class Type {
 		return opTypes;
 	}
 
-	public void setOpTypes(List<Type> opTypes) {
-		this.opTypes = opTypes;
-	}
+	public void setOpTypes(List<Type> opTypes) { 
+		this.opTypes = opTypes; 
+	} 
 
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
@@ -204,10 +204,10 @@ public class Type {
 
 	@Override
 	public String toString() {
-		
+
 		// For Debug Purposes Only
 		StringBuilder builder = new StringBuilder();
-		builder.append("Type [");
+		builder.append("\nType [");
 		if (typeName != null) {
 			builder.append("typeName=");
 			builder.append(typeName);
@@ -232,7 +232,7 @@ public class Type {
 		}
 		builder.append("]");
 		return builder.toString();
-		 
+
 		//return typeName;
 		// return printName;
 	}
