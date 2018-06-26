@@ -20,35 +20,6 @@ printType ::= [
    default	:"null"
 ]
 
-	
-//[MJ] REVIEW 	-> ^
-// 				-> <, and <= -> error
-//				-> ( ) are needed?
-operators ::= [
-	"("		:"(",
-	")"		:")",
-   	"*"		:"*",
-   	"/"		:"/",
-   	"%"		:"%",
-   	"+"		:"+",
-   	"-"		:"-",
-   	"=="	:"==",
-   	"!="	:"!=",
-   	"&&"	:"&&",
-   	"<"		:"<",
-   	"||"	:"||",
-   	"!"		:"!",
-   default	:"" //because of assignments of vars already declared
-]
-
-
-//
-booleanValue ::= [
-	"false"	:"false",
-	"true"	:"true",
-	default:"null"
-]
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // TEMPLATES ////////////////////////////////////////////////////////////////////////////////////////
@@ -74,9 +45,11 @@ controlflowstats(controlflow) ::= <<
 //-------------------------------------------------------------------------------
 
 // [MJ] DONE
-class(name,stat) ::= <<
+class(name,stat, controlflow) ::= <<
 public class <name> {
-	<stats(stat)>
+	public static void main(String[] args) {
+		<statements(stat, controlflow)>
+	}
 }
 >>
 
@@ -118,11 +91,6 @@ varAssignment(type, var, operation, stat ) ::= <<
 //-------------------------------------------------------------------------------
 
 // FUNCTION MAIN------------------------------------------------------------------
-main(stat, controlflow)::= <<
-	public static void main(String[] args) {
-		<statements(stat, controlflow)>
-	}
->>
 
 
 // FUNCTION ID--------------------------------------------------------------------

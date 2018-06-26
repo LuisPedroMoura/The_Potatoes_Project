@@ -128,7 +128,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	    return classContent;
 	}
 	
-	
 	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitUsing(UsingContext ctx) {
@@ -139,14 +138,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitCode_Declaration(Code_DeclarationContext ctx) {
-		return visitChildren(ctx);
+		return visit(ctx.declaration());
 	}
 
-	
+	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitCode_Assignment(Code_AssignmentContext ctx) {
-		// TODO Auto-generated method stub
-		return visitChildren(ctx);
+		return visit(ctx.assignment());
 	}
 
 
@@ -168,18 +166,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
-	
+	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitStatement_Assignment(Statement_AssignmentContext ctx) {
-		// TODO Auto-generated method stub
-		return visitChildren(ctx);
+		return visit(ctx.assignment());
 	}
 
-	
+	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitStatement_Control_Flow_Statement(Statement_Control_Flow_StatementContext ctx) {
-		// TODO Auto-generated method stub
-		return visitChildren(ctx);
+		return visit(ctx.controlFlowStatement());
 	}
 
 	
@@ -196,9 +192,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
+	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitStatement_Print(Statement_PrintContext ctx) {
-		return visitChildren(ctx);
+		return visit(ctx.print());
 	}
 	
 	// --------------------------------------------------------------------------------------------------------------------	
@@ -673,9 +670,173 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// --------------------------------------------------------------------------------------------------------------------
 	// LOGICAL OPERATIONS--------------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------
-
 	
-	//[MJ] DONE
+	//[MJ] nothing to do, but don't delete
+	@Override
+	public ST visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
+		return visit(ctx.logicalOperation());
+	}
+
+	//[MJ] nothing to do, but don't delete
+	@Override
+	public ST visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
+		ST op0 = visit(ctx.logicalOperation(0));
+		ST op1 = visit(ctx.logicalOperation(1));
+		ST newVariable = stg.getInstanceOf("varAssignment");
+						
+		String newName = getNewVarName();
+		String nameVarA = (String) op0.getAttribute("var");
+		String nameVarB = (String) op1.getAttribute("var");
+		
+		
+		//all the declarations done until now
+		newVariable.add("stat", op0.render());
+		newVariable.add("stat", op1.render());
+		
+		newVariable.add("resultType", "Boolean");
+		newVariable.add("var", newName);
+		
+		if (ctx.op.getText().equals("&&")) {
+			newVariable.add("operation", nameVarA + " && " + nameVarB);
+		}
+		else if (ctx.op.getText().equals("||")) {
+			newVariable.add("operation", nameVarA + " || " + nameVarB);
+		}
+		else
+			assert false: "missing semantic check";
+		
+		Boolean result = (Boolean) mapCtxObj.get(ctx);
+		
+		updateSymbolsTable(newName, newName, result);
+		
+		return newVariable;
+	}
+
+	//[MJ] nothing to do, but don't delete
+	@Override
+	public ST visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
+		return visit(ctx.logicalOperand());
+	}
+
+	//[MJ] DONE -> review just to be sure everything is right right
+	@Override
+	public ST visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
+		ST comparison = visit(ctx.comparison());
+		ST assign = stg.getInstanceOf("varAssignment");
+		
+		assign.add("stat", comparison.getAttribute("stat"));
+		
+		assign.add("type", "Boolean");
+		String newVarName = getNewVarName();
+		assign.add("var",newVarName );
+		String resultVarName = (String) comparison.getAttribute("var");	
+		assign.add("operation", resultVarName);
+		
+		updateSymbolsTable(newVarName, newVarName, symbolTableValue.get(resultVarName));
+		
+		return assign;
+		
+	}
+
+	//[MJ] DONE -> review just to be sure everything is right right
+	@Override
+	public ST visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
+		ST comparison = visit(ctx.comparison());
+		ST assign = stg.getInstanceOf("varAssignment");
+		
+		assign.add("stat", comparison.getAttribute("stat"));
+		
+		assign.add("type", "Boolean");
+		String newVarName = getNewVarName();
+		assign.add("var",newVarName );
+		String resultVarName = (String) comparison.getAttribute("var");	
+		assign.add("operation", "!"+resultVarName);
+		
+		Boolean result = (Boolean) symbolTableValue.get(resultVarName);
+		
+		updateSymbolsTable(newVarName, newVarName, !result);
+		
+		return assign;
+	}
+
+	//[MJ] DONE -> review just to be sure everything is right right
+	@Override
+	public ST visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
+		
+		String originalName = ctx.var().getText();
+		
+		ST assign = stg.getInstanceOf("varAssignment");
+		
+		assign.add("type", "Boolean");
+		String newVarName = getNewVarName();
+		assign.add("var",newVarName );
+		String resultVarName = symbolTableName.get(originalName);	
+		assign.add("operation", resultVarName);
+		
+		updateSymbolsTable(originalName, newVarName, symbolTableValue.get(originalName));
+		
+		return assign;
+	}
+
+	//[MJ] DONE -> review just to be sure everything is right right
+	@Override
+	public ST visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
+		String originalName = ctx.var().getText();
+		
+		ST assign = stg.getInstanceOf("varAssignment");
+		
+		assign.add("type", "Boolean");
+		String newVarName = getNewVarName();
+		assign.add("var", newVarName);
+		String resultVarName = symbolTableName.get(originalName);	
+		assign.add("operation", "!"+resultVarName);
+		
+		Boolean result = (Boolean) symbolTableValue.get(originalName);
+		updateSymbolsTable(originalName, newVarName, !result);
+		
+		return assign;
+	}
+
+	//[MJ] DONE -> review just to be sure everything is right right
+	@Override
+	public ST visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
+		ST value = visit(ctx.value());
+		ST assign = stg.getInstanceOf("varAssignment");
+		
+		assign.add("stat", value.getAttribute("stat"));
+		
+		assign.add("type", "Boolean");
+		String newVarName = getNewVarName();
+		assign.add("var",newVarName );
+		String resultVarName = (String) value.getAttribute("var");	
+		assign.add("operation", resultVarName);
+		
+		updateSymbolsTable(newVarName, newVarName, symbolTableValue.get(resultVarName));
+		
+		return assign;
+	}
+
+	//[MJ] DONE -> review just to be sure everything is right right
+	@Override
+	public ST visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
+		ST value = visit(ctx.value());
+		ST assign = stg.getInstanceOf("varAssignment");
+		
+		assign.add("stat", value.getAttribute("stat"));
+		
+		assign.add("type", "Boolean");
+		String newVarName = getNewVarName();
+		assign.add("var",newVarName );
+		String resultVarName = (String) value.getAttribute("var");	
+		assign.add("operation", resultVarName);
+		
+		Boolean result = (Boolean) symbolTableValue.get(resultVarName);
+		updateSymbolsTable(newVarName, newVarName, !result);
+		
+		return assign;
+	}
+
+	//[MJ] DONE -> review just to be sure everything is right right
 	@Override
 	public ST visitComparison(ComparisonContext ctx) {
 		ST assign = stg.getInstanceOf("varAssignment");
@@ -710,8 +871,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				assert false: "missing semantic check";
 		return assign;
 	}
-
-	
 	
 	@Override
 	public ST visitCompareOperator(CompareOperatorContext ctx) {
@@ -1080,6 +1239,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//OTHER ONES---------------------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------------------------
 	
+	//[MJ] DONE
 	protected static void updateSymbolsTable(String originalName,String newName, Object value) {
 		symbolTableValue.put(originalName, value);
 		symbolTableName.put(originalName, newName);
@@ -1099,6 +1259,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 	}
 	
+	//[MJ] DONE
 	public static String getNewVarName() {
 		String newName = "var"+varCounter;
 		varCounter++;
@@ -1182,96 +1343,4 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return super.visitAssignment_ArrayAccess_FunctionCall(ctx);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperation_Operation(potatoesGrammar.PotatoesParser.LogicalOperation_OperationContext)
-	 */
-	@Override
-	public ST visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperation_Operation(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperation_Parenthesis(potatoesGrammar.PotatoesParser.LogicalOperation_ParenthesisContext)
-	 */
-	@Override
-	public ST visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperation_Parenthesis(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperation_logicalOperand(potatoesGrammar.PotatoesParser.LogicalOperation_logicalOperandContext)
-	 */
-	@Override
-	public ST visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperation_logicalOperand(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperand_Comparison(potatoesGrammar.PotatoesParser.LogicalOperand_ComparisonContext)
-	 */
-	@Override
-	public ST visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Comparison(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperand_Not_Comparison(potatoesGrammar.PotatoesParser.LogicalOperand_Not_ComparisonContext)
-	 */
-	@Override
-	public ST visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Not_Comparison(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperand_Var(potatoesGrammar.PotatoesParser.LogicalOperand_VarContext)
-	 */
-	@Override
-	public ST visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Var(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperand_Not_Var(potatoesGrammar.PotatoesParser.LogicalOperand_Not_VarContext)
-	 */
-	@Override
-	public ST visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Not_Var(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperand_Value(potatoesGrammar.PotatoesParser.LogicalOperand_ValueContext)
-	 */
-	@Override
-	public ST visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Value(ctx);
-	}
-
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitLogicalOperand_Not_Value(potatoesGrammar.PotatoesParser.LogicalOperand_Not_ValueContext)
-	 */
-	@Override
-	public ST visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitLogicalOperand_Not_Value(ctx);
-	}
-
-	
-	
 }
