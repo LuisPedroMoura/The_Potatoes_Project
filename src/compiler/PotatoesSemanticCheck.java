@@ -145,7 +145,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitStatement_Print(Statement_PrintContext ctx) {
-		return visitChildren(ctx);
+		return visit(ctx.print());
 	}
 
 
@@ -545,8 +545,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitPrint(PrintContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitPrint(ctx);
+		return true;
+	}
+	
+	@Override
+	public Boolean visitPrintVar(PrintVarContext ctx) {
+		return visitChildren(ctx);
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------
@@ -1021,7 +1025,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return super.visitArrayLength(ctx);
 	}
 
-
 	// --------------------------------------------------------------------------------------------------------------------
 	// VARS AND TYPES------------------------------------------------------------------------ 
 	// --------------------------------------------------------------------------------------------------------------------
@@ -1033,7 +1036,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override  // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitVarDeclaration(VarDeclarationContext ctx) {
-		return visitChildren(ctx);
+		visitChildren(ctx);
+		return true;
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
@@ -1074,7 +1078,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitValue_Cast_Number(Value_Cast_NumberContext ctx) {
-		visitChildren(ctx);
+		visit(ctx.cast());
 		String castType = ctx.cast().ID().getText();
 
 		// verify that cast type exists
@@ -1086,7 +1090,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// create new Variable and store it in mapCtxObj
 		Type type = typesTable.get(castType);
 		Double value = Double.parseDouble(ctx.NUMBER().getText());
-		Variable a = new Variable(typesTable.get(type.getTypeName()), value);
+		Variable a = new Variable(new Type(typesTable.get(type.getTypeName())), value);
 		mapCtxObj.put(ctx, a);
 
 		if (debug) {
@@ -1135,7 +1139,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// AUXILIAR FUNCTIONS ---------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
 
-	public String getStringText(String str) {
+	private static String getStringText(String str) {
 		str = str.substring(1, str.length() -1);
 		// FIXME escapes still need to be removed from antlr STRING token to have correct text.
 		return str;
