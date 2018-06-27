@@ -300,9 +300,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		
 		if(debug) {
-			System.out.println("  ->"+ctx.getText());
-			System.out.println("    -> Assignment_Var_Declaration_Value");
-			System.out.println("      -> newVar = "+assignment.render());
+			System.out.println("	-> Assignment_Var_Declaration_Value");
+			System.out.println("    	-> newVar : "+assignment.render());
 		}
 	
 		return assignment;
@@ -604,6 +603,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// [IJ] 
 	@Override
 	public ST visitPrint_Print(Print_PrintContext ctx) {
+		if(debug) {
+			System.out.println("-> visitPrint_Print");
+			System.out.println("\t"+ctx.getText());
+		}
 		ST print = stg.getInstanceOf("print");
 		
 		print.add("type",ctx.PRINT().getText());
@@ -619,6 +622,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// [IJ] 
 	@Override
 	public ST visitPrint_Println(Print_PrintlnContext ctx) {
+		if(debug) {
+			System.out.println("-> visitPrint_Println");
+			System.out.println("\t"+ctx.getText());
+		}
 		ST print = stg.getInstanceOf("print");
 		
 		print.add("type",ctx.PRINTLN().getText());
@@ -634,7 +641,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// [IJ] - DONE
 	@Override
 	public ST visitPrintVar(PrintVarContext ctx) {
-		// TODO Auto-generated method stub
+		if(debug) {
+			System.out.println("-> visitPrintVar");
+			System.out.println("\t"+ctx.getText());
+		}
 		return visitChildren(ctx);
 	}
 	
