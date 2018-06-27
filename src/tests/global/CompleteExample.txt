@@ -106,7 +106,7 @@ print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
 
-/*
+
 number n = 0;
 boolean b = false;
 for (number i = 0; i < 10; i = i+1){
@@ -195,15 +195,18 @@ if (n == 5 && n > 4){
 println("");
 println("");
 
+area a1 = 0;
+volume v1 = 0;
+
 m1 = (meter) 1;
-m1 = m1^2;
-m2 = (m1+m1)^3;
+a1 = m1^2;
+v1 = (m1+m1)^3;
 m3 = m2 % 2;
 m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
 
-*/
+
 
 }
 	
