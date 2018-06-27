@@ -736,12 +736,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.logicalOperand()));
 		return valid;
 	}
+	
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
 		return visit(ctx.comparison());
 	}
-
+	
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
 		return visit(ctx.comparison());
@@ -815,21 +816,42 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitComparison(ComparisonContext ctx) {
-		boolean validOp0 = visit(ctx.operation(0));
-		boolean validOp1 = visit(ctx.operation(1));
+		boolean validOp0 = visit(ctx.compareOperation(0));
+		boolean validOp1 = visit(ctx.compareOperation(1));
 		if (debug) {ErrorHandling.printInfo(ctx, "[OP_COMPARISON]");}
 		if (validOp0 && validOp1) {
-			Object obj0 = mapCtxObj.get(ctx.operation(0));
-			Variable a = (Variable) obj0;
-			Object obj1 = mapCtxObj.get(ctx.operation(1));
-			Variable b = (Variable) obj1;
-
-			boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
-			return comparisonIsPossible;
+			Object obj0 = mapCtxObj.get(ctx.compareOperation(0));
+			Object obj1 = mapCtxObj.get(ctx.compareOperation(1));
+			
+			if(obj0 instanceof Boolean && obj1 instanceof Boolean) {
+				return true;
+			}
+			
+			if(obj0 instanceof Variable && obj1 instanceof Variable) {
+				Variable a = (Variable) obj0;
+				Variable b = (Variable) obj1;
+				boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
+				return comparisonIsPossible;
+			}
 		}
+		ErrorHandling.printError(ctx, "Types to be compared are not compatible");
 		return false;
 	}
 
+	@Override
+	public Boolean visitCompareOperation_Operation(CompareOperation_OperationContext ctx) {
+		boolean valid = visitChildren(ctx);
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.operation()));
+		return valid;
+	}
+
+	@Override
+	public Boolean visitCompareOperation_BOOLEAN(CompareOperation_BOOLEANContext ctx) {
+		Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
+		mapCtxObj.put(ctx, b);
+		return true;
+	}
+	
 	@Override
 	public Boolean visitCompareOperator(CompareOperatorContext ctx) {
 		return true;

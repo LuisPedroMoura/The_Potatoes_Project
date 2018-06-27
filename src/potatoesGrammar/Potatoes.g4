@@ -119,7 +119,11 @@ logicalOperand 		: comparison						# logicalOperand_Comparison
 					| '!' value							# logicalOperand_Not_Value
 					;
 						
-comparison			: operation compareOperator operation
+comparison			: compareOperation compareOperator compareOperation
+					;
+					
+compareOperation	: operation		# compareOperation_Operation
+					| BOOLEAN		# compareOperation_BOOLEAN
 					;
 			
 compareOperator		: '=='
