@@ -186,7 +186,7 @@ print(type, valueOrVarList) ::= <<
 
 //[MJ] DONE
 varDeclaration(type, var) ::= <<
-<type(type)> <var>
+<type> <var>
 >>
 
 //[MJ] DONE

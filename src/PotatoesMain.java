@@ -40,6 +40,7 @@ public class PotatoesMain {
 
 		System.out.println("inputed file: "+ args[0]);
 		String name = args[0].substring(0, args[0].length()-5);
+		System.out.print("name " + name);
 		try {
 			File f = new File(args[0]);
 			fileStream = new FileInputStream(f); 
@@ -74,10 +75,10 @@ public class PotatoesMain {
 			// print LISP-style tree:
 			// System.out.println(tree.toStringTree(parser));
 			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
-			//if (visitor0.visit(tree)) {
+			if (visitor0.visit(tree)) {
 				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
-				/*
-				System.out.print("Semantic Analyzis skiped! :P\n");
+				
+				//System.out.print("Semantic Analyzis skiped! :P\n");
 				PotatoesCompiler visitor1 = new PotatoesCompiler();
 				ST program = visitor1.visit(tree);
 				program.add("name", name);
@@ -85,8 +86,8 @@ public class PotatoesMain {
                 pw.print(program.render());
                 pw.close();
                 System.out.println(name+" file created!");
-                */
-			//}
+                
+			}
 		}
 	}
 }
