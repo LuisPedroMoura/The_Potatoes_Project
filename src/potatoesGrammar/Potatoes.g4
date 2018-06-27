@@ -61,8 +61,8 @@ assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Bo
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
-function			: FUN MAIN '{' statement* '}'
-					| FUN ID '(' (type var (',' type var)* )* ')' ':' type '{' statement* '}'
+function			: FUN MAIN '{' statement* '}'					#function_Main
+					| FUN ID '(' (type var (',' type var)* )* ')' '{' statement* '}'	#function_ID
 					;
 
 functionReturn		: RETURN (var|value|operation) EOL

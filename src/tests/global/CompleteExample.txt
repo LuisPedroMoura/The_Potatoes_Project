@@ -8,7 +8,7 @@ boolean b3 = b1;
 boolean b4 = !b1;
 println("print booleans: " + b1 + " " + b2 + " " + b3 + " " + b4);
 println("");
-/*
+
 string s1 = "s1";
 string s2 = "s2";
 string s3 = "s3";
@@ -203,7 +203,6 @@ m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
 
-*/
 
 }
 	
