@@ -73,6 +73,8 @@ import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
 import potatoesGrammar.PotatoesParser.Operation_VarContext;
 import potatoesGrammar.PotatoesParser.PrintContext;
 import potatoesGrammar.PotatoesParser.PrintVarContext;
+import potatoesGrammar.PotatoesParser.Print_PrintContext;
+import potatoesGrammar.PotatoesParser.Print_PrintlnContext;
 import potatoesGrammar.PotatoesParser.ProgramContext;
 import potatoesGrammar.PotatoesParser.Statement_AssignmentContext;
 import potatoesGrammar.PotatoesParser.Statement_Control_Flow_StatementContext;
@@ -415,7 +417,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			System.out.println("\t"+ctx.getText());
 		}
 		
-		String originalName = ctx.var().getText();
+		String originalName = ctx.var(0).getText(); //FIXME [LM] coloquei var(0), verificar se é mesmo esse
 		String newVarName = symbolTableName.get(originalName);
 		
 		ST assignment = stg.getInstanceOf("varAssignment");
@@ -597,6 +599,20 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitFunctionCall(FunctionCallContext ctx) {
 		// TODO Auto-generated method stub
 		return visitChildren(ctx);
+	}
+	
+	
+	
+	@Override
+	public ST visitPrint_Print(Print_PrintContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitPrint_Print(ctx);
+	}
+
+	@Override
+	public ST visitPrint_Println(Print_PrintlnContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitPrint_Println(ctx);
 	}
 
 	// [IJ] 
