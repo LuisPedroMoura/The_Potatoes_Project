@@ -77,8 +77,8 @@ public class PotatoesMain {
 			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
 			if (visitor0.visit(tree)) {
 				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
-				
-				//System.out.print("Semantic Analyzis skiped! :P\n");
+				/*
+				System.out.print("Semantic Analyzis skiped! :P\n");
 				PotatoesCompiler visitor1 = new PotatoesCompiler();
 				ST program = visitor1.visit(tree);
 				program.add("name", name);
@@ -86,7 +86,10 @@ public class PotatoesMain {
                 pw.print(program.render());
                 pw.close();
                 System.out.println(name+" file created!");
-                
+				 */
+			}
+			else {
+				ErrorHandling.printError("Semantic Analyzis Completed With Errors :(");
 			}
 		}
 	}
