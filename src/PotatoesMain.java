@@ -9,9 +9,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.stringtemplate.v4.ST;
 
-import compiler.PotatoesCompiler;
 import compiler.PotatoesSemanticCheck;
 import potatoesGrammar.PotatoesLexer;
 import potatoesGrammar.PotatoesParser;
@@ -76,13 +74,13 @@ public class PotatoesMain {
 			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
 			if (visitor0.visit(tree)) {
 				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
-				PotatoesCompiler visitor1 = new PotatoesCompiler();
+				/*PotatoesCompiler visitor1 = new PotatoesCompiler();
 				ST program = visitor1.visit(tree);
 				program.add("name", name);
 				PrintWriter pw = new PrintWriter(new File(name+".java"));
                 pw.print(program.render());
                 pw.close();
-                System.out.println(name+" file created!");
+                System.out.println(name+" file created!");*/
 			}
 		}
 	}
