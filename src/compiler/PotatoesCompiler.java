@@ -217,7 +217,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitDeclaration_Var(Declaration_VarContext ctx) {
 		ST declarationVar = visit(ctx.varDeclaration());
 		
-		String originalName = ctx.varDeclaration().var().getText();	
+		String originalName = ctx.varDeclaration().ID().getText();	
 		String newName = (String)declarationVar.getAttribute("var");
 		//updateSymbolsTable(originalName, newName, null);
 		updateSymbolsTable(originalName, newName);
@@ -251,7 +251,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Boolean notB = (Boolean) mapCtxObj.get(ctx);
 		assignment.add("operation", notB);
 		
-		String originalName = ctx.varDeclaration().var().getText();	
+		String originalName = ctx.varDeclaration().ID().getText();	
 				
 		//updateSymbolsTable(originalName, varNewName, notB);
 		updateSymbolsTable(originalName, varNewName);
@@ -275,7 +275,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String varNewName = (String) varDeclaration.getAttribute("var");
 		assignment.add("var", varNewName);
 		
-		String originalName = ctx.varDeclaration().var().getText();	
+		String originalName = ctx.varDeclaration().ID().getText();	
 		
 		if(typeValue.equals("Double")) {
 			Variable d = (Variable) mapCtxObj.get(ctx);
@@ -342,7 +342,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		assignment.add("operation", resultVarName);
 					
 		//get the var name in potatoes code 
-		String originalName = ctx.varDeclaration().var().getText();
+		String originalName = ctx.varDeclaration().ID().getText();
 		
 		updateSymbolsTable(originalName, varName);
 		
@@ -380,7 +380,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String resultVarName = (String) operation.getAttribute("var");
 		assignment.add("operation", resultVarName);
 		
-		String originalName = ctx.varDeclaration().var().getText();
+		String originalName = ctx.varDeclaration().ID().getText();
 		
 		updateSymbolsTable(originalName, varNewName);
 		
