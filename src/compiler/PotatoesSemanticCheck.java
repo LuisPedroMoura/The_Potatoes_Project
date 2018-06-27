@@ -257,8 +257,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(ctx.varDeclaration());
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		String varName = ctx.varDeclaration().var().ID().getText();
-		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
-		destinationType.clearCheckList();
 		visit(ctx.value());
 		Object value = mapCtxObj.get(ctx.value());
 
@@ -294,6 +292,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign compatible types
 		if (typesTable.containsKey(typeName)) {
+			destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
+			destinationType.clearCheckList();
 			Variable temp = (Variable) value;
 			Variable a = new Variable(temp);
 			Type type = typesTable.get(typeName);
