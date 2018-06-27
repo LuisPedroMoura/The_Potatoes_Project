@@ -1,7 +1,7 @@
 using "CompleteExample_Types.txt";
 
 fun main {
-
+/*
 boolean b1 = true;
 boolean b2 = false;
 boolean b3 = b1;
@@ -14,13 +14,13 @@ string s2 = "s2";
 string s3 = "s3";
 println("print strings: " + s1 + " " + s2 + " " + s3);
 println("");
-
+*/
 number n1 = 1;
 number n2 = 2;
 number n3 = 3;
 println("print numbers: " + n1 + " " + n2 + " " + n3);
 println("");
-
+/*
 meter m1 = (meter) 1;
 doubleMeter dm1 = (meter) 1;
 kilo kg1 = (kilo) 1;
