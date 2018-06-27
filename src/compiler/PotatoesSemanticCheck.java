@@ -1226,11 +1226,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, "Cannot operate with string!");
 			return false;
 		}
-//		// verify that var is not of type boolean	
-//		if (obj instanceof Boolean) {
-//			ErrorHandling.printError(ctx, "Cannot operate with boolean!");
-//			return false;
-//		}
 
 		// var is of type Variable
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.var()));
