@@ -32,7 +32,7 @@ statements(stat, controlflow) ::= <<
 
 // [MJ] DONE
 stats(stat) ::= <<
-<if(stat)> <stat:{s | <s>;<\n>}><endif>
+<if(stat)><stat:{s|<s>;<\n>}><endif>
 >>
 
 //[IJ] - DONE
@@ -177,7 +177,7 @@ arrayLength(var) ::= " <var>.length() "
 //PRINTS-------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 print(type, valueOrVarList) ::= <<
-<printType.(type)>(<if(valueOrVarList)> <valueOrVarList><endif>)
+<printType.(type)>(<if(valueOrVarList)><valueOrVarList><endif>)
 >>
 
 //-------------------------------------------------------------------------------

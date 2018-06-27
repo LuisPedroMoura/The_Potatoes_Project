@@ -38,6 +38,8 @@ import potatoesGrammar.PotatoesParser.CodeContext;
 import potatoesGrammar.PotatoesParser.Code_AssignmentContext;
 import potatoesGrammar.PotatoesParser.Code_DeclarationContext;
 import potatoesGrammar.PotatoesParser.Code_FunctionContext;
+import potatoesGrammar.PotatoesParser.CompareOperation_BOOLEANContext;
+import potatoesGrammar.PotatoesParser.CompareOperation_OperationContext;
 import potatoesGrammar.PotatoesParser.CompareOperatorContext;
 import potatoesGrammar.PotatoesParser.ComparisonContext;
 import potatoesGrammar.PotatoesParser.ConditionContext;
@@ -897,7 +899,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitComparison(ComparisonContext ctx) {
 		ST assign = stg.getInstanceOf("varAssignment");
 		
-		ST operation0 = visit(ctx.compareOperation(0)); //FIXME alterei estas duas linhas para reflectir novas funcoes criadas
+		ST operation0 = visit(ctx.compareOperation(0)); //FIXME alterei estas duas linhas para reflectir novas funcoes criadas 
 		ST operation1 = visit(ctx.compareOperation(1));
 		
 		assign.add("stat",(String) operation0.render());
@@ -917,7 +919,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 		return assign;
 	}
-	
+
+	@Override
+	public ST visitCompareOperation_Operation(CompareOperation_OperationContext ctx) {
+		return super.visitCompareOperation_Operation(ctx);
+	}
+
+
+	@Override
+	public ST visitCompareOperation_BOOLEAN(CompareOperation_BOOLEANContext ctx) {
+		return super.visitCompareOperation_BOOLEAN(ctx);
+	}
+
 	@Override
 	public ST visitCompareOperator(CompareOperatorContext ctx) {
 		// TODO Auto-generated method stub
