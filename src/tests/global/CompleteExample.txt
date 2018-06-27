@@ -106,7 +106,7 @@ print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
 
-
+/*
 number n = 0;
 boolean b = false;
 for (number i = 0; i < 10; i = i+1){
@@ -203,7 +203,7 @@ m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
 
-
+*/
 
 }
 	

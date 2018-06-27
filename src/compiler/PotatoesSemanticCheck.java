@@ -35,7 +35,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -59,17 +59,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE - DON'T DELETE FROM THIS FILE
 	public Boolean visitProgram(ProgramContext ctx) {
-		System.out.println("HELOOOOO!!!!!");
 		Boolean valid = visit(ctx.using());
 		List<CodeContext> codesInstructions = ctx.code();
-		int i = -1;
 		for (CodeContext c : codesInstructions) {
-			//i = i + 1;
-			//System.out.println(i);
 			Boolean res = visit(c);
-			if (res == null) {
-				System.out.println("ERRRRORRR!!!!!" + c.getText());
-			}
 			//ErrorHandling.printInfo("Visiting " + c.getText() + " : " + res);
 			valid = valid && res;
 		}
@@ -229,7 +222,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] Visited visitAssignment_Var_Declaration_NotBoolean");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
-
 		}
 
 		// verify that variable to be created has valid name
@@ -336,17 +328,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// assign boolean to boolean
-		out.println("poe antes");
 		if (typeName.equals("boolean")) {
-			out.println("guardaste os boolean ou qu ???");
 			if (!visit(ctx.comparison())) {
 				return false;
 			};
 			
 			Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
 			symbolTable.put(ctx.varDeclaration().ID().getText(), b);
-			out.println("guardei");
-			out.println(ctx.varDeclaration().ID().getText());
+
 			mapCtxObj.put(ctx, b);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.varDeclaration().ID().getText());}
 			return true;
@@ -548,8 +537,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// verify that assigned var has type boolean
+		
 		if (obj instanceof Boolean) {
-			System.out.print("in the middle");
 			if (!visit(ctx.comparison())) {
 				return false;
 			};
@@ -976,6 +965,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				Variable a = (Variable) obj0;
 				Variable b = (Variable) obj1;
 				boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
+				mapCtxObj.put(ctx, comparisonIsPossible);
 				return comparisonIsPossible;
 			}
 		}
@@ -1114,14 +1104,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// variables are converted, do the operation
 		if (op.equals("*")) {
-			//mapCtxObj.put(ctx, Variable.multiply(a, b));
 			Variable res = Variable.multiply(a, b); 
 			Double resCode = res.getType().getCode(); 
 			Collection<Type> types = typesTable.values(); 
 			for (Type t : types) { 
-				if (t.getCode() == resCode) { 
-					res.getType().setTypeName(t.getTypeName()); 
-					res.getType().setPrintName(t.getPrintName()); 
+				if (t.getCode() == resCode) {
+					res = new Variable(typesTable.get(t.getTypeName()), res.getValue());
 					break; 
 				} 
 
@@ -1137,8 +1125,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			Collection<Type> types = typesTable.values(); 
 			for (Type t : types) { 
 				if (t.getCode() == resCode) { 
-					res.getType().setTypeName(t.getTypeName()); 
-					res.getType().setPrintName(t.getPrintName()); 
+					res = new Variable(typesTable.get(t.getTypeName()), res.getValue());
 					break; 
 				} 
 
