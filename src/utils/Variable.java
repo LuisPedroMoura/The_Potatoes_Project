@@ -131,6 +131,10 @@ public class Variable {
 	}
 
 	public boolean typeIsCompatible(Type type){
+		if(this.getType().getCode() == type.getCode()) {
+			return true;
+		}
+		
 		// get path from graph, if exists is compatible
 		List<Factor> factors;
 		try {

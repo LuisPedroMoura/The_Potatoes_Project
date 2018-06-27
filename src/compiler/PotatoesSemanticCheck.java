@@ -1,5 +1,6 @@
 package compiler;
 
+import static java.lang.System.*;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.Collection;
@@ -858,7 +859,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return valid;
 	}
 
-
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
 		return visit(ctx.comparison());
@@ -1226,11 +1226,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, "Cannot operate with string!");
 			return false;
 		}
-		// verify that var is not of type boolean	
-		if (obj instanceof Boolean) {
-			ErrorHandling.printError(ctx, "Cannot operate with boolean!");
-			return false;
-		}
+//		// verify that var is not of type boolean	
+//		if (obj instanceof Boolean) {
+//			ErrorHandling.printError(ctx, "Cannot operate with boolean!");
+//			return false;
+//		}
 
 		// var is of type Variable
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.var()));
@@ -1299,7 +1299,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitVar(VarContext ctx) {
 		String key = ctx.ID().getText();
 		if (!symbolTable.containsKey(key)) {
-			ErrorHandling.printError("Variable \"" + key + "\" is not defined!");
+			ErrorHandling.printError(ctx, "Variable \"" + key + "\" is not defined!");
 			return false;
 		};
 		mapCtxObj.put(ctx, symbolTable.get(key));
