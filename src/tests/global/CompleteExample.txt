@@ -202,7 +202,7 @@ m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
 
-*/
+
 
 }
 	
