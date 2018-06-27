@@ -279,7 +279,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(typeValue.equals("Double")) {
 			Variable d = (Variable) mapCtxObj.get(ctx);
-			assignment.add("operation", d.getValue());
+			assignment.add("operation", da.getValue());
 			
 			//updateSymbolsTable(originalName, varNewName, d);
 			updateSymbolsTable(originalName, varNewName);
