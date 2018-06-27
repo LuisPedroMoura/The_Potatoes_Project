@@ -16,24 +16,19 @@ program				: using code+ EOF
 using				: USING STRING EOL
 					;	
 					
-code				: declaration EOL								#code_Declaration 
+code				: varDeclaration EOL								#code_Declaration 
 					| assignment EOL								#code_Assignment
 					| function										#code_Function
 					;	
 // CLASS-----------------------------------------------------------------------	
 		
-statement			: declaration EOL								#statement_Declaration
+statement			: varDeclaration EOL								#statement_Declaration
 					| assignment EOL								#statement_Assignment
 					| controlFlowStatement							#statement_Control_Flow_Statement
 					| functionCall EOL								#statement_FunctionCall
 					| functionReturn								#statement_Function_Return
 					| print											#statement_Print
 					;
-					
-declaration			: arrayDeclaration								#declaration_array
-					| varDeclaration								#declaration_Var
-					;
-
 
 assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Boolean
 					| varDeclaration '=' value						#assignment_Var_Declaration_Value
@@ -48,16 +43,6 @@ assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Bo
 					| var '=' valuesList							#assignment_Var_ValueList
 					| var '=' functionCall							#assingment_Var_FunctionCall
 					
-					| arrayDeclaration '=' valuesList				#assignment_Array_ValuesList
-					| arrayDeclaration '=' functionCall				#assignment_Array_FunctionCall
-					| arrayDeclaration '=' var						#assignment_Array_Var
-					
-					| arrayAccess '=' '!' BOOLEAN					#assignment_ArrayAccess_Not_Boolean
-					| arrayAccess '=' value							#assignment_ArrayAccess_Value
-					| arrayAccess '=' comparison					#assignment_ArrayAccess_Comparison
-					| arrayAccess '=' operation						#assignment_ArrayAccess_Operation
-					| arrayAccess '=' valuesList					#assignment_ArrayAccess_ValueList
-					| arrayAccess '=' functionCall					#assignment_ArrayAccess_FunctionCall
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
@@ -68,7 +53,7 @@ function			: FUN MAIN '{' statement* '}'					#function_Main
 functionReturn		: RETURN (var|value|operation) EOL
 					;
 					
-functionCall		: ID '(' ((var|value|operation|arrayAccess) (',' (var|value|operation|arrayAccess))* )* ')'
+functionCall		: ID '(' ((var|value|operation) (',' (var|value|operation))* )* ')'
 					;
 
 // CONTROL FLOW STATMENTS------------------------------------------------------
@@ -143,25 +128,9 @@ operation			: cast operation								#operation_Cast
 					|<assoc=right> operation '^' operation			#operation_Power
 					| var											#operation_Var
 					| functionCall									#operation_FunctionCall
-					| arrayAccess									#operation_ArrayAccess
-					| arrayLength									#operation_ArrayLength
 					| NUMBER										#operation_NUMBER
 					;
 			
-
-// STRUCTURES------------------------------------------------------------------
-arrayDeclaration	: ARRAY '<' type ',' NUMBER'>' var
-					;
-					
-arrayType			: ARRAY '<' type '>'
-					;			
-					
-arrayAccess			: ID '['  (var|NUMBER) ']'
-					;
-					
-arrayLength			: LENGTH '(' var ')' 
-					;
-
 // PRINTS----------------------------------------------------------------------
 
 print				: PRINT  '(' (printVar ('+'printVar)* ) ')' EOL		# print_Print
@@ -185,7 +154,6 @@ type				: NUMBER_TYPE		# type_Number_Type
 					| STRING_TYPE		# type_String_Type
 					| VOID_TYPE			# type_Void_Type
 					| ID				# type_ID_Type
-					| arrayType			# type_ArrayType
 					;
 	
 value				: cast NUMBER		# value_Cast_Number

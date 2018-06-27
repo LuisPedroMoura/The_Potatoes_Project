@@ -2,6 +2,8 @@ package utils;
 
 import java.util.List;
 
+import org.apache.commons.collections15.Transformer;
+
 import compiler.PotatoesSemanticCheck;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
@@ -25,7 +27,12 @@ public class Variable {
 	private Type type;
 	private double value;
 	private static Graph<Type, Factor> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
-	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<>(typesGraph);
+	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<Type, Factor>(typesGraph, new Transformer<Factor, Number>() {
+		@Override
+		public Number transform(Factor factor) {
+			return factor.getFactor();
+		}
+	});
 
 	// --------------------------------------------------------------------------
 	// CTORS
@@ -125,7 +132,7 @@ public class Variable {
 
 		Double newValue = Math.pow(a.getValue(), b.getValue());
 		Double newCode = Math.pow(a.getType().getCode(), b.getValue());
-		Type newType = new Type ("", "", newCode); // Type names don't need to be corrected, assignment will resolve
+		Type newType = new Type ("temp", "", newCode); // Type names don't need to be corrected, assignment will resolve
 		Variable res = new Variable(newType, newValue);
 		return res;
 	}
@@ -166,6 +173,7 @@ public class Variable {
 		List<Factor> factors;
 		try {
 			factors = dijkstra.getPath(this.type, newType);
+			System.out.println("-------> " + factors);
 		}
 		catch (IllegalArgumentException e) {
 			if(debug) {System.out.println("CONVERT_TYPE_TO - no path to convert, not compatible");	}
@@ -174,8 +182,10 @@ public class Variable {
 
 		// convert value using edges cost
 		for(Factor f : factors) {
+			System.out.print("---> " + f.getFactor() + ", ");
 			this.value *= f.getFactor();
 		}
+		System.out.println();
 
 		// convert code to type code
 		this.type = newType;
