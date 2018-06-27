@@ -600,30 +600,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
-	
-	
-	
-	@Override
-	public ST visitPrint_Print(Print_PrintContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitPrint_Print(ctx);
-	}
-
-	@Override
-	public ST visitPrint_Println(Print_PrintlnContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitPrint_Println(ctx);
-	}
-
+		
 	// [IJ] 
 	@Override
-	public ST visitPrint(PrintContext ctx) {
+	public ST visitPrint_Print(Print_PrintContext ctx) {
 		ST print = stg.getInstanceOf("print");
 		
-		if(!ctx.PRINT().getText().isEmpty()) print.add("type",ctx.PRINTLN().getText());
-		else if(!ctx.PRINTLN().getText().isEmpty()) print.add("type",ctx.PRINT().getText());
-		else
-			assert false: "semantic error";
+		print.add("type",ctx.PRINT().getText());
+		
 		for(int i = 0; i<ctx.printVar().size()-1; i++)
 			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
 
@@ -632,6 +616,21 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return print;
 	}
 	
+	// [IJ] 
+	@Override
+	public ST visitPrint_Println(Print_PrintlnContext ctx) {
+		ST print = stg.getInstanceOf("print");
+		
+		print.add("type",ctx.PRINTLN().getText());
+		
+		for(int i = 0; i<ctx.printVar().size()-1; i++)
+			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
+
+		print.add("valueOrVarList", visit(ctx.printVar(ctx.printVar().size()-1)).render());
+
+		return print;
+	}
+
 	// [IJ] - DONE
 	@Override
 	public ST visitPrintVar(PrintVarContext ctx) {

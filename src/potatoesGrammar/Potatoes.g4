@@ -41,7 +41,7 @@ assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Bo
 					| varDeclaration '=' operation					#assignment_Var_Declaration_Operation
 					| varDeclaration '=' functionCall				#assignment_Var_Declaration_FunctionCall
 					
-					| var '=' '!' var							#assignment_Var_Not_Boolean
+					| var '=' '!' var								#assignment_Var_Not_Boolean
 					| var '=' value									#assignment_Var_Value
 					| var '=' comparison							#assignment_Var_Comparison
 					| var '=' operation								#assignment_Var_Operation
