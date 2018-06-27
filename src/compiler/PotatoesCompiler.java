@@ -419,7 +419,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			System.out.println("\t"+ctx.getText());
 		}
 		
-		String originalName = ctx.var(0).getText(); //FIXME [LM] coloquei var(0), verificar se é mesmo esse
+		String originalName = ctx.var(0).getText(); 
 		String newVarName = symbolTableName.get(originalName);
 		
 		ST assignment = stg.getInstanceOf("varAssignment");
@@ -429,8 +429,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Boolean notB = (Boolean) mapCtxObj.get(ctx);
 		assignment.add("operation", notB); // because in semantic the value was already negated
 		
-			
-		//updateSymbolsTable(originalName, newVarName, notB);
 		updateSymbolsTable(originalName, newVarName);
 		
 		return assignment;
