@@ -495,7 +495,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		//add the operation
 		assignment.add("operation", comparisonVarName);
 		
-		updateSymbolsTable(newVarName, newVarName);
+		updateSymbolsTable(newVarName, newVarName, symbolTableValue.get(comparisonVarName));
 		
 		return assignment;
 	}
@@ -529,10 +529,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String resultVarName = (String) operation.getAttribute("var");
 		assignment.add("operation", resultVarName);
 		
-		updateSymbolsTable(originalName, newVarName);
+		updateSymbolsTable(originalName, newVarName, symbolTableValue.get(resultVarName));
 		
 		return assignment;
-			
 	}
 	
 	@Override
@@ -725,32 +724,34 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
 		ST op0 = visit(ctx.logicalOperation(0));
 		ST op1 = visit(ctx.logicalOperation(1));
-		ST newVariable = stg.getInstanceOf("varAssignment");
-						
-		String newName = getNewVarName();
+
 		String nameVarA = (String) op0.getAttribute("var");
 		String nameVarB = (String) op1.getAttribute("var");
 		
+		String op = ctx.op.getText();
+
+		ST assign = stg.getInstanceOf("varAssignment");
+		
+		assign.add("type", "Boolean");
 		
 		//all the declarations done until now
-		newVariable.add("stat", op0.render());
-		newVariable.add("stat", op1.render());
+		assign.add("stat", op0.render());
+		assign.add("stat", op1.render());
+
+		String newVarName = getNewVarName();
 		
-		newVariable.add("resultType", "Boolean");
-		newVariable.add("var", newName);
+		assign.add("var", newVarName);
 		
-		if (ctx.op.getText().equals("&&")) {
-			newVariable.add("operation", nameVarA + " && " + nameVarB);
-		}
-		else if (ctx.op.getText().equals("||")) {
-			newVariable.add("operation", nameVarA + " || " + nameVarB);
-		}
-		else
-			assert false: "missing semantic check";
+		String logicalOperation = nameVarA + op + nameVarB;
 		
-		updateSymbolsTable(newName, newName);
+		assign.add("operation", logicalOperation);
+			
+		Variable b1 = (Variable) symbolTableValue.get(nameVarA);
+		Variable b2 = (Variable) symbolTableValue.get(nameVarB);
 		
-		return newVariable;
+		updateSymbolsTable(newVarName, newVarName, getLogicOperationResult(b1,b2,op));
+		
+		return assign;
 	}
 
 	//[MJ] nothing to do, but don't delete
@@ -898,7 +899,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable b1 = (Variable) symbolTableValue.get(varNameOp0);
 		Variable b2 = (Variable) symbolTableValue.get(varNameOp1);
 		
-
+		
 		updateSymbolsTable(newVarName, newVarName, getBooleanResult(b1.getValue(),b2.getValue(),compareOp));
 	
 		return assign;
@@ -1356,7 +1357,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				case ">=" : return doubleOp0 >= doubleOp1;
 			}
 			return false;
-			
+	}
+	
+	// [IJ] DONE
+	public static Boolean getLogicOperationResult(Boolean doubleOp0, Boolean doubleOp1, String op) {
+		switch(op) {
+			case "&&" : return doubleOp0 && doubleOp1; 
+			case "||" : return doubleOp0 || doubleOp1; 
+		}
+		return false;
 	}
 	
 	//[MJ] DONE
