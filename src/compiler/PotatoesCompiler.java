@@ -229,8 +229,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		String originalName = ctx.varDeclaration().ID().getText();	
 		String newName = (String)declarationVar.getAttribute("var");
-		//updateSymbolsTable(originalName, newName, null);
-		updateSymbolsTable(originalName, newName);
+		updateSymbolsTable(originalName, newName, null);
 		
 		return declarationVar;
 	}
@@ -290,10 +289,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String value = ctx.value().getText();
 		
 		if(typeValue.equals("Double")) {
-			
 			Variable d = (Variable) createNumberVariable(value);
-			assignment.add("operation", d.getValue());
-			
+			assignment.add("operation", d.getValue());			
 			updateSymbolsTable(originalName, varNewName, d);
 		}
 		else if(typeValue.equals("String")) {
@@ -614,6 +611,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// [IJ] 
 	@Override
 	public ST visitPrint_Print(Print_PrintContext ctx) {
+		if(debug) {
+			System.out.println("-> visitPrint_Print");
+			System.out.println("\t"+ctx.getText());
+		}
 		ST print = stg.getInstanceOf("print");
 		
 		print.add("type",ctx.PRINT().getText());
@@ -629,6 +630,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// [IJ] 
 	@Override
 	public ST visitPrint_Println(Print_PrintlnContext ctx) {
+		if(debug) {
+			System.out.println("-> visitPrint_Println");
+			System.out.println("\t"+ctx.getText());
+		}
 		ST print = stg.getInstanceOf("print");
 		
 		print.add("type",ctx.PRINTLN().getText());
@@ -644,7 +649,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// [IJ] - DONE
 	@Override
 	public ST visitPrintVar(PrintVarContext ctx) {
-		// TODO Auto-generated method stub
+		if(debug) {
+			System.out.println("-> visitPrintVar");
+			System.out.println("\t"+ctx.getText());
+		}
 		return visitChildren(ctx);
 	}
 	
