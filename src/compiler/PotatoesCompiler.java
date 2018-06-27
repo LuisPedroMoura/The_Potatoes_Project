@@ -897,8 +897,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitComparison(ComparisonContext ctx) {
 		ST assign = stg.getInstanceOf("varAssignment");
 		
-		ST operation0 = visit(ctx.operation(0));
-		ST operation1 = visit(ctx.operation(1));
+		ST operation0 = visit(ctx.compareOperation(0)); //FIXME alterei estas duas linhas para reflectir novas funcoes criadas
+		ST operation1 = visit(ctx.compareOperation(1));
 		
 		assign.add("stat",(String) operation0.render());
 		assign.add("stat",(String) operation1.render());

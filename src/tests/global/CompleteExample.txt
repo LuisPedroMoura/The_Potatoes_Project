@@ -1,6 +1,6 @@
 using "CompleteExample_Types.txt";
 
-
+fun main {
 boolean b1 = true;
 boolean b2 = false;
 boolean b3 = b1;
@@ -144,7 +144,7 @@ if (n == 5 && n > 4){
 	if (n < 6 && n > 2 + 2){
 		println("  if (n < 6 && n > 2 + 2){");
 		println("    entered");
-		println("  }")
+		println("  }");
 	}
 	
 	println("");
@@ -199,7 +199,7 @@ m3 = m2 % 2;
 m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
-
+}
 	
 
 
