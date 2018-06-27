@@ -1,13 +1,14 @@
 using "CompleteExample_Types.txt";
 
 fun main {
+
 boolean b1 = true;
 boolean b2 = false;
 boolean b3 = b1;
 boolean b4 = !b1;
 println("print booleans: " + b1 + " " + b2 + " " + b3 + " " + b4);
 println("");
-
+/*
 string s1 = "s1";
 string s2 = "s2";
 string s3 = "s3";
@@ -97,6 +98,7 @@ m7 = d1 + m1;
 m8 = d1 + m1*2;
 m9 = m1*m1/m1;
 m10 = m1 + kg1/kg1*m1;
+
 m11 = (m1*kg1 + m1*kg1)/kg1;
 m12 = m1*kg1/bar;
 print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
@@ -199,6 +201,9 @@ m3 = m2 % 2;
 m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
+
+*/
+
 }
 	
 
