@@ -34,7 +34,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -58,11 +58,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE - DON'T DELETE FROM THIS FILE
 	public Boolean visitProgram(ProgramContext ctx) {
+		System.out.println("HELOOOOO!!!!!");
 		Boolean valid = visit(ctx.using());
 		List<CodeContext> codesInstructions = ctx.code();
+		int i = -1;
 		for (CodeContext c : codesInstructions) {
+			i = i + 1;
+			System.out.println(i);
 			Boolean res = visit(c);
-		ErrorHandling.printInfo("Visiting " + c.getText() + " : " + res);
+			
+		//ErrorHandling.printInfo("Visiting " + c.getText() + " : " + res);
 			valid = valid && res;
 		}
 
@@ -350,25 +355,33 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printInfo(ctx, "--- destinationType is " + destinationType);
 		}
 		
-		// assign Variable to boolean is not possible
-		if (typeName.equals("boolean")) {
-			ErrorHandling.printError(ctx, "Cannot assign Type \"" + typeName + "\" to boolean");
-			return false;
-		}
-
 		// assign Variable to string is not possible
 		if (typeName.equals("string")) {
 			ErrorHandling.printError(ctx, "Cannot assign Type \"boolean\" to \"string\"");
 			return false;
 		}
 		
+		Object obj = mapCtxObj.get(ctx.operation());
+		
+		// assign Variable to boolean is not possible
+		if (typeName.equals("boolean")) {
+			if (obj instanceof Boolean) {
+				Boolean b = (Boolean) obj;
+				symbolTable.put(ctx.varDeclaration().ID().getText(), b);
+				mapCtxObj.put(ctx, b);
+				return true;
+			}
+			ErrorHandling.printError(ctx, "Cannot assign Type \"" + typeName + "\" to boolean");
+			return false;
+		}
+
 		// assign Variable to Variable
 		visit(ctx.operation());
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 		destinationType = typesTable.get(typeName);
 		destinationType.clearCheckList();
-
+		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
 			ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));

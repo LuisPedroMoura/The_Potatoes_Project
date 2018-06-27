@@ -74,7 +74,7 @@ public class PotatoesMain {
 			// print LISP-style tree:
 			// System.out.println(tree.toStringTree(parser));
 			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
-			//if (visitor0.visit(tree)) {
+			if (visitor0.visit(tree)) {
 				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
 				/*
 				System.out.print("Semantic Analyzis skiped! :P\n");
@@ -86,7 +86,7 @@ public class PotatoesMain {
                 pw.close();
                 System.out.println(name+" file created!");
                 */
-			//}
+			}
 		}
 	}
 }
