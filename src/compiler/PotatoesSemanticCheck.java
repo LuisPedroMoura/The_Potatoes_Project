@@ -34,7 +34,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -62,7 +62,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		List<CodeContext> codesInstructions = ctx.code();
 		for (CodeContext c : codesInstructions) {
 			Boolean res = visit(c);
-			if (debug) ErrorHandling.printInfo("Visiting " + c.getText() + " : " + res);
+		ErrorHandling.printInfo("Visiting " + c.getText() + " : " + res);
 			valid = valid && res;
 		}
 
@@ -142,7 +142,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 
-
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
 		return visit(ctx.declaration());
@@ -194,7 +193,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitStatement_Print(Statement_PrintContext ctx) {
 		return visit(ctx.print());
 	}
-
 
 	// --------------------------------------------------------------------------------------------------------------------	
 	// CLASS - DECLARATIONS-----------------------------------------------------------------------
@@ -639,7 +637,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return super.visitFunctionCall(ctx);
 	}
 
-	
 	@Override
 	public Boolean visitPrint_Print(Print_PrintContext ctx) {
 		boolean valid = true;
@@ -650,6 +647,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		return valid;
 	}
+	
 
 	@Override
 	public Boolean visitPrint_Println(Print_PrintlnContext ctx) {
@@ -661,6 +659,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		return valid;
 	}
+	
 
 	@Override
 	public Boolean visitPrintVar(PrintVarContext ctx) {
@@ -1200,8 +1199,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override  // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitVarDeclaration(VarDeclarationContext ctx) {
-		visitChildren(ctx);
-		return true;
+		return visit(ctx.type());
 	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
