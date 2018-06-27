@@ -89,9 +89,9 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			return false;
 		}
 
-		// temp is a reserved type
-		if (typeName.equals("temp")) {
-			ErrorHandling.printError(ctx, "Type \" temp \" is reserved and can't be defined!");
+		// temp and number are reserved types
+		if (typeName.equals("temp") || typeName.equals("number") ) {
+			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
 			return false;
 		}
 
@@ -123,9 +123,9 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				return false;
 			}
 
-			// temp is a reserved type
-			if (typeName.equals("temp")) {
-				ErrorHandling.printError(ctx, "Type \" temp \" is reserved and can't be defined!");
+			// temp and number are reserved types
+			if (typeName.equals("temp") || typeName.equals("number")) {
+				ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
 				return false;
 			}
 

@@ -1,7 +1,7 @@
-using "CompleteExample_Types.txt"
+using "CompleteExample_Types.txt";
 
-
-boolean b1 = true
+fun main {
+boolean b1 = true;
 boolean b2 = false;
 boolean b3 = b1;
 boolean b4 = !b1;
@@ -44,7 +44,7 @@ meter m6 = dm1 + dm1;
 distance d1 = 1;
 meter m7 = d1 + m1;
 meter m8 = d1 + m1*2;
-meter m9 = m1*m1/m1
+meter m9 = m1*m1/m1;
 meter m10 = m1 + kg1/kg1*m1;
 meter m11 = (m1*kg1 + m1*kg1)/kg1;
 meter m12 = m1*kg1/bar;
@@ -95,7 +95,7 @@ m6 = dm1 + dm1;
 d1 = 1;
 m7 = d1 + m1;
 m8 = d1 + m1*2;
-m9 = m1*m1/m1
+m9 = m1*m1/m1;
 m10 = m1 + kg1/kg1*m1;
 m11 = (m1*kg1 + m1*kg1)/kg1;
 m12 = m1*kg1/bar;
@@ -104,7 +104,7 @@ println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
 
 
-number n = 0
+number n = 0;
 boolean b = false;
 for (number i = 0; i < 10; i = i+1){
 	n = i + 1;
@@ -114,7 +114,7 @@ for (number i = 0; i < 10; i = i+1){
 println("");
 
 
-number n = 1
+number n = 1;
 boolean b = false;
 while (b == false) {
 	if (n == 10){
@@ -144,7 +144,7 @@ if (n == 5 && n > 4){
 	if (n < 6 && n > 2 + 2){
 		println("  if (n < 6 && n > 2 + 2){");
 		println("    entered");
-		println("  }")
+		println("  }");
 	}
 	
 	println("");
@@ -199,7 +199,7 @@ m3 = m2 % 2;
 m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
-
+}
 	
 
 
