@@ -177,7 +177,7 @@ printVar			: value | var
 var					: ID
 					;
 
-varDeclaration		: type var
+varDeclaration		: type ID
 					;			
 
 type				: NUMBER_TYPE		# type_Number_Type
