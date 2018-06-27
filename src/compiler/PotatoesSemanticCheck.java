@@ -217,9 +217,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(ctx.varDeclaration());
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		String varName = ctx.varDeclaration().var().ID().getText();
-		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
-		destinationType.clearCheckList();
-		// visit(ctx.BOOLEAN());
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] Visited visitAssignment_Var_Declaration_NotBoolean");
@@ -292,11 +289,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign compatible types
 		if (typesTable.containsKey(typeName)) {
-			destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
+			destinationType = typesTable.get(typeName);
 			destinationType.clearCheckList();
 			Variable temp = (Variable) value;
 			Variable a = new Variable(temp);
-			Type type = typesTable.get(typeName);
+			Type type = destinationType;
 			if (a.convertTypeTo(type) == true) {
 				symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
 				mapCtxObj.put(ctx, a);
@@ -316,25 +313,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(ctx.varDeclaration());
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		String varName = ctx.varDeclaration().var().ID().getText();
-		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
-		destinationType.clearCheckList();
-		visit(ctx.comparison());
-		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
-
+		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] Visited visitAssignment_Var_Declaration_Comparison");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
-			ErrorHandling.printInfo(ctx, "--- Value to assign is " + b);
 		}
 
-		// verify that variable to be created has valid name
-		if (typesTable.containsKey(varName)) {
-			ErrorHandling.printError(ctx, varName + " is a reserved word");
-			return false;
-		}
-
-		// verify that assigned var has type boolean
+		// assign boolean to boolean
 		if (typeName.equals("boolean")) {
+			visit(ctx.comparison());
+			Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), b);
 			mapCtxObj.put(ctx, b);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.varDeclaration().var().ID().getText());}
@@ -372,7 +360,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign Variable to string is not possible
 		if (typeName.equals("string")) {
-			ErrorHandling.printError(ctx, "Cannot assign Type \"" + typeName + "\" to string");
+			ErrorHandling.printError(ctx, "Cannot assign Type \"boolean\" to \"string\"");
 			return false;
 		}
 		
@@ -443,8 +431,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitAssignment_Var_Value(Assignment_Var_ValueContext ctx) {
 		visit(ctx.var());
 		String typeName = (String) mapCtxObj.get(ctx.var().ID());
-		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
-		destinationType.clearCheckList();
 		visit(ctx.value());
 		Object value = mapCtxObj.get(ctx.value());
 
@@ -473,6 +459,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign compatible types
 		if (typesTable.containsKey(typeName)) {
+			destinationType = typesTable.get(typeName);
+			destinationType.clearCheckList();
 			Variable temp = (Variable) value;
 			Variable a = new Variable(temp);
 			Type type = typesTable.get(typeName);
@@ -494,19 +482,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitAssignment_Var_Comparison(Assignment_Var_ComparisonContext ctx) {
 		visit(ctx.var());
 		String typeName = (String) mapCtxObj.get(ctx.var().ID());
-		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
-		destinationType.clearCheckList();
-		visit(ctx.comparison());
-		Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
-			ErrorHandling.printInfo(ctx, "--- boolean value to assign is " + b);
 		}
 
 		// verify that assigned var has type boolean
 		if (typeName.equals("boolean")) {
+			visit(ctx.comparison());
+			Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
 			symbolTable.put(ctx.var().ID().getText(), b);
 			mapCtxObj.put(ctx, b);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var().ID().getText());}
@@ -521,20 +506,34 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitAssignment_Var_Operation(Assignment_Var_OperationContext ctx) {
 		visit(ctx.var());
-		String typeName = (String) mapCtxObj.get(ctx.var().ID());
-		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
-		destinationType.clearCheckList();
-		visit(ctx.operation());
-		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
-		Variable a = new Variable(temp);
-
+		Object obj = mapCtxObj.get(ctx.var());
+		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
-			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
 		}
-
-		if (a.convertTypeTo(typesTable.get(typeName))) {
+		
+		if(obj instanceof String) {
+			ErrorHandling.printError(ctx, "string Type is not compatible with the operation \"" +ctx.operation().getText() + "\"");
+			return false;
+		}
+		if(obj instanceof Boolean) {
+			ErrorHandling.printError(ctx, "boolean Type is not compatible with the operation \"" +ctx.operation().getText() + "\"");
+			return false;
+		}
+		
+		Variable var = (Variable) obj;
+		String typeName = var.getType().getTypeName();
+		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
+		destinationType.clearCheckList();
+		
+		visit(ctx.operation());
+		Object opValue = mapCtxObj.get(ctx.operation());
+		Variable a = (Variable) opValue;
+		
+		if (debug) {ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);}
+		
+		if (a.convertTypeTo(destinationType)) {
 			symbolTable.put(ctx.var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
@@ -542,6 +541,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			destinationType.clearCheckList();
 			return true;
 		}
+		
 		// Types are not compatible
 		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"");
 		destinationType.clearCheckList();
@@ -1168,6 +1168,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------------------------------------------------
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitVar(VarContext ctx) {
+		// if variable does not exist
+		//if(!symbolTable.containsKey(ctx.ID().getText())) {
+			//ErrorHandling.printError(ctx, "Variable \"" + ctx.ID().getText() + "\"is not defined");
+			//return false;
+		//}
 		mapCtxObj.put(ctx, symbolTable.get(ctx.ID().getText()));
 		return true;
 	}

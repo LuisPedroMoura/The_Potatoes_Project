@@ -20,7 +20,7 @@ public class Variable {
 	// INSTANCE FIELDS
 
 	// Static Field (Debug Only)
-		private static final boolean debug = true;
+	private static final boolean debug = false;
 	
 	private Type type;
 	private double value;
