@@ -90,10 +90,12 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		}
 
 		// temp, number and boolean are reserved types
-		if (typeName.equals("temp") || typeName.equals("number") || typeName.equals("boolean")) {
+		String temp = typeName.trim().toLowerCase();
+		if (temp.equals("temp") || temp.equals("number") || temp.equals("boolean") || temp.equals("string")) {
 			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
 			return false;
 		}
+
 
 		// Create basic type
 		Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""));
@@ -123,8 +125,9 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				return false;
 			}
 
-			// temp, number and boolean are reserved types
-			if (typeName.equals("temp") || typeName.equals("number") || typeName.equals("boolean")) {
+			// temp, number, boolean and string are reserved types
+			String temp = typeName.trim().toLowerCase();
+			if (temp.equals("temp") || temp.equals("number") || temp.equals("boolean") || temp.equals("string")) {
 				ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
 				return false;
 			}
