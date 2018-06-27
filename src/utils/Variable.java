@@ -273,8 +273,11 @@ public class Variable {
 		if (convertToFirstPossible == true) {
 			return true;
 		}
+		
+		
+		
 		this.convertTypeToMaxParentType();
-
+		
 		throw new Exception();
 	}
 
