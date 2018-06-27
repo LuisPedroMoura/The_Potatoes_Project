@@ -366,16 +366,28 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
 			ErrorHandling.printInfo(ctx, "--- destinationType is " + destinationType);
 		}
+		
+		// assign Variable to boolean is not possible
+		if (typeName.equals("boolean")) {
+			ErrorHandling.printError(ctx, "Cannot assign Type \"" + typeName + "\" to boolean");
+			return false;
+		}
 
+		// assign Variable to string is not possible
+		if (typeName.equals("string")) {
+			ErrorHandling.printError(ctx, "Cannot assign Type \"" + typeName + "\" to string");
+			return false;
+		}
+		
+		// assign Variable to Variable
 		visit(ctx.operation());
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
+			ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));
 		}
-
-		if(debug) {ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));}
 		
 		if (a.convertTypeTo(typesTable.get(typeName))) {
 			symbolTable.put(ctx.varDeclaration().var().ID().getText(), a);
@@ -384,6 +396,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					"val=" + a.getValue() + " to " + ctx.varDeclaration().var().ID().getText());}
 			return true;
 		}
+		
 		// Types are not compatible
 		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"!");
 		return false;
