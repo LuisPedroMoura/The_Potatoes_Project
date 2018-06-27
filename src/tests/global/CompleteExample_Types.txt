@@ -1,7 +1,6 @@
 types {
-	
 	bar			"b"
-	
+	tripleMeter "tm"
 	meter		"m"
 	doubleMeter "dm"
     

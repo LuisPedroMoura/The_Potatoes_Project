@@ -89,8 +89,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			return false;
 		}
 
-		// temp and number are reserved types
-		if (typeName.equals("temp") || typeName.equals("number") ) {
+		// temp, number and boolean are reserved types
+		if (typeName.equals("temp") || typeName.equals("number") || typeName.equals("boolean")) {
 			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
 			return false;
 		}
@@ -123,8 +123,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				return false;
 			}
 
-			// temp and number are reserved types
-			if (typeName.equals("temp") || typeName.equals("number")) {
+			// temp, number and boolean are reserved types
+			if (typeName.equals("temp") || typeName.equals("number") || typeName.equals("boolean")) {
 				ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
 				return false;
 			}
