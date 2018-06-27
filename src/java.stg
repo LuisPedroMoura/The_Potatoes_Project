@@ -32,7 +32,7 @@ statements(stat, controlflow) ::= <<
 
 // [MJ] DONE
 stats(stat) ::= <<
-<if(stat)> <stat:{s | <s>;<\n>}><endif>
+<if(stat)><stat:{s|<s>;<\n>}><endif>
 >>
 
 //[IJ] - DONE
@@ -77,7 +77,7 @@ public class <name> {
 //[MJ] DONE
 varAssignment(type, var, operation, stat ) ::= <<
 <stats(stat)>
-<varDeclaration(type, var)> = <operation>
+<if(type)><varDeclaration(type, var)><else><var><endif> = <operation>
 >>
 
 // ARRAY ASSIGNMENT--------------------------------------------------------------
@@ -119,34 +119,29 @@ args(arg) ::= <<
 // CONDITION----------------------------------------------------------------------
 ifCondition(logicalOperation, stat) ::= <<
 <if(stat)>if(<logicalOperation>){
-	<stats(stat)>
-}<endif>
+	<stats(stat)>}<endif>
 >>
 elseIfCondition(logicalOperation, stat) ::= <<
 <if(stat)>else if(<logicalOperation>){
-	<stats(stat)>
-}<endif>
+	<stats(stat)>}<endif>
 >>
 elseCondition(stat) ::= <<
 <if(stat)>else {
-	<stats(stat)>
-}<endif>
+	<stats(stat)>}<endif>
 >>
 
 // [IJ] DONE
 // FOR LOOP-----------------------------------------------------------------------
 forLoop(firstAssignment, logicalOperation, finalAssignment, stat) ::= <<
 for(<if(firstAssignment)><firstAssignment><endif>; <logicalOperation>; <finalAssignment>) {
-	<stats(stat)>
-}
+	<stats(stat)>}
 >>
 
 // [IJ] DONE
 // WHILE LOOP---------------------------------------------------------------------
 whileLoop(logicalOperation, stat) ::= <<
 <if(stat)>while(<logicalOperation>){
-<stats(stat)>
-}<else>
+	<stats(stat)>}<else>
 while(<logicalOperation>);
 <endif>	           
 >>
@@ -182,7 +177,7 @@ arrayLength(var) ::= " <var>.length() "
 //PRINTS-------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 print(type, valueOrVarList) ::= <<
-<printType.(type)>(<if(valueOrVarList)> <valueOrVarList><endif>)
+<printType.(type)>(<if(valueOrVarList)><valueOrVarList><endif>)
 >>
 
 //-------------------------------------------------------------------------------
@@ -191,7 +186,7 @@ print(type, valueOrVarList) ::= <<
 
 //[MJ] DONE
 varDeclaration(type, var) ::= <<
-<type> <var>
+<type(type)> <var>
 >>
 
 //[MJ] DONE
