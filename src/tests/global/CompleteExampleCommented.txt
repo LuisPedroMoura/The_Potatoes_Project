@@ -1,31 +1,37 @@
 using "CompleteExample_Types.txt";
 
 fun main {
-
+/*
 boolean b1 = true;
 boolean b2 = false;
-boolean b3 = b1;
-boolean b4 = !b1;
-println("print booleans: " + b1 + " " + b2 + " " + b3 + " " + b4);
+//boolean b3 = b1;
+//boolean b4 = !b1;
+//println("print booleans: " + b1 + " " + b2 + " " + b3 + " " + b4);
+println("print booleans: " + b1 + " " + b2);
 println("");
+*/
+/*
 string s1 = "s1";
 string s2 = "s2";
 string s3 = "s3";
 println("print strings: " + s1 + " " + s2 + " " + s3);
 println("");
-
+*/
+/*
 number n1 = 1;
 number n2 = 2;
 number n3 = 3;
 println("print numbers: " + n1 + " " + n2 + " " + n3);
 println("");
-
+*/
+/*
 meter m1 = (meter) 1;
 doubleMeter dm1 = (meter) 1;
 kilo kg1 = (kilo) 1;
 println("print variables: " + m1 + ", " + dm1 + ", " + kg1);
 println("");
-
+*/
+/*
 boolean b5 = n1 < n2;
 boolean b6 = m1 > dm1;
 boolean b7 = n2 <= n3;
@@ -34,8 +40,9 @@ boolean b9 = m1 == m1;
 boolean b10 = m1 != m1;
 println("print assign comparison: "+b5+" "+b6+" "+b7+" "+b8+" "+b9+" "+ b10);
 println("");
-
-bar barr = (bar)1;
+*/
+/*
+//bar barr = (bar)1
 number n4 = 1+1;
 meter m2 = m1 + m1;
 meter m3 = m1 + (meter) 1;
@@ -48,36 +55,42 @@ meter m8 = d1 + m1*2;
 meter m9 = m1*m1/m1;
 meter m10 = m1 + kg1/kg1*m1;
 meter m11 = (m1*kg1 + m1*kg1)/kg1;
-meter m12 = m1*kg1/barr;
+meter m12 = m1*kg1/bar;
 print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
-
+*/
+/*
 b1 = true;
 b2 = false;
 b3 = b1;
 b4 = !b1;
 println("print booleans: " + b1 + " " + b2 + " " + b3 + " " + b4);
+println("print booleans b1 and b2: " + b1 + " " + b2);
 println("");
-
+*/
+/*
 s1 = "s1";
 s2 = "s2";
 s3 = "s3";
 println("print strings: " + s1 + " " + s2 + " " + s3);
 println("");
-
+*/
+/*
 n1 = 1;
 n2 = 2;
 n3 = 3;
 println("print numbers: " + n1 + " " + n2 + " " + n3);
 println("");
-
+*/
+/*
 m1 = (meter) 1;
 dm1 = (meter) 1;
 kg1 = (kilo) 1;
 println("print variables: " + m1 + ", " + dm1 + ", " + kg1);
 println("");
-
+*/
+/*
 b5 = n1 < n2;
 b6 = m1 > dm1;
 b7 = n2 <= n3;
@@ -86,7 +99,8 @@ b9 = m1 == m1;
 b10 = m1 != m1;
 println("print assign comparison: "+b5+" "+b6+" "+b7+" "+b8+" "+b9+" "+ b10);
 println("");
-
+*/
+/*
 n4 = 1+1;
 m2 = m1 + m1;
 m3 = m1 + (meter) 1;
@@ -100,12 +114,12 @@ m9 = m1*m1/m1;
 m10 = m1 + kg1/kg1*m1;
 
 m11 = (m1*kg1 + m1*kg1)/kg1;
-m12 = m1*kg1/barr;
+m12 = m1*kg1/bar;
 print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
-
-
+*/
+/*
 number n = 0;
 boolean b = false;
 for (number i = 0; i < 10; i = i+1){
@@ -114,8 +128,8 @@ for (number i = 0; i < 10; i = i+1){
 	println("for loop " + n + " of " + "10" + b);
 }
 println("");
-
-
+*/
+/*
 number n = 1;
 boolean b = false;
 while (b == false) {
@@ -127,13 +141,14 @@ while (b == false) {
 }
 println("");
 println("");
-
+*/
 
 println("Testing nested if, else if, else and logical operations");
 println("");
 
 number n = 5;
 println("number n = 5;");
+/*
 if (n == 5 && n > 4){
 	
 	println("if (n == 5 && n > 4){");
@@ -191,9 +206,10 @@ if (n == 5 && n > 4){
 	}	
 	println("}");
 }
+*/
 println("");
 println("");
-
+/*
 m1 = (meter) 1;
 m1 = m1^2;
 m2 = (m1+m1)^3;
@@ -205,61 +221,3 @@ println("");
 */
 
 }
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 

@@ -9,7 +9,9 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.stringtemplate.v4.ST;
 
+import compiler.PotatoesCompiler;
 import compiler.PotatoesSemanticCheck;
 import potatoesGrammar.PotatoesLexer;
 import potatoesGrammar.PotatoesParser;
@@ -38,6 +40,7 @@ public class PotatoesMain {
 
 		System.out.println("inputed file: "+ args[0]);
 		String name = args[0].substring(0, args[0].length()-5);
+		System.out.print("name " + name);
 		try {
 			File f = new File(args[0]);
 			fileStream = new FileInputStream(f); 
