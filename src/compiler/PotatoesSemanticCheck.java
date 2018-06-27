@@ -358,9 +358,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 
-		destinationType = typesTable.get(typeName);
-		destinationType.clearCheckList();
-
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Operation");
 			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
@@ -383,6 +380,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(ctx.operation());
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
+		destinationType = typesTable.get(typeName);
+		destinationType.clearCheckList();
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);

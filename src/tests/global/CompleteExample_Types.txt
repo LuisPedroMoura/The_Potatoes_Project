@@ -1,8 +1,10 @@
 types {
+	
 	bar			"b"
-	tripleMeter "tm"
+	
 	meter		"m"
 	doubleMeter "dm"
+	tripleMeter "tm"
     
     distance "d"		: (1)meter | (1/2)doubleMeter | (1/2.5)bar
     
