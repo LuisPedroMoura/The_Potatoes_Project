@@ -72,10 +72,9 @@ public class PotatoesMain {
 			// print LISP-style tree:
 			// System.out.println(tree.toStringTree(parser));
 			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
-			Boolean res = visitor0.visit(tree);
-			System.out.println("HELLLO!!! RESULT IS " + res);
-			ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
-			/*
+			if (visitor0.visit(tree)) {
+				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
+				/*
 				System.out.print("Semantic Analyzis skiped! :P\n");
 				PotatoesCompiler visitor1 = new PotatoesCompiler();
 				ST program = visitor1.visit(tree);
@@ -84,8 +83,11 @@ public class PotatoesMain {
                 pw.print(program.render());
                 pw.close();
                 System.out.println(name+" file created!");
-			 */
-			//}
+				 */
+			}
+			else {
+				ErrorHandling.printError("Semantic Analyzis Completed With Errors :(");
+			}
 		}
 	}
 }

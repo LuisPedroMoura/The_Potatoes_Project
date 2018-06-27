@@ -1036,13 +1036,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable a = new Variable(temp);
 		temp = (Variable) mapCtxObj.get(ctx.operation(1));
-		System.out.println("-------------------- " + temp);
-		System.out.println("---------------op0 - " + ctx.operation(0).getText());
-		System.out.println("---------------op1 - " + ctx.operation(1).getText());
+
 		Variable b = new Variable(temp);
 		String op = ctx.op.getText();
 
 		if (debug) {
+			ErrorHandling.printInfo(ctx, "-------------------- " + temp);
+			ErrorHandling.printInfo(ctx, "---------------op0 - " + ctx.operation(0).getText());
+			ErrorHandling.printInfo(ctx, "---------------op1 - " + ctx.operation(1).getText());
+
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] Visiting Operation Mult_Div_Mod");
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable a " + a);
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable b " + b);
