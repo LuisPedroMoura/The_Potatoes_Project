@@ -145,6 +145,7 @@ public class Variable {
 			return false;
 		}
 		
+		typesGraph.printGraph();
 		return typesGraph.isCompatible(this.type, type);
 	}
 	
@@ -177,20 +178,25 @@ public class Variable {
 		
 		// always reset factor before calculating path
 		Graph.resetFactor();
-		System.err.println("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		factors = typesGraph.getPath(this.type, newType);
-		System.out.println("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		//typesGraph.clearVisited();
-		System.err.println("Final Factor is: "+ factors);
-		typesGraph.printGraph();
 		
-		// calculate new value using convertion factors
-		this.value *= factors;
-
-		// convert code to type code
-		this.type = newType;
-		if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
-		return true;
+		boolean isCompatible = typesGraph.isCompatible(this.type, newType);
+		if (isCompatible) {
+			System.err.println("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			factors = typesGraph.getPathCost(this.type, newType);
+			System.out.println("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			//typesGraph.clearVisited();
+			System.err.println("Final Factor is: "+ factors);
+			typesGraph.printGraph();
+			
+			// calculate new value using convertion factors
+			this.value *= factors;
+	
+			// convert code to type code
+			this.type = newType;
+			if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -260,23 +266,29 @@ public class Variable {
 
 		while(hasParent) {
 			List<Factor> edges = typesGraph.getOutEdges(parent);
+			System.out.println("--------->>>>>>>>> edges? " + edges);
 			if (edges == null) {
 				this.type = parent;
 				return true;
 			}
 			for (Factor f : edges) {
-				if (f.getIsChildToParent() == true) {
+				System.out.println("--------->>>>>>>>> if? " + f.getIsChildToParent());
+				if (f.getIsChildToParent() == false) {
 					parent = typesGraph.getDest(parent, f);
+					System.out.println("--------->>>>>>>>>" + parent);
 					if (parent == null) { //impossible
 						return false;
 					}
+					System.out.println("--------->>>>>>>>>" +parent);
 					if(debug) {System.out.println(parent + " -> ");}
 					break;
 				}
 			}
 			hasParent = false;
 			this.type = parent;
+			break;
 		}
+		this.type = parent;
 		return true;
 	}
 	
