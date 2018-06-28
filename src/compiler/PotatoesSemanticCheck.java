@@ -1271,11 +1271,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	@Override
-	public Boolean visitPrintVar(PrintVarContext ctx) {
+	public Boolean visitPrintVar_Value(PrintVar_ValueContext ctx) {
 		return visitChildren(ctx);
 	}
 
-	// VARS------------------------------------------------------------------------ 
+	@Override
+	public Boolean visitPrintVar_Var(PrintVar_VarContext ctx) {
+		return visitChildren(ctx);
+	}
 
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitVar(VarContext ctx) {

@@ -54,6 +54,8 @@ import potatoesGrammar.PotatoesParser.Operation_PowerContext;
 import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
 import potatoesGrammar.PotatoesParser.Operation_VarContext;
 import potatoesGrammar.PotatoesParser.PrintVarContext;
+import potatoesGrammar.PotatoesParser.PrintVar_ValueContext;
+import potatoesGrammar.PotatoesParser.PrintVar_VarContext;
 import potatoesGrammar.PotatoesParser.Print_PrintContext;
 import potatoesGrammar.PotatoesParser.Print_PrintlnContext;
 import potatoesGrammar.PotatoesParser.ProgramContext;
@@ -565,18 +567,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		print.add("type",ctx.PRINT().getText());
 		
-		String varOrValueList = visit(ctx.printVar(0)).render();
-		System.out.println(varOrValueList);
+		String varOrValueList = "";
 		int numberOfvalueOrVar = ctx.printVar().size();
 		
-		for(int i = 1; i<numberOfvalueOrVar; i++) {
-			varOrValueList += "+" + visit(ctx.printVar(i)).render();
-			System.out.println(i);
-			System.out.println(varOrValueList);
+		for(int i = 0; i<numberOfvalueOrVar-1; i++) {
+			ST assign = visit(ctx.printVar(i));
+			String varOrValue = (String) assign.getAttribute("operation");
+			varOrValueList += "+" + varOrValue;
 		}
 		
 		print.add("valueOrVarList", varOrValueList);
-		
 		
 		if(debug) {
 			System.out.println();
@@ -596,17 +596,17 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 
 		print.add("type",ctx.PRINTLN().getText());
 		
-		String varOrValueList = visit(ctx.printVar(0)).render();
-		System.out.println(varOrValueList);
+		String varOrValueList = "";
 		int numberOfvalueOrVar = ctx.printVar().size();
-		
-		for(int i = 1; i<numberOfvalueOrVar; i++) {
-			varOrValueList += "+" + visit(ctx.printVar(i)).render();
-			System.out.println(i);
-			System.out.println(varOrValueList);
+
+		for(int i = 0; i<numberOfvalueOrVar-1; i++) {
+			ST assign = visit(ctx.printVar(i));
+			String varOrValue = (String) assign.getAttribute("operation");
+			varOrValueList += "+" + varOrValue;
 		}
 		
 		print.add("valueOrVarList", varOrValueList);
+		
 		
 		if(debug) {
 			System.out.println();
@@ -618,23 +618,36 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return print;
 	}
-
-	// [IJ] - DONE
+	
 	@Override
-	public ST visitPrintVar(PrintVarContext ctx) {
-		if(debug) {
-			System.out.println();
-			System.out.println("->"+ctx.getText());
-			System.out.println("\t-> visitPrintVar");
-			System.out.println();
-		}
-		return visitChildren(ctx);
+	public ST visitPrintVar_Var(PrintVar_VarContext ctx) {
+		String oldVariableName = ctx.var().getText();
+		Variable oldVarValue = (Variable) getValueFromSymbolsTable(oldVariableName);
+		Variable result = new Variable(typesTable.get(ctx.var().getText()), oldVarValue.getValue());
+
+		ST newVariable = null; //varAssignmentST(result.getType().getTypeName(), getNewVarName(), oldVarValue.getValue());
+
+		return newVariable;
 	}
+	
+	@Override
+	public ST visitPrintVar_Value(PrintVar_ValueContext ctx) {
+		String oldVariableName = ctx.value().getText();
+		Variable oldVarValue = (Variable) getValueFromSymbolsTable(oldVariableName);
+
+		//nao temos o tipo de value!!
+		
+		ST newVariable = varAssignmentST("STRING", getNewVarName(), oldVarValue.toString()); 		
+
+		return newVariable;
+	}
+	
 		
 	// --------------------------------------------------------------------------------------------------------------------
 	// CONTROL FLOW STATMENTS----------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
 	
+
 	// [IJ] - DONE
 	@Override
 	public ST visitControlFlowStatement(ControlFlowStatementContext ctx) {
@@ -867,6 +880,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			Variable v1 = (Variable) getValueFromSymbolsTable(varNameOp1);
 			
 			updateSymbolsTable(varNewName, varNewName, getBooleanResult(v0.getValue(),v1.getValue(),compareOp));
+		
 		}
 			
 		return assignment;
