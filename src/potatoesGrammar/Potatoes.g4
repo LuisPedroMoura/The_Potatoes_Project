@@ -45,7 +45,7 @@ assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Bo
 					;
 
 // FUNCTIONS-------------------------------------------------------------------
-function			: FUN MAIN '{' statement* '}'					#function_Main
+function			: FUN MAIN '{' statement* '}'										#function_Main
 					| FUN ID '(' (type var (',' type var)* )* ')' '{' statement* '}'	#function_ID
 					;
 
@@ -59,22 +59,15 @@ functionCall		: ID '(' ((var|value|operation) (',' (var|value|operation))* )* ')
 controlFlowStatement: condition
  					| forLoop
  					| whileLoop
- 					| when
  					;	
  
 forLoop				: FOR '(' assignment? EOL logicalOperation EOL assignment ')'
 					  '{' statement* '}' //[MJ] must have scopes for the sake of simplicity 
  					;
  			
-whileLoop			: WHILE '(' logicalOperation ')' ('{' statement* '}' | EOL)
+whileLoop			: WHILE '(' logicalOperation ')' '{' statement* '}'
 					;
  			
-when				: WHEN '(' var ')' '{' whenCase* '}'
-					;
- 			
-whenCase			: value '->' '{' statement* '}'
- 					;
-		
 //[MJ] must have scopes for the sake of simplicity 
 condition			: ifCondition elseIfCondition* elseCondition?
 					;
