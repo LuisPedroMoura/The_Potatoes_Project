@@ -26,13 +26,7 @@ public class Variable {
 	private Type type;
 	private double value;
 	private static Graph typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
-	//private static Graph<Type, Factor> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
-//	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<Type, Factor>(typesGraph, new Transformer<Factor, Double>() {
-//		@Override
-//		public Double transform(Factor factor) {
-//			return factor.getFactor();
-//		}
-//	});
+
 
 	// --------------------------------------------------------------------------
 	// CTORS
