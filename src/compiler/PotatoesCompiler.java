@@ -890,7 +890,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		
 
-		ST newVariable = varAssignmentST("Double", getNewVarName(), result.getValue()+""); 
+		ST newVariable = varAssignmentST("Double", getNewVarName(), result.getValue()+";"); 
 		String newName = (String) newVariable.getAttribute("var");
 		
 		newVariable.add("stat", oldVariable.render());//all the declarations until now
@@ -957,7 +957,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (op.equals("%")) {
 			Double moddedValue = varOp0.getValue() % varOp0.getValue();
 			result = new Variable (typesTable.get(varOp0.getType().getTypeName()), moddedValue);
-			newVariable.add("operation", op0Name + " % " + op1Name);
+			newVariable.add("operation", op0Name + " % " + op1Name+ ";");
 		}
 		else {
 			
@@ -981,7 +981,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					} 
 				} 
 			
-				newVariable.add("operation", op0Name + " * " + op1Name);
+				newVariable.add("operation", op0Name + " * " + op1Name+ ";");
 			}
 			else if (op.equals("/")) {
 				result = Variable.divide(varOp0, varOp1); 
@@ -994,7 +994,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					} 
 				} 
 				
-				newVariable.add("operation", op0Name + " / " + op1Name);
+				newVariable.add("operation", op0Name + " / " + op1Name+ ";");
 			}
 			else
 				assert false: "missing semantic check";
@@ -1026,7 +1026,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable a = (Variable) getValueFromSymbolsTable(previousVariableName);
 		Variable.simetric(a);
 		
-		ST newVariable = varAssignmentST("Double", getNewVarName(), "- "+previousVariableName); 
+		ST newVariable = varAssignmentST("Double", getNewVarName(), "- "+previousVariableName+ ";"); 
 		String newName = (String) newVariable.getAttribute("var");
 		
 		//add all the declarations until now
@@ -1060,6 +1060,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable varOp1  = null;
 		Variable result = null;
 		
+		System.out.println("op0Name = " + op0Name);
+		System.out.println("op1Name = " + op1Name);
+		System.out.println("symbolTableName.containsKey(op0Name) = " + symbolTableName.containsKey(op0Name));
+		System.out.println("symbolTableName.containsKey(op1Name) = " + symbolTableName.containsKey(op1Name));
 		if(symbolTableName.containsKey(op0Name)) { //op0Name is original name
 			varOp0 = (Variable) getValueFromSymbolsTable(op0Name);
 		}
@@ -1094,11 +1098,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 		if (ctx.op.getText().equals("+")) {
 			result = Variable.add(varOp0, varOp1);
-			newVariable.add("operation", op0Name + " + " + op1Name);
+			newVariable.add("operation", op0Name + " + " + op1Name+ ";");
 		}
 		else {//if (ctx.op.getText().equals("-")) {
 			result = Variable.subtract(varOp0, varOp1);
-			newVariable.add("operation", op0Name + " - " + op1Name);
+			newVariable.add("operation", op0Name + " - " + op1Name+ ";");
 		}
 		
 		updateSymbolsTable(newName, newName, result);
@@ -1125,7 +1129,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String nameVar0 = (String) op0.getAttribute("var");
 		String nameVar1 = (String) op1.getAttribute("var");
 		
-		ST newVariable = varAssignmentST("Double", getNewVarName(), "Math.pow(" + nameVar0 + "," + nameVar1 + ")"); 
+		ST newVariable = varAssignmentST("Double", getNewVarName(), "Math.pow(" + nameVar0 + "," + nameVar1 + ");"); 
 		String newName = (String) newVariable.getAttribute("var");
 		
 		newVariable.add("stat", op0.render());
@@ -1155,7 +1159,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		Variable a = (Variable) getValueFromSymbolsTable(varOpOriginalName);
 		
-		ST newVariable = varAssignmentST("Double", getNewVarName(), varOpNewName); 
+		ST newVariable = varAssignmentST("Double", getNewVarName(), varOpNewName+ ";"); 
 		String newName = (String) newVariable.getAttribute("var");
 		
 		updateSymbolsTable(varOpOriginalName, newName, a);
@@ -1186,18 +1190,22 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		String number = ctx.NUMBER().getText();
 		Variable numberVar = createNumberVariable(number);
-		ST newVariable = varAssignmentST( "Double", getNewVarName(), Double.parseDouble(number)+"");
+		ST newVariable = varAssignmentST( "Double", getNewVarName(), Double.parseDouble(number)+";");
 		String newName = (String) newVariable.getAttribute("var");
 		updateSymbolsTable(newName, newName, numberVar);
+		
+		System.out.println("newVariable.getAttribute(var) = " + newVariable.getAttribute("var"));
 		
 		if(debug) {
 			System.out.println();
 			System.out.println("->"+ctx.getText());
 			System.out.println("\t-> visitOperation_NUMBER");;
 			System.out.println("\t-> newVar = "+newVariable.render());
+			System.out.println("\t-> numberVar = " + numberVar);
+			System.out.println("\t-> getValueFromSymbolsTable(newName) = "+(Variable) getValueFromSymbolsTable(newName));
+			
 			System.out.println();
 		}	
-		
 		
 		return newVariable;
 	}
@@ -1306,10 +1314,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//OTHER ONES---------------------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------------------------
 	
-	// para quando é preciso acrescentar um ; no final
-					//ST stat = visit(ctx.---())
 	protected static ST createEOL (ST temp) {
-		String stat = temp+";";
+		String stat = temp.render()+";";
 		ST statements = stg.getInstanceOf("stats");
 		statements.add("stat", stat);
 		return statements;		
@@ -1317,6 +1323,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	protected static ST varAssignmentST(String stat, String type, String var, String operation) {
 		ST newVariable = stg.getInstanceOf("varAssignment");
+		
 		newVariable.add("stat", stat);
 		newVariable.add("type", type);
 		newVariable.add("var", var);
