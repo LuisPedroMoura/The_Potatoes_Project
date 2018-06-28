@@ -560,11 +560,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType = typesTable.get(typeName); // static field to aid in operation predictive convertions
 		destinationType.clearCheckList();
 
-
 		Variable a = (Variable) opValue;
 
-		if (debug) {ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);}
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
+		}
 
+		// If type of variable a can be converted to the destination type (ie are compatible)
 		if (a.convertTypeTo(destinationType)) {
 			symbolTable.put(ctx.var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
@@ -635,12 +637,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitForLoop(ForLoopContext ctx) {
 		Boolean valid = true;
 		Boolean res   = true;
-		for (AssignmentContext a : ctx.assignment()) {
+
+		// visit all assignements
+		for (AssignmentContext a : ctx.assignment()) {		
 			res = visit(a);
 			valid = valid && res;
 		}
+
 		res = visit(ctx.logicalOperation());
 		valid = valid && res;
+
+		// visit all statements
 		for (StatementContext b : ctx.statement()) {
 			res = visit(b);
 			valid = valid && res;
@@ -653,6 +660,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = true;
 		Boolean res = visit(ctx.logicalOperation());
 		valid = valid && res;
+
+		// visit all statements
 		for (StatementContext b : ctx.statement()) {
 			res = visit(b);
 			valid = valid && res;
@@ -670,6 +679,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = true;
 		Boolean res = visit(ctx.logicalOperation());
 		valid = valid && res;
+
+		// visit all statements
 		for (StatementContext b : ctx.statement()) {
 			res = visit(b);
 			valid = valid && res;
@@ -682,6 +693,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = true;
 		Boolean res = visit(ctx.logicalOperation());
 		valid = valid && res;
+
+		// visit all statements
 		for (StatementContext b : ctx.statement()) {
 			res = visit(b);
 			valid = valid && res;
@@ -692,6 +705,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override 
 	public Boolean visitElseCondition(ElseConditionContext ctx) {
 		Boolean valid = true;
+
+		// visit all statements
 		for (StatementContext b : ctx.statement()) {
 			Boolean res = visit(b);
 			valid = valid && res;
@@ -705,12 +720,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override 
 	public Boolean visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
 		Boolean valid = visit(ctx.logicalOperation());
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_PAR]");}
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_PAR]");
+		}
+
 		if(valid) {
 			return true;
 		}
+
 		ErrorHandling.printError(ctx, "Logical operands must have value boolean");
-		if(debug) {ErrorHandling.printInfo(ctx, "visited logicalOperation_Parenthesis");}
+
 		return false;
 	}
 
@@ -718,10 +738,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
 		Boolean validOp0 = visit(ctx.logicalOperation(0));
 		Boolean validOp1 = visit(ctx.logicalOperation(1));
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_OP]");}
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_OP]");
+		}
+
 		if (validOp0 && validOp1) {
 			return true;
 		}
+
 		ErrorHandling.printError(ctx, "Logical operands must have value boolean");
 		return false;
 
@@ -730,7 +755,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override 
 	public Boolean visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
 		Boolean valid = visit(ctx.logicalOperand());
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_OPERAND]");}
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_OPERAND]");
+		}
+
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.logicalOperand()));
 		return valid;
 	}
@@ -748,7 +777,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override
 	public Boolean visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
 		String varName = ctx.var().ID().getText();
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_VAR]");}
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_VAR]");
+		}
+
 		// verify that variable exists
 		if (symbolTable.containsKey(varName)) {
 			Object obj = symbolTable.get(varName);
@@ -766,7 +799,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override
 	public Boolean visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
 		String varName = ctx.var().ID().getText();
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_NOT_VAR]");}
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_NOT_VAR]");
+		}
+
 		// verify that variable exists
 		if (symbolTable.containsKey(varName)) {
 			Object obj = symbolTable.get(varName);
@@ -785,7 +822,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
 		Boolean valid = visit(ctx.value());
 		Object obj = mapCtxObj.get(ctx.value());
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_VALUE]");}
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_VALUE]");
+		}
+
 		if (valid) {
 			if (obj instanceof Boolean) {
 				mapCtxObj.put(ctx, obj);
@@ -800,7 +841,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
 		Boolean valid = visit(ctx.value());
 		Object obj = mapCtxObj.get(ctx.value());
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_NOT_VALUE]");}
+
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_NOT_VALUE]");
+		}
+
 		if (valid) {
 			if (obj instanceof Boolean) {
 				mapCtxObj.put(ctx, obj);
@@ -927,17 +972,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String op = ctx.op.getText();
 
 		if (debug) {
-			//ErrorHandling.printInfo(ctx, "-------------------- " + temp);
-			//ErrorHandling.printInfo(ctx, "---------------op0 - " + ctx.operation(0).getText());
-			//ErrorHandling.printInfo(ctx, "---------------op1 - " + ctx.operation(1).getText());
-
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] Visiting Operation Mult_Div_Mod");
+			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op0: " + ctx.operation(0).getText());
+			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op1: " + ctx.operation(1).getText());
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable a " + a);
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable b " + b);
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op		 " + op + "\n");
+			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] temp: " + temp);
 		}
 
-		// MODULOS OPERATION
+		// Modulus operation
 		if (op.equals("%")) {
 			// verify that right side of mod operation is of Type Number
 			if (b.getType().getCode() == 1) {
@@ -951,7 +995,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		}
 
-		// MULTIPLICATION OR DIVISION OPERATION
+		// Multiplication or Division Operation
 		// conversion always returns a valid Variable Object, but it may or may not be compatible with assignment
 		// assignment will ultimately check teh result, but possible problems will be flagged with an Exception
 		try {
@@ -991,7 +1035,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		if (op.equals("/")) {
-			//mapCtxObj.put(ctx, Variable.divide(a, b));
 			Variable res = Variable.divide(a, b); 
 			Double resCode = res.getType().getCode(); 
 			Collection<Type> types = typesTable.values(); 
@@ -1016,7 +1059,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 		mapCtxObj.put(ctx, Variable.simetric(a));
-		if(debug) {ErrorHandling.printInfo(ctx, "[OP_OP_SIMETRIC]");}
+
+		if(debug) {
+			ErrorHandling.printInfo(ctx, "[OP_OP_SIMETRIC]");
+		}
+
 		return true;
 	}
 
@@ -1029,6 +1076,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable a = new Variable(temp);
 		destinationType.clearCheckList();
+
 		if(!visit(ctx.operation(1))) {
 			return false;
 		}
@@ -1144,7 +1192,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitOperation_FunctionCall(Operation_FunctionCallContext ctx) {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
@@ -1169,6 +1216,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitPrint_Print(Print_PrintContext ctx) {
 		boolean valid = true;
 		boolean res = true;
+
+		// visit all PrintVars
 		for (PrintVarContext pvc : ctx.printVar()) {
 			res = visit(pvc);
 			valid = valid && res;
@@ -1180,6 +1229,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitPrint_Println(Print_PrintlnContext ctx) {
 		boolean valid = true;
 		boolean res = true;
+
+		// visit all PrintVars
 		for (PrintVarContext pvc : ctx.printVar()) {
 			res = visit(pvc);
 			valid = valid && res;
