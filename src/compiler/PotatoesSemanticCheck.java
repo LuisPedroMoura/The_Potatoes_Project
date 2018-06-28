@@ -231,7 +231,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				Boolean b = (Boolean) (symbolTable.get(ctx.var().ID().getText()));
 				symbolTable.put(ctx.varDeclaration().ID().getText(), !b);
 				mapCtxObj.put(ctx, !b);
-				if(debug) {ErrorHandling.printInfo(ctx, "boolean variable with value: " + !b + "was assigned");}
+				if(debug) {ErrorHandling.printInfo(ctx, "boolean variable with value: " + !b + " was assigned");}
 				return true;
 			}
 			ErrorHandling.printError(ctx, "Cannot assign logical operation to non boolean Type");
@@ -614,14 +614,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType.clearCheckList();
 		return false;
 	}
-
-	
-	@Override
-	public Boolean visitAssignment_Var_ValueList(Assignment_Var_ValueListContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitAssignment_Var_ValueList(ctx);
-	}
-
 	
 	@Override
 	public Boolean visitAssingment_Var_FunctionCall(Assingment_Var_FunctionCallContext ctx) {
@@ -1388,13 +1380,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 
-	
-	@Override
-	public Boolean visitValuesList(ValuesListContext ctx) {
-		return true;
-	}
 
-	
 	@Override // [LM] Done - DON'T DELETE FROM THIS FILE
 	public Boolean visitCast(CastContext ctx) {
 		mapCtxObj.put(ctx, ctx.ID().getText());

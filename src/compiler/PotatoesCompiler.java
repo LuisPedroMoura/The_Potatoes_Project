@@ -131,13 +131,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitCode_Declaration(Code_DeclarationContext ctx) {
-		return visit(ctx.varDeclaration());
+		ST varDeclaration = visit(ctx.varDeclaration());
+		return createEOL(varDeclaration);
 	}
-
+	
 	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitCode_Assignment(Code_AssignmentContext ctx) {
-		return visit(ctx.assignment());
+		ST assignment = visit(ctx.assignment());
+		return createEOL(assignment);
 	}
 
 	@Override
@@ -152,13 +154,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitStatement_Declaration(Statement_DeclarationContext ctx) {
-		return visitChildren(ctx);
+		ST varDeclaration = visit(ctx.varDeclaration());
+		return createEOL(varDeclaration);
 	}
 
 	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitStatement_Assignment(Statement_AssignmentContext ctx) {
-		return visit(ctx.assignment());
+		ST assignment = visit(ctx.assignment());
+		return createEOL(assignment);
 	}
 
 	//[MJ] nothing to do, but don't delete
@@ -1301,6 +1305,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//-------------------------------------------------------------------------------------------------------------------------------------
 	//OTHER ONES---------------------------------------------------------------------------------------------------------------------------
 	//-------------------------------------------------------------------------------------------------------------------------------------
+	
+	// para quando é preciso acrescentar um ; no final
+					//ST stat = visit(ctx.---())
+	protected static ST createEOL (ST temp) {
+		String stat = temp+";";
+		ST statements = stg.getInstanceOf("stats");
+		statements.add("stat", stat);
+		return statements;		
+	}
+	
 	protected static ST varAssignmentST(String stat, String type, String var, String operation) {
 		ST newVariable = stg.getInstanceOf("varAssignment");
 		newVariable.add("stat", stat);
