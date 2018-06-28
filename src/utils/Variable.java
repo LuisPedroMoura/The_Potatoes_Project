@@ -189,6 +189,7 @@ public class Variable {
 		boolean isCompatible = typesGraph.isCompatible(this.type, newType);
 		if (isCompatible) {
 			System.err.println("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			System.err.println("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
 			typesGraph.getPathCost(this.type, newType);
 			pathCost = Graph.getPathFactor();
 			System.out.println("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -215,6 +216,7 @@ public class Variable {
 	 * @return true if converted
 	 */
 	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
+		System.out.println("!!!!!!!!!!!!!!!convertTypeToFirstUncheckedTypeInOpTypeArray");
 		List<Type> unchecked = type.getUncheckedOpTypes();
 		if(debug) { System.out.print("Trying to check an unchecked type. List is ");
 			for (Type utype : unchecked) {
@@ -240,6 +242,7 @@ public class Variable {
 	 * @return
 	 */
 	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
+		System.out.println("!!!!!!!!!!!!!!!convertTypeToFirstPossibleTypeInOpTypeArrayOf");
 		List<Type> opTypes = destinationType.getOpTypes();
 		if(debug) { System.out.print("Trying to convert to first possible checked. List is ");
 			for (Type utype : opTypes) {
@@ -269,6 +272,7 @@ public class Variable {
 	 * @throws Exception
 	 */
 	public boolean convertTypeToMaxParentType() {
+		System.out.println("!!!!!!!!!!!!!!!convertTypeToMaxParentType");
 		Type parent = this.type;
 		boolean hasParent = true;
 

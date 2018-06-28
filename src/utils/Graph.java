@@ -278,7 +278,7 @@ public class Graph {
 
 				if (node.getType().equals(end)) {
 					found = true;
-					clearVisited();
+					//clearVisited();
 					return node.getFactor().getFactor();
 				}
 				if (!node.isVisited() && !found) {
@@ -317,7 +317,7 @@ public class Graph {
 				if (node.getType().equals(end)) {
 					System.out.println("!!!!!!!!!!!!!!!  FOUND COMPATIBLE TYPE !!!!!!!!!!!!!!!!");
 					found = true;
-					clearVisited();
+					//clearVisited();
 					break;
 				}
 				if (!node.isVisited() && !found) {
