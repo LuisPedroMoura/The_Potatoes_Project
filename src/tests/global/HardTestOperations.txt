@@ -1,0 +1,25 @@
+using "CompleteExample_Types.txt";
+
+fun main {
+
+meter m1 = (meter)7;
+meter m2 = (meter)5;
+
+doubleMeter dm1 = (doubleMeter)13;
+doubleMeter dm2 = (doubleMeter)2.5;
+
+bar b1 = (bar) 3;
+kilo k1 = (kilo) 1;
+doubleKilo dk1 = (doubleKilo)1;
+
+area a1 = m2 * dm2; // 25
+volume v1 = a1 * dm1; // 325
+
+meter m3 = v1 / (area)65; // 10
+
+meter m4 = (m3 * a1 / v1 + dm1 * m2 / a1 + 3) * (meter)1 ; 					// 10 * (25/325) + 26*5/25 + 3 = 8,97???
+
+meter m5 = m2 * b1 / k1 * dk1 / m2; //15
+}
+
+

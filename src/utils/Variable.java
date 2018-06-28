@@ -6,8 +6,6 @@ import java.util.List;
 import org.apache.commons.collections15.Transformer;
 
 import compiler.PotatoesSemanticCheck;
-import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
-import edu.uci.ics.jung.graph.Graph;
 
 /**
  * <b>Variable</b><p>
@@ -27,13 +25,14 @@ public class Variable {
 	
 	private Type type;
 	private double value;
-	private static Graph<Type, Factor> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
-	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<Type, Factor>(typesGraph, new Transformer<Factor, Double>() {
-		@Override
-		public Double transform(Factor factor) {
-			return factor.getFactor();
-		}
-	});
+	private static Graph typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
+	//private static Graph<Type, Factor> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
+//	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<Type, Factor>(typesGraph, new Transformer<Factor, Double>() {
+//		@Override
+//		public Double transform(Factor factor) {
+//			return factor.getFactor();
+//		}
+//	});
 
 	// --------------------------------------------------------------------------
 	// CTORS
@@ -126,7 +125,10 @@ public class Variable {
 		double newValue = a.getValue() * -1;
 		return new Variable(a.getType(), newValue);
 	}
-
+	
+	/**
+	 * @return new Variable with new code and multiplied value
+	 */
 	public static Variable power(Variable a, Variable b) {
 
 		// Variable b type==number is already checked in Visitor
@@ -138,42 +140,26 @@ public class Variable {
 		return res;
 	}
 	
-//	static double pathFactor = 1.0;
-//	public boolean getPathFromGraph(Type vertex, Type destType) {
-//		
-//		Collection<Factor> outEdges = typesGraph.getOutEdges(type);
-//		
-//		for (Factor edge : outEdges) {
-//			vertex = typesGraph.getOpposite(vertex, edge);
-//			getPathFromGraph(vertex, destType);
-//			if (vertex.equals(destType)) {
-//				pathFactor *= edge.getFactor();
-//				return true;
-//			}
-//
-//		}
-//		
-//		return false;
-//	}
-	
-	
-	
+	/**
+	 * @return true if type is compatible with this.type
+	 */
 	public boolean typeIsCompatible(Type type){
 		if(this.getType().getCode() == type.getCode()) {
 			return true;
 		}
 		
-		// get path from graph, if exists is compatible
-		List<Factor> factors;
 		try {
-			factors = dijkstra.getPath(this.type, type);
+			typesGraph.getPath(this.type, type);
+			return true;
 		}
-		catch (IllegalArgumentException e) {
+		catch (Exception e) {
 			return false;
 		}
-		return true;
 	}
-
+	
+	/**
+	 * @return true if this.type is converted to newType, false
+	 */
 	public boolean convertTypeTo(Type newType) {
 
 		// variable type is already the one we're trying to convert to
@@ -184,42 +170,43 @@ public class Variable {
 
 		// verify that newType exists and its not number
 		if (!newType.getTypeName().equals("number")) {
-			if (!typesGraph.containsVertex(newType)) {
+			if (!typesGraph.containsVertex(newType) || ! typesGraph.containsVertex(this.getType())) {
 				if(debug) {System.out.println("CONVERT_TYPE_TO - not contained in graph");	}			
 				return false;
 			}
 		}
 
 		// get path from graph
-		List<Factor> factors;
+		double factors;
+		// always reset factor before calculating path
+		Graph.resetFactor();
 		try {
-			factors = dijkstra.getPath(this.type, newType);
-			if(debug) {System.out.println("-------> " + factors);}
+			factors = typesGraph.getPath(this.type, newType);
+			factors = Graph.getPathFactor();
+			typesGraph.clearVisited();
+			System.err.println("Final Factor is: "+ factors);
+			typesGraph.printGraph();
 		}
-		catch (IllegalArgumentException e) {
-			if(debug) {System.out.println("CONVERT_TYPE_TO - no path to convert, not compatible");	}
+		catch (Exception e){
 			return false;
 		}
+		
+		// calculate new value using convertion factors
+		this.value *= factors;
 
-		// convert value using edges cost
-		for(Factor f : factors) {
-			if(debug) {System.out.print("---> " + f.getFactor() + ", ");}
-			this.value *= f.getFactor();
-		}
-		if(debug) {System.out.println();}
-		
-//		pathFactor = 0.0;
-//		getPathFromGraph(this.getType(), newType);
-//		this.value *= pathFactor;
-//		System.out.println("----------- Factor is: " + pathFactor);
-		
-		
 		// convert code to type code
 		this.type = newType;
 		if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
 		return true;
 	}
-
+	
+	/**
+	 * When making operations with different dimensions its necessary
+	 * to convert the variables type to the ones that compose the type
+	 * they are being assign to. 
+	 * @param type
+	 * @return true if converted
+	 */
 	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
 		List<Type> unchecked = type.getUncheckedOpTypes();
 		if(debug) { System.out.print("Trying to check an unchecked type. List is ");
@@ -236,7 +223,15 @@ public class Variable {
 		}
 		return false;
 	}
-
+	
+	/**
+	 * When a variable is not converted in the previous methods, its necessary
+	 * to try to convert all extra variables to the same type. So converting to the
+	 * first possible case, guarantees that alike types will cancel if the oportunity
+	 * is presented 
+	 * @param destinationType
+	 * @return
+	 */
 	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
 		List<Type> opTypes = destinationType.getOpTypes();
 		if(debug) { System.out.print("Trying to convert to first possible checked. List is ");
@@ -252,25 +247,45 @@ public class Variable {
 		}
 		return false;
 	}
-
-	public boolean convertTypeToMaxParentType() {
-		Type parent = this.type;
-		boolean hasParent = true;
-
-		while(hasParent) {
-			List<Factor> edges = (List<Factor>) typesGraph.getOutEdges(parent);
-			for (Factor f : edges) {
-				if (f.getIsChildToParent() == true) {
-					parent = typesGraph.getDest(f);
-					if(debug) {System.out.println(parent + " -> ");}
-					break;
-				}
-			}
-			hasParent = false;	
-		}
-		return true;
-	}
-
+	
+	/**
+	 * When the previous two methods fail to convert a variable type, it means
+	 * the dimention is not compatible with neither the variable to be assigned
+	 * nor any of the types that compose it.
+	 * In that case, the conversion is done to the highest hieralchical parent.
+	 * The attempt is made hopping to maximize the change of cancelation futher 
+	 * in the calculations.
+	 * The result is garanteed when there is simple inheritance, but may or may not
+	 * be resolved if there is multiple inheritance.
+	 * @param destinationType
+	 * @return
+	 * @throws Exception
+	 */
+//	public boolean convertTypeToMaxParentType() {
+//		Type parent = this.type;
+//		boolean hasParent = true;
+//
+//		while(hasParent) {
+//			List<Factor> edges = (List<Factor>) typesGraph.getOutEdges(parent);
+//			for (Factor f : edges) {
+//				if (f.getIsChildToParent() == true) {
+//					parent = typesGraph.getDest(f);
+//					if(debug) {System.out.println(parent + " -> ");}
+//					break;
+//				}
+//			}
+//			hasParent = false;	
+//		}
+//		return true;
+//	}
+	
+	/**
+	 * This method manages the ink bewtween the previous three methods in order
+	 * to maximize correct results in calculations
+	 * @param destinationType
+	 * @return
+	 * @throws Exception
+	 */
 	public boolean MultDivCheckConvertType(Type destinationType) throws Exception {
 		boolean typeIsCompatible = false;
 		boolean checkType = false;
@@ -313,7 +328,7 @@ public class Variable {
 		
 		
 		
-		this.convertTypeToMaxParentType();
+		//this.convertTypeToMaxParentType();
 		
 		throw new Exception();
 	}
