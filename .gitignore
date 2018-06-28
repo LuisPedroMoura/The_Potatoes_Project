@@ -30,3 +30,7 @@ PotatoesVisitor.java
 *Lexer.java
 *Parser.java
 src/test
+src/tests/global/test.txt
+src/tests/global/test.java
+src/tests/global/test.txt
+src/compiler/PotatoesSemanticCheck.java

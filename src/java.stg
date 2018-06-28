@@ -49,7 +49,7 @@ public class <name> {
 //[MJ] DONE
 varAssignment(type, var, operation, stat ) ::= <<
 <stats(stat)>
-<if(type)><varDeclaration(type, var)><else><var><endif> = <operation>
+<if(type)><varDeclaration(type, var)><else><var><endif> = <operation>;
 >>
 
 //-------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ while(<logicalOperation>){
 //PRINTS-------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 print(type, valueOrVarList) ::= <<
-<printType.(type)>(<if(valueOrVarList)><valueOrVarList><endif>)
+<printType.(type)>(<values(valueOrVarList)>);
 >>
 
 //-------------------------------------------------------------------------------
@@ -138,5 +138,9 @@ varDeclaration(type, var) ::= <<
 
 type(type) ::= <<
 <typeValue.(type)>
+>>
+
+values(value) ::=<<
+<value>
 >>
 
