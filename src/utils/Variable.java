@@ -189,7 +189,7 @@ public class Variable {
 		boolean isCompatible = typesGraph.isCompatible(this.type, newType);
 		if (isCompatible) {
 			if (debug) {
-				ErrorHandling.printInfo("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				ErrorHandling.printInfo("BEFORE TRYING TO FIND PATH");
 				ErrorHandling.printInfo("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
 			}
 
@@ -197,7 +197,7 @@ public class Variable {
 			pathCost = Graph.getPathFactor();
 
 			if (debug) {
-				ErrorHandling.printInfo("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				ErrorHandling.printInfo("AFTER TRYING TO FIND PATH");
 			}
 
 			//typesGraph.clearVisited();
@@ -231,7 +231,7 @@ public class Variable {
 	 */
 	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
 		if (debug) {
-			ErrorHandling.printInfo("!!!!!!!!!!!!!!!convertTypeToFirstUncheckedTypeInOpTypeArray");
+			ErrorHandling.printInfo("----- convertTypeToFirstUncheckedTypeInOpTypeArray");
 		}
 
 		List<Type> unchecked = type.getUncheckedOpTypes();
@@ -262,7 +262,7 @@ public class Variable {
 	 */
 	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
 		if (debug) {
-			ErrorHandling.printInfo("!!!!!!!!!!!!!!!convertTypeToFirstPossibleTypeInOpTypeArrayOf");
+			ErrorHandling.printInfo("----- convertTypeToFirstPossibleTypeInOpTypeArrayOf");
 		}
 
 		List<Type> opTypes = destinationType.getOpTypes();
@@ -297,7 +297,7 @@ public class Variable {
 	 */
 	public boolean convertTypeToMaxParentType() {
 		if (debug) {
-			ErrorHandling.printInfo("!!!!!!!!!!!!!!!convertTypeToMaxParentType");
+			ErrorHandling.printInfo("----- convertTypeToMaxParentType");
 		}
 
 		Type parent = this.type;
@@ -307,7 +307,7 @@ public class Variable {
 			List<Factor> edges = typesGraph.getOutEdges(parent);
 
 			if (debug) {
-				ErrorHandling.printInfo("--------->>>>>>>>> edges? " + edges);
+				ErrorHandling.printInfo("edges: " + edges);
 			}
 
 			if (edges == null) {
@@ -317,7 +317,7 @@ public class Variable {
 
 			for (Factor f : edges) {
 				if (debug) {
-					ErrorHandling.printInfo("f.getIsChildToParent() " + f.getIsChildToParent());
+					ErrorHandling.printInfo("f.getIsChildToParent(): " + f.getIsChildToParent());
 				}
 
 				if (f.getIsChildToParent() == false) {

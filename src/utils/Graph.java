@@ -332,7 +332,7 @@ public class Graph {
 				}
 				if (node.getType().equals(end)) {
 					if (debug) {
-						ErrorHandling.printInfo("!!!!!!!!!!!!!!!  FOUND COMPATIBLE TYPE !!!!!!!!!!!!!!!!");
+						ErrorHandling.printInfo("FOUND COMPATIBLE TYPE!");
 					}
 					found = true;
 					//clearVisited();
