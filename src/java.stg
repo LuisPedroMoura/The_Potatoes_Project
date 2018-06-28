@@ -26,7 +26,7 @@ printType ::= [
 
 // [IJ] DONE
 stats(stat) ::= <<
-<if(stat)><stat; separator="\n"}><endif>
+<if(stat)><stat; separator="\n"><endif>
 >>
 
 //-------------------------------------------------------------------------------
