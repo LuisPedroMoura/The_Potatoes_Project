@@ -404,7 +404,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return false;
 	}
 
-
 	@Override
 	public Boolean visitAssignment_Var_Declaration_FunctionCall(Assignment_Var_Declaration_FunctionCallContext ctx) {
 		return visitChildren(ctx);

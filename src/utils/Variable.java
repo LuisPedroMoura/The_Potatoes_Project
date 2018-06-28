@@ -24,6 +24,7 @@ public class Variable {
 	private Type type;
 	private double value;
 	private static Graph typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
+	private static double pathCost;
 
 
 	// --------------------------------------------------------------------------
@@ -65,6 +66,13 @@ public class Variable {
 	 */
 	public double getValue() {
 		return value;
+	}
+	
+	/**
+	 * @return double pathCost of last calculated path between types in Graph
+	 */
+	public static double getPathCost() {
+		return pathCost;
 	}
 	
 	// --------------------------------------------------------------------------
@@ -145,8 +153,10 @@ public class Variable {
 			return false;
 		}
 		
-		typesGraph.printGraph();
-		return typesGraph.isCompatible(this.type, type);
+		//typesGraph.printGraph();
+		boolean isCompatible = typesGraph.isCompatible(this.type, type);
+		Graph.resetFactor();
+		return isCompatible;
 	}
 	
 	/**
@@ -168,9 +178,6 @@ public class Variable {
 			}
 		}
 
-		// get path from graph
-		double factors;
-		
 		// verify thar types exist in graph
 		if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(newType)) {
 			return false;
@@ -178,18 +185,19 @@ public class Variable {
 		
 		// always reset factor before calculating path
 		Graph.resetFactor();
-		
+	
 		boolean isCompatible = typesGraph.isCompatible(this.type, newType);
 		if (isCompatible) {
 			System.err.println("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			factors = typesGraph.getPathCost(this.type, newType);
+			typesGraph.getPathCost(this.type, newType);
+			pathCost = Graph.getPathFactor();
 			System.out.println("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			//typesGraph.clearVisited();
-			System.err.println("Final Factor is: "+ factors);
+			System.err.println("Final Factor is: "+ pathCost);
 			typesGraph.printGraph();
 			
 			// calculate new value using convertion factors
-			this.value *= factors;
+			this.value *= pathCost;
 	
 			// convert code to type code
 			this.type = newType;

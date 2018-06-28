@@ -291,7 +291,7 @@ public class Graph {
 		//clearVisited();
 		return pathFactor;
 	}
-
+	
 	/**
 	 * Same function as previous, boolean return
 
@@ -309,24 +309,24 @@ public class Graph {
 				Node node = null; //FIXME its this null here!
 				if (!found) {
 					node = adj.get(i);
-					System.err.println("Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
-					//pathFactor *= node.getFactor().getFactor();
-					System.err.println("Factor is: "+ pathFactor);
+					System.err.println("GRAPH Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
 					System.err.println(node.getType().getTypeName() + " " + node.getFactor().getFactor());
 				}
 				// FIXME ???
-				System.out.println("THIS IS NODE: "+ node.getType());
+				System.out.println("GRAPH THIS IS NODE: "+ node.getType());
 				if (node.getType().equals(end)) {
-
+					System.out.println("!!!!!!!!!!!!!!!  FOUND COMPATIBLE TYPE !!!!!!!!!!!!!!!!");
 					found = true;
-					return true;
+					clearVisited();
+					break;
 				}
 				if (!node.isVisited() && !found) {
 					node.markPathVisited(node.getType());
 					isCompatible(node.getType(),end);
-					System.err.println("Factor is: "+ pathFactor);
+					System.err.println("GRAPH Factor is: "+ pathFactor);
 				}
 			}
+			return true;
 		}
 		return false;
 	}
