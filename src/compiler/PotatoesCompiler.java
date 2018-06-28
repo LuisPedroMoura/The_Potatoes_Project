@@ -555,8 +555,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	@Override
 	public ST visitCast(CastContext ctx) {
-		// TODO Auto-generated method stub
-		return visitChildren(ctx);
+		// variavel com o tipo do cast
+		// String var... = (tipo do cast)
+		String newVarName = getNewVarName();		
+		ST assignment = varAssignmentST("String", newVarName, ctx.ID().getText());
+
+		return assignment;
 	}
 	
 	@Override
@@ -1001,17 +1005,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	//[MJ] DONE -> review just to be sure everything is right right
 	@Override
-	public ST visitOperation_Cast(Operation_CastContext ctx) {
-			
+	public ST visitOperation_Cast(Operation_CastContext ctx) {	
 		ST oldVariable = visit(ctx.operation());
 		
 		String oldVariableName = (String)oldVariable.getAttribute("var");
 		
 		Variable a = (Variable) getValueFromSymbolsTable(oldVariableName);
-		Variable result = new Variable(typesTable.get(ctx.cast().ID().getText()), a.getValue());
+		String castType = (String) visit(ctx.cast()).getAttribute("operation");
+		Variable result = new Variable(typesTable.get(castType), a.getValue());
 		
-		
-
 		ST newVariable = varAssignmentST("Double", getNewVarName(), result.getValue()+";"); 
 		String newName = (String) newVariable.getAttribute("var");
 		
@@ -1030,8 +1032,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		
 		return newVariable;
-	}
-		
+	}		
+	
 	//[MJ] DONE -> review just to be sure everything is right right
 	@Override
 	public ST visitOperation_Parenthesis(Operation_ParenthesisContext ctx) {
@@ -1375,7 +1377,22 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//[MJ] nothing to do, but don't delete
 	@Override
 	public ST visitValue_Cast_Number(Value_Cast_NumberContext ctx) {
-		return visitChildren(ctx);
+		String castType = (String) visit(ctx.cast()).getAttribute("operation");
+		Variable result = new Variable(typesTable.get(castType), Double.parseDouble(ctx.NUMBER().getText()));
+		
+		ST newVariable = varAssignmentST("Double", getNewVarName(), result.getValue()+";"); 
+		String newName = (String) newVariable.getAttribute("var");
+		
+		updateSymbolsTable(newName, newName, result);
+		
+		if(debug) {
+			System.out.println();
+			System.out.println("->"+ctx.getText());
+			System.out.println("\t-> visitValue_Cast_Number");
+			System.out.println();
+		}
+		
+		return newVariable;
 	}
 
 
