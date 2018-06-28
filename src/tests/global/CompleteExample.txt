@@ -195,8 +195,8 @@ if (n == 5 && n > 4){
 println("");
 println("");
 
-area a1 = 0;
-volume v1 = 0;
+area a1 = (area) 0;
+volume v1 = (volume) 0;
 
 m1 = (meter) 1;
 a1 = m1^2;
@@ -206,64 +206,6 @@ m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
 
-
-
 }
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  

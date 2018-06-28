@@ -57,7 +57,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// TODO functions
 	// TODO single declaration
 	// TODO update comments
-	// TODO create layout of functions and verify that evrey function complies
+	// TODO create layout of functions and verify that every function complies
+	// TODO divid by zero
 	
 	// MAIN RULES----------------------------------------------------------------------------------------------------------
 	
@@ -1095,7 +1096,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 		mapCtxObj.put(ctx, Variable.simetric(a));
-		ErrorHandling.printInfo(ctx, "[OP_OP_SIMETRIC]");
+		if(debug) {ErrorHandling.printInfo(ctx, "[OP_OP_SIMETRIC]");}
 		return true;
 	}
 
@@ -1129,7 +1130,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				ErrorHandling.printError(ctx, "Type \"" + a.getType() + "\" is not compatible with \"" + b.getType() + "\"!");
 				return false;
 			}
-			ErrorHandling.printInfo(ctx, "Variable b was converted to : " + b);
+			if (debug) { ErrorHandling.printInfo(ctx, "Variable b was converted to : " + b);}
 		}
 
 		// types are equal adding and subtracting is possible

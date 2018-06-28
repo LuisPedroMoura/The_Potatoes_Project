@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections15.Transformer;
@@ -22,14 +23,14 @@ public class Variable {
 	// INSTANCE FIELDS
 
 	// Static Field (Debug Only)
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 	
 	private Type type;
 	private double value;
 	private static Graph<Type, Factor> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
-	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<Type, Factor>(typesGraph, new Transformer<Factor, Number>() {
+	private static DijkstraShortestPath<Type, Factor> dijkstra = new DijkstraShortestPath<Type, Factor>(typesGraph, new Transformer<Factor, Double>() {
 		@Override
-		public Number transform(Factor factor) {
+		public Double transform(Factor factor) {
 			return factor.getFactor();
 		}
 	});
@@ -136,7 +137,27 @@ public class Variable {
 		Variable res = new Variable(newType, newValue);
 		return res;
 	}
-
+	
+//	static double pathFactor = 1.0;
+//	public boolean getPathFromGraph(Type vertex, Type destType) {
+//		
+//		Collection<Factor> outEdges = typesGraph.getOutEdges(type);
+//		
+//		for (Factor edge : outEdges) {
+//			vertex = typesGraph.getOpposite(vertex, edge);
+//			getPathFromGraph(vertex, destType);
+//			if (vertex.equals(destType)) {
+//				pathFactor *= edge.getFactor();
+//				return true;
+//			}
+//
+//		}
+//		
+//		return false;
+//	}
+	
+	
+	
 	public boolean typeIsCompatible(Type type){
 		if(this.getType().getCode() == type.getCode()) {
 			return true;
@@ -173,7 +194,7 @@ public class Variable {
 		List<Factor> factors;
 		try {
 			factors = dijkstra.getPath(this.type, newType);
-			System.out.println("-------> " + factors);
+			if(debug) {System.out.println("-------> " + factors);}
 		}
 		catch (IllegalArgumentException e) {
 			if(debug) {System.out.println("CONVERT_TYPE_TO - no path to convert, not compatible");	}
@@ -182,11 +203,17 @@ public class Variable {
 
 		// convert value using edges cost
 		for(Factor f : factors) {
-			System.out.print("---> " + f.getFactor() + ", ");
+			if(debug) {System.out.print("---> " + f.getFactor() + ", ");}
 			this.value *= f.getFactor();
 		}
-		System.out.println();
-
+		if(debug) {System.out.println();}
+		
+//		pathFactor = 0.0;
+//		getPathFromGraph(this.getType(), newType);
+//		this.value *= pathFactor;
+//		System.out.println("----------- Factor is: " + pathFactor);
+		
+		
 		// convert code to type code
 		this.type = newType;
 		if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
