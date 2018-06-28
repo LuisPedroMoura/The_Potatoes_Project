@@ -27,7 +27,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Constant (Debug Only)
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	// --------------------------------------------------------------------------
 	// Static Fields
@@ -40,6 +40,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	private static Type destinationType;
 
+	// --------------------------------------------------------------------------
+	// Getters
 	public static ParseTreeProperty<Object> getMapCtxObj(){
 		return mapCtxObj;
 	}

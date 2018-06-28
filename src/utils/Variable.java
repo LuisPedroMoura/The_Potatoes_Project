@@ -3,28 +3,30 @@ package utils;
 import java.util.List;
 
 import compiler.PotatoesSemanticCheck;
+import utils.errorHandling.ErrorHandling;
 
 /**
  * <b>Variable</b><p>
  * To be used on the general purpose language<p>
- * For example, an instruction like {@code distance x = (distance) 5} will create an instance of this object with Type {@code distance}
- * (if the type exists in the Types table) and value {@code 5}.<p>
+ * For example, an instruction like {@code distance x = (distance) 5} will create an instance of this object with 
+ * Type {@code distance} (if the type exists in the Types table) and value {@code 5}.<p>
  * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
 public class Variable {
 
+	// Static Constant (Debug Only)
+	private static final boolean debug = false;
+
 	// --------------------------------------------------------------------------
-	// INSTANCE FIELDS
-
-	// Static Field (Debug Only)
-	private static final boolean debug = true;
-
-	private Type type;
-	private double value;
+	// Static Fields
 	private static Graph typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
 	private static double pathCost;
 
+	// --------------------------------------------------------------------------
+	// Instance Fields
+	private Type type;
+	private double value;
 
 	// --------------------------------------------------------------------------
 	// CTORS
@@ -49,9 +51,8 @@ public class Variable {
 		this.value  = a.value; 
 	}
 
-
 	// --------------------------------------------------------------------------
-	// GETTERS / SETTERS
+	// Getters & Setters
 
 	/**
 	 * @return type
@@ -75,7 +76,7 @@ public class Variable {
 	}
 
 	// --------------------------------------------------------------------------
-	// OPERATIONS WITH VARIABLES
+	// Operations with Variables
 
 	/**
 	 * @return new Variable with new code and value
@@ -165,14 +166,14 @@ public class Variable {
 
 		// variable type is already the one we're trying to convert to
 		if (newType.getCode() == this.type.getCode()){
-			if(debug) {System.out.println("CONVERT_TYPE_TO - same type no convertion needed");}	
+			if(debug) {if (debug) ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}	
 			return true;
 		}
 
 		// verify that newType exists and its not number
 		if (!newType.getTypeName().equals("number")) {
 			if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.getType())) {
-				if(debug) {System.out.println("CONVERT_TYPE_TO - not contained in graph");	}			
+				if(debug) {if (debug) ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");	}			
 				return false;
 			}
 		}
@@ -187,21 +188,35 @@ public class Variable {
 
 		boolean isCompatible = typesGraph.isCompatible(this.type, newType);
 		if (isCompatible) {
-			System.err.println("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			System.err.println("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
+			if (debug) {
+				ErrorHandling.printInfo("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				ErrorHandling.printInfo("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
+			}
+
 			typesGraph.getPathCost(this.type, newType);
 			pathCost = Graph.getPathFactor();
-			System.out.println("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+			if (debug) {
+				ErrorHandling.printInfo("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			}
+
 			//typesGraph.clearVisited();
-			System.err.println("Final Factor is: "+ pathCost);
-			typesGraph.printGraph();
+
+			if (debug) {
+				ErrorHandling.printInfo("Final Factor is: "+ pathCost);
+				typesGraph.printGraph();
+			}
 
 			// calculate new value using convertion factors
 			this.value *= pathCost;
 
 			// convert code to type code
 			this.type = newType;
-			if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
+
+			if(debug) {
+				ErrorHandling.printInfo("CONVERT_TYPE_TO - converted");	
+			}	
+
 			return true;
 		}
 		return false;
@@ -215,20 +230,25 @@ public class Variable {
 	 * @return true if converted
 	 */
 	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
-		System.out.println("!!!!!!!!!!!!!!!convertTypeToFirstUncheckedTypeInOpTypeArray");
+		if (debug) {
+			ErrorHandling.printInfo("!!!!!!!!!!!!!!!convertTypeToFirstUncheckedTypeInOpTypeArray");
+		}
+
 		List<Type> unchecked = type.getUncheckedOpTypes();
-		if(debug) { System.out.print("Trying to check an unchecked type. List is ");
-		for (Type utype : unchecked) {
-			System.out.print(utype.getTypeName());
+		if(debug) { 
+			ErrorHandling.printInfo("Trying to check an unchecked type. List is ");
+			for (Type utype : unchecked) {
+				ErrorHandling.printInfo(utype.getTypeName());
+			}	
 		}
-		System.out.println();
-		}
+
 		for (Type t : unchecked) {
 			if(convertTypeTo(t)) {
 				type.checkType(t);
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -241,14 +261,19 @@ public class Variable {
 	 * @return
 	 */
 	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
-		System.out.println("!!!!!!!!!!!!!!!convertTypeToFirstPossibleTypeInOpTypeArrayOf");
+		if (debug) {
+			ErrorHandling.printInfo("!!!!!!!!!!!!!!!convertTypeToFirstPossibleTypeInOpTypeArrayOf");
+		}
+
 		List<Type> opTypes = destinationType.getOpTypes();
-		if(debug) { System.out.print("Trying to convert to first possible checked. List is ");
-		for (Type utype : opTypes) {
-			System.out.print(utype.getTypeName());
+
+		if(debug) { 
+			ErrorHandling.printInfo("Trying to convert to first possible checked. List is ");
+			for (Type utype : opTypes) {
+				ErrorHandling.printInfo(utype.getTypeName());
+			}
 		}
-		System.out.println();
-		}
+
 		for (Type t : opTypes) {
 			if (convertTypeTo(t)) {
 				return true;
@@ -271,27 +296,37 @@ public class Variable {
 	 * @throws Exception
 	 */
 	public boolean convertTypeToMaxParentType() {
-		System.out.println("!!!!!!!!!!!!!!!convertTypeToMaxParentType");
+		if (debug) {
+			ErrorHandling.printInfo("!!!!!!!!!!!!!!!convertTypeToMaxParentType");
+		}
+
 		Type parent = this.type;
 		boolean hasParent = true;
 
 		while(hasParent) {
 			List<Factor> edges = typesGraph.getOutEdges(parent);
-			System.out.println("--------->>>>>>>>> edges? " + edges);
+
+			if (debug) {
+				ErrorHandling.printInfo("--------->>>>>>>>> edges? " + edges);
+			}
+
 			if (edges == null) {
 				this.type = parent;
 				return true;
 			}
+
 			for (Factor f : edges) {
-				System.out.println("--------->>>>>>>>> if? " + f.getIsChildToParent());
+				if (debug) {
+					ErrorHandling.printInfo("f.getIsChildToParent() " + f.getIsChildToParent());
+				}
+
 				if (f.getIsChildToParent() == false) {
 					parent = typesGraph.getDest(parent, f);
-					System.out.println("--------->>>>>>>>>" + parent);
+
 					if (parent == null) { //impossible
 						return false;
 					}
-					System.out.println("--------->>>>>>>>>" +parent);
-					if(debug) {System.out.println(parent + " -> ");}
+
 					break;
 				}
 			}
@@ -355,10 +390,8 @@ public class Variable {
 		throw new Exception();
 	}
 
-
-
 	// --------------------------------------------------------------------------
-	// OTHER METHODS	
+	// Other Methods	
 
 	@Override
 	public String toString() {

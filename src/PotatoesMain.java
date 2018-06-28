@@ -37,9 +37,9 @@ public class PotatoesMain {
 		// create a CharStream that reads from the file:		
 		CharStream input = null;
 
-		System.out.println("inputed file: "+ args[0]);
+		//System.out.println("inputed file: "+ args[0]);
 		String name = args[0].substring(0, args[0].length()-4);
-		System.out.print("name " + name);
+		//System.out.print("name " + name);
 		try {
 			File f = new File(args[0]);
 			fileStream = new FileInputStream(f); 
