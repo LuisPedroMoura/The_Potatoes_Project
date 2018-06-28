@@ -11,7 +11,6 @@ import java.util.List;
  * 
  * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
- * @param <V>
  */
 public class Type {
 
@@ -29,7 +28,6 @@ public class Type {
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
-
 	private String typeName;
 	private String printName;
 	private final double code;
@@ -91,7 +89,7 @@ public class Type {
 	}
 
 	// --------------------------------------------------------------------------
-	// Getters / Setters
+	// Getters 
 
 	/**
 	 * @return typeName
@@ -119,16 +117,31 @@ public class Type {
 	 */
 	public List<Type> getOpTypes() {
 		return opTypes;
-	}
+	}	
 
+	// --------------------------------------------------------------------------
+	// Setters 
+
+	/**
+	 * 
+	 * @param opTypes
+	 */
 	public void setOpTypes(List<Type> opTypes) { 
 		this.opTypes = opTypes; 
 	} 
 
+	/**
+	 * 
+	 * @param typeName
+	 */
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
 	}
 
+	/**
+	 * 
+	 * @param printName
+	 */
 	public void setPrintName(String printName) {
 		this.printName = printName;
 	}
@@ -212,6 +225,7 @@ public class Type {
 			}
 		}
 	}
+
 	// --------------------------------------------------------------------------
 	// Other Methods
 

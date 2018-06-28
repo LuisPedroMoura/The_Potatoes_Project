@@ -1,4 +1,3 @@
-
 import static java.lang.System.err;
 import static java.lang.System.exit;
 import static java.lang.System.out;
@@ -32,15 +31,19 @@ public class PotatoesMain {
 			exit(10);
 		}
 
+		out.println("The Potatoes Project | LFA 28 June 2018");
+		out.println("Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)\n");
+
 		// create a stream from the file
 		InputStream fileStream = null;
 
 		// create a CharStream that reads from the file:		
 		CharStream input = null;
 
-		System.out.println("inputed file: "+ args[0]);
+		//System.out.println("inputed file: "+ args[0]);
 		String name = args[0].substring(0, args[0].length()-4);
-		System.out.print("name " + name);
+		//System.out.print("name " + name);
+
 		try {
 			File f = new File(args[0]);
 			fileStream = new FileInputStream(f); 
@@ -77,16 +80,16 @@ public class PotatoesMain {
 			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
 			if (visitor0.visit(tree)) {
 				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
-				
+
 				//System.out.print("Semantic Analyzis skiped! :P\n");
 				PotatoesCompiler visitor1 = new PotatoesCompiler();
 				ST program = visitor1.visit(tree);
 				program.add("name", name);
 				PrintWriter pw = new PrintWriter(new File(name+".java"));
-                pw.print(program.render());
-                pw.close();
-                System.out.println(name+" file created!");
-				
+				pw.print(program.render());
+				pw.close();
+				ErrorHandling.printInfo(name+" file created! Compilation Completed Sucessfully!");
+
 			}
 			else {
 				ErrorHandling.printError("Semantic Analyzis Completed With Errors :(");

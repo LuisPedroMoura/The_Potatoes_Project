@@ -3,16 +3,22 @@ package utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.errorHandling.ErrorHandling;
+
 /**
- * <b>Variable</b><p>
- * To be used on the general purpose language<p>
- * For example, an instruction like {@code distance x = (distance) 5} will create an instance of this object with Type {@code distance}
- * (if the type exists in the Types table) and value {@code 5}.<p>
- * @author Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
+ * 
+ * <b>Graph</b><p>
+ * Implementation based on adjcencies lists.<p>
+ * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
  * @version May-June 2018
  */
 public class Graph {
-	
+
+	// Static Constant (Debug Only)
+	private static final boolean debug = false;
+
+	// --------------------------------------------------------------------------
+	// Internal Class Node
 	/**
 	 * 
 	 * <b>Node</b><p>
@@ -68,21 +74,25 @@ public class Graph {
 				}
 			}
 		}
-		
+
 	}
-	
-	// END OF INTERNAL CLASS
 
+	// --------------------------------------------------------------------------
+	// Static Fields
+	private static double pathFactor = 1.0;
+	private static boolean found = false;
 
-	// Fields
+	// --------------------------------------------------------------------------
+	// Instance Fields
 	private List<ArrayList<Node>> adjList = new ArrayList<>();
 	private int size;
 	private int visitedCount;
 
+	// --------------------------------------------------------------------------
 	// Constructor
 	public Graph() {}
 
-
+	// --------------------------------------------------------------------------
 	// Getters, Setters and Reseters
 	/**
 	 * Resets Factor used in getPath()
@@ -91,18 +101,6 @@ public class Graph {
 		pathFactor = 1.0;
 		found = false;
 	}
-
-	/**
-	 * @return pathFactor used in getPath()
-	 */
-	static public double getPathFactor() {
-		return pathFactor;
-	}
-	
-	public List<ArrayList<Node>> getAdjList() {
-		return adjList;
-	}
-	
 
 	/**
 	 * Clears all visited fields from all Nodes
@@ -115,7 +113,26 @@ public class Graph {
 			}
 		}
 	}
-	
+
+	/**
+	 * @return pathFactor used in getPath()
+	 */
+	static public double getPathFactor() {
+		return pathFactor;
+	}
+
+	/**
+	 * @return adjList
+	 */
+	public List<ArrayList<Node>> getAdjList() {
+		return adjList;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 * @return outEdges for vertex type
+	 */
 	public List<Factor> getOutEdges(Type type){
 		List<Factor> newList = new ArrayList<>();
 		for (ArrayList<Node> list : adjList) {
@@ -129,7 +146,13 @@ public class Graph {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * 
+	 * @param type
+	 * @param f
+	 * @return destination vertex of edge f starting in vertex type
+	 */
 	public Type getDest(Type type, Factor f){
 		List<Node> nodes = new ArrayList<>();;
 		for (ArrayList<Node> list : adjList) {
@@ -149,15 +172,60 @@ public class Graph {
 	}
 
 	/**
-	 * Prints the graph rudimentarily in the console
+	 * @param type
+	 * @return the index of the adjacency list to the Node with type "type"
 	 */
-	public void printGraph() {
+	public int getIndexOfNode(Type type) {
 		for (ArrayList<Node> list : adjList) {
-			for (Node node : list) {
-				System.out.print(" |  " + node.getType().getTypeName() + " " + node.getFactor().getFactor() + " " + node.getFactor().getIsChildToParent());
+			if (list.get(0).getType().equals(type)) {
+				if (debug) {
+					ErrorHandling.printInfo("LIST INDEX : " + adjList.indexOf(list));
+				}
+				return adjList.indexOf(list);
 			}
-			System.out.println();
 		}
+		return -1;
+	}
+
+	/**
+	 * 
+	 * @param start type of the Node to start path from
+	 * @param end type of the Node to end path in
+	 * @return the cost of traversing the path (as a factor)
+	 * @throws Exception if any of the types given is not present in Graph
+	 */
+	public double getPathCost(Type start, Type end) {
+
+		int index = getIndexOfNode(start);
+		if (index != -1) {
+			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
+			found = false;
+			for (int i = 1; i < adj.size(); i++) {
+				Node node = null;
+				if (!found) {
+					node = adj.get(i);
+					if (debug) {
+						ErrorHandling.printInfo("Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
+						ErrorHandling.printInfo("Factor is: "+ pathFactor);
+						ErrorHandling.printInfo(node.getType().getTypeName() + " " + node.getFactor().getFactor());
+					}
+					pathFactor *= node.getFactor().getFactor();
+				}
+
+				if (node.getType().equals(end)) {
+					found = true;
+					//clearVisited();
+					return node.getFactor().getFactor();
+				}
+				if (!node.isVisited() && !found) {
+					node.markPathVisited(node.getType());
+					pathFactor *= getPathCost(node.getType(),end);
+					if (debug) ErrorHandling.printInfo("Factor is: "+ pathFactor);
+				}
+			}
+		}
+		//clearVisited();
+		return pathFactor;
 	}
 
 	/**
@@ -238,63 +306,7 @@ public class Graph {
 	}
 
 	/**
-	 * @param type
-	 * @return the index of the adjacency list to the Node with type "type"
-	 */
-	public int getIndexOfNode(Type type) {
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				System.err.println("LIST INDEX : " + adjList.indexOf(list));
-				return adjList.indexOf(list);
-			}
-		}
-		return -1;
-	}
-
-	private static double pathFactor = 1.0;
-	private static boolean found = false;
-	/**
-	 * 
-	 * @param start type of the Node to start path from
-	 * @param end type of the Node to end path in
-	 * @return the cost of traversing the path (as a factor)
-	 * @throws Exception if any of the types given is not present in Graph
-	 */
-	public double getPathCost(Type start, Type end) {
-
-		int index = getIndexOfNode(start);
-		if (index != -1) {
-			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
-			found = false;
-			for (int i = 1; i < adj.size(); i++) {
-				Node node = null;
-				if (!found) {
-					node = adj.get(i);
-					System.err.println("Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
-					pathFactor *= node.getFactor().getFactor();
-					System.err.println("Factor is: "+ pathFactor);
-					System.err.println(node.getType().getTypeName() + " " + node.getFactor().getFactor());
-				}
-
-				if (node.getType().equals(end)) {
-					found = true;
-					//clearVisited();
-					return node.getFactor().getFactor();
-				}
-				if (!node.isVisited() && !found) {
-					node.markPathVisited(node.getType());
-					pathFactor *= getPathCost(node.getType(),end);
-					System.err.println("Factor is: "+ pathFactor);
-				}
-			}
-		}
-		//clearVisited();
-		return pathFactor;
-	}
-	
-	/**
 	 * Same function as previous, boolean return
-
 	 * @param start
 	 * @param end
 	 * @return
@@ -306,16 +318,22 @@ public class Graph {
 			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
 			found = false;
 			for (int i = 1; i < adj.size(); i++) {
-				Node node = null; //FIXME its this null here!
+				Node node = null; 
 				if (!found) {
 					node = adj.get(i);
-					System.err.println("GRAPH Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
-					System.err.println(node.getType().getTypeName() + " " + node.getFactor().getFactor());
+					if (debug) {
+						ErrorHandling.printInfo("GRAPH Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
+						ErrorHandling.printInfo(node.getType().getTypeName() + " " + node.getFactor().getFactor());
+					}
 				}
-				// FIXME ???
-				System.out.println("GRAPH THIS IS NODE: "+ node.getType());
+
+				if (debug) {
+					ErrorHandling.printInfo("GRAPH THIS IS NODE: "+ node.getType());
+				}
 				if (node.getType().equals(end)) {
-					System.out.println("!!!!!!!!!!!!!!!  FOUND COMPATIBLE TYPE !!!!!!!!!!!!!!!!");
+					if (debug) {
+						ErrorHandling.printInfo("FOUND COMPATIBLE TYPE!");
+					}
 					found = true;
 					//clearVisited();
 					break;
@@ -323,7 +341,9 @@ public class Graph {
 				if (!node.isVisited() && !found) {
 					node.markPathVisited(node.getType());
 					isCompatible(node.getType(),end);
-					System.err.println("GRAPH Factor is: "+ pathFactor);
+					if (debug) {
+						ErrorHandling.printInfo("GRAPH Factor is: "+ pathFactor);
+					}
 				}
 			}
 			return true;
@@ -331,10 +351,16 @@ public class Graph {
 		return false;
 	}
 
-
+	// --------------------------------------------------------------------------
+	// Other Methods
 	/**
-	 * @return
+	 * Prints the graph rudimentarily in the console
 	 */
-	
-
+	public void printGraph() {
+		for (ArrayList<Node> list : adjList) {
+			for (Node node : list) {
+				System.out.print(" |  " + node.getType().getTypeName() + " " + node.getFactor().getFactor() + " " + node.getFactor().getIsChildToParent());
+			}
+		}
+	}
 }

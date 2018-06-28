@@ -1,26 +1,32 @@
+/* Potatoes Grammar
+ * Ines Justo (84804), Luis Pedro Moura (83808)
+ * Maria Joao Lavoura (84681), Pedro Teixeira (84715)
+ */
+ 
 grammar Potatoes;
 
 @header{
 	package potatoesGrammar;
 }
 
-//--------------------------------------------------------------------------
-//PARSER--------------------------------------------------------------------
-//--------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// Parser
 
-
-// MAIN RULES------------------------------------------------------------------
+// ----------------------------------------------
+// Main Rules
 program				: using code+ EOF	
 					;
 	
 using				: USING STRING EOL
 					;	
 					
-code				: varDeclaration EOL								#code_Declaration 
+code				: varDeclaration EOL							#code_Declaration 
 					| assignment EOL								#code_Assignment
 					| function										#code_Function
 					;	
-// CLASS-----------------------------------------------------------------------	
+					
+// ----------------------------------------------
+// Rules
 		
 statement			: varDeclaration EOL							#statement_Declaration
 					| assignment EOL								#statement_Assignment
@@ -44,8 +50,10 @@ assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Bo
 					
 					;
 
-// FUNCTIONS-------------------------------------------------------------------
-function			: FUN MAIN '{' statement* '}'										#function_Main
+// ----------------------------------------------
+// Functions
+
+function			: FUN MAIN '{' statement* '}'					#function_Main
 					| FUN ID '(' (type var (',' type var)* )* ')' '{' statement* '}'	#function_ID
 					;
 
@@ -55,14 +63,17 @@ functionReturn		: RETURN (var|value|operation) EOL
 functionCall		: ID '(' ((var|value|operation) (',' (var|value|operation))* )* ')'
 					;
 
-// CONTROL FLOW STATMENTS------------------------------------------------------
+// ----------------------------------------------
+// Control Flow Statements
+
 controlFlowStatement: condition
  					| forLoop
  					| whileLoop
  					;	
- 
+
+// Must have scopes for the sake of simplicity 
 forLoop				: FOR '(' assignment? EOL logicalOperation EOL assignment ')'
-					  '{' statement* '}' //[MJ] must have scopes for the sake of simplicity 
+					  '{' statement* '}' 
  					;
  			
 whileLoop			: WHILE '(' logicalOperation ')' '{' statement* '}'
@@ -81,8 +92,9 @@ elseIfCondition		: ELSE IF '(' logicalOperation ')' '{' statement* '}'
 elseCondition		: ELSE '{' statement* '}'
 					;
 
+// ----------------------------------------------
+// Logical Operations
 
-// LOGICAL OPERATIONS----------------------------------------------------------
 logicalOperation	: '(' logicalOperation ')'								# logicalOperation_Parenthesis
 					| logicalOperation op=('&&' | '||') logicalOperation	# logicalOperation_Operation
 					| logicalOperand										# logicalOperation_logicalOperand
@@ -111,7 +123,9 @@ compareOperator		: '=='
 					| '>='
 					;			
 
-// OPERATIONS------------------------------------------------------------------
+// ----------------------------------------------
+// Operations
+
 operation			: cast operation								#operation_Cast	
 					| '(' operation ')' 							#operation_Parenthesis
 					| operation op=('*' | '/' | '%') operation		#operation_Mult_Div_Mod
@@ -122,8 +136,9 @@ operation			: cast operation								#operation_Cast
 					| functionCall									#operation_FunctionCall
 					| NUMBER										#operation_NUMBER
 					;
-			
-// PRINTS----------------------------------------------------------------------
+		
+// ----------------------------------------------	
+// Prints
 
 print				: PRINT  '(' (printVar ('+'printVar)* ) ')' EOL		# print_Print
 					| PRINTLN '(' (printVar ('+'printVar)* ) ')' EOL	# print_Println
@@ -132,8 +147,10 @@ print				: PRINT  '(' (printVar ('+'printVar)* ) ')' EOL		# print_Print
 printVar			: value	#printVar_Value
 					| var	#printVar_Var
 					;
-	
-// VARS------------------------------------------------------------------------ 
+
+// ----------------------------------------------
+// Variables
+
 var					: ID
 					;
 
@@ -153,50 +170,49 @@ value				: cast NUMBER		# value_Cast_Number
 					| STRING			# value_String
 					;
 		
+// ----------------------------------------------
+// Casts
 
-// CASTS-----------------------------------------------------------------------
 cast				: '(' ID ')'
 					;				
 
-//--------------------------------------------------------------------------
-//LEXER---------------------------------------------------------------------
-//--------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// Lexer
 
-//
 USING			  : 'using';
 
-// END OF LINE
+// Separator between instructions
 EOL               : ';';
 
-// FUNCTIONS---------------------------------------------------------------
+// Functions
 MAIN			  : 'main' ;
 FUN 			  : 'fun';
 RETURN            : 'return';
 
-// CONTROL FLOW------------------------------------------------------------
+// Control Flow
 IF                : 'if';
 ELSE			  : 'else';
 FOR               : 'for';
 WHILE             : 'while';
 WHEN              : 'when';
 
-// TYPE NAME---------------------------------------------------------------
+// Reserved Types
 NUMBER_TYPE       : 'number';
 BOOLEAN_TYPE      : 'boolean';
 STRING_TYPE       : 'string';
 VOID_TYPE         : 'void';
 
-// BOOLEAN VALUES----------------------------------------------------------
+// Boolean Values
 BOOLEAN           : 'false' | 'true';
 
-// PRINTS------------------------------------------------------------------
+// Prints
 PRINT			  : 'print';
 PRINTLN			  : 'println';
 
-// VARS-------------------------------------------------------------------- 
+// Variables 
 ID                : [a-z] [a-zA-Z0-9_]*;
 
-// TYPE AGROUPMENT---------------------------------------------------------
+// Type Agroupment
 NUMBER            : '0'
 				  | [0-9] ('.'[0-9]+)?
 				  | [1-9][0-9]* ('.'[0-9]+)?
@@ -205,11 +221,9 @@ NUMBER            : '0'
 STRING            : '"' (ESC | . )*? '"';
 fragment ESC      : '//"' | '\\\\';
 
-// COMMENTS----------------------------------------------------------------
+// Comments & White Space
 LINE_COMMENT      : '//' .*? '\n' -> skip;
 COMMENT           : '/*' .*? '*/' -> skip;
-
-// WHITESPACE--------------------------------------------------------------
 WS                : [ \t\n\r]+ -> skip;
 		
 		

@@ -15,6 +15,8 @@ grammar Types;
 package typesGrammar;
 }
 
+// -----------------------------------------------------------------------------
+// Parser
 typesFile	: prefixDeclar? typesDeclar	  EOF
 			| typesDeclar   prefixDeclar? EOF
 			;
@@ -55,6 +57,7 @@ value		: '(' value ')' 						#Value_Parenthesis
 			;
 			
 // -----------------------------------------------------------------------------
+// Lexer
 ID					: LETTER (LETTER | DIGIT)*;
 STRING				: QUOTE_MARK (ESC | . )*? QUOTE_MARK;
 NUMBER				: '0' | ('-' | '+')? INT ('.' DIGIT+)? ;
