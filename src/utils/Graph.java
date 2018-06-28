@@ -12,7 +12,7 @@ import java.util.List;
  * @version May-June 2018
  */
 public class Graph {
-
+	
 	/**
 	 * 
 	 * <b>Node</b><p>
@@ -23,7 +23,7 @@ public class Graph {
 	 * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 	 * @version May-June 2018
 	 */
-	private class Node {
+	public class Node {
 
 		private Type type;
 		private Factor factor;
@@ -66,11 +66,11 @@ public class Graph {
 				}
 			}
 		}
-
+		
 	}
+	
+	// END OF INTERNAL CLASS
 
-	// End of internal class
-	//--------------------------------------------------------------------------------------------------
 
 	// Fields
 	private List<ArrayList<Node>> adjList = new ArrayList<>();
@@ -96,6 +96,10 @@ public class Graph {
 	static public double getPathFactor() {
 		return pathFactor;
 	}
+	
+	public List<ArrayList<Node>> getAdjList() {
+		return adjList;
+	}
 
 	/**
 	 * Clears all visited fields from all Nodes
@@ -107,6 +111,35 @@ public class Graph {
 				node.setVisited(false);
 			}
 		}
+	}
+	
+	public List<Factor> getOutEdges(Type type){
+		List<Factor> newList = new ArrayList<>();
+		for (ArrayList<Node> list : adjList) {
+			if (list.get(0).equals(type)) {
+				for (Node node : list) {
+					newList.add(node.getFactor());
+				}
+			}
+		}
+		return null;
+	}
+	
+	public Type getDest(Type type, Factor f){
+		List<Node> nodes = new ArrayList<>();;
+		for (ArrayList<Node> list : adjList) {
+			if (list.get(0).equals(type)) {
+				for (Node node : list) {
+					nodes.add(node);
+				}
+			}
+		}
+		for (Node node : nodes) {
+			if (node.getFactor().equals(f)) {
+				return node.getType();
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -249,7 +282,7 @@ public class Graph {
 				}
 			}
 		}
-		clearVisited();
+		//clearVisited();
 		return pathFactor;
 	}
 
@@ -291,5 +324,11 @@ public class Graph {
 		}
 		return false;
 	}
+
+
+	/**
+	 * @return
+	 */
+	
 
 }

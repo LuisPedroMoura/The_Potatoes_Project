@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import compiler.PotatoesSemanticCheck;
@@ -160,7 +161,7 @@ public class Variable {
 
 		// verify that newType exists and its not number
 		if (!newType.getTypeName().equals("number")) {
-			if (!typesGraph.containsVertex(newType) || ! typesGraph.containsVertex(this.getType())) {
+			if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.getType())) {
 				if(debug) {System.out.println("CONVERT_TYPE_TO - not contained in graph");	}			
 				return false;
 			}
@@ -176,9 +177,10 @@ public class Variable {
 		
 		// always reset factor before calculating path
 		Graph.resetFactor();
+		System.err.println("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		factors = typesGraph.getPath(this.type, newType);
-		factors = Graph.getPathFactor();
-		typesGraph.clearVisited();
+		System.out.println("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		//typesGraph.clearVisited();
 		System.err.println("Final Factor is: "+ factors);
 		typesGraph.printGraph();
 		
@@ -252,23 +254,31 @@ public class Variable {
 	 * @return
 	 * @throws Exception
 	 */
-//	public boolean convertTypeToMaxParentType() {
-//		Type parent = this.type;
-//		boolean hasParent = true;
-//
-//		while(hasParent) {
-//			List<Factor> edges = (List<Factor>) typesGraph.getOutEdges(parent);
-//			for (Factor f : edges) {
-//				if (f.getIsChildToParent() == true) {
-//					parent = typesGraph.getDest(f);
-//					if(debug) {System.out.println(parent + " -> ");}
-//					break;
-//				}
-//			}
-//			hasParent = false;	
-//		}
-//		return true;
-//	}
+	public boolean convertTypeToMaxParentType() {
+		Type parent = this.type;
+		boolean hasParent = true;
+
+		while(hasParent) {
+			List<Factor> edges = typesGraph.getOutEdges(parent);
+			if (edges == null) {
+				this.type = parent;
+				return true;
+			}
+			for (Factor f : edges) {
+				if (f.getIsChildToParent() == true) {
+					parent = typesGraph.getDest(parent, f);
+					if (parent == null) { //impossible
+						return false;
+					}
+					if(debug) {System.out.println(parent + " -> ");}
+					break;
+				}
+			}
+			hasParent = false;
+			this.type = parent;
+		}
+		return true;
+	}
 	
 	/**
 	 * This method manages the ink bewtween the previous three methods in order
@@ -317,9 +327,7 @@ public class Variable {
 			return true;
 		}
 		
-		
-		
-		//this.convertTypeToMaxParentType();
+		this.convertTypeToMaxParentType();
 		
 		throw new Exception();
 	}
