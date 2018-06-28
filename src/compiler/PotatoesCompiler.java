@@ -53,7 +53,6 @@ import potatoesGrammar.PotatoesParser.Operation_ParenthesisContext;
 import potatoesGrammar.PotatoesParser.Operation_PowerContext;
 import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
 import potatoesGrammar.PotatoesParser.Operation_VarContext;
-import potatoesGrammar.PotatoesParser.PrintVarContext;
 import potatoesGrammar.PotatoesParser.PrintVar_ValueContext;
 import potatoesGrammar.PotatoesParser.PrintVar_VarContext;
 import potatoesGrammar.PotatoesParser.Print_PrintContext;
@@ -622,24 +621,31 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitPrintVar_Var(PrintVar_VarContext ctx) {
 		String oldVariableName = ctx.var().getText();
-		Variable oldVarValue = (Variable) getValueFromSymbolsTable(oldVariableName);
-		Variable result = new Variable(typesTable.get(ctx.var().getText()), oldVarValue.getValue());
+		Type type = typesTable.get(ctx.var().getText());
+		String resultVarName = symbolTableName.get(oldVariableName);
+		
+		
+		//Variable oldVarValue = (Variable) getValueFromSymbolsTable(oldVariableName);
+		String oldVarValue = (String) getValueFromSymbolsTable(oldVariableName);
 
-		ST newVariable = null; //varAssignmentST(result.getType().getTypeName(), getNewVarName(), oldVarValue.getValue());
-
-		return newVariable;
+		//oldVarValue tem de ser string (valor da variavel)
+		ST assignment = varAssignmentST(type.getTypeName(), resultVarName, oldVarValue);
+		
+		return assignment;
 	}
 	
 	@Override
 	public ST visitPrintVar_Value(PrintVar_ValueContext ctx) {
-		String oldVariableName = ctx.value().getText();
-		Variable oldVarValue = (Variable) getValueFromSymbolsTable(oldVariableName);
+		String value = ctx.value().getText();
 
 		//nao temos o tipo de value!!
+		String type = "String";
 		
-		ST newVariable = varAssignmentST("STRING", getNewVarName(), oldVarValue.toString()); 		
-
-		return newVariable;
+		String varNewName = getNewVarName();
+		ST assignment = varAssignmentST(type, varNewName, value);
+		updateSymbolsTable(varNewName, varNewName, value);
+		
+		return assignment;
 	}
 	
 		
@@ -880,7 +886,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			Variable v1 = (Variable) getValueFromSymbolsTable(varNameOp1);
 			
 			updateSymbolsTable(varNewName, varNewName, getBooleanResult(v0.getValue(),v1.getValue(),compareOp));
-		
 		}
 			
 		return assignment;
