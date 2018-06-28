@@ -565,11 +565,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		print.add("type",ctx.PRINT().getText());
 		
-		for(int i = 0; i<ctx.printVar().size()-1; i++)
-			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
-
-		print.add("valueOrVarList", visit(ctx.printVar(ctx.printVar().size()-1)).render());
-
+		String varOrValueList = visit(ctx.printVar(0)).render();
+		System.out.println(varOrValueList);
+		int numberOfvalueOrVar = ctx.printVar().size();
+		
+		for(int i = 1; i<numberOfvalueOrVar; i++) {
+			varOrValueList += "+" + visit(ctx.printVar(i)).render();
+			System.out.println(i);
+			System.out.println(varOrValueList);
+		}
+		
+		print.add("valueOrVarList", varOrValueList);
+		
 		
 		if(debug) {
 			System.out.println();
@@ -586,14 +593,21 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitPrint_Println(Print_PrintlnContext ctx) {
 		ST print = stg.getInstanceOf("print");
-		
+
 		print.add("type",ctx.PRINTLN().getText());
 		
-		for(int i = 0; i<ctx.printVar().size()-1; i++)
-			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
-
-		print.add("valueOrVarList", visit(ctx.printVar(ctx.printVar().size()-1)).render());
-
+		String varOrValueList = visit(ctx.printVar(0)).render();
+		System.out.println(varOrValueList);
+		int numberOfvalueOrVar = ctx.printVar().size();
+		
+		for(int i = 1; i<numberOfvalueOrVar; i++) {
+			varOrValueList += "+" + visit(ctx.printVar(i)).render();
+			System.out.println(i);
+			System.out.println(varOrValueList);
+		}
+		
+		print.add("valueOrVarList", varOrValueList);
+		
 		if(debug) {
 			System.out.println();
 			System.out.println("->"+ctx.getText());
