@@ -2,4 +2,16 @@
 // Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
 
 using "Example2_Types.txt";
-number n = 5;
+number n1 = 5;//ok
+number n2 = 5 + 5;//ok
+number n3 = 5*5 - 5/5;//ok
+number n4 = (5+5)%9;//ok
+number n5 = 5 ^ 5;//ok
+number n6 = 5 ^ 5*5;//ok
+
+number n7 = n1;//ok
+number n8 = n2 + n1;//ok
+number n9 = n3*n3 - n1/n1;//ok? verificar valores
+number n10 = (n1+n2)%n3;//ok? verificar valores
+number n11 = n1 ^ 5;
+number n12 = 5 ^ n1*5;

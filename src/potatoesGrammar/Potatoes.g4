@@ -22,7 +22,7 @@ code				: varDeclaration EOL								#code_Declaration
 					;	
 // CLASS-----------------------------------------------------------------------	
 		
-statement			: varDeclaration EOL								#statement_Declaration
+statement			: varDeclaration EOL							#statement_Declaration
 					| assignment EOL								#statement_Assignment
 					| controlFlowStatement							#statement_Control_Flow_Statement
 					| functionCall EOL								#statement_FunctionCall

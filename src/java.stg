@@ -3,7 +3,6 @@
 // DICTIONARIES /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//[MJ] REVIEW (LOWER PRIORITY) -> array type
 typeValue ::= [
    "number"	:"Double",
    "string"	:"String",
@@ -189,12 +188,7 @@ varDeclaration(type, var) ::= <<
 <type> <var>
 >>
 
-//[MJ] DONE
-value(value) ::=<<
-<value>
->>
-
-//[MJ] DONE
-type(type) ::=<<
+type(type) ::= <<
 <typeValue.(type)>
 >>
+
