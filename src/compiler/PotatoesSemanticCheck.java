@@ -222,7 +222,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				Boolean b = (Boolean) (symbolTable.get(ctx.var().ID().getText()));
 				symbolTable.put(ctx.varDeclaration().ID().getText(), !b);
 				mapCtxObj.put(ctx, !b);
-				if(debug) {ErrorHandling.printInfo(ctx, "boolean variable with value: " + !b + "was assigned");}
+				if(debug) {ErrorHandling.printInfo(ctx, "boolean variable with value: " + !b + " was assigned");}
 				return true;
 			}
 			ErrorHandling.printError(ctx, "Cannot assign logical operation to non boolean Type");

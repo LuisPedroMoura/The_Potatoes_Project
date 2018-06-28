@@ -24,19 +24,9 @@ printType ::= [
 // TEMPLATES ////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//[IJ] - DONE
-statements(stat, controlflow) ::= <<
-<stats(stat)><controlflowstats(controlflow)>
->>
-
-// [MJ] DONE
+// [IJ] DONE
 stats(stat) ::= <<
-<if(stat)><stat:{s|<s>;<\n>}><endif>
->>
-
-//[IJ] - DONE
-controlflowstats(controlflow) ::= <<
-<if(controlflow)><controlflow; separator="\n"><endif>
+<if(stat)><stat; separator="\n"><endif>
 >>
 
 //-------------------------------------------------------------------------------
@@ -44,10 +34,10 @@ controlflowstats(controlflow) ::= <<
 //-------------------------------------------------------------------------------
 
 // [MJ] DONE
-class(name,stat, controlflow) ::= <<
+class(name,stat) ::= <<
 public class <name> {
 	public static void main(String[] args) {
-		<statements(stat, controlflow)>
+		<stats(stat)>
 	}
 }
 >>
