@@ -40,7 +40,6 @@ assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Bo
 					| var '=' value									#assignment_Var_Value
 					| var '=' comparison							#assignment_Var_Comparison
 					| var '=' operation								#assignment_Var_Operation
-					| var '=' valuesList							#assignment_Var_ValueList
 					| var '=' functionCall							#assingment_Var_FunctionCall
 					
 					;
@@ -162,8 +161,6 @@ value				: cast NUMBER		# value_Cast_Number
 					| STRING			# value_String
 					;
 		
-valuesList			: '{' (value|var) (',' (value|var))* '}'
-					;
 
 // CASTS-----------------------------------------------------------------------
 cast				: '(' ID ')'
@@ -199,10 +196,6 @@ VOID_TYPE         : 'void';
 
 // BOOLEAN VALUES----------------------------------------------------------
 BOOLEAN           : 'false' | 'true';
-
-// STRUCTURES--------------------------------------------------------------
-ARRAY			  : 'Array';
-LENGTH			  : 'length';
 
 // PRINTS------------------------------------------------------------------
 PRINT			  : 'print';
