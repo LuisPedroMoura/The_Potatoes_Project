@@ -908,6 +908,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if(obj0 instanceof Variable && obj1 instanceof Variable) {
 				Variable a = (Variable) obj0;
 				Variable b = (Variable) obj1;
+				out.print("THIS IS A : " + a);
+				out.print("THIS IS B : " + b);
 				boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
 				mapCtxObj.put(ctx, comparisonIsPossible);
 				return comparisonIsPossible;

@@ -1,9 +1,6 @@
 package utils;
 
-import java.util.Collection;
 import java.util.List;
-
-import org.apache.commons.collections15.Transformer;
 
 import compiler.PotatoesSemanticCheck;
 
@@ -142,13 +139,12 @@ public class Variable {
 			return true;
 		}
 		
-		try {
-			typesGraph.getPath(this.type, type);
-			return true;
-		}
-		catch (Exception e) {
+		// verify thar types exist in graph
+		if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(type)) {
 			return false;
 		}
+		
+		return typesGraph.isCompatible(this.type, type);
 	}
 	
 	/**
@@ -172,18 +168,19 @@ public class Variable {
 
 		// get path from graph
 		double factors;
-		// always reset factor before calculating path
-		Graph.resetFactor();
-		try {
-			factors = typesGraph.getPath(this.type, newType);
-			factors = Graph.getPathFactor();
-			typesGraph.clearVisited();
-			System.err.println("Final Factor is: "+ factors);
-			typesGraph.printGraph();
-		}
-		catch (Exception e){
+		
+		// verify thar types exist in graph
+		if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(newType)) {
 			return false;
 		}
+		
+		// always reset factor before calculating path
+		Graph.resetFactor();
+		factors = typesGraph.getPath(this.type, newType);
+		factors = Graph.getPathFactor();
+		typesGraph.clearVisited();
+		System.err.println("Final Factor is: "+ factors);
+		typesGraph.printGraph();
 		
 		// calculate new value using convertion factors
 		this.value *= factors;

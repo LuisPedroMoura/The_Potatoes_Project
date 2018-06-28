@@ -221,11 +221,7 @@ public class Graph {
 	 * @return the cost of traversing the path (as a factor)
 	 * @throws Exception if any of the types given is not present in Graph
 	 */
-	public double getPath(Type start, Type end) throws Exception {
-		
-		if(!containsVertex(start) || !containsVertex(end)) {
-			throw new Exception();
-		}
+	public double getPath(Type start, Type end) {
 		
 		int index = getIndexOfNode(start);
 		if (index != -1) {
@@ -253,6 +249,45 @@ public class Graph {
 			}
 		}
 		return pathFactor;
+	}
+	
+	/**
+	 * Same function as previous, boolean return
+	 
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public boolean isCompatible(Type start, Type end) {
+		
+		int index = getIndexOfNode(start);
+		if (index != -1) {
+			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
+			
+			for (int i = 1; i < adj.size(); i++) {
+				Node node = null; //FIXME its this null here!
+				if (!found) {
+					node = adj.get(i);
+					System.err.println("Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
+					//pathFactor *= node.getFactor().getFactor();
+					System.err.println("Factor is: "+ pathFactor);
+					System.err.println(node.getType().getTypeName() + " " + node.getFactor().getFactor());
+				}
+				// FIXME ???
+				System.out.println("THIS IS NODE: "+ node.getType());
+				if (node.getType().equals(end)) {
+					
+					found = true;
+					return true;
+				}
+				if (!node.isVisited() && !found) {
+					node.markPathVisited(node.getType());
+					isCompatible(node.getType(),end);
+					System.err.println("Factor is: "+ pathFactor);
+				}
+			}
+		}
+		return false;
 	}
 	
 }
