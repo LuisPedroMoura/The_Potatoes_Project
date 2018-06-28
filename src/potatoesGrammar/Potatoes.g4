@@ -195,7 +195,6 @@ IF                : 'if';
 ELSE			  : 'else';
 FOR               : 'for';
 WHILE             : 'while';
-WHEN              : 'when';
 
 // Reserved Types
 NUMBER_TYPE       : 'number';

@@ -606,18 +606,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return valid;
 	}
 
-
 	@Override
 	public Boolean visitFunction_ID(Function_IDContext ctx) {
 		return super.visitFunction_ID(ctx);
 	}
 
-
 	@Override
 	public Boolean visitFunctionReturn(FunctionReturnContext ctx) {
 		return super.visitFunctionReturn(ctx);
 	}
-
 
 	@Override
 	public Boolean visitFunctionCall(FunctionCallContext ctx) {
