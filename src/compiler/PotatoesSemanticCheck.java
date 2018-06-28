@@ -637,16 +637,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return valid;
 	}
 
-	@Override
-	public Boolean visitWhen(WhenContext ctx) {
-		return true;
-	}
-
-	@Override
-	public Boolean visitWhenCase(WhenCaseContext ctx) {
-		return true;
-	}
-
 	@Override 
 	public Boolean visitCondition(ConditionContext ctx) {
 		return visitChildren(ctx);
