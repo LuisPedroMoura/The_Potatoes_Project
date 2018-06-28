@@ -26,6 +26,8 @@ import potatoesGrammar.PotatoesParser.CompareOperation_OperationContext;
 import potatoesGrammar.PotatoesParser.CompareOperatorContext;
 import potatoesGrammar.PotatoesParser.ComparisonContext;
 import potatoesGrammar.PotatoesParser.ConditionContext;
+import potatoesGrammar.PotatoesParser.Condition_withElseContext;
+import potatoesGrammar.PotatoesParser.Condition_withoutElseContext;
 import potatoesGrammar.PotatoesParser.ControlFlowStatementContext;
 import potatoesGrammar.PotatoesParser.ElseConditionContext;
 import potatoesGrammar.PotatoesParser.ElseIfConditionContext;
@@ -754,27 +756,81 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitWhileLoop(WhileLoopContext ctx) {
 
 		ST whileLoop = stg.getInstanceOf("whileLoop");
-		whileLoop.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		for(int i = 0; i<ctx.statement().size(); i++)
-			whileLoop.add("stat", visit(ctx.statement(i)).render());
+		
+		//logicalOperation
+		ST logicalOperation = visit(ctx.logicalOperation());
+		whileLoop.add("previousStatements", logicalOperation.render());
+		whileLoop.add("logicalOperation", logicalOperation.getAttribute("operation"));
+		//statements
+		for(StatementContext context : ctx.statement()) {
+			ST statements = visit(context);
+			whileLoop.add("content", statements.render());
+		}
 
 		return whileLoop;
 	}
 	
-	// [IJ] - DONE
 	@Override
-	public ST visitCondition(ConditionContext ctx) {
-		return visitChildren(ctx);
+	public ST visitCondition_withoutElse(Condition_withoutElseContext ctx) {
+		ST condition = stg.getInstanceOf("stats");
+		
+		ST ifCondition = visit(ctx.ifCondition());
+		
+		ST elseIfCondition = stg.getInstanceOf("stats");
+		
+		for(ElseIfConditionContext context : ctx.elseIfCondition()) {
+			ST temp = visit(context);
+			String previousStatements = (String) temp.getAttribute("previousStatements");
+			ifCondition.add("previousStatements", previousStatements);
+			elseIfCondition.add("stat", temp.render().substring(previousStatements.length()));
+		}
+		
+		condition.add("stat", ifCondition.render());
+		condition.add("stat", elseIfCondition.render());
+		
+		return condition;
 	}
-	
+
+
+	@Override
+	public ST visitCondition_withElse(Condition_withElseContext ctx) {
+		ST condition = stg.getInstanceOf("stats");
+		
+		ST ifCondition = visit(ctx.ifCondition());
+		
+		ST elseIfCondition = stg.getInstanceOf("stats");
+		
+		for(ElseIfConditionContext context : ctx.elseIfCondition()) {
+			ST temp = visit(context);
+			String previousStatements = (String) temp.getAttribute("previousStatements");
+			ifCondition.add("previousStatements", previousStatements);
+			elseIfCondition.add("stat", temp.render().substring(previousStatements.length()));
+		}
+			
+		ST elseCondition = visit(ctx.elseCondition());
+		
+		condition.add("stat", ifCondition.render());
+		condition.add("stat", elseIfCondition.render());
+		condition.add("stat", elseCondition.render());
+		
+		return condition;
+	}
+
 	// [IJ] - DONE
 	@Override 
 	public ST visitIfCondition(IfConditionContext ctx) { 
 		ST ifCondition = stg.getInstanceOf("ifCondition");
-		ifCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		for(int i = 0; i<ctx.statement().size(); i++)
-			ifCondition.add("stat", visit(ctx.statement(i)).render());
-
+		
+		//logicalOperation
+		ST logicalOperation = visit(ctx.logicalOperation());
+		ifCondition.add("previousStatements", logicalOperation.render());
+		ifCondition.add("logicalOperation", logicalOperation.getAttribute("operation"));
+		//statements
+		for(StatementContext context : ctx.statement()) {
+			ST statements = visit(context);
+			ifCondition.add("content", statements.render());
+		}
+				
 		return ifCondition;
 	}
 
@@ -782,9 +838,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override 
 	public ST visitElseIfCondition(ElseIfConditionContext ctx) { 
 		ST elseIfCondition = stg.getInstanceOf("elseIfCondition");
-		elseIfCondition.add("logicalOperation", visit(ctx.logicalOperation()).render());
-		for(int i = 0; i<ctx.statement().size(); i++)
-			elseIfCondition.add("stat", visit(ctx.statement(i)).render());
+		
+		//logicalOperation
+		ST logicalOperation = visit(ctx.logicalOperation());
+		elseIfCondition.add("previousStatements", logicalOperation.render());
+		elseIfCondition.add("logicalOperation", logicalOperation.getAttribute("operation"));
+		//statements
+		for(StatementContext context : ctx.statement()) {
+			ST statements = visit(context);
+			elseIfCondition.add("content", statements.render());
+		}
 		
 		return elseIfCondition;
 	}
@@ -793,8 +856,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override 
 	public ST visitElseCondition(ElseConditionContext ctx) { 
 		ST elseCondition = stg.getInstanceOf("elseCondition");
-		for(int i = 0; i<ctx.statement().size(); i++)
-			elseCondition.add("stat", visit(ctx.statement(i)).render());
+		for(StatementContext context : ctx.statement()) {
+			ST statements = visit(context);
+			elseCondition.add("content", statements.render());
+		}
 		
 		return elseCondition;
 	}

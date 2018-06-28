@@ -52,27 +52,6 @@ varAssignment(type, var, operation, stat ) ::= <<
 <if(type)><varDeclaration(type, var)><else><var><endif> = <operation>;
 >>
 
-//-------------------------------------------------------------------------------
-//FUNCTION-----------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-
-// FUNCTION ID--------------------------------------------------------------------
-// [MJ] REVIEW (LOWER PRIORITY) -> args
-function(name, return, arg) ::= <<
-	public static <return> <name> ( <args(arg)> ) {
-		<stats(stat)>
-	}
->>
-
-
-
-// [MJ] REVIEW (LOWER PRIORITY) -> problem with separator, if more than 1 arg, needs a comma, and i don't know how to implement it 
-args(arg) ::= <<
-<if(arg)><arg; separator=" "><endif>
->>
-
-// FUNCTION CALL------------------------------------------------------------------
-
 
 //-------------------------------------------------------------------------------
 //CONTROL FLOW-------------------------------------------------------------------
@@ -86,7 +65,9 @@ if(<logicalOperation>){
 	<stats(content)>
 }
 >>
-elseIfCondition(logicalOperation, content) ::= <<
+
+elseIfCondition(previousStatements, logicalOperation, content) ::= <<
+<stats(previousStatements)>
 else if(<logicalOperation>){
 	<stats(content)>
 }

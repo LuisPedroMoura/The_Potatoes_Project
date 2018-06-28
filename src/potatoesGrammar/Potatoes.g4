@@ -80,7 +80,8 @@ whileLoop			: WHILE '(' logicalOperation ')' '{' statement* '}'
 					;
  			
 //[MJ] must have scopes for the sake of simplicity 
-condition			: ifCondition elseIfCondition* elseCondition?
+condition			: ifCondition elseIfCondition*					#condition_withoutElse
+					|  ifCondition elseIfCondition* elseCondition	#condition_withElse
 					;
 
 ifCondition			: IF '(' logicalOperation ')' '{' statement* '}'
