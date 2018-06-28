@@ -2,7 +2,7 @@ using "CompleteExample_Types.txt";
 
 fun main {
 
-meter m1 = (meter)7;
+meter m1 = (meter)7; // ERRO VarDeclaration_Value
 meter m2 = (meter)5;
 
 doubleMeter dm1 = (doubleMeter)13;
