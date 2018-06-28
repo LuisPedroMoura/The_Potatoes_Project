@@ -8,9 +8,9 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import typesGrammar.TypesParser.*;
 import utils.Factor;
+import utils.Graph;
 import utils.Prefix;
 import utils.Type;
-import utils.Graph;
 import utils.errorHandling.ErrorHandling;
 
 /**
@@ -139,7 +139,6 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			// Update Types & Symbol Tables
 			typesTable.put(typeName, t);
 			types.put(ctx, t);		
-			//if (t.getTypeName().equals("temp")) System.out.println("ATTENTION!! ADDED TEMP at visit_derived" + ctx.getText());
 
 			if (debug) {
 				ErrorHandling.printInfo(ctx, "Added Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
