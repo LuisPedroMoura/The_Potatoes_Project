@@ -53,7 +53,8 @@ import potatoesGrammar.PotatoesParser.Operation_ParenthesisContext;
 import potatoesGrammar.PotatoesParser.Operation_PowerContext;
 import potatoesGrammar.PotatoesParser.Operation_SimetricContext;
 import potatoesGrammar.PotatoesParser.Operation_VarContext;
-import potatoesGrammar.PotatoesParser.PrintVarContext;
+import potatoesGrammar.PotatoesParser.PrintVar_ValueContext;
+import potatoesGrammar.PotatoesParser.PrintVar_VarContext;
 import potatoesGrammar.PotatoesParser.Print_PrintContext;
 import potatoesGrammar.PotatoesParser.Print_PrintlnContext;
 import potatoesGrammar.PotatoesParser.ProgramContext;
@@ -577,11 +578,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		print.add("type",ctx.PRINT().getText());
 		
-		for(int i = 0; i<ctx.printVar().size()-1; i++)
-			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
-
-		print.add("valueOrVarList", visit(ctx.printVar(ctx.printVar().size()-1)).render());
-
+		String varOrValueList = "";
+		int numberOfvalueOrVar = ctx.printVar().size();
+		
+		for(int i = 0; i<numberOfvalueOrVar-1; i++) {
+			ST assign = visit(ctx.printVar(i));
+			String varOrValue = (String) assign.getAttribute("operation");
+			varOrValueList += "+" + varOrValue;
+		}
+		
+		print.add("valueOrVarList", varOrValueList);
 		
 		if(debug) {
 			System.out.println();
@@ -598,14 +604,21 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitPrint_Println(Print_PrintlnContext ctx) {
 		ST print = stg.getInstanceOf("print");
-		
+
 		print.add("type",ctx.PRINTLN().getText());
 		
-		for(int i = 0; i<ctx.printVar().size()-1; i++)
-			print.add("valueOrVarList", visit(ctx.printVar(i)).render()+"+");
+		String varOrValueList = "";
+		int numberOfvalueOrVar = ctx.printVar().size();
 
-		print.add("valueOrVarList", visit(ctx.printVar(ctx.printVar().size()-1)).render());
-
+		for(int i = 0; i<numberOfvalueOrVar-1; i++) {
+			ST assign = visit(ctx.printVar(i));
+			String varOrValue = (String) assign.getAttribute("operation");
+			varOrValueList += "+" + varOrValue;
+		}
+		
+		print.add("valueOrVarList", varOrValueList);
+		
+		
 		if(debug) {
 			System.out.println();
 			System.out.println("->"+ctx.getText());
@@ -616,23 +629,43 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return print;
 	}
-
-	// [IJ] - DONE
+	
 	@Override
-	public ST visitPrintVar(PrintVarContext ctx) {
-		if(debug) {
-			System.out.println();
-			System.out.println("->"+ctx.getText());
-			System.out.println("\t-> visitPrintVar");
-			System.out.println();
-		}
-		return visitChildren(ctx);
+	public ST visitPrintVar_Var(PrintVar_VarContext ctx) {
+		String oldVariableName = ctx.var().getText();
+		Type type = typesTable.get(ctx.var().getText());
+		String resultVarName = symbolTableName.get(oldVariableName);
+		
+		
+		//Variable oldVarValue = (Variable) getValueFromSymbolsTable(oldVariableName);
+		String oldVarValue = (String) getValueFromSymbolsTable(oldVariableName);
+
+		//oldVarValue tem de ser string (valor da variavel)
+		ST assignment = varAssignmentST(type.getTypeName(), resultVarName, oldVarValue);
+		
+		return assignment;
 	}
+	
+	@Override
+	public ST visitPrintVar_Value(PrintVar_ValueContext ctx) {
+		String value = ctx.value().getText();
+
+		//nao temos o tipo de value!!
+		String type = "String";
+		
+		String varNewName = getNewVarName();
+		ST assignment = varAssignmentST(type, varNewName, value);
+		updateSymbolsTable(varNewName, varNewName, value);
+		
+		return assignment;
+	}
+	
 		
 	// --------------------------------------------------------------------------------------------------------------------
 	// CONTROL FLOW STATMENTS----------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
 	
+
 	// [IJ] - DONE
 	@Override
 	public ST visitControlFlowStatement(ControlFlowStatementContext ctx) {

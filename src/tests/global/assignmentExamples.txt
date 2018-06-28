@@ -9,7 +9,7 @@
 */
 
 using "CompleteRightExampleTypes.txt";
-
+fun main{
 	//OK -> atribuiçao dum adimensional com cast
 	number n = 5;
 	volume v1 = (volume) n;
@@ -88,4 +88,5 @@ using "CompleteRightExampleTypes.txt";
 	boolean b5 = n1 < n2;
 	boolean b6 = n1 <= n2;
 	boolean b7 = !b1;
+}
 	

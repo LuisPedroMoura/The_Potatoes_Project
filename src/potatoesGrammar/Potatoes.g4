@@ -127,12 +127,11 @@ operation			: cast operation								#operation_Cast
 
 print				: PRINT  '(' (printVar ('+'printVar)* ) ')' EOL		# print_Print
 					| PRINTLN '(' (printVar ('+'printVar)* ) ')' EOL	# print_Println
-					// | PRINT  '(' (printVar ('+'printVar)* ) ')' EOL
 					;
 
-printVar			: value | var
+printVar			: value	#printVar_Value
+					| var	#printVar_Var
 					;
-
 	
 // VARS------------------------------------------------------------------------ 
 var					: ID

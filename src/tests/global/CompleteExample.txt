@@ -1,7 +1,7 @@
 using "CompleteExample_Types.txt";
 
 fun main {
-
+/*
 boolean b1 = true;
 boolean b2 = false;
 boolean b3 = b1;
@@ -20,11 +20,11 @@ number n2 = 2;
 number n3 = 3;
 println("print numbers: " + n1 + " " + n2 + " " + n3);
 println("");
-
+*/
 meter m1 = (meter) 1;
 doubleMeter dm1 = (meter) 1;
 kilo kg1 = (kilo) 1;
-
+/*
 println("print variables: " + m1 + ", " + dm1 + ", " + kg1);
 println("");
 
@@ -36,7 +36,7 @@ boolean b9 = m1 == m1;
 boolean b10 = m1 != m1;
 println("print assign comparison: "+b5+" "+b6+" "+b7+" "+b8+" "+b9+" "+ b10);
 println("");
-
+*/
 bar barr = (bar)1;
 number n4 = 1+1;
 meter m2 = m1 + m1;
@@ -51,7 +51,7 @@ meter m9 = m1*m1/m1;
 meter m10 = m1 + kg1/kg1*m1;
 meter m11 = (m1*kg1 + m1*kg1)/kg1;
 meter m12 = m1*kg1/barr;
-
+/*
 print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
@@ -207,7 +207,7 @@ m3 = m2 % 2;
 m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
-
+*/
 }
 	
  

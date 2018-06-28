@@ -1,0 +1,15 @@
+using "Example2_Types.txt";
+fun main{
+    string s1 = "s1";
+    string s2 = "s2";
+    string s3 = "s3";
+    println(s1);
+    println("print strings: " + s1 + " " + s2 + " " + s3);
+    println("");
+
+    number n1 = 1;
+    number n2 = 2;
+    number n3 = 3;
+    println("print numbers: " + n1 + " " + n2 + " " + n3);
+    println("");
+}

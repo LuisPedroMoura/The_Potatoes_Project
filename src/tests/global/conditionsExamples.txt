@@ -1,0 +1,26 @@
+using "Example2_Types.txt";
+fun main{
+    number n = 5;
+    // nao faz nada 
+    if (n == 5 && n > 4){
+       // nao faz nada 
+       if (n < 6 && n > 2 + 2){
+	       // nao faz nada 
+       }    
+       if (n > 6 || 2 > 1) {
+            if(n > 5 && false) {
+            
+            }
+            else if (n == 5 || !true){
+            
+            }
+            
+            if ((n==5 && n > 6 || false) && n < 4){
+            }
+            else if (n > 5) {
+            }
+            else {
+            }
+        }	
+    }
+}

@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import compiler.PotatoesSemanticCheck;
@@ -23,6 +24,7 @@ public class Variable {
 	private Type type;
 	private double value;
 	private static Graph typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
+	private static double pathCost;
 
 
 	// --------------------------------------------------------------------------
@@ -64,6 +66,13 @@ public class Variable {
 	 */
 	public double getValue() {
 		return value;
+	}
+	
+	/**
+	 * @return double pathCost of last calculated path between types in Graph
+	 */
+	public static double getPathCost() {
+		return pathCost;
 	}
 	
 	// --------------------------------------------------------------------------
@@ -144,7 +153,10 @@ public class Variable {
 			return false;
 		}
 		
-		return typesGraph.isCompatible(this.type, type);
+		//typesGraph.printGraph();
+		boolean isCompatible = typesGraph.isCompatible(this.type, type);
+		Graph.resetFactor();
+		return isCompatible;
 	}
 	
 	/**
@@ -160,15 +172,12 @@ public class Variable {
 
 		// verify that newType exists and its not number
 		if (!newType.getTypeName().equals("number")) {
-			if (!typesGraph.containsVertex(newType) || ! typesGraph.containsVertex(this.getType())) {
+			if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.getType())) {
 				if(debug) {System.out.println("CONVERT_TYPE_TO - not contained in graph");	}			
 				return false;
 			}
 		}
 
-		// get path from graph
-		double factors;
-		
 		// verify thar types exist in graph
 		if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(newType)) {
 			return false;
@@ -176,19 +185,27 @@ public class Variable {
 		
 		// always reset factor before calculating path
 		Graph.resetFactor();
-		factors = typesGraph.getPath(this.type, newType);
-		factors = Graph.getPathFactor();
-		typesGraph.clearVisited();
-		System.err.println("Final Factor is: "+ factors);
-		typesGraph.printGraph();
-		
-		// calculate new value using convertion factors
-		this.value *= factors;
-
-		// convert code to type code
-		this.type = newType;
-		if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
-		return true;
+	
+		boolean isCompatible = typesGraph.isCompatible(this.type, newType);
+		if (isCompatible) {
+			System.err.println("BEFORE FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			System.err.println("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
+			typesGraph.getPathCost(this.type, newType);
+			pathCost = Graph.getPathFactor();
+			System.out.println("AFTER FACTORS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			//typesGraph.clearVisited();
+			System.err.println("Final Factor is: "+ pathCost);
+			typesGraph.printGraph();
+			
+			// calculate new value using convertion factors
+			this.value *= pathCost;
+	
+			// convert code to type code
+			this.type = newType;
+			if(debug) {System.out.println("CONVERT_TYPE_TO - converted");	}		
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -199,6 +216,7 @@ public class Variable {
 	 * @return true if converted
 	 */
 	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
+		System.out.println("!!!!!!!!!!!!!!!convertTypeToFirstUncheckedTypeInOpTypeArray");
 		List<Type> unchecked = type.getUncheckedOpTypes();
 		if(debug) { System.out.print("Trying to check an unchecked type. List is ");
 			for (Type utype : unchecked) {
@@ -224,6 +242,7 @@ public class Variable {
 	 * @return
 	 */
 	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
+		System.out.println("!!!!!!!!!!!!!!!convertTypeToFirstPossibleTypeInOpTypeArrayOf");
 		List<Type> opTypes = destinationType.getOpTypes();
 		if(debug) { System.out.print("Trying to convert to first possible checked. List is ");
 			for (Type utype : opTypes) {
@@ -252,23 +271,38 @@ public class Variable {
 	 * @return
 	 * @throws Exception
 	 */
-//	public boolean convertTypeToMaxParentType() {
-//		Type parent = this.type;
-//		boolean hasParent = true;
-//
-//		while(hasParent) {
-//			List<Factor> edges = (List<Factor>) typesGraph.getOutEdges(parent);
-//			for (Factor f : edges) {
-//				if (f.getIsChildToParent() == true) {
-//					parent = typesGraph.getDest(f);
-//					if(debug) {System.out.println(parent + " -> ");}
-//					break;
-//				}
-//			}
-//			hasParent = false;	
-//		}
-//		return true;
-//	}
+	public boolean convertTypeToMaxParentType() {
+		System.out.println("!!!!!!!!!!!!!!!convertTypeToMaxParentType");
+		Type parent = this.type;
+		boolean hasParent = true;
+
+		while(hasParent) {
+			List<Factor> edges = typesGraph.getOutEdges(parent);
+			System.out.println("--------->>>>>>>>> edges? " + edges);
+			if (edges == null) {
+				this.type = parent;
+				return true;
+			}
+			for (Factor f : edges) {
+				System.out.println("--------->>>>>>>>> if? " + f.getIsChildToParent());
+				if (f.getIsChildToParent() == false) {
+					parent = typesGraph.getDest(parent, f);
+					System.out.println("--------->>>>>>>>>" + parent);
+					if (parent == null) { //impossible
+						return false;
+					}
+					System.out.println("--------->>>>>>>>>" +parent);
+					if(debug) {System.out.println(parent + " -> ");}
+					break;
+				}
+			}
+			hasParent = false;
+			this.type = parent;
+			break;
+		}
+		this.type = parent;
+		return true;
+	}
 	
 	/**
 	 * This method manages the ink bewtween the previous three methods in order
@@ -317,9 +351,7 @@ public class Variable {
 			return true;
 		}
 		
-		
-		
-		//this.convertTypeToMaxParentType();
+		this.convertTypeToMaxParentType();
 		
 		throw new Exception();
 	}
