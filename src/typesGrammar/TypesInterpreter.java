@@ -6,12 +6,11 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.Graph;
 import typesGrammar.TypesParser.*;
 import utils.Factor;
 import utils.Prefix;
 import utils.Type;
+import utils.Graph;
 import utils.errorHandling.ErrorHandling;
 
 /**
@@ -28,7 +27,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// --------------------------------------------------------------------------
 	// Instance Fields 
 	private Map<String, Type>    typesTable    = new HashMap<>();
-	private Graph<Type, Factor>  typesGraph    = new DirectedSparseGraph<>();
+	//private Graph<Type, Factor>  typesGraph    = new DirectedSparseGraph<>();
+	private Graph typesGraph = new Graph();
 	private Map<String, Prefix>  prefixesTable = new HashMap<>();	
 
 	private ParseTreeProperty<Type>   types    = new ParseTreeProperty<>();
@@ -40,7 +40,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		return typesTable;
 	}
 
-	public Graph<Type, Factor> getTypesGraph() {
+	public Graph getTypesGraph() {
 		return typesGraph;
 	}
 

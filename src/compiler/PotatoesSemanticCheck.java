@@ -35,7 +35,7 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Field (Debug Only)
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	static String path;
 	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
@@ -59,6 +59,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// TODO update comments
 	// TODO create layout of functions and verify that every function complies
 	// TODO divid by zero
+	// TODO BOOLEAN in comparison only valid to == and !=
 	
 	// MAIN RULES----------------------------------------------------------------------------------------------------------
 	
@@ -82,69 +83,69 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		typesTable = typesFileInfo.getTypesTable();
 		mapCtxObj.put(ctx, path);
 
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "Types File path is: " + path);
-			ErrorHandling.printInfo(ctx, typesFileInfo.toString());
-			new TestGraph(typesFileInfo.getTypesGraph());
-
-			Map<String, Type> map = typesFileInfo.getTypesTable();
-
-			JFrame f = new JFrame("View Table");
-			f.setSize(557, 597);
-			f.setResizable(true);
-			f.setVisible(true);
-			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			f.setLocationRelativeTo(null);
-
-			JPanel contents = new JPanel();
-			contents.setBorder(new EmptyBorder(5, 5, 5, 5));
-			contents.setLayout(new BorderLayout(0, 0));
-			f.setContentPane(contents);
-
-			JTable table = new JTable(map.size() * 100,2);
-			//JTable.createScrollPaneForTable(table);
-			//table.setAutoResizeMode();
-			int row=0;
-			for(Map.Entry<String,Type> entry: map.entrySet()){
-				table.setValueAt(entry.getKey(),row,0);
-				table.setValueAt(entry.getValue(),row,1);
-				row++;
-				for (Type t : entry.getValue().getOpTypes()) {
-					table.setValueAt("opType entry from " + entry.getKey() + " is " ,row,0);
-					table.setValueAt(t,row,1);
-					row++;
-				}
-			}
-
-			table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
-
-			for (int column = 0; column < table.getColumnCount(); column++)
-			{
-				TableColumn tableColumn = table.getColumnModel().getColumn(column);
-				int preferredWidth = tableColumn.getMinWidth();
-				int maxWidth = tableColumn.getMaxWidth();
-
-				for (int row1 = 0; row1 < table.getRowCount(); row1++)
-				{
-					TableCellRenderer cellRenderer = table.getCellRenderer(row1, column);
-					Component c = table.prepareRenderer(cellRenderer, row1, column);
-					int width = c.getPreferredSize().width + table.getIntercellSpacing().width;
-					preferredWidth = Math.max(preferredWidth, width);
-
-					//  We've exceeded the maximum width, no need to check other rows
-
-					if (preferredWidth >= maxWidth)
-					{
-						preferredWidth = maxWidth;
-						break;
-					}
-				}
-
-				tableColumn.setPreferredWidth( preferredWidth );
-			}
-
-			contents.add(table);
-		}
+//		if (debug) {
+//			ErrorHandling.printInfo(ctx, "Types File path is: " + path);
+//			ErrorHandling.printInfo(ctx, typesFileInfo.toString());
+//			new TestGraph(typesFileInfo.getTypesGraph());
+//
+//			Map<String, Type> map = typesFileInfo.getTypesTable();
+//
+//			JFrame f = new JFrame("View Table");
+//			f.setSize(557, 597);
+//			f.setResizable(true);
+//			f.setVisible(true);
+//			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//			f.setLocationRelativeTo(null);
+//
+//			JPanel contents = new JPanel();
+//			contents.setBorder(new EmptyBorder(5, 5, 5, 5));
+//			contents.setLayout(new BorderLayout(0, 0));
+//			f.setContentPane(contents);
+//
+//			JTable table = new JTable(map.size() * 100,2);
+//			//JTable.createScrollPaneForTable(table);
+//			//table.setAutoResizeMode();
+//			int row=0;
+//			for(Map.Entry<String,Type> entry: map.entrySet()){
+//				table.setValueAt(entry.getKey(),row,0);
+//				table.setValueAt(entry.getValue(),row,1);
+//				row++;
+//				for (Type t : entry.getValue().getOpTypes()) {
+//					table.setValueAt("opType entry from " + entry.getKey() + " is " ,row,0);
+//					table.setValueAt(t,row,1);
+//					row++;
+//				}
+//			}
+//
+//			table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
+//
+//			for (int column = 0; column < table.getColumnCount(); column++)
+//			{
+//				TableColumn tableColumn = table.getColumnModel().getColumn(column);
+//				int preferredWidth = tableColumn.getMinWidth();
+//				int maxWidth = tableColumn.getMaxWidth();
+//
+//				for (int row1 = 0; row1 < table.getRowCount(); row1++)
+//				{
+//					TableCellRenderer cellRenderer = table.getCellRenderer(row1, column);
+//					Component c = table.prepareRenderer(cellRenderer, row1, column);
+//					int width = c.getPreferredSize().width + table.getIntercellSpacing().width;
+//					preferredWidth = Math.max(preferredWidth, width);
+//
+//					//  We've exceeded the maximum width, no need to check other rows
+//
+//					if (preferredWidth >= maxWidth)
+//					{
+//						preferredWidth = maxWidth;
+//						break;
+//					}
+//				}
+//
+//				tableColumn.setPreferredWidth( preferredWidth );
+//			}
+//
+//			contents.add(table);
+//		}
 		return true;
 	}
 
@@ -907,6 +908,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if(obj0 instanceof Variable && obj1 instanceof Variable) {
 				Variable a = (Variable) obj0;
 				Variable b = (Variable) obj1;
+				out.print("THIS IS A : " + a);
+				out.print("THIS IS B : " + b);
 				boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
 				mapCtxObj.put(ctx, comparisonIsPossible);
 				return comparisonIsPossible;

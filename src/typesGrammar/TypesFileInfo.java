@@ -10,10 +10,10 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import edu.uci.ics.jung.graph.Graph;
 import utils.Factor;
 import utils.Prefix;
 import utils.Type;
+import utils.Graph;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
@@ -29,7 +29,8 @@ public class TypesFileInfo {
 	// Instance Fields
 	private final Map<String, Prefix>  prefixesTable;
 	private final Map<String, Type>    typesTable;
-	private final Graph<Type, Factor>  typesGraph;
+	//private final Graph<Type, Factor>  typesGraph;
+	private final Graph typesGraph;
 
 	// --------------------------------------------------------------------------
 	// CTOR
@@ -114,7 +115,7 @@ public class TypesFileInfo {
 	 * Can be an empty graph (if no types were declared in the file).
 	 * @return typesGraph
 	 */
-	public Graph<Type, Factor> getTypesGraph() {
+	public Graph getTypesGraph() {
 		return typesGraph;
 	}
 
