@@ -69,7 +69,6 @@ functionCall		: ID '(' ((var|value|operation) (',' (var|value|operation))* )* ')
 controlFlowStatement: condition
  					| forLoop
  					| whileLoop
- 					| when
  					;	
 
 // Must have scopes for the sake of simplicity 
@@ -77,18 +76,10 @@ forLoop				: FOR '(' assignment? EOL logicalOperation EOL assignment ')'
 					  '{' statement* '}' 
  					;
  			
-whileLoop			: WHILE '(' logicalOperation ')' ('{' statement* '}' | EOL)
+whileLoop			: WHILE '(' logicalOperation ')' '{' statement* '}'
 					;
  			
-when				: WHEN '(' var ')' '{' whenCase* '}'
-					;
- 			
-whenCase			: value '->' '{' statement* '}'
- 					;
-	
-// ----------------------
-// Must have scopes for the sake of simplicity 
-
+//[MJ] must have scopes for the sake of simplicity 
 condition			: ifCondition elseIfCondition* elseCondition?
 					;
 
