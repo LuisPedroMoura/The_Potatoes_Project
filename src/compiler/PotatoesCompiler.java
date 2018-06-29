@@ -391,7 +391,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String type = "Boolean";
 		//get the new var name of this assignment from var declaration ST 
 		String originalName = ctx.var(0).getText();	
-		String varNewName = symbolTableName.get(originalName);
+		String varNewName = getNewVarName();
 
 		String varOpOriginalName = ctx.var(1).getText();
 		String varOpName = symbolTableName.get(varOpOriginalName);
@@ -421,11 +421,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		//get the var name in potatoes code
 		String originalName = ctx.var().getText();
-		//get the var name in java code
-		String varNewName = symbolTableName.get(originalName);
 	
 		//create a ST for this assignment
 		ST assignment = stg.getInstanceOf("varAssignment");
+		String varNewName = getNewVarName();
 		assignment.add("var", varNewName);
 		
 		Object typeValue = getValueFromSymbolsTable(originalName);
@@ -476,8 +475,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		//get the var name in potatoes code
 		String originalName = ctx.var().getText();
-		//get the var name in java code
-		String varNewName = symbolTableName.get(originalName);
+		String varNewName = getNewVarName();
 				
 		//get ST of comparison
 		ST comparison = visit(ctx.comparison());
@@ -492,7 +490,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		//create a ST for this assignment
 		ST assignment = varAssignmentST(previousDec, type, varNewName, comparisonVarName);
 		
-		updateSymbolsTable(varNewName, varNewName, getValueFromSymbolsTable(comparisonVarName));
+		updateSymbolsTable(originalName, varNewName, getValueFromSymbolsTable(comparisonVarName));
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -514,13 +512,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 		//get the var name in potatoes code
 		String originalName = ctx.var().getText();
-		//get the var name in java code
-		String newVarName = symbolTableName.get(originalName);
 		
 		//create a ST for this assignment
 		ST assignment = stg.getInstanceOf("varAssignment");
 		
 		//get the new var name
+		String newVarName = getNewVarName();
 		assignment.add("var", newVarName);
 		
 		//get ST of operation
@@ -548,7 +545,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		else { //typeValue.equals("number")||typeValue.equals("ID")
 			
 			assignment.add("type", "Double");
-			assignment.add("operation", operationName);
 			
 			Variable temp = (Variable) obj;
 			Variable a = new Variable(temp);
@@ -1189,18 +1185,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			newVariable.add("operation", op0Name + " % " + op1Name);
 		}
 		else {
-			
+			System.out.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!BEFOR TRY");
 			try {
 				varOp0.MultDivCheckConvertType(destinationType);
-				factorOp0 = Variable.getPathCost();
+			} catch (Exception e) {}
+			factorOp0 = Variable.getPathCost();
+			try {
 				varOp1.MultDivCheckConvertType(destinationType);
-				factorOp1 = Variable.getPathCost();
-				
-			} catch (Exception e) {
-				//System.err.println("semantic analyses faild!");
-				//e.printStackTrace();
-			}
-			
+			} catch (Exception e) {}
+			factorOp1 = Variable.getPathCost();			
 			
 			if (op.equals("*")) {
 				result = Variable.multiply(varOp0, varOp1); 
