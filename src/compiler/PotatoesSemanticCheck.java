@@ -1086,9 +1086,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override 
 	public Boolean visitOperation_Add_Sub(Operation_Add_SubContext ctx) {
+		if (destinationType == null) {
+			destinationType = typesTable.get("number");
+		}
+		
+		destinationType.clearCheckList();
 		if(!visit(ctx.operation(0))) {
 			return false;
 		}
+		destinationType.clearCheckList();
 		
 		if(mapCtxObj.get(ctx.operation(0)) instanceof Boolean || mapCtxObj.get(ctx.operation(0)) instanceof String) {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
@@ -1100,17 +1106,18 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		destinationType.clearCheckList();
+		
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable a = new Variable(temp);
-		destinationType.clearCheckList();
+		
 
 		if(!visit(ctx.operation(1))) {
 			return false;
 		}
+		destinationType.clearCheckList();
 		temp = (Variable) mapCtxObj.get(ctx.operation(1));
 		Variable b = new Variable(temp);
-		destinationType.clearCheckList();
+		
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] Visiting Operation Add_Sub");
