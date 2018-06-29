@@ -741,40 +741,42 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		else {// FOR '(' assignment EOL logicalOperation EOL assignment ')'
 			ST assignment0 = visit(ctx.assignment(0));
-			ST assignment1 = visit(ctx.assignment(1));
+			
 			
 			forLoop.add("outsideStatements", assignment0.render());
+			//logical operation
+			ST logicalOperation = visit(ctx.logicalOperation());
+			forLoop.add("outsideStatements", logicalOperation.render());
+			
+			//String operation = (String)logicalOperation.getAttribute("operation");
+			String comparison = (String) logicalOperation.getAttribute("var");//operation.substring(0, operation.length());
+			forLoop.add("logicalOperation", "!"+comparison);
+			
+			//var actualization
+
+			String statLogicalOperation [] = logicalOperation.render().split("Double");
+			for(String s: statLogicalOperation) {
+				if(s.contains("Boolean")) {
+					String [] stat2 = s.split("Boolean");
+					for(String s2: stat2) {
+						forLoop.add("finalAssignment", s2);
+					}
+					break;
+
+				}
+				forLoop.add("finalAssignment", s);
+			}
+			
+			ST assignment1 = visit(ctx.assignment(1));
 			forLoop.add("outsideStatements", assignment1.render());
 			
 			//var actualization
-			String stat [] = assignment1.render().split("Double");
-			for(String s: stat)
+			String statAssignment1 [] = assignment1.render().split("Double");
+			for(String s: statAssignment1)
 				forLoop.add("finalAssignment", s);
 		}
 		
-		
-		//logical operation
-		ST logicalOperation = visit(ctx.logicalOperation());
-		forLoop.add("outsideStatements", logicalOperation.render());
-		
-		//String operation = (String)logicalOperation.getAttribute("operation");
-		String comparison = (String) logicalOperation.getAttribute("var");//operation.substring(0, operation.length()-1);
-		forLoop.add("logicalOperation", "!"+comparison);
-		
-		//var actualization
-		String stat [] = logicalOperation.render().split("Double");
-		for(String s: stat) {
-			if(s.contains("Boolean")) {
-				String [] stat2 = s.split("Boolean");
-				for(String s2: stat2) {
-					forLoop.add("finalAssignment", s2);
-				}
-				break;
-			}
-			forLoop.add("finalAssignment", s);
-		}
-		
-		
+				
 		//statements
 		for(StatementContext context : ctx.statement()) {
 			ST statements = visit(context);
