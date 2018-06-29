@@ -217,11 +217,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(varOriginalName, varNewName, !(Boolean)getValueFromSymbolsTable(varOpName));
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> Assignment_Var_Declaration_Not_Boolean");
-			ErrorHandling.printError(ctx,"\t-> assignment = "+assignment.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> Assignment_Var_Declaration_Not_Boolean");
+			ErrorHandling.printInfo(ctx,"\t-> assignment = "+assignment.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return assignment;
@@ -249,7 +249,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			//destinationType.clearCheckList();			
 			//Variable d = createVariable(destinationType, value);
 			//assignment.add("operation", d.getValue());		
-			//ErrorHandling.printError(ctx,"\t-> d.getValue() = "+ d.getValue());
+			//ErrorHandling.printInfo(ctx,"\t-> d.getValue() = "+ d.getValue());
 			
 			assignment.add("operation",valueST.getAttribute("operation"));
 			
@@ -269,12 +269,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitAssignment_Var_Declaration_Value");
-			ErrorHandling.printError(ctx,"\t-> type = "+type);
-			ErrorHandling.printError(ctx,"\t-> assignment = "+assignment.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitAssignment_Var_Declaration_Value");
+			ErrorHandling.printInfo(ctx,"\t-> type = "+type);
+			ErrorHandling.printInfo(ctx,"\t-> assignment = "+assignment.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 	
 		return assignment;
@@ -307,13 +307,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(originalName, varNewName, getValueFromSymbolsTable(resultVarName));
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitAssignment_Var_Declaration_Comparison");
-			ErrorHandling.printError(ctx,"\t-> assignment = "+assignment.render());
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitAssignment_Var_Declaration_Comparison");
+			ErrorHandling.printInfo(ctx,"\t-> assignment = "+assignment.render());
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return assignment;
@@ -344,7 +344,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String resultVarName = (String) operation.getAttribute("var");
 		
 		//create a ST for this assignment
-		ST assignment = varAssignmentST(previousOp, type, varNewName);
+		ST assignment = varAssignmentST(type, varNewName);
+		assignment.add("stat", previousOp);
 		
 		String originalName = ctx.varDeclaration().ID().getText();
 		
@@ -364,13 +365,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(originalName, varNewName, getValueFromSymbolsTable(resultVarName));
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitAssignment_Var_Declaration_Operation");
-			ErrorHandling.printError(ctx,"\t-> assignment:\n"+assignment.render());
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitAssignment_Var_Declaration_Operation");
+			ErrorHandling.printInfo(ctx,"\t-> assignment:\n"+assignment.render());
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return assignment;	
@@ -402,13 +403,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(originalName, varNewName, !(Boolean)getValueFromSymbolsTable(varOpOriginalName));
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitAssignment_Var_Not_Boolean");
-			ErrorHandling.printError(ctx,"\t-> assignment = "+assignment.render());
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitAssignment_Var_Not_Boolean");
+			ErrorHandling.printInfo(ctx,"\t-> assignment = "+assignment.render());
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return assignment;
@@ -457,13 +458,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitAssignment_Var_Value");
-			ErrorHandling.printError(ctx,"\t-> assignment = "+assignment.render());
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitAssignment_Var_Value");
+			ErrorHandling.printInfo(ctx,"\t-> assignment = "+assignment.render());
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 	
 		return assignment;
@@ -494,14 +495,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(varNewName, varNewName, getValueFromSymbolsTable(comparisonVarName));
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitAssignment_Var_Comparison");
-			ErrorHandling.printError(ctx,"\t-> comparison = "+comparison.render());
-			ErrorHandling.printError(ctx,"\t-> assignment = "+assignment.render());
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitAssignment_Var_Comparison");
+			ErrorHandling.printInfo(ctx,"\t-> comparison = "+comparison.render());
+			ErrorHandling.printInfo(ctx,"\t-> assignment = "+assignment.render());
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return assignment;
@@ -571,12 +572,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitAssignment_Var_Operation");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitAssignment_Var_Operation");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return assignment;
@@ -639,11 +640,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 			
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitPrint_Print");
-			ErrorHandling.printError(ctx,"\t-> print = "+ print.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitPrint_Print");
+			ErrorHandling.printInfo(ctx,"\t-> print = "+ print.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return print;
@@ -665,11 +666,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitPrint_Println");
-			ErrorHandling.printError(ctx,"\t-> print = "+ print.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitPrint_Println");
+			ErrorHandling.printInfo(ctx,"\t-> print = "+ print.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return print;
@@ -715,12 +716,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitControlFlowStatement(ControlFlowStatementContext ctx) {
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitControlFlowStatement");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitControlFlowStatement");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return visitChildren(ctx);
@@ -788,13 +789,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitForLoop");
-			ErrorHandling.printError(ctx,"\t-> forLoop.render()\n"+forLoop.render());
-			ErrorHandling.printError(ctx,"------------------------------------------------");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitForLoop");
+			ErrorHandling.printInfo(ctx,"\t-> forLoop.render()\n"+forLoop.render());
+			ErrorHandling.printInfo(ctx,"------------------------------------------------");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return forLoop;
@@ -1067,11 +1068,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 
 		if(debug) {
-			ErrorHandling.printError(ctx,"");;
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitComparison");
-			ErrorHandling.printError(ctx,"\t-> assignment = "+assignment.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");;
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitComparison");
+			ErrorHandling.printInfo(ctx,"\t-> assignment = "+assignment.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 			
 		return assignment;
@@ -1091,10 +1092,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(newName, newName, b);
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitCompareOperation_BOOLEAN");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitCompareOperation_BOOLEAN");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1135,12 +1136,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitOperation_Cast");
-			ErrorHandling.printError(ctx,"\t-> oldVar = "+oldVariable.render());
-			ErrorHandling.printError(ctx,"\t-> newVar = "+newVariable.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitOperation_Cast");
+			ErrorHandling.printInfo(ctx,"\t-> oldVar = "+oldVariable.render());
+			ErrorHandling.printInfo(ctx,"\t-> newVar = "+newVariable.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1234,13 +1235,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(newName, newName, result);
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitOperation_Mult_Div_Mod");
-			ErrorHandling.printError(ctx,"\t-> op0 = "+op0.render());
-			ErrorHandling.printError(ctx,"\t-> op1 = "+op1.render());
-			ErrorHandling.printError(ctx,"\t-> newVar = "+newVariable.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitOperation_Mult_Div_Mod");
+			ErrorHandling.printInfo(ctx,"\t-> op0 = "+op0.render());
+			ErrorHandling.printInfo(ctx,"\t-> op1 = "+op1.render());
+			ErrorHandling.printInfo(ctx,"\t-> newVar = "+newVariable.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1268,12 +1269,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitOperation_Simetric");
-			ErrorHandling.printError(ctx,"\t-> op0 = "+previousVariable.render());
-			ErrorHandling.printError(ctx,"\t-> newVar = "+newVariable.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitOperation_Simetric");
+			ErrorHandling.printInfo(ctx,"\t-> op0 = "+previousVariable.render());
+			ErrorHandling.printInfo(ctx,"\t-> newVar = "+newVariable.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1329,11 +1330,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(newName, newName, result);
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitOperation_Add_Sub");
-			ErrorHandling.printError(ctx,"\t-> newVar = "+newVariable.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitOperation_Add_Sub");
+			ErrorHandling.printInfo(ctx,"\t-> newVar = "+newVariable.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1364,13 +1365,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(newName, newName, Variable.power(a, b));
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitOperation_Power");
-			ErrorHandling.printError(ctx,"\t-> op0 = "+op0.render());
-			ErrorHandling.printError(ctx,"\t-> op1 = "+op1.render());
-			ErrorHandling.printError(ctx,"\t-> newVar = "+newVariable.render());
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitOperation_Power");
+			ErrorHandling.printInfo(ctx,"\t-> op0 = "+op0.render());
+			ErrorHandling.printInfo(ctx,"\t-> op1 = "+op1.render());
+			ErrorHandling.printInfo(ctx,"\t-> newVar = "+newVariable.render());
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;		
@@ -1406,15 +1407,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitOperation_Var");
-			ErrorHandling.printError(ctx,"\t-> varOpOriginalName = "+varOpOriginalName);
-			ErrorHandling.printError(ctx,"\t-> varOpOriginalName = "+varOpNewName);
-			ErrorHandling.printError(ctx,"\t-> newVar = "+newVariable.render());
-			ErrorHandling.printError(ctx,"\t-> symbolTableName.get(varOpOriginalName) = "+symbolTableName.get(varOpOriginalName));
-			ErrorHandling.printError(ctx,"\t-> getValueFromSymbolsTable(varOpOriginalName) = "+getValueFromSymbolsTable(varOpOriginalName));
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitOperation_Var");
+			ErrorHandling.printInfo(ctx,"\t-> varOpOriginalName = "+varOpOriginalName);
+			ErrorHandling.printInfo(ctx,"\t-> varOpOriginalName = "+varOpNewName);
+			ErrorHandling.printInfo(ctx,"\t-> newVar = "+newVariable.render());
+			ErrorHandling.printInfo(ctx,"\t-> symbolTableName.get(varOpOriginalName) = "+symbolTableName.get(varOpOriginalName));
+			ErrorHandling.printInfo(ctx,"\t-> getValueFromSymbolsTable(varOpOriginalName) = "+getValueFromSymbolsTable(varOpOriginalName));
+			ErrorHandling.printInfo(ctx,"");
 		}		
 		
 		return newVariable;
@@ -1436,17 +1437,17 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = (String) newVariable.getAttribute("var");
 		updateSymbolsTable(newName, newName, numberVar);
 		
-		//ErrorHandling.printError(ctx,"newVariable.getAttribute(var) = " + newVariable.getAttribute("var"));
+		//ErrorHandling.printInfo(ctx,"newVariable.getAttribute(var) = " + newVariable.getAttribute("var"));
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitOperation_NUMBER");;
-			ErrorHandling.printError(ctx,"\t-> newVar = "+newVariable.render());
-			ErrorHandling.printError(ctx,"\t-> numberVar = " + numberVar);
-			ErrorHandling.printError(ctx,"\t-> getValueFromSymbolsTable(newName) = "+(Variable) getValueFromSymbolsTable(newName));
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitOperation_NUMBER");;
+			ErrorHandling.printInfo(ctx,"\t-> newVar = "+newVariable.render());
+			ErrorHandling.printInfo(ctx,"\t-> numberVar = " + numberVar);
+			ErrorHandling.printInfo(ctx,"\t-> getValueFromSymbolsTable(newName) = "+(Variable) getValueFromSymbolsTable(newName));
 			
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
 		}	
 		
 		return newVariable;
@@ -1543,10 +1544,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(newName, newName, a);
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitValue_Cast_Number");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitValue_Cast_Number");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1565,10 +1566,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(newName, newName, result);
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitValue_Cast_Number");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitValue_Cast_Number");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1585,10 +1586,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		updateSymbolsTable(newName, newName, b);
 		
 		if(debug) {
-			ErrorHandling.printError(ctx,"");
-			ErrorHandling.printError(ctx,"->"+ctx.getText());
-			ErrorHandling.printError(ctx,"\t-> visitCompareOperation_BOOLEAN");
-			ErrorHandling.printError(ctx,"");
+			ErrorHandling.printInfo(ctx,"");
+			ErrorHandling.printInfo(ctx,"->"+ctx.getText());
+			ErrorHandling.printInfo(ctx,"\t-> visitCompareOperation_BOOLEAN");
+			ErrorHandling.printInfo(ctx,"");
 		}
 		
 		return newVariable;
@@ -1648,11 +1649,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable a = new Variable(typesTable.get("number"), number);
 		
 		if(debug) {
-			ErrorHandling.printError("");
-			ErrorHandling.printError("->createNumberVariable");
-			ErrorHandling.printError("\t-> number = "+d);
-			ErrorHandling.printError("\t-> var : "+a.getType().getTypeName()+" "+a.getValue());
-			ErrorHandling.printError("");
+			ErrorHandling.printInfo("");
+			ErrorHandling.printInfo("->createNumberVariable");
+			ErrorHandling.printInfo("\t-> number = "+d);
+			ErrorHandling.printInfo("\t-> var : "+a.getType().getTypeName()+" "+a.getValue());
+			ErrorHandling.printInfo("");
 		}
 		
 		return a;

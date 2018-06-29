@@ -28,6 +28,7 @@ kilo kg1 = (kilo) 1;
 println("print variables: " + m1 + ", " + dm1 + ", " + kg1);
 println("");
 
+
 boolean b5 = n1 < n2;
 boolean b6 = m1 > dm1;
 boolean b7 = n2 <= n3;
@@ -55,7 +56,7 @@ meter m12 = m1*kg1/barr;
 print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
-
+/*
 b1 = true;
 b2 = false;
 b3 = b1;
@@ -207,7 +208,7 @@ m3 = m2 % 2;
 m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
-
+*/
 }
 	
  
