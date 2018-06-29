@@ -1,3 +1,5 @@
+package tests.global;
+
 public class CompleteExample {
 	public static void main(String[] args) {
 		Boolean var0 = true;
@@ -7,7 +9,9 @@ public class CompleteExample {
 		Boolean var2 = var3;
 
 		Boolean var4 = ! var3;
+
 		System.out.println(""+"print booleans: "+""+var3+""+" "+""+var1+""+" "+""+var2+""+" "+""+var4);
+
 		System.out.println(""+""+"");
 
 		String var5 = "s1";
@@ -15,7 +19,9 @@ public class CompleteExample {
 		String var6 = "s2";
 
 		String var7 = "s3";
+
 		System.out.println(""+"print strings: "+""+var5+""+" "+""+var6+""+" "+""+var7);
+
 		System.out.println(""+""+"");
 
 		Double var8 = 1.0;
@@ -23,7 +29,9 @@ public class CompleteExample {
 		Double var10 = 2.0;
 
 		Double var12 = 3.0;
+
 		System.out.println(""+"print numbers: "+""+var8 +""+" "+""+var10 +""+" "+""+var12 );
+
 		System.out.println(""+""+"");
 
 		Double var14 = 1*1.0;
@@ -31,7 +39,9 @@ public class CompleteExample {
 		Double var17 = 1*1.0;
 
 		Double var20 = 1*1.0;
+
 		System.out.println(""+"print variables: "+""+var14 +""+", "+""+var17 +""+", "+""+var20 );
+
 		System.out.println(""+""+"");
 		Double var24 = var8;
 		Double var25 = var10;
@@ -57,7 +67,9 @@ public class CompleteExample {
 		Double var45 = var44;
 		Boolean var46 = var44!=var45;
 		Boolean var43 = var46;
+
 		System.out.println(""+"print assign comparison: "+""+var23+""+" "+""+var27+""+" "+""+var31+""+" "+""+var35+""+" "+""+var39+""+" "+""+var43);
+
 		System.out.println(""+""+"");
 
 		Double var47 = 1*1.0;
@@ -130,8 +142,11 @@ public class CompleteExample {
 		Double var121 = var47;
 		Double var122 = (var120*1.0) / (var121*1.0);
 		Double var117 = var122*1.0;
+
 		System.out.print(""+"print assign comparison: "+""+var50 +""+", "+""+var54 +""+", "+""+var58 +""+", "+""+var64 +""+", "+""+var72 +""+", "+""+var76 );
+
 		System.out.println(""+", "+""+var83 +""+", "+""+var87 +""+", "+""+var93 +""+", "+""+var99 +""+", "+""+var107 +""+", "+""+var117 );
+
 		System.out.println(""+""+"");
 
 		Boolean var123 = true;
@@ -141,7 +156,9 @@ public class CompleteExample {
 		Boolean var125 = var126;
 
 		Boolean var127 = ! var126;
+
 		System.out.println(""+"print booleans: "+""+var126+""+" "+""+var124+""+" "+""+var125+""+" "+""+var127);
+
 		System.out.println(""+""+"");
 
 		String var128 = "s1";
@@ -149,7 +166,9 @@ public class CompleteExample {
 		String var129 = "s2";
 
 		String var130 = "s3";
+
 		System.out.println(""+"print strings: "+""+var128+""+" "+""+var129+""+" "+""+var130);
+
 		System.out.println(""+""+"");
 
 		Double var131 = 1.0;
@@ -157,7 +176,9 @@ public class CompleteExample {
 		Double var133 = 2.0;
 
 		Double var135 = 3.0;
+
 		System.out.println(""+"print numbers: "+""+var131 +""+" "+""+var133 +""+" "+""+var135 );
+
 		System.out.println(""+""+"");
 
 		Double var137 = 1*1.0;
@@ -165,7 +186,9 @@ public class CompleteExample {
 		Double var140 = 1*1.0;
 
 		Double var143 = 1*1.0;
+
 		System.out.println(""+"print variables: "+""+var137 +""+", "+""+var140 +""+", "+""+var143 );
+
 		System.out.println(""+""+"");
 		Double var147 = var131;
 		Double var148 = var133;
@@ -191,7 +214,9 @@ public class CompleteExample {
 		Double var168 = var167;
 		Boolean var169 = var167!=var168;
 		Boolean var166 = var169;
+
 		System.out.println(""+"print assign comparison: "+""+var146+""+" "+""+var150+""+" "+""+var154+""+" "+""+var158+""+" "+""+var162+""+" "+""+var166);
+
 		System.out.println(""+""+"");
 		Double var171 = 1.0;
 		Double var172 = 1.0;
@@ -262,8 +287,11 @@ public class CompleteExample {
 		Double var240 = var121;
 		Double var241 = (var239*1.0) / (var240*1.0);
 		Double var236 = var241*1.0;
+
 		System.out.print(""+"print assign comparison: "+""+var170 +""+", "+""+var174 +""+", "+""+var178 +""+", "+""+var184 +""+", "+""+var192 +""+", "+""+var196 );
+
 		System.out.println(""+", "+""+var202 +""+", "+""+var206 +""+", "+""+var212 +""+", "+""+var218 +""+", "+""+var226 +""+", "+""+var236 );
+
 		System.out.println(""+""+"");
 
 		Double var242 = 0.0;
@@ -278,7 +306,7 @@ public class CompleteExample {
 		Double var252 = 10.0;
 		Boolean var253 = var251<var252;	
 		while(true){
-			if(var251<var25) break;
+			if(!var253) break;
 			else{
 				Double var255 = var251;
 				Double var256 = 1.0;
@@ -304,6 +332,7 @@ public class CompleteExample {
 				 var253 = var251<var252;
 			}
 		}
+
 		System.out.println(""+""+"");
 
 		Double var259 = 1.0;
@@ -317,21 +346,25 @@ public class CompleteExample {
 			Double var266 = 10.0;
 			Boolean var267 = var265==var266;
 			if(var265==var266){
-				Boolean var268 = ! var262;
+				Boolean var268 = !var262;
 			}
 
 			Double var270 = var265;
 			Double var271 = 1.0;
 			Double var272 = var270 + var271*1.0;
 			Double var269 = var272*1.0;
-			System.out.println(""+"while loop "+""+var269 +""+" of "+""+""+"10"+""+var268);
 		} 
+
 		System.out.println(""+""+"");
+
 		System.out.println(""+""+"");
+
 		System.out.println(""+"Testing nested if, else if, else and logical operations"+"");
+
 		System.out.println(""+""+"");
 
 		Double var273 = 5.0;
+
 		System.out.println(""+"number n = 5;"+"");
 		Double var275 = var273;
 		Double var276 = 5.0;
@@ -433,7 +466,9 @@ public class CompleteExample {
 			System.out.println(""+"}"+"");
 		}
 
+
 		System.out.println(""+""+"");
+
 		System.out.println(""+""+"");
 
 		Double var324 = 0*1.0;
@@ -460,7 +495,9 @@ public class CompleteExample {
 		Double var351 = 3.0;
 		Double var352 = var350 % var351;
 		Double var347 = var352*1.0;
+
 		System.out.println(""+"print mod and power: "+""+var339 +""+", "+""+var344 +""+", "+""+var343 +""+", "+""+var347 );
+
 		System.out.println(""+""+"");
 	}
 }

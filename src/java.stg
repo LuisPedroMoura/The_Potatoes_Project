@@ -105,7 +105,7 @@ while(<logicalOperation>){
 //PRINTS-------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 print(type, valueOrVarList, stat) ::= <<
-<stats(stat))>
+<stats(stat)>
 <printType.(type)>(<values(valueOrVarList)>);
 >>
 
