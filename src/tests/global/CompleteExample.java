@@ -61,11 +61,11 @@ public class CompleteExample {
 		Boolean var35 = var38;
 		Double var40 = var36;
 		Double var41 = var40;
-		Boolean var42 = var40==var41;
+		Boolean var42 = var40.equals(var41);
 		Boolean var39 = var42;
 		Double var44 = var41;
 		Double var45 = var44;
-		Boolean var46 = var44!=var45;
+		Boolean var46 = !var44.equals(var45);
 		Boolean var43 = var46;
 
 		System.out.println(""+"print assign comparison: "+""+var23+""+" "+""+var27+""+" "+""+var31+""+" "+""+var35+""+" "+""+var39+""+" "+""+var43);
@@ -208,11 +208,11 @@ public class CompleteExample {
 		Boolean var158 = var161;
 		Double var163 = var159;
 		Double var164 = var163;
-		Boolean var165 = var163==var164;
+		Boolean var165 = var163.equals(var164);
 		Boolean var162 = var165;
 		Double var167 = var164;
 		Double var168 = var167;
-		Boolean var169 = var167!=var168;
+		Boolean var169 = !var167.equals(var168);
 		Boolean var166 = var169;
 
 		System.out.println(""+"print assign comparison: "+""+var146+""+" "+""+var150+""+" "+""+var154+""+" "+""+var158+""+" "+""+var162+""+" "+""+var166);
@@ -303,33 +303,33 @@ public class CompleteExample {
 		Double var249 = var245;
 		Double var250 = 10.0;
 		Boolean var251 = var249<var250;	
-//		while(true){
-//			if(!var251) break;
-//			else{
-//				Double var253 = var249;
-//				Double var254 = 1.0;
-//				Double var255 = var253 + var254*1.0;
-//				Double var252 = var255*1.0;
-//				Boolean var256 = ! var242;
-//				System.out.println(""+"for loop "+""+var252 +""+" of "+""+""+"10"+""+var256);
-//
-//				//finalAssignment actualization
-//
-//				 var246 = var243;
-//
-//				 var247 = 1.0;
-//
-//				 var248 = var246 + var247*1.0;
-//
-//				 var245 = var248*1.0;
-//
-//				 var249 = var245;
-//
-//				 var250 = 10.0;
-//
-//				 var251 = var249<var250;
-//			}
-//		}
+		while(true){
+			if(!var251) break;
+			else{
+				Double var253 = var249;
+				Double var254 = 1.0;
+				Double var255 = var253 + var254*1.0;
+				Double var252 = var255*1.0;
+				Boolean var256 = ! var242;
+				System.out.println(""+"for loop "+""+var252 +""+" of "+""+""+"10"+""+var256);
+
+				//finalAssignment actualization
+
+				 var246 = var243;
+
+				 var247 = 1.0;
+
+				 var248 = var246 + var247*1.0;
+
+				 var245 = var248*1.0;
+
+				 var249 = var245;
+
+				 var250 = 10.0;
+
+				 var251 = var249<var250;
+			}
+		}
 
 		System.out.println(""+""+"");
 
@@ -341,19 +341,12 @@ public class CompleteExample {
 
 		System.out.println(""+"number n = 5;"+"");
 		Double var259 = var257;
-		System.out.println("var259 =" + var259);
 		Double var260 = 5.0;
-		System.out.println("var260 =" + var260);
 		Boolean var261 = var259.equals(var260);
-		System.out.println("var261 =" + var261);
 		Double var262 = var259;
-		System.out.println("var262 =" + var262);
 		Double var263 = 4.0;
-		System.out.println("var263 =" + var263);
 		Boolean var264 = var262>var263;
-		System.out.println("var264 =" + var264);
 		Boolean var265 = var261&&var264;
-		System.out.println("var265 =" + var265);
 		if(var261&&var264){
 			System.out.println(""+"if (n == 5 && n > 4){"+"");
 			System.out.println(""+""+"");
@@ -394,7 +387,7 @@ public class CompleteExample {
 				Boolean var286 = var284&&var285;
 				Double var287 = var282;
 				Double var288 = 5.0;
-				Boolean var289 = var287==var288;
+				Boolean var289 = var287.equals(var288);
 				Boolean var290 = true;
 				Boolean var291 = var289||var290;
 				if(var284&&var285){
@@ -411,7 +404,7 @@ public class CompleteExample {
 				System.out.println(""+""+"");
 				Double var292 = var287;
 				Double var293 = 5.0;
-				Boolean var294 = var292==var293;
+				Boolean var294 = var292.equals(var293);
 				Double var295 = var292;
 				Double var296 = 6.0;
 				Boolean var297 = var295>var296;
