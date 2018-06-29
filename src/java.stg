@@ -24,7 +24,7 @@ printType ::= [
 // TEMPLATES ////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// [IJ] DONE
+
 stats(stat) ::= <<
 <if(stat)><stat; separator="\n"><endif>
 >>
@@ -33,7 +33,7 @@ stats(stat) ::= <<
 //CLASS--------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
-// [MJ] DONE
+
 class(name,stat) ::= <<
 public class <name> {
 	public static void main(String[] args) {
@@ -46,7 +46,7 @@ public class <name> {
 //CLASS - ASSIGNMENTS------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
-//[MJ] DONE
+
 varAssignment(type, var, operation, stat ) ::= <<
 <stats(stat)>
 <if(type)><varDeclaration(type, var)><else><var><endif> = <operation>;
@@ -57,7 +57,7 @@ varAssignment(type, var, operation, stat ) ::= <<
 //CONTROL FLOW-------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
-// [IJ] DONE
+
 // CONDITION----------------------------------------------------------------------
 ifCondition(previousStatements, logicalOperation, content) ::= <<
 <stats(previousStatements)>
@@ -78,7 +78,7 @@ else {
 }
 >>
 
-// [IJ] DONE
+
 // FOR LOOP-----------------------------------------------------------------------
 forLoop(outsideStatements, logicalOperation, finalAssignment, content) ::= <<
 <stats(outsideStatements)>	
@@ -92,7 +92,7 @@ while(true){
 }
 >>
 
-// [IJ] DONE
+
 // WHILE LOOP---------------------------------------------------------------------
 whileLoop(previousStatements, logicalOperation, content) ::= <<
 <stats(previousStatements)>
@@ -113,7 +113,7 @@ print(type, valueOrVarList, stat) ::= <<
 // VARS AND TYPES--------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-//[MJ] DONE
+
 varDeclaration(type, var) ::= <<
 <type> <var>
 >>

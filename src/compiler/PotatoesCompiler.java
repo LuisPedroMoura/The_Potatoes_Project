@@ -105,13 +105,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	private static int varCounter = 0;
 	
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 	
 	// --------------------------------------------------------------------------------------------------------------------
 	// MAIN RULES----------------------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------
 	
-	//[MJ] REVIEW -> visitChildren(ctx)?
+	
 	@Override
 	public ST visitProgram(ProgramContext ctx) {
 		stg = new STGroupFile("java.stg");
@@ -123,7 +123,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	    return classContent;
 	}
 	
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitUsing(UsingContext ctx) {
 		String str = ctx.STRING().getText();
@@ -133,14 +133,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitCode_Declaration(Code_DeclarationContext ctx) {
 		ST varDeclaration = visit(ctx.varDeclaration());
 		return createEOL(varDeclaration);
 	}
 	
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitCode_Assignment(Code_AssignmentContext ctx) {
 		return visit(ctx.assignment());
@@ -155,14 +155,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// CLASS - STATEMENTS--------------------------------------------------------------------------------------------------	
 	// --------------------------------------------------------------------------------------------------------------------	
 	
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitStatement_Declaration(Statement_DeclarationContext ctx) {
 		ST varDeclaration = visit(ctx.varDeclaration());
 		return createEOL(varDeclaration);
 	}
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitStatement_Assignment(Statement_AssignmentContext ctx) {
 		//ST assignment = visit(ctx.assignment());
@@ -170,7 +170,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visit(ctx.assignment());
 	}
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitStatement_Control_Flow_Statement(Statement_Control_Flow_StatementContext ctx) {
 		return visit(ctx.controlFlowStatement());
@@ -188,7 +188,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitStatement_Print(Statement_PrintContext ctx) {
 		return visit(ctx.print());
@@ -198,7 +198,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// CLASS - ASSIGNMENTS-----------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
 		
@@ -227,7 +227,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
 			
@@ -280,7 +280,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Declaration_Comparison(Assignment_Var_Declaration_ComparisonContext ctx) {
 			
@@ -319,7 +319,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Declaration_Operation(Assignment_Var_Declaration_OperationContext ctx) {
 		String typeName = ctx.varDeclaration().type().getText();
@@ -383,7 +383,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Not_Boolean(Assignment_Var_Not_BooleanContext ctx) {
 		
@@ -415,7 +415,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Value(Assignment_Var_ValueContext ctx) {
 		
@@ -469,7 +469,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Comparison(Assignment_Var_ComparisonContext ctx) {
 		
@@ -506,7 +506,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitAssignment_Var_Operation(Assignment_Var_OperationContext ctx) {
 			
@@ -548,10 +548,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			Variable temp = (Variable) obj;
 			Variable a = new Variable(temp);
-			//System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!! " + a);
 			String typeName = ((Variable)getValueFromSymbolsTable(originalName)).getType().getTypeName();
 			destinationType = typesTable.get(typeName); 
-			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!! " + destinationType);
+
 			destinationType.clearCheckList();
 									
 			a.convertTypeTo(destinationType);
@@ -689,7 +688,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		else { //Variable
 			Variable a = (Variable) obj;
-			varST.add("value", newVarName +" " + a.getType().getPrintName());
+			varST.add("value", newVarName + " " + a.getType().getPrintName());
 		}
 			return varST;
 	}
@@ -741,11 +740,24 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		else {// FOR '(' assignment EOL logicalOperation EOL assignment ')'
 			ST assignment0 = visit(ctx.assignment(0));
-			
-			
+			ST assignment1 = visit(ctx.assignment(1));
+			forLoop.add("outsideStatements", "//"+ctx.assignment(0).getText());
 			forLoop.add("outsideStatements", assignment0.render());
+			forLoop.add("outsideStatements", "//"+ctx.assignment(1).getText());
+			
+		
+			String statLogicalOperation [] = assignment1.render().split(";");
+			for(String s: statLogicalOperation) {
+					String [] stat2 = s.split(" ");
+						forLoop.add("outsideStatements", stat2[0]+" "+stat2[1]+";");
+				}
+			
+			
+			//forLoop.add("outsideStatements", assignment1.render());
+			
 			//logical operation
 			ST logicalOperation = visit(ctx.logicalOperation());
+			forLoop.add("outsideStatements", "//"+ctx.logicalOperation().getText());
 			forLoop.add("outsideStatements", logicalOperation.render());
 			
 			//String operation = (String)logicalOperation.getAttribute("operation");
@@ -754,8 +766,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			//var actualization
 
-			String statLogicalOperation [] = logicalOperation.render().split("Double");
-			for(String s: statLogicalOperation) {
+			String statLogicalOperation1 [] = logicalOperation.render().split("Double");
+			for(String s: statLogicalOperation1) {
 				if(s.contains("Boolean")) {
 					String [] stat2 = s.split("Boolean");
 					for(String s2: stat2) {
@@ -767,24 +779,23 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				forLoop.add("finalAssignment", s);
 			}
 			
-			ST assignment1 = visit(ctx.assignment(1));
-			forLoop.add("outsideStatements", assignment1.render());
+			
 			
 			//var actualization
-			String statAssignment1 [] = assignment1.render().split("Double");
-			for(String s: statAssignment1)
+			String statAssignment11 [] = assignment1.render().split("Double");
+			for(String s: statAssignment11)
 				forLoop.add("finalAssignment", s);
 		}
 		
 				
 		//statements
-		for(StatementContext context : ctx.statement()) {
+		/*for(StatementContext context : ctx.statement()) {
 			ST statements = visit(context);
 			forLoop.add("content", statements.render());
 		}
 		
 		forLoop.add("content", "\n//finalAssignment actualization");
-		
+		*/
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -917,13 +928,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// LOGICAL OPERATIONS--------------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------
 	
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
 		return visit(ctx.logicalOperation());
 	}
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
 		ST op0 = visit(ctx.logicalOperation(0));
@@ -951,19 +962,19 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assign;
 	}
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
 		return visit(ctx.logicalOperand());
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
 		return visit(ctx.comparison());
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
 		ST comparison = visit(ctx.comparison());
@@ -979,7 +990,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
 		String originalName = ctx.var().getText();
@@ -992,7 +1003,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
 		String originalName = ctx.var().getText();
@@ -1004,7 +1015,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
 		Boolean value = Boolean.parseBoolean(ctx.value().getText());
@@ -1016,7 +1027,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
 		String value = ctx.value().getText();
@@ -1028,7 +1039,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitComparison(ComparisonContext ctx) {
 		ST op0 = visit(ctx.compareOperation(0));
@@ -1116,7 +1127,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// OPERATIONS----------------------------------------------------------------------------------------------------------	
 	// --------------------------------------------------------------------------------------------------------------------
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+
 	@Override
 	public ST visitOperation_Cast(Operation_CastContext ctx) {	
 		ST oldVariable = visit(ctx.operation());
@@ -1153,13 +1164,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return newVariable;
 	}		
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitOperation_Parenthesis(Operation_ParenthesisContext ctx) {
 		return visit(ctx.operation());
 	}
                                                                     
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitOperation_Mult_Div_Mod(Operation_Mult_Div_ModContext ctx) {
 		
@@ -1195,7 +1206,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			newVariable.add("operation", op0Name + " % " + op1Name);
 		}
 		else {
-			System.out.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!BEFOR TRY");
 			try {
 				varOp0.MultDivCheckConvertType(destinationType);
 			} catch (Exception e) {}
@@ -1250,7 +1260,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return newVariable;
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitOperation_Simetric(Operation_SimetricContext ctx) {
 		
@@ -1283,7 +1293,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return newVariable;
 	}
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitOperation_Add_Sub(Operation_Add_SubContext ctx) {
 		if (destinationType == null) {
@@ -1344,7 +1354,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 	}
 
-	// [MJ] - DONE
+
 	@Override
 	public ST visitOperation_Power(Operation_PowerContext ctx) {
 			
@@ -1380,7 +1390,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return newVariable;		
 	}
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitOperation_Var(Operation_VarContext ctx) {
 		
@@ -1430,7 +1440,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 	
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitOperation_NUMBER(Operation_NUMBERContext ctx) {
 		
@@ -1460,13 +1470,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// VARS AND TYPES------------------------------------------------------------------------------------------------------ 
 	// --------------------------------------------------------------------------------------------------------------------
 	
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitVar(VarContext ctx) {
 		return visitChildren(ctx);
 	}
 
-	//[MJ] DONE -> review just to be sure everything is right right
+	
 	@Override
 	public ST visitVarDeclaration(VarDeclarationContext ctx) {
 		ST type = visit(ctx.type());
@@ -1483,7 +1493,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 	
 	
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitType_Number_Type(Type_Number_TypeContext ctx) {
 		ST type = stg.getInstanceOf("type");
@@ -1492,7 +1502,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitType_Boolean_Type(Type_Boolean_TypeContext ctx) {
 		ST type = stg.getInstanceOf("type");
@@ -1501,7 +1511,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitType_String_Type(Type_String_TypeContext ctx) {
 		ST type = stg.getInstanceOf("type");
@@ -1510,7 +1520,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitType_Void_Type(Type_Void_TypeContext ctx) {
 		ST type = stg.getInstanceOf("type");
@@ -1519,7 +1529,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitType_ID_Type(Type_ID_TypeContext ctx) {
 		ST type = stg.getInstanceOf("type");
@@ -1528,7 +1538,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] fazer o cast -> imprimir as contas
+
 	@Override
 	public ST visitValue_Cast_Number(Value_Cast_NumberContext ctx) {
 		String castType = (String) visit(ctx.cast()).getAttribute("operation");
@@ -1557,7 +1567,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitValue_Number(Value_NumberContext ctx) {
 		
@@ -1579,7 +1589,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitValue_Boolean(Value_BooleanContext ctx) {
 		Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
@@ -1599,7 +1609,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 
-	//[MJ] nothing to do, but don't delete
+	
 	@Override
 	public ST visitValue_String(Value_StringContext ctx) {
 		return visitChildren(ctx);
@@ -1646,7 +1656,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return newVariable;
 	} 
 	
-	//[MJ] DONE
+	
 	protected static Variable createNumberVariable(String d) {
 		Double number = Double.parseDouble(d);
 		Variable a = new Variable(typesTable.get("number"), number);
@@ -1691,7 +1701,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return	obj;		
 	}
 	
-	//[MJ] DONE
+	
 	public static Boolean getBooleanResult(Object objOp0, Object objOp1, String op) {
 		
 		if (objOp0 instanceof Boolean) {
@@ -1719,7 +1729,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return false;
 	}
 	
-	// [IJ] DONE
+	
 	public static Boolean getLogicOperationResult(Boolean booleanOp0, Boolean booleanOp1, String op) {
 		switch(op) {
 			case "&&" : return booleanOp0 && booleanOp1; 
@@ -1728,7 +1738,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return false;
 	}
 	
-	//[MJ] DONE
+	
 	public static String getNewVarName() {
 		String newName = "var"+varCounter;
 		varCounter++;

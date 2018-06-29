@@ -1,9 +1,0 @@
-using "Example2_Types.txt";
-fun main{
-    number n = 1;
-    for(number i=0; number<10; number=number+1){
-        n = n+2;
-    }
-    println("println n: "+n);
-    println("");
-}

@@ -108,29 +108,22 @@ print("print assign opertions: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
 
-
-
-
 number n = 0;
 boolean b = false;
+/*
 for (number i = 0; i < 10; i = i+1){
 	n = i + 1;
 	b = !b;
 	println("for loop " + n + " of " + "10" + b);
 }
 println("");
+*/
 
-
-
-
-
-/*
 n = 1;
-boolean b = false;
+b = false;
+/*
 while (b == false) {
-	if (n == 10){
-		b = !b;
-	}
+	b = !b;
 	n = n + 1;
 	println("while loop " + n + " of " + "10" + b);
 }

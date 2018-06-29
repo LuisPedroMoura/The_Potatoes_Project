@@ -33,16 +33,16 @@ for loop 8 of 10 false
 for loop 9 of 10 true
 for loop 10 of 10 false
 
-while loop 1 of 10 false
+while loop 1 of 10 true
 while loop 2 of 10 false
-while loop 3 of 10 false
+while loop 3 of 10 true
 while loop 4 of 10 false
-while loop 5 of 10 false
+while loop 5 of 10 true
 while loop 6 of 10 false
-while loop 7 of 10 false
+while loop 7 of 10 true
 while loop 8 of 10 false
-while loop 9 of 10 false
-while loop 10 of 10 true
+while loop 9 of 10 true
+while loop 10 of 10 false
 
 
 Testing nested if, else if, else and logical operations
