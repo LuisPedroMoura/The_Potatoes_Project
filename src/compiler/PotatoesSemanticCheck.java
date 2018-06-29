@@ -69,7 +69,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		path = getStringText(ctx.STRING().getText());
 		typesFileInfo = new TypesFileInfo(path);
 		typesTable = typesFileInfo.getTypesTable();
-		mapCtxObj.put(ctx, path);
 
 		// Debug
 		if (debug) {
@@ -173,12 +172,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			Object obj = mapCtxObj.get(ctx.var());
 
 			if (obj instanceof Boolean) {
-				Boolean b = (Boolean) (symbolTable.get(ctx.var().ID().getText()));
-				symbolTable.put(ctx.varDeclaration().ID().getText(), !b);
-				mapCtxObj.put(ctx, !b);
+				symbolTable.put(ctx.varDeclaration().ID().getText(), true);
+				mapCtxObj.put(ctx, true);
 
 				if(debug) {
-					ErrorHandling.printInfo(ctx, "boolean variable with value: " + !b + " was assigned");
+					ErrorHandling.printInfo(ctx, "boolean variable was assigned");
 				}
 
 				return true;
@@ -220,12 +218,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign boolean to boolean
 		if (value instanceof Boolean && typeName.equals("boolean")) {
-			Boolean b = (Boolean) value;
-			symbolTable.put(ctx.varDeclaration().ID().getText(), b);
-			mapCtxObj.put(ctx, b);
+			symbolTable.put(ctx.varDeclaration().ID().getText(), true);
+			mapCtxObj.put(ctx, true);
 
 			if(debug) {
-				ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.varDeclaration().ID().getText());
+				ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.varDeclaration().ID().getText());
 			}
 
 			return true;
@@ -233,12 +230,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign string to string
 		if (value instanceof String && typeName.equals("string")) {
-			String str = (String) value;
-			symbolTable.put(ctx.varDeclaration().ID().getText(), str);
-			mapCtxObj.put(ctx, str);
+			symbolTable.put(ctx.varDeclaration().ID().getText(), "str");
+			mapCtxObj.put(ctx, "str");
 
 			if(debug) {
-				ErrorHandling.printInfo(ctx, "assigned string str=" + str + " to " + ctx.varDeclaration().ID().getText());
+				ErrorHandling.printInfo(ctx, "assigned string to " + ctx.varDeclaration().ID().getText());
 			}
 
 			return true;
@@ -288,12 +284,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				return false;
 			};
 
-			Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
-			symbolTable.put(ctx.varDeclaration().ID().getText(), b);
-
-			mapCtxObj.put(ctx, b);
+			symbolTable.put(ctx.varDeclaration().ID().getText(), true);
+			mapCtxObj.put(ctx, true);
+			
 			if(debug) {
-				ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.varDeclaration().ID().getText());
+				ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.varDeclaration().ID().getText());
 			}
 			return true;
 		}
@@ -339,9 +334,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// assign Variable to string is not possible
 		if(obj instanceof String) {
 			if (obj instanceof String) {
-				String str = (String) obj;
-				symbolTable.put(ctx.varDeclaration().ID().getText(), str);
-				mapCtxObj.put(ctx, str);
+				symbolTable.put(ctx.varDeclaration().ID().getText(), "str");
+				mapCtxObj.put(ctx, "str");
 				return true;
 			}
 			ErrorHandling.printError(ctx, "string Type is not compatible with the operation \"" +ctx.operation().getText() + "\"");
@@ -351,9 +345,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// assign Variable to boolean is not possible
 		if (typeName.equals("boolean")) {
 			if (obj instanceof Boolean) {
-				Boolean b = (Boolean) obj;
-				symbolTable.put(ctx.varDeclaration().ID().getText(), b);
-				mapCtxObj.put(ctx, b);
+				symbolTable.put(ctx.varDeclaration().ID().getText(), true);
+				mapCtxObj.put(ctx, true);
 				return true;
 			}
 			ErrorHandling.printError(ctx, "Cannot assign Type \"" + typeName + "\" to boolean");
@@ -394,7 +387,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		};
 
 		if(!symbolTable.containsKey(ctx.var(0).ID().getText())) {
-			ErrorHandling.printError(ctx, "Variable \"" + ctx.var(1).ID().getText() + "\"is not defined");
+			ErrorHandling.printError(ctx, "Variable \"" + ctx.var(0).ID().getText() + "\"is not defined");
 			return false;
 		}
 		Object obj = symbolTable.get(ctx.var(0).ID().getText());
@@ -409,10 +402,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if (!visit(ctx.var(1))) {
 				return false;
 			};
-			Boolean b = (Boolean) (symbolTable.get(ctx.var(1).ID().getText()));
-			symbolTable.put(ctx.var(0).ID().getText(), !b);
-			mapCtxObj.put(ctx, !b);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var(0).ID().getText());}
+			symbolTable.put(ctx.var(0).ID().getText(), true);
+			mapCtxObj.put(ctx, true);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.var(0).ID().getText());}
 			return true;
 		}
 
@@ -450,19 +442,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign boolean to boolean
 		if (value instanceof Boolean && obj instanceof Boolean) {
-			Boolean b = (Boolean) value;
-			symbolTable.put(ctx.var().ID().getText(), b);
-			mapCtxObj.put(ctx, b);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var().ID().getText());}
+			symbolTable.put(ctx.var().ID().getText(), true);
+			mapCtxObj.put(ctx, true);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.var().ID().getText());}
 			return true;
 		}
 
 		// assign string to string
 		if (value instanceof String && obj instanceof String) {
-			String str = (String) value;
-			symbolTable.put(ctx.var().ID().getText(), str);
-			mapCtxObj.put(ctx, str);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned string str=" + str + " to " + ctx.var().ID().getText());}
+			symbolTable.put(ctx.var().ID().getText(), "str");
+			mapCtxObj.put(ctx, "str");
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned string to " + ctx.var().ID().getText());}
 			return true;
 		}
 
@@ -505,10 +495,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if (!visit(ctx.comparison())) {
 				return false;
 			};
-			Boolean b = (Boolean) mapCtxObj.get(ctx.comparison());
-			symbolTable.put(ctx.var().ID().getText(), b);
-			mapCtxObj.put(ctx, b);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean b=" + b + " to " + ctx.var().ID().getText());}
+			symbolTable.put(ctx.var().ID().getText(), true);
+			mapCtxObj.put(ctx, true);
+			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.var().ID().getText());}
 			return true;
 		}
 
@@ -535,9 +524,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		if(obj instanceof String) {
 			if (opValue instanceof String) {
-				String str = (String) opValue;
-				symbolTable.put(ctx.var().ID().getText(), str);
-				mapCtxObj.put(ctx, str);
+				symbolTable.put(ctx.var().ID().getText(), "str");
+				mapCtxObj.put(ctx, "str");
 				return true;
 			}
 			ErrorHandling.printError(ctx, "string Type is not compatible with the operation \"" +ctx.operation().getText() + "\"");
@@ -546,9 +534,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		if(obj instanceof Boolean) {
 			if (opValue instanceof Boolean) {
-				Boolean b = (Boolean) opValue;
-				symbolTable.put(ctx.var().ID().getText(), b);
-				mapCtxObj.put(ctx, b);
+				symbolTable.put(ctx.var().ID().getText(), true);
+				mapCtxObj.put(ctx, true);
 				return true;
 			}
 			ErrorHandling.printError(ctx, "boolean Type is not compatible with the operation \"" +ctx.operation().getText() + "\"");
@@ -635,7 +622,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = true;
 		Boolean res   = true;
 
-		// visit all assignements
+		// visit all assignments
 		for (AssignmentContext a : ctx.assignment()) {		
 			res = visit(a);
 			valid = valid && res;
@@ -666,19 +653,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return valid;
 	}
 
-	
-
-
 	@Override
 	public Boolean visitCondition_withoutElse(Condition_withoutElseContext ctx) {
-	
 		return visitChildren(ctx);
 	}
 
-
 	@Override
 	public Boolean visitCondition_withElse(Condition_withElseContext ctx) {
-	
 		return visitChildren(ctx);
 	}
 
@@ -907,8 +888,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitCompareOperation_BOOLEAN(CompareOperation_BOOLEANContext ctx) {
-		Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
-		mapCtxObj.put(ctx, b);
+		mapCtxObj.put(ctx, true);
 		return true;
 	}
 
@@ -925,6 +905,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visitChildren(ctx)) {
 			return false;
 		}
+		
+		if(mapCtxObj.get(ctx.operation()) instanceof Boolean || mapCtxObj.get(ctx.operation()) instanceof String) {
+			ErrorHandling.printError(ctx, "Incompatible types in operation");
+			return false;
+		}
+		
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 
@@ -963,6 +949,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.operation())) {
 			return false;
 		}
+
+		if(mapCtxObj.get(ctx.operation()) instanceof Boolean || mapCtxObj.get(ctx.operation()) instanceof String) {
+			ErrorHandling.printError(ctx, "Incompatible types in operation");
+			return false;
+		}
+		
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.operation()));
 		return true;
 	}
@@ -972,6 +964,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.operation(0)) || !visit(ctx.operation(1))) {
 			return false;
 		}
+		
+		if(mapCtxObj.get(ctx.operation(0)) instanceof Boolean || mapCtxObj.get(ctx.operation(0)) instanceof String) {
+			ErrorHandling.printError(ctx, "Incompatible types in operation");
+			return false;
+		}
+		
+		if(mapCtxObj.get(ctx.operation(1)) instanceof Boolean || mapCtxObj.get(ctx.operation(1)) instanceof String) {
+			ErrorHandling.printError(ctx, "Incompatible types in operation");
+			return false;
+		}
+		
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable a = new Variable(temp);
 		temp = (Variable) mapCtxObj.get(ctx.operation(1));
@@ -1064,6 +1067,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.operation())) {
 			return false;
 		}
+		
+		if(mapCtxObj.get(ctx.operation()) instanceof Boolean || mapCtxObj.get(ctx.operation()) instanceof String) {
+			ErrorHandling.printError(ctx, "Incompatible types in operation");
+			return false;
+		}
+		
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 		mapCtxObj.put(ctx, Variable.simetric(a));
@@ -1080,6 +1089,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.operation(0))) {
 			return false;
 		}
+		
+		if(mapCtxObj.get(ctx.operation(0)) instanceof Boolean || mapCtxObj.get(ctx.operation(0)) instanceof String) {
+			ErrorHandling.printError(ctx, "Incompatible types in operation");
+			return false;
+		}
+		
+		if(mapCtxObj.get(ctx.operation(1)) instanceof Boolean || mapCtxObj.get(ctx.operation(1)) instanceof String) {
+			ErrorHandling.printError(ctx, "Incompatible types in operation");
+			return false;
+		}
+		
 		destinationType.clearCheckList();
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable a = new Variable(temp);
@@ -1176,6 +1196,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.var())) {
 			return false;
 		}
+		
 		Object obj = symbolTable.get(ctx.var().ID().getText());
 		if (obj == null) {
 			ErrorHandling.printError(ctx, "Cannot operate with boolean!");
