@@ -286,7 +286,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 			symbolTable.put(ctx.varDeclaration().ID().getText(), true);
 			mapCtxObj.put(ctx, true);
-			
+
 			if(debug) {
 				ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.varDeclaration().ID().getText());
 			}
@@ -905,12 +905,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visitChildren(ctx)) {
 			return false;
 		}
-		
+
 		if(mapCtxObj.get(ctx.operation()) instanceof Boolean || mapCtxObj.get(ctx.operation()) instanceof String) {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
 			return false;
 		}
-		
+
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 
@@ -954,7 +954,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
 			return false;
 		}
-		
+
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.operation()));
 		return true;
 	}
@@ -964,17 +964,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.operation(0)) || !visit(ctx.operation(1))) {
 			return false;
 		}
-		
+
 		if(mapCtxObj.get(ctx.operation(0)) instanceof Boolean || mapCtxObj.get(ctx.operation(0)) instanceof String) {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
 			return false;
 		}
-		
+
 		if(mapCtxObj.get(ctx.operation(1)) instanceof Boolean || mapCtxObj.get(ctx.operation(1)) instanceof String) {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
 			return false;
 		}
-		
+
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable a = new Variable(temp);
 		temp = (Variable) mapCtxObj.get(ctx.operation(1));
@@ -1046,6 +1046,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		if (op.equals("/")) {
+			if (b.getValue() == 0) ErrorHandling.printError(ctx, "Can't divide by zero!");
 			Variable res = Variable.divide(a, b); 
 			Double resCode = res.getType().getCode(); 
 			Collection<Type> types = typesTable.values(); 
@@ -1067,12 +1068,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.operation())) {
 			return false;
 		}
-		
+
 		if(mapCtxObj.get(ctx.operation()) instanceof Boolean || mapCtxObj.get(ctx.operation()) instanceof String) {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
 			return false;
 		}
-		
+
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation());
 		Variable a = new Variable(temp);
 		mapCtxObj.put(ctx, Variable.simetric(a));
@@ -1089,27 +1090,27 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (destinationType == null) {
 			destinationType = typesTable.get("number");
 		}
-		
+
 		destinationType.clearCheckList();
 		if(!visit(ctx.operation(0))) {
 			return false;
 		}
 		destinationType.clearCheckList();
-		
+
 		if(mapCtxObj.get(ctx.operation(0)) instanceof Boolean || mapCtxObj.get(ctx.operation(0)) instanceof String) {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
 			return false;
 		}
-		
+
 		if(mapCtxObj.get(ctx.operation(1)) instanceof Boolean || mapCtxObj.get(ctx.operation(1)) instanceof String) {
 			ErrorHandling.printError(ctx, "Incompatible types in operation");
 			return false;
 		}
-		
-		
+
+
 		Variable temp = (Variable) mapCtxObj.get(ctx.operation(0));
 		Variable a = new Variable(temp);
-		
+
 
 		if(!visit(ctx.operation(1))) {
 			return false;
@@ -1117,7 +1118,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		destinationType.clearCheckList();
 		temp = (Variable) mapCtxObj.get(ctx.operation(1));
 		Variable b = new Variable(temp);
-		
+
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] Visiting Operation Add_Sub");
@@ -1203,7 +1204,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.var())) {
 			return false;
 		}
-		
+
 		Object obj = symbolTable.get(ctx.var().ID().getText());
 		if (obj == null) {
 			ErrorHandling.printError(ctx, "Cannot operate with boolean!");
