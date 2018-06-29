@@ -2,25 +2,25 @@ print booleans: true false true false
 
 print strings: s1 s2 s3
 
-print numbers: 1 2 3
+print numbers: 1.0 2.0 3.0
 
-print variables: 1 m, 1 dm, 1 kg
+print variables: 1.0 m, 1.0 dm, 1.0 kg
 
-print assign comparison: true false true false true false
+print assign comparison: true false true true true false
 
-2, 2 m, 2 m, 2 m, 3 m, 4 m, 2 m, 3 m, 1 m, 2 m, 1 m , _ m
+2.0, 2.0 m, 2.0 m, 2.0 m, 3.0 m, 4.0 m, 2.0 m, 3.0 m, 1.0 m, 2.0 m, 1.0 m , _ m
 
 print booleans: true false true false
 
 print strings: s1 s2 s3
 
-print numbers: 1 2 3
+print numbers: 1.0 2.0 3.0
 
-print variables: 1 m, 1 dm, 1 kg
+print variables: 1.0 m, 1.0 dm, 1.0 kg
 
-print assign comparison: true false true false true false
+print assign comparison: true false true true true false
 
-2, 2 m, 2 m, 2 m, 3 m, 4 m, 2 m, 3 m, 1 m, 2 m, 1 m , _ m
+2, 2 m, 2 m, 2 m, 2 m, 4 m, 2 m, 3 m, 1 m, 2 m, 2 m , _ m
 
 for loop 1 of 10 true
 for loop 2 of 10 false
@@ -80,7 +80,7 @@ if (n == 5 && n > 4){
 }
 
 
-print mod and power: 1 m, 8 m, 0 m, 0 m 
+print mod and power: 1 m, 1 m, 8 m, 0 m, 0 m 
 
 
 

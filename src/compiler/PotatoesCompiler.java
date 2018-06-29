@@ -753,6 +753,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			forLoop.add("logicalOperation", "!"+comparison);
 			
 			//var actualization
+
 			String statLogicalOperation [] = logicalOperation.render().split("Double");
 			for(String s: statLogicalOperation) {
 				if(s.contains("Boolean")) {
@@ -761,6 +762,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 						forLoop.add("finalAssignment", s2);
 					}
 					break;
+
 				}
 				forLoop.add("finalAssignment", s);
 			}
@@ -1036,10 +1038,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String varNameOp1 =  (String) op1.getAttribute("var");
 
 		String compareOp = ctx.compareOperator().getText();
+		String comparison = varNameOp0 + compareOp + varNameOp1;
+		if(compareOp.equals("==")) {
+			comparison = varNameOp0 + ".equals(" + varNameOp1 + ")";
+		}else if(compareOp.equals("!=")) {
+			comparison = "!" + varNameOp0 + ".equals(" + varNameOp1 + ")";
+		}else {
+			comparison = varNameOp0 + compareOp + varNameOp1;
+		}
 		
 		String type = "Boolean";
 		String varNewName = getNewVarName();
-		String comparison = varNameOp0 + compareOp + varNameOp1;
+		
 		ST assignment = varAssignmentST(type, varNewName, comparison);
 		
 		assignment.add("stat",(String) op0.render());
@@ -1700,7 +1710,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		switch(op) {
 			case "==" : return d0 == d1; 
 			case "!=" : return d0 != d1; 
-			case "<"  : return d0 < d1; 
+			case "<"  : return d0 < d1;
 			case "<=" : return d0 <= d1; 
 			case ">"  : return d0 > d1; 
 			case ">=" : return d0 >= d1;
