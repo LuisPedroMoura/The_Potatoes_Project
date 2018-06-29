@@ -265,5 +265,202 @@ public class CompleteExample {
 		System.out.print(""+"print assign comparison: "+""+var170 +""+", "+""+var174 +""+", "+""+var178 +""+", "+""+var184 +""+", "+""+var192 +""+", "+""+var196 );
 		System.out.println(""+", "+""+var202 +""+", "+""+var206 +""+", "+""+var212 +""+", "+""+var218 +""+", "+""+var226 +""+", "+""+var236 );
 		System.out.println(""+""+"");
+
+		Double var242 = 0.0;
+
+		Boolean var244 = false;
+		Double var245 = 0.0;
+		Double var248 = var245;
+		Double var249 = 1.0;
+		Double var250 = var248 + var249*1.0;
+		Double var247 = var250*1.0;
+		Double var251 = var247;
+		Double var252 = 10.0;
+		Boolean var253 = var251<var252;	
+		while(true){
+			if(var251<var25) break;
+			else{
+				Double var255 = var251;
+				Double var256 = 1.0;
+				Double var257 = var255 + var256*1.0;
+				Double var254 = var257*1.0;
+				Boolean var258 = ! var244;
+				System.out.println(""+"for loop "+""+var254 +""+" of "+""+""+"10"+""+var258);
+
+				//finalAssignment actualization
+
+				 var248 = var245;
+
+				 var249 = 1.0;
+
+				 var250 = var248 + var249*1.0;
+
+				 var247 = var250*1.0;
+
+				 var251 = var247;
+
+				 var252 = 10.0;
+
+				 var253 = var251<var252;
+			}
+		}
+		System.out.println(""+""+"");
+
+		Double var259 = 1.0;
+
+		Boolean var261 = false;
+		Boolean var262 = var261;
+		Boolean var263 = false;
+		Boolean var264 = var262==var263;
+		while(var262==var263){
+			Double var265 = var259;
+			Double var266 = 10.0;
+			Boolean var267 = var265==var266;
+			if(var265==var266){
+				Boolean var268 = ! var262;
+			}
+
+			Double var270 = var265;
+			Double var271 = 1.0;
+			Double var272 = var270 + var271*1.0;
+			Double var269 = var272*1.0;
+			System.out.println(""+"while loop "+""+var269 +""+" of "+""+""+"10"+""+var268);
+		} 
+		System.out.println(""+""+"");
+		System.out.println(""+""+"");
+		System.out.println(""+"Testing nested if, else if, else and logical operations"+"");
+		System.out.println(""+""+"");
+
+		Double var273 = 5.0;
+		System.out.println(""+"number n = 5;"+"");
+		Double var275 = var273;
+		Double var276 = 5.0;
+		Boolean var277 = var275==var276;
+		Double var278 = var275;
+		Double var279 = 4.0;
+		Boolean var280 = var278>var279;
+		Boolean var281 = var277&&var280;
+		if(var277&&var280){
+			System.out.println(""+"if (n == 5 && n > 4){"+"");
+			System.out.println(""+""+"");
+			System.out.println(""+"entered"+"");
+			System.out.println(""+""+"");
+			Double var282 = var278;
+			Double var283 = 6.0;
+			Boolean var284 = var282<var283;
+			Double var285 = var282;
+			Double var286 = 2.0;
+			Double var287 = 2.0;
+			Double var288 = var286 + var287*1.0;
+			Boolean var289 = var285>var288;
+			Boolean var290 = var284&&var289;
+			if(var284&&var289){
+				System.out.println(""+"  if (n < 6 && n > 2 + 2){"+"");
+				System.out.println(""+"    entered"+"");
+				System.out.println(""+"  }"+"");
+			}
+
+			System.out.println(""+""+"");
+			Double var291 = var285;
+			Double var292 = 6.0;
+			Boolean var293 = var291>var292;
+			Double var294 = 2.0;
+			Double var295 = 1.0;
+			Boolean var296 = var294>var295;
+			Boolean var297 = var293||var296;
+			if(var293||var296){
+				System.out.println(""+"  if (n > 6 || 2 > 1) {"+"");
+				System.out.println(""+""+"");
+				System.out.println(""+"entered"+"");
+				System.out.println(""+""+"");
+				Double var298 = var291;
+				Double var299 = 5.0;
+				Boolean var300 = var298>var299;
+				Boolean var301 = false;
+				Boolean var302 = var300&&var301;
+				Double var303 = var298;
+				Double var304 = 5.0;
+				Boolean var305 = var303==var304;
+				Boolean var306 = true;
+				Boolean var307 = var305||var306;
+				if(var300&&var301){
+				}
+
+				else if(var305||var306){
+					System.out.println(""+"    if(n > 5 || false) {"+"");
+					System.out.println(""+"      failed"+"");
+					System.out.println(""+"    }"+"");
+					System.out.println(""+"    else if (n == 5 || !true){"+"");
+					System.out.println(""+"      entered"+"");
+					System.out.println(""+"    }"+"");
+				}
+				System.out.println(""+""+"");
+				Double var308 = var303;
+				Double var309 = 5.0;
+				Boolean var310 = var308==var309;
+				Double var311 = var308;
+				Double var312 = 6.0;
+				Boolean var313 = var311>var312;
+				Boolean var314 = var310&&var313;
+				Boolean var315 = false;
+				Boolean var316 = var314||var315;
+				Double var317 = var311;
+				Double var318 = 4.0;
+				Boolean var319 = var317<var318;
+				Boolean var320 = var316&&var319;
+				Double var321 = var317;
+				Double var322 = 5.0;
+				Boolean var323 = var321>var322;
+				if(var316&&var319){
+				}
+
+				else if(var321>var322){
+				}
+				else {
+					System.out.println(""+"    if((n==5 && n > 6 || false) && n < 4) {"+"");
+					System.out.println(""+"      failed"+"");
+					System.out.println(""+"    }"+"");
+					System.out.println(""+"    else if ( n > 5){"+"");
+					System.out.println(""+"      failed"+"");
+					System.out.println(""+"    }"+"");
+					System.out.println(""+"    else {"+"");
+					System.out.println(""+"      entered"+"");
+					System.out.println(""+"    }"+"");
+				}
+				System.out.println(""+"  }"+"");
+			}
+
+			System.out.println(""+"}"+"");
+		}
+
+		System.out.println(""+""+"");
+		System.out.println(""+""+"");
+
+		Double var324 = 0*1.0;
+
+		Double var327 = 0*1.0;
+
+		Double var330 = 1*1.0;
+		Double var334 = var330;
+		Double var335 = 2.0;
+		Double var336 = Math.pow(var334,var335);;
+		Double var333 = var336*1.0;
+		Double var338 = var334;
+		Double var339 = var338;
+		Double var340 = var338 + var339*1.0;
+		Double var341 = 3.0;
+		Double var342 = Math.pow(var340,var341);;
+		Double var337 = var342*1.0;
+		Double var344 = var174;
+		Double var345 = 2.0;
+		Double var346 = var344 % var345;
+		Double var343 = var346*1.0;
+		Double var348 = 9.0;
+		Double var350 = var348*1.0;
+		Double var351 = 3.0;
+		Double var352 = var350 % var351;
+		Double var347 = var352*1.0;
+		System.out.println(""+"print mod and power: "+""+var339 +""+", "+""+var344 +""+", "+""+var343 +""+", "+""+var347 );
+		System.out.println(""+""+"");
 	}
 }

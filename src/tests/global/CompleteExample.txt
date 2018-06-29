@@ -108,7 +108,6 @@ m12 = m1*kg1/barr;
 print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
-/*
 
 number n = 0;
 boolean b = false;
@@ -118,7 +117,6 @@ for (number i = 0; i < 10; i = i+1){
 	println("for loop " + n + " of " + "10" + b);
 }
 println("");
-
 
 number n = 1;
 boolean b = false;
@@ -208,7 +206,7 @@ m3 = m2 % 2;
 m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
 println("");
-*/
+
 }
 	
  
