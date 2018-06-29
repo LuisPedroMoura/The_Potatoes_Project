@@ -159,7 +159,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// verify that variable to be created has valid name
 		if (typesTable.containsKey(varName)) {
-			ErrorHandling.printError(ctx, varName + " is a reserved word");
+			ErrorHandling.printError(ctx, varName + " is already declared");
 			return false;
 		}
 
@@ -211,8 +211,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// verify that variable to be created has valid name
-		if (typesTable.containsKey(varName)) {
-			ErrorHandling.printError(ctx, varName + " is a reserved word");
+		if (symbolTable.containsKey(varName)) {
+			ErrorHandling.printError(ctx, varName + " is already declared");
 			return false;
 		}
 
@@ -319,7 +319,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// verify that variable to be created has valid name
 		if (symbolTable.containsKey(varName)) {
-			ErrorHandling.printError(ctx, varName + " is a reserved word");
+			ErrorHandling.printError(ctx, varName + " is already declared");
 			return false;
 		}
 

@@ -38,7 +38,7 @@ boolean b10 = m1 != m1;
 println("print assign comparison: "+b5+" "+b6+" "+b7+" "+b8+" "+b9+" "+ b10);
 println("");
 
-bar barr = (bar)1;
+bar barr = (bar)2;
 number n4 = 1+1;
 meter m2 = m1 + m1;
 meter m3 = m1 + (meter) 1;
@@ -97,17 +97,19 @@ m3 = m1 + (meter) 1;
 m4 = (meter) 1 + (meter) 1;
 m5 = m1 + dm1;
 m6 = dm1 + dm1;
-d1 = 1;
 m7 = d1 + m1;
 m8 = d1 + m1*2;
 m9 = m1*m1/m1;
 m10 = m1 + kg1/kg1*m1;
-
 m11 = (m1*kg1 + m1*kg1)/kg1;
 m12 = m1*kg1/barr;
-print("print assign comparison: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
+
+print("print assign opertions: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
+
+
+
 
 number n = 0;
 boolean b = false;
@@ -118,7 +120,12 @@ for (number i = 0; i < 10; i = i+1){
 }
 println("");
 
-number n = 1;
+
+
+
+
+/*
+n = 1;
 boolean b = false;
 while (b == false) {
 	if (n == 10){
@@ -129,12 +136,12 @@ while (b == false) {
 }
 println("");
 println("");
-
+*/
 
 println("Testing nested if, else if, else and logical operations");
 println("");
 
-number n = 5;
+n = 5;
 println("number n = 5;");
 if (n == 5 && n > 4){
 	
@@ -204,7 +211,7 @@ a1 = m1^2;
 v1 = (m1+m1)^3;
 m3 = m2 % 2;
 m4 = (meter) 9 % 3;
-println("print mod and power: "+m1+", "+m2+", "+m3+", "+m4);
+println("print mod and power: "+m1+", "+a1+", "+v1+", "+m3+", "+m4);
 println("");
 
 }
