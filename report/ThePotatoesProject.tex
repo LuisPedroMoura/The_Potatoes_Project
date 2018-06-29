@@ -1,0 +1,527 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LFA Project 2017-2018 G13
+% Inês Justo, Luís Moura, Maria Lavoura, Pedro Teixeira
+% Objectivo: Escrever um documento que descreva a linguagem (instruções existentes e o seu signicado; exemplos de programas; etc.)
+\documentclass{report}
+\usepackage[T1]{fontenc} % Fontes T1
+\usepackage[utf8]{inputenc} % Input UTF8
+%\usepackage[backend=biber, style=ieee]{biblatex} % para usar bibliografia
+\usepackage{csquotes}
+\usepackage[portuguese]{babel} %Usar língua portuguesa
+\usepackage{blindtext} % Gerar texto automaticamente
+\usepackage[printonlyused]{acronym}
+\usepackage{hyperref} % para autoref
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+%Code listing style named "mystyle"
+\lstdefinestyle{mystyle}{
+  backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\footnotesize,
+  breakatwhitespace=false,         
+  breaklines=true,                 
+  captionpos=b,                    
+  keepspaces=true,                 
+  numbers=left,                    
+  numbersep=5pt,                  
+  showspaces=false,                
+  showstringspaces=false,
+  showtabs=false,                  
+  tabsize=2
+}
+\lstset{
+language=R,   % R code
+literate=
+{á}{{\'a}}1
+{à}{{\`a}}1
+{ã}{{\~a}}1
+{é}{{\'e}}1
+{ê}{{\^e}}1
+{í}{{\'i}}1
+{ó}{{\'o}}1
+{õ}{{\~o}}1
+{ú}{{\'u}}1
+{ü}{{\"u}}1
+{ç}{{\c{c}}}1
+}
+
+%"mystyle" code listing set
+\lstset{style=mystyle}
+%\bibliography{bibliografia}
+\begin{document}
+
+%%
+% Definições
+%
+\def\titulo{The Potatoes Project}
+\def\subtitulo{A Types Analyzer Project}
+\def\data{28 Junho 2018}
+\def\autores{Inês Justo, Luís Moura, Maria Lavoura, Pedro Teixeira}
+\def\autorescontactos{inesjusto@ua.pt (84804), luispedromoura@ua.pt (83808)}
+\def\autorescontactoss{mjlavoura@ua.pt (84681), pedro.teix@ua.pt (84715)}
+\def\versao{Versão Final}
+\def\departamento{Departamento de Eletrónica, Telecomunicações e Informática}
+\def\empresa{Universidade de Aveiro}
+\def\logotipo{images/ua.pdf}
+%
+%%%%%% CAPA %%%%%%
+%
+\begin{titlepage}
+
+\begin{center}
+%
+\vspace*{50mm}
+%
+{\Huge \titulo}\\ 
+%
+\vspace{10mm}
+%
+{\Large \subtitulo}\\
+%
+\vspace{10mm}
+%
+{\LARGE \autores}\\ 
+%
+\vspace{30mm}
+%
+\begin{figure}[h]
+\center
+\includegraphics{\logotipo}
+\end{figure}
+%
+\vspace{30mm}
+\end{center}
+%
+\begin{flushright}
+\versao\\
+\empresa
+\end{flushright}
+\end{titlepage}
+
+%%  Página de Título %%
+\title{%
+{\Huge\textbf{\titulo}}\\
+{\Large \departamento\\ \empresa}
+}
+%
+\author{%
+    \autores \\
+    \autorescontactos \\
+    \autorescontactoss
+}
+%
+\date{\data}
+%
+\maketitle
+\pagenumbering{roman}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract
+\begin{abstract}
+Este relatório começa por descrever como se utiliza o projecto desenvolvido. De seguida, descreve as linguagens desenvolvidas (nomeadamente as instruções que suportam) para a criação de um compilador para a linguagem Java de uma linguagem general-purpose cujas operações estão garantidas por um sistema de tipos. Por último são apresentadas algumas considerações sobre a implementação.
+\end{abstract}
+
+%%%%%% Agradecimentos %%%%%%
+% Segundo glisc deveria aparecer após conclusão...
+\renewcommand{\abstractname}{Agradecimentos}
+\begin{abstract}
+Agradecemos ao prof. Miguel Oliveira e Silva pela enorme ajuda dada e pela paciência a esclarecer as muitas dúvidas que foram surgindo.
+\end{abstract}
+
+\renewcommand{\abstractname}{}
+\begin{abstract}
+"x quê? Batatas?"
+\end{abstract}
+
+\tableofcontents
+%\listoftables    
+%\listoffigures   
+\lstlistoflistings
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+\pagenumbering{arabic}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introdução
+\chapter{Introdução}
+\label{chap.introducao}
+
+\section{Notas sobre o nome do projecto}
+O nome \texttt{Potatoes} é o nome dado quer ao projecto quer à linguagem general purpose desenvolvida e advém da pergunta feita por muitos professores, sobretudo durante os primeiros anos de ensino, quando um aluno não indica as unidades de uma dada operação :\textit{ "x quê? Batatas?"}. 
+
+%Pareceu-nos pois interessante e justificável este nome para uma linguagem associada a um projecto de análise de tipos. %MELHORAR 
+
+\section{Conteúdos do Repositório}
+O repositório contém, para além da pasta do relatório, a pasta que contém o código fonte do projecto (\textit{src}):
+
+\begin{itemize}
+    \item \textit{compiler}: Contém as classes associadas à compilação e à análise semântica de código fonte da linguagem general purpose (\textit{Potatoes}) para a linguagem Java; 
+    \item \textit{potatoesGrammar}: Contém a gramática da linguagem general purpose \textit{Potatoes}; 
+    \item \textit{tests}: Contém ficheiros de teste/exemplo de código fonte para ambas as linguagens desenvolvidas; 
+    \item \textit{typesGrammar}: Contém a gramática as classes associadas à intepretação de código fonte da linguagem \texttt{Types}; 
+    \item \textit{utils}: Contém classes auxiliares. 
+\end{itemize}
+
+\section{Como Instalar}
+\begin{itemize}
+    \item O repositório não contém as classes resultantes à compilação das gramáticas \textit{ANTLR}. Se for a primeira vez que o projecto é utilizado, ou após correr \texttt{antlr4-clean}, é necessário compilar o projecto estando na pasta \textit{src} e utilizando o \textit{script} fornecido:
+
+\texttt{./build}.
+
+    \item Assume-se que estão instalados e adicionados ao \textit{classpath} os JARs associados ao \textit{ANTLR} e \textit{String Template} (disponíveis na pasta \textit{antlr}). Assume-se também que estão instalados os \textit{scripts} disponibilizados (\texttt{antlr4-build}, etc).
+\end{itemize}
+
+\pagebreak
+\section{Como Utilizar}
+\begin{itemize}
+     \item Para compilar um programa válido, são necessários 2 ficheiros, um contendo código fonte à linguagem de definição de tipos (por exemplo \textit{tests/global/CompleteExample\_Types.txt}) e um contendo código fonte da linguagem general purpose (por exemplo \textit{tests/global/CompleteExample.txt}).
+     \item Por exemplo, para compilar um ficheiro \textit{test.txt}, com um ficheiro de tipos \textit{types.txt} basta:
+     \begin{itemize}
+        \item Garantir que a primeira linha de código do ficheiro \textit{test.txt} contém a instrução 
+        
+        \texttt{using "types.txt";}
+        \item Compilar executando 
+        
+        \texttt{./compile text.txt}
+        \item Caso não existam erros nos ficheiros a compilar, será gerado um ficheiro chamado \textit{test.txt.java}. 
+     \end{itemize}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Desenvolvimento
+\chapter{Documentação}
+\label{chap.documentacao}
+
+% Potatoes
+\section{Linguagem de Definição de Tipos}
+\label{chap.documentacao.sec.types}
+A linguagem de definição de tipos, definida pelas gramáticas do ficheiro \textit{Types.g4}, define as instruções necessárias para a definição de tipos e de prefixos\footnote{Deprecated. Não há análise semântica para o uso de prefixos na linguagem general purpose e nenhum exemplo fornecido para a linguagem general purpose utiliza prefixos.}.
+
+\subsection{Palavras Reservadas}
+As palavras reservadas da linguagem são: \textit{types} e \textit{prefixes}.
+
+\subsection{Instruções básicas e comentários}
+Todos os ficheiros de código fonte desta linguagem têm obrigatoriamente de conter a instrução:
+\begin{lstlisting}[caption= Linguagem de Definição de Tipos - Instrução \texttt{types \{...\} }]
+types {
+   ... 
+}
+\end{lstlisting}
+podendo ou não conter a instrução:
+\begin{lstlisting}[caption= Linguagem de Definição de Tipos - Instrução \texttt{prefixes \{...\} }]
+prefixes {
+    ...
+}
+\end{lstlisting}
+antes ou depois da instrução \texttt{types}.
+
+\subsubsection{Terminação de instruções}
+Nenhuma instrução necessita de um terminador.
+
+\subsubsection{Comentários}
+São suportados comentários \textit{in-line}, iniciados pela sequência \texttt{//} (equivalente à linguagem Java). Não são suportados comentários \textit{multiline}.
+
+\pagebreak
+\subsection{Definição de Tipos}
+Dentro da instrução \texttt{types \{...\}}, podem ser definidos 0 ou mais tipos. Cada tipo pode ser definido através de três instruções distintas:
+%%%%%%%%%
+\subsubsection{Tipo Básico (Numérico)}
+\begin{lstlisting}[caption= Linguagem de Definição de Tipos - Instrução de definição de tipo básico (numérico)]
+<ID> "<STRING>" 	
+\end{lstlisting}
+em que:
+\begin{itemize}
+    \item \texttt{ID} representa o nome do tipo.
+    \item \texttt{STRING} representa o nome de impressão do tipo.
+\end{itemize}
+\noindent
+Por exemplo:
+\begin{lstlisting}
+meter "m" 	
+\end{lstlisting}
+representa um tipo chamado \textit{meter}, com nome de impressão \textit{m}.
+%%%%%%%%%
+
+\subsubsection{Tipo Derivado (baseado em aritmética entre tipos já-existentes)}
+\begin{lstlisting}[caption= Linguagem de Definição de Tipos - Instrução de definição de tipo derivado (baseado em aritmética entre tipos já-existentes)]
+<ID> "<STRING>" : <OPERATION BETWEEN PRE-EXISTING TYPES>	
+\end{lstlisting}
+em que:
+\begin{itemize}
+    \item \texttt{OPERATION BETWEEN PRE-EXISTING TYPES} representa 1 ou mais multiplicações  (\texttt{typeA * typeB}), divisões (\texttt{typeA / typeB}) ou potências (\texttt{typeA \string^ <INT>}) entre tipos pré-existentes.
+\end{itemize}
+\noindent
+Por exemplo:
+\begin{lstlisting}
+velocity "v" : distance / time
+\end{lstlisting}
+representa um tipo chamado \textit{velocity}, com nome de impressão \textit{v}, definida como sendo a divisão dos tipos \textit{distance} e \textit{time}.
+
+\begin{lstlisting}
+velocitySquare "v2" : velocity^2
+\end{lstlisting}
+representa um tipo chamado \textit{velocitySquare}, com nome de impressão \textit{v2}, definida como sendo o quadrado do tipo \textit{velocity}.
+
+%%%%%%%%%
+\subsubsection{Tipo Derivado (baseado em conversões entre tipos já-existentes)}
+\label{chap.documentacao.derivedTypeOr}
+\begin{lstlisting}[caption= Linguagem de Definição de Tipos - Instrução de definição de tipo derivado (baseado em conversões entre tipos já-existentes)]
+<ID> "<STRING>" : (<REAL NUMBER>) <TYPE ALTERNATIVE ID> | (<REAL NUMBER>) <TYPE ALTERNATIVE ID> ...
+\end{lstlisting}
+
+em que:
+\begin{itemize}
+    \item o padrão \texttt{| (<REAL NUMBER>) <TYPE>} pode repetir-se 0 ou mais vezes.
+    \item \texttt{<REAL VALUE>} representa um número real ou uma operação entre números reais. As operações suportadas são potência, multiplicação, divisão, soma e subtração, existindo também associatividade através do uso de parêntesis. Esse número real \textbf{representa o factor de conversão do tipo \texttt{ID} para o tipo \texttt{TYPE ALTERNATIVE ID}.}
+    \item \texttt{<TYPE ALTERNATIVE ID>} representa o nome do tipo alternativa.
+\end{itemize}
+\noindent
+Por exemplo:
+\begin{lstlisting}
+distance "d" : (-1+ 49725)meter 	| (0.025)inch | (0.9)yard
+\end{lstlisting}
+representa um tipo chamado \textit{distance}, com nome de impressão \textit{d}, definida como sendo $(-1+ 49725)$ \texttt{meter} ou $(0.025)$ \texttt{inch} ou $(0.9)$ \texttt{yard}.\footnote{Factores de conversão não correspondem à realidade.}. Em linguagem natural, tal é equivalente a dizer que \textit{1 distance é igual a $(-1+ 49725)$ \texttt{meters} ou $(0.025)$ \texttt{inches} ou $(0.9)$ \texttt{yards}}.
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Definição de Prefixos} 
+Dentro da instrução \texttt{prefixes \{...\}}, podem ser definidos 0 ou mais prefixos. Cada prefixo pode ser definido através da seguinte instrução:
+\begin{lstlisting}[caption= Linguagem de Definição de Tipos - Instrução de definição de prefixo]
+<ID> "<STRING>" : <REAL VALUE>
+\end{lstlisting}
+em que:
+\begin{itemize}
+    \item \texttt{ID} representa o nome do prefixo.
+    \item \texttt{STRING} representa o nome de impressão do prefixo.
+    \item \texttt{REAL VALUE} representa um número real ou uma operação entre números reais. As operações suportadas são as mesmas das referidas na sub-subsecção \ref{chap.documentacao.derivedTypeOr}.
+\end{itemize}
+\noindent
+Por exemplo:
+\begin{lstlisting}
+DECA  "da"  : 10^1 
+\end{lstlisting}
+representa um prefixo chamado \textit{DECA}, com nome de impressão \textit{da}, definida como sendo o valor $10^1$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Potatoes Language 
+\pagebreak
+\section{Linguagem General-Purpose de Utilização de Tipos}
+\label{chap.documentacao.sec.potatoes}
+A linguagem general purpose, definida pelas gramáticas do ficheiro \textit{Potatoes.g4}, define as instruções necessárias para operações básicas com variáveis de tipos distintos, cujo universo é definido pelos ficheiros de código-fonte da linguagem de tipos descrita anteriormente.
+
+A maioria das instruções suportadas seguem a sintaxe típica de linguagens como \textit{C} ou Java, pelo que optamos por detalhar apenas as instruções longe dessa sintaxe típica. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Palavras Reservadas}
+As palavras reservadas da linguagem são: \textit{using}, \textit{main}, \textit{fun}, \textit{return}, \textit{if}, \textit{else}, \textit{for}, \textit{while}, \textit{number}, \textit{boolean}, \textit{string}, \textit{void}, \textit{false}, \textit{true}, \textit{print}, \textit{println}.
+
+\subsection{Instruções básicas e comentários}
+\subsubsection{Terminação de instruções}
+Todas as instruções, à excepção de instruções condicionais e de repetição, são necessariamente terminadas por \texttt{;}.
+
+\subsubsection{Comentários}
+São permitidos comentários de linha e de bloco (\textit{multiline}) no formato equivalente à linguagem Java:
+\begin{lstlisting}[caption= Linguagem General-Purpose - Comentários]
+// commented line
+/*
+   commented block;
+*/
+\end{lstlisting}
+
+\subsubsection{Importar um ficheiro de tipos}
+O código fonte da linguagem de definição de tipos e o código fonte da linguagem \textit{Potatoes} têm de estar separados em ficheiros diferentes. Existe, com o propósito de importar um ficheiro com diferentes definições de tipos, o comando \texttt{using} seguido de uma String com o \textit{path} para o ficheiro pretendido. Por exemplo:
+\begin{lstlisting}[caption= Linguagem General-Purpose - Instrução \texttt{using}]
+using "src/TypesDefinitionFiles.txt";
+\end{lstlisting}
+Esta instrução é \textbf{obrigatória} e tem de constituir a \textbf{primeira instrução} no ficheiro.
+
+\subsection{Instruções condicionais e de repetição}
+São permitidas instruções de repetição \texttt{for} e \texttt{while} e condicionais \texttt{if}, \texttt{else if} e \texttt{else} em formato semelhante à linguagem Java.
+
+\subsection{Output}
+As funções de impressão estão incluídas na linguagem \textit{Potatoes} com as instruções \texttt{print} e com funcionamento semelhante à linguagem Java, com a limitação de não permitirem operações. 
+
+No caso específico da impressão de variáveis, é impresso o seu valor seguido do seu nome de impressão definido no código fonte da linguagem de definição de tipos.
+\begin{lstlisting}[caption= Linguagem General-Purpose - Impressão]
+meter m1 = (meter) 5;
+println("This code is " + m1 + "long!");    // output: This code is 5 m long!
+\end{lstlisting}
+
+\subsection{Funções}
+A implementação de funções, apesar de definida deste o início do projeto, não pôde ser implementada. Ainda assim, manteve-se o formato de definição de uma função \textit{"main"}. Assim, após a declaração do ficheiro de definição de tipos é possível fazer declarações de variáveis globais e atribuição de valores e declaração de funções. 
+
+Para criar a função \textit{main} deverá ser usada a assinatura:
+\begin{lstlisting}[caption= Linguagem General-Purpose - Assinatura da Função \textit{Main}]
+fun main{
+    ...
+}
+\end{lstlisting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Declaração de variáveis}
+A linguagem \textit{Potatoes} disponibiliza 3 tipos base além daqueles definidos na Linguagem de Definição de Tipos: \textit{number}, um tipo numérico real adimensional, \textit{boolean} e \textit{string}.
+
+A declaração de variáveis, apesar de apresentar uma sintaxe em tudo semelhante à linguagem Java, tem de ter em conta a compatibilidade entre tipos. Em particular, há 2 situações distintas:
+
+\begin{itemize}
+
+\item \texttt{Inicialização de variável com atribuição dinâmica de valor.}
+\begin{lstlisting}
+meter m = (meter) 3;
+\end{lstlisting}
+Uma vez que a gramática de tipos implementa operações com dimensões, a atribuição de um valor numérico adimensional deixa de fazer sentido. Pelo que é sempre necessário fazer o \textit{cast} desse valor para o tipo a inicializar.
+
+\item \texttt{Atribuição de valor usando uma variável de tipo compatível.}
+\begin{lstlisting}
+meter m = yardVar;
+\end{lstlisting}
+A compatibilidade entre tipos implica que podem ser considerados como unidades de uma mesma dimensão, pelo que essa atribuição de valor é direta sem \textit{cast} havendo apenas a necessidade de se fazer a conversão do valor numérico com o factor correspondente.
+
+\end{itemize}
+
+\subsection{Operações}
+A gramática Potatoes suporta operações numéricas (\%,\^,*,/,+,-) com todos os tipos numéricos, e lógicas com tipos numéricos e booleanos (<,>,<=,>=,==,!=,!) com uso semelhante à linguagem Java mas condicionadas pelo sistema de tipos.
+
+Por exemplo, para as seguintes declarações:
+\begin{lstlisting}
+meter m = (meter) 1;
+yard y = (yard) 2;
+\end{lstlisting}
+
+\begin{itemize}
+
+\item \texttt{Adição e Subtração} são permitidas entre tipos numéricos iguais ou compatíveis.
+\begin{lstlisting}
+meter m2 = m + m;  // correto
+meter m3 = m + y;  // correto
+meter m4 = m + 1;  // errado (metro e adimensional incompatíveis)
+\end{lstlisting}
+
+\item \texttt{Multiplicação e Divisão} são permitidas entre qualquer tipo numérico, sendo que a operação poderá criar unidades novas que estejam ou não definidas inicialmente.
+\begin{lstlisting}
+meter m2 = m * m;   // operação correta, atribuição errada
+meter m3 = m * y;   // operação correta, atribuição errada
+number n1 = m / m;  // operação correta e atribuição correta
+\end{lstlisting}
+
+\item \texttt{Módulo e Potência} são apenas realizáveis entre um tipo numérico e um valor numérico (ou o tipo \textit{number}).
+\begin{lstlisting}[mathescape=true]
+meter m2 = m^2;     // operação correta, atribuição errada
+meter m3 = m \% 2   // operação correta, atribuição correta
+number n1 = m \% m; // operação errada
+\end{lstlisting}
+
+\item \texttt{Comparações "$<$, $>$, $<=$, $>=$"} são apenas permitidas entre tipos numéricos compatíveis.
+\begin{lstlisting}
+boolean b1 = m < m2; // operação permitida
+boolean b2 = m >= y; // operação permitida
+boolean b3 = m > b1; // operandos não compatíveis
+\end{lstlisting}
+
+\item \texttt{Comparações "==, !="} são apenas permitidas exclusivamente entre tipos booleanos ou entre tipos numéricos compatíveis.
+
+\item \texttt{Operações lógicas "\&\&, ||, !"} são permitidas entre tipos booleanos e resultados booleanos de comparações. 
+    
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Notas sobre a Implementação}
+\label{chap.implementacao}
+Embora não seja parte integrante das especificações das linguagens, é relevante apresentar, em traços muitos gerais, a implementação quer do do interpretador da linguagem de tipos quer do analisador semântico da linguagem general purpose.
+
+\section{Interpretador da linguagem de definição de tipos}
+\label{chap.implementacao.types}
+Os ficheiros com código fonte da linguagem de definição de tipos, após a criação com sucesso da árvore sintática associada a estes, são processados através do seu interpretador, responsável quer pela análise semântica, quer pela interpretação do código. 
+
+A interpretação do código fonte, em ficheiros desta linguagem, implica a criação de estruturas de dados utilizadas depois na análise de tipos feita posteriormente na análise semântica de código fonte da linguagem general purpose (secção \ref{chap.implementacao.potatoes}):
+\begin{itemize}
+    \item Tabela de Tipos (\texttt{typesTable}) : mapa que corresponde o nome do tipo à sua instância da classe \texttt{Type};
+    \item Grafo de Tipos (\texttt{typesGraph}) : grafo em que cada vértice é uma instância da classe \texttt{Type} e cada aresta é uma instância da classe \texttt{Factor}. Por outras palavras, um grafo que representa a ligação entre os tipos e as suas alternativas.
+\end{itemize}
+
+\section{Análise semântica da linguagem general purpose}
+\label{chap.implementacao.potatoes}
+O ponto mais difícil da operação foi o desafio de implementar uma estrutura de métodos capaz de lidar com os tipos compatíveis e todas as suas implicações.
+Ao permitir operações que são normalmente fechadas à mesma unidade passa a ser necessário nas multiplicações e divisões além de aceitar qualquer tipo, decidir quando é necessário fazer conversões e quais fazer. Por exemplo para tipos de volume definidos de formas diferentes:
+\begin{lstlisting}
+metricVolume    "m^3"   : meter * meter * meter
+yardVolume      "yd^3"  : yard * yard * yard
+weirdVolume     "wV"    : meter * meter * yard
+\end{lstlisting}
+qualquer operação que envolva 3 variáveis de tipo compatível com os anteriores é válida, no entanto fazendo as conversões corretamente, o valor numérico de volume será diferente na atribuição a cada um dos tipos anteriores.
+
+Deste modo, há duas implementações fundamentais para a resolução correta de operações:
+
+\begin{itemize}
+\item \texttt{Códigos de Tipos}
+
+Cada tipo simples ou derivado é identificado com um número primo. Os tipos obtidos através de composição de outros tipos são a composição dos seus códigos únicos. Desta forma qualquer que seja a operação realizada com tipos, dois códigos iguais serão sempre obrigatoriamente identificadores de tipos iguais.
+\pagebreak
+\item \texttt{Algoritmo \textit{Greedy} de Cálculo}
+
+O algoritmo de cálculo está enraizado na utilização de duas estruturas auxiliares específicas:
+\begin{itemize}
+    \item A classe \textit{Type} que contêm especificamente um \textit{checklist} de tipos pertencentes à sua composição. 
+    \item Um grafo de tipos compatíveis (secção \ref{chap.implementacao.potatoes}) que liga duplamente tipos (os vértices) e contém os fatores de conversão (as arestas) entre eles e a sua relação de herança (não implícita no grafo em si).
+\end{itemize}
+Por exemplo, para a operação seguinte:
+\begin{lstlisting}
+weirdVolume = (meter * meter * meter * gram) / ounce;
+\end{lstlisting}
+
+Os primeiros passos seriam:
+\begin{enumerate}
+    \item \texttt{meter * meter}: são marcados na checkList de \textit{weirdvolume} os dois tipos \textit{meter}. Fica por marcar um tipo \textit{yard};
+    
+    \item\texttt{area * meter} :
+        \begin{enumerate}
+            \item \texttt{area}
+                \begin{enumerate}
+                    \item é feita uma tentativa sem sucesso de marcar \textit{area} na checklist de \textit{weirdVolume};
+                    \item é feita uma tentativa sem sucesso de converter \textit{area} para o primeiro tipo já marcado;
+                    \item é feita uma tentativa sem sucesso de converter \textit{area} para o seu parente hierárquico mais alto;
+                    \item a variável é aceite com o seu valor sem conversão e sem alterar o seu tipo;
+                \end{enumerate}
+            \item \texttt{meter} é feita tentativa com sucesso de marcar meter na checklist de \textit{weirdVolume}.
+        \end{enumerate}
+\end{enumerate}
+Sendo que o algoritmo continua de igual forma e resolve com sucesso qualquer operação com tipos compatíveis com herança simples e vários tipos iguais com herança múltipla. 
+
+No caso de haver tipos diferentes com herança múltipla, para operações e atribuições invulgares, o algoritmo pretende alcançar o resultado correto a maioria das vezes, não sendo garantido o resultado.
+
+Prevemos que a única outra solução envolveria calcular todas as combinações possíveis, que pode facilmente tornar-se impraticável mesmo com exemplos relativamente simples.
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Conclusão
+%\chapter*{Contribuições dos autores}
+%\noindent
+%\begin{itemize}
+% 100% - 500 pontos
+%\item Inês Justo: x\% (y pontos)
+%\item Luís Moura: x\% (y pontos) 
+%\item Maria Lavoura: x\% (y pontos)
+%\item Pedro Teixeira: x\% (y pontos)
+%\end{itemize}
+               
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Acrónimos
+%\chapter*{Acrónimos}
+%\begin{acronym}
+%\end{acronym}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliografia
+%\printbibliography
+\end{document}

@@ -76,7 +76,10 @@ public class Graph {
 		}
 
 	}
-
+	
+	// End of Internal Class Node
+	//---------------------------------------------------------------------------
+	
 	// --------------------------------------------------------------------------
 	// Static Fields
 	private static double pathFactor = 1.0;
@@ -86,7 +89,6 @@ public class Graph {
 	// Instance Fields
 	private List<ArrayList<Node>> adjList = new ArrayList<>();
 	private int size;
-	private int visitedCount;
 
 	// --------------------------------------------------------------------------
 	// Constructor
@@ -94,26 +96,7 @@ public class Graph {
 
 	// --------------------------------------------------------------------------
 	// Getters, Setters and Reseters
-	/**
-	 * Resets Factor used in getPath()
-	 */
-	static public void resetFactor() {
-		pathFactor = 1.0;
-		found = false;
-	}
-
-	/**
-	 * Clears all visited fields from all Nodes
-	 * This function should be called everytime after using getPath()
-	 */
-	public void clearVisited() {
-		for (ArrayList<Node> list : adjList) {
-			for (Node node : list) {
-				node.setVisited(false);
-			}
-		}
-	}
-
+	
 	/**
 	 * @return pathFactor used in getPath()
 	 */
@@ -127,120 +110,30 @@ public class Graph {
 	public List<ArrayList<Node>> getAdjList() {
 		return adjList;
 	}
+	
+	/**
+	 * Resets Factor used in getPath()
+	 */
+	static public void resetFactor() {
+		pathFactor = 1.0;
+		found = false;
+	}
 
 	/**
-	 * 
-	 * @param type
-	 * @return outEdges for vertex type
+	 * Clears all visited fields from all Nodes
+	 * This function should be called every time after using getPath()
 	 */
-	public List<Factor> getOutEdges(Type type){
-		List<Factor> newList = new ArrayList<>();
+	public void clearVisited() {
 		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				for (Node node : list) {
-					if(!node.getType().equals(type))
-						newList.add(node.getFactor());
-				}
-				return newList;
+			for (Node node : list) {
+				node.setVisited(false);
 			}
 		}
-		return null;
 	}
-
-	/**
-	 * 
-	 * @param type
-	 * @param f
-	 * @return destination vertex of edge f starting in vertex type
-	 */
-	public Type getDest(Type type, Factor f){
-		List<Node> nodes = new ArrayList<>();;
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				for (Node node : list) {
-					if(!node.getType().equals(type))
-						nodes.add(node);
-				}
-			}
-		}
-		for (Node node : nodes) {
-			if (node.getFactor().equals(f)) {
-				return node.getType();
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param type
-	 * @return the index of the adjacency list to the Node with type "type"
-	 */
-	public int getIndexOfNode(Type type) {
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				if (debug) {
-					ErrorHandling.printInfo("LIST INDEX : " + adjList.indexOf(list));
-				}
-				return adjList.indexOf(list);
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 
-	 * @param start type of the Node to start path from
-	 * @param end type of the Node to end path in
-	 * @return the cost of traversing the path (as a factor)
-	 * @throws Exception if any of the types given is not present in Graph
-	 */
-	public double getPathCost(Type start, Type end) {
-
-		int index = getIndexOfNode(start);
-		if (index != -1) {
-			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
-			found = false;
-			for (int i = 1; i < adj.size(); i++) {
-				Node node = null;
-				if (!found) {
-					node = adj.get(i);
-					if (debug) {
-						ErrorHandling.printInfo("Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
-						ErrorHandling.printInfo("Factor is: "+ pathFactor);
-						ErrorHandling.printInfo(node.getType().getTypeName() + " " + node.getFactor().getFactor());
-					}
-					pathFactor *= node.getFactor().getFactor();
-				}
-
-				if (node.getType().equals(end)) {
-					found = true;
-					//clearVisited();
-					return node.getFactor().getFactor();
-				}
-				if (!node.isVisited() && !found) {
-					node.markPathVisited(node.getType());
-					pathFactor *= getPathCost(node.getType(),end);
-					if (debug) ErrorHandling.printInfo("Factor is: "+ pathFactor);
-				}
-			}
-		}
-		//clearVisited();
-		return pathFactor;
-	}
-
-	/**
-	 * @param type
-	 * @return true if type belongs to any Node, false if is not present in any Node of the Graph
-	 */
-	public boolean containsVertex(Type type) {
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
+	
+	// --------------------------------------------------------------------------
+	// Public Methods
+	
 	/**
 	 * @param factor cost of the Edge and isChildToParent relation
 	 * @param start type of the Node to apply outGoing Edge (Factor)
@@ -248,6 +141,8 @@ public class Graph {
 	 * @return true if Edge is added, false if any of the types is not present in the Graph
 	 */
 	public boolean addEdge(Factor factor, Type start, Type end) {
+		
+		this.size++;
 
 		if (factor == null || start == null || end == null) {
 			return false;
@@ -304,7 +199,117 @@ public class Graph {
 		return false;
 
 	}
+	
+	/**
+	 * @param type
+	 * @return true if type belongs to any Node, false if is not present in any Node of the Graph
+	 */
+	public boolean containsVertex(Type type) {
+		for (ArrayList<Node> list : adjList) {
+			if (list.get(0).getType().equals(type)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/** 
+	 * @param type
+	 * @return outEdges for vertex type
+	 */
+	public List<Factor> getOutEdges(Type type){
+		List<Factor> newList = new ArrayList<>();
+		for (ArrayList<Node> list : adjList) {
+			if (list.get(0).getType().equals(type)) {
+				for (Node node : list) {
+					if(!node.getType().equals(type))
+						newList.add(node.getFactor());
+				}
+				return newList;
+			}
+		}
+		return null;
+	}
 
+	/**
+	 * @param type
+	 * @param f
+	 * @return destination vertex of edge f starting in vertex type
+	 */
+	public Type getDest(Type type, Factor f){
+		List<Node> nodes = new ArrayList<>();;
+		for (ArrayList<Node> list : adjList) {
+			if (list.get(0).getType().equals(type)) {
+				for (Node node : list) {
+					if(!node.getType().equals(type))
+						nodes.add(node);
+				}
+			}
+		}
+		for (Node node : nodes) {
+			if (node.getFactor().equals(f)) {
+				return node.getType();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param type
+	 * @return the index of the adjacency list to the Node with type "type"
+	 */
+	public int getIndexOfNode(Type type) {
+		for (ArrayList<Node> list : adjList) {
+			if (list.get(0).getType().equals(type)) {
+				if (debug) {
+					ErrorHandling.printInfo("LIST INDEX : " + adjList.indexOf(list));
+				}
+				return adjList.indexOf(list);
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * @param start type of the Node to start path from
+	 * @param end type of the Node to end path in
+	 * @return the cost of traversing the path (as a factor)
+	 * @throws Exception if any of the types given is not present in Graph
+	 */
+	public double getPathCost(Type start, Type end) {
+
+		int index = getIndexOfNode(start);
+		if (index != -1) {
+			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
+			found = false;
+			for (int i = 1; i < adj.size(); i++) {
+				Node node = null;
+				if (!found) {
+					node = adj.get(i);
+					if (debug) {
+						ErrorHandling.printInfo("Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
+						ErrorHandling.printInfo("Factor is: "+ pathFactor);
+						ErrorHandling.printInfo(node.getType().getTypeName() + " " + node.getFactor().getFactor());
+					}
+					pathFactor *= node.getFactor().getFactor();
+				}
+
+				if (node.getType().equals(end)) {
+					found = true;
+					//clearVisited();
+					return node.getFactor().getFactor();
+				}
+				if (!node.isVisited() && !found) {
+					node.markPathVisited(node.getType());
+					pathFactor *= getPathCost(node.getType(),end);
+					if (debug) ErrorHandling.printInfo("Factor is: "+ pathFactor);
+				}
+			}
+		}
+		//clearVisited();
+		return pathFactor;
+	}
+	
 	/**
 	 * Same function as previous, boolean return
 	 * @param start
@@ -350,6 +355,11 @@ public class Graph {
 		}
 		return false;
 	}
+	
+	
+
+	
+
 
 	// --------------------------------------------------------------------------
 	// Other Methods

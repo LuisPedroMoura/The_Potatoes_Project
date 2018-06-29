@@ -1,0 +1,15 @@
+using "CompleteExample_Types.txt";
+
+fun main{
+
+boolean b1 = (1+2)!=(2+1);
+number n1 = 1 +2;
+number n2 = 4;
+boolean b2 = (n1*n2)!=(n1/n2);
+
+println("println b1(false): "+b1);
+println("println n1(3): "+n1);
+println("println n2(4): "+n2);
+println("println b2(true): "+b2);
+
+}
