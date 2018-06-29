@@ -1,0 +1,90 @@
+
+
+@Override
+	public ST visitCast(CastContext ctx) {
+		//comentar
+		return visitChildren(ctx); 
+		//descomentar
+		/*
+		// variavel com o tipo do cast
+		// String var... = (tipo do cast)
+		String newVarName = getNewVarName();		
+		ST assignment = varAssignmentST("String", newVarName, ctx.ID().getText());
+
+		return assignment;
+		*/
+	}
+	
+	
+	
+	//[MJ] DONE -> review just to be sure everything is right right
+	@Override
+	public ST visitOperation_Cast(Operation_CastContext ctx) {	
+		ST oldVariable = visit(ctx.operation());
+		
+		String oldVariableName = (String)oldVariable.getAttribute("var");
+		
+		Variable a = (Variable) getValueFromSymbolsTable(oldVariableName);
+		
+		//comentar
+		Variable result = new Variable(typesTable.get(ctx.cast().ID().getText()), a.getValue()); 
+		//descomentar
+		/*
+		String castType = (String) visit(ctx.cast()).getAttribute("operation");
+		Variable result = new Variable(typesTable.get(castType), a.getValue());
+		ST newVariable = varAssignmentST("Double", getNewVarName(), result.getValue()+""); 
+		*/
+
+		String newName = (String) newVariable.getAttribute("var");
+		
+		newVariable.add("stat", oldVariable.render());//all the declarations until now
+		
+		updateSymbolsTable(newName, newName, result);
+		
+		
+		if(debug) {
+			System.out.println();
+			System.out.println("->"+ctx.getText());
+			System.out.println("\t-> visitOperation_Cast");
+			System.out.println("\t-> oldVar = "+oldVariable.render());
+			System.out.println("\t-> newVar = "+newVariable.render());
+			System.out.println();
+		}
+		
+		return newVariable;
+	}		
+	
+	
+		//[MJ] fazer o cast -> imprimir as contas
+	@Override
+	public ST visitValue_Cast_Number(Value_Cast_NumberContext ctx) {
+		//comentar
+		return visitChildren(ctx);
+		//descomentar
+		/*String castType = (String) visit(ctx.cast()).getAttribute("operation");
+		Variable result = new Variable(typesTable.get(castType), Double.parseDouble(ctx.NUMBER().getText()));
+		
+		ST newVariable = varAssignmentST("Double", getNewVarName(), result.getValue()+""); 
+		String newName = (String) newVariable.getAttribute("var");
+		
+		updateSymbolsTable(newName, newName, result);
+		
+		if(debug) {
+			System.out.println();
+			System.out.println("->"+ctx.getText());
+			System.out.println("\t-> visitValue_Cast_Number");
+			System.out.println();
+		}
+		
+		return newVariable;
+		*/
+	}
+	
+	// [IJ] DONE
+	public static Boolean getLogicOperationResult(Boolean booleanOp0, Boolean booleanOp1, String op) {
+		switch(op) {
+			case "&&" : return booleanOp0 && booleanOp1; 
+			case "||" : return booleanOp0 || booleanOp1; 
+		}
+		return false;
+	}
