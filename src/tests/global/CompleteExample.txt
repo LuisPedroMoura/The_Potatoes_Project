@@ -104,32 +104,34 @@ m10 = m1 + kg1/kg1*m1;
 m11 = (m1*kg1 + m1*kg1)/kg1;
 m12 = m1*kg1/barr;
 
-print("print assign opertions: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
+print("print assign operations: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
 println("");
 
 number n = 0;
 boolean b = false;
-/*
+
 for (number i = 0; i < 10; i = i+1){
 	n = i + 1;
 	b = !b;
 	println("for loop " + n + " of " + "10" + b);
 }
 println("");
-*/
 
-n = 1;
+
+n = 0;
 b = false;
-/*
+
 while (b == false) {
-	b = !b;
+	if( n == 9){
+		b = !b;
+	}
 	n = n + 1;
 	println("while loop " + n + " of " + "10" + b);
 }
 println("");
 println("");
-*/
+
 
 println("Testing nested if, else if, else and logical operations");
 println("");
@@ -141,7 +143,7 @@ if (n == 5 && n > 4){
 	println("if (n == 5 && n > 4){");
 	
 	println("");
-	println("entered");
+	println("  entered");
 	println("");
 	
 	
@@ -158,7 +160,7 @@ if (n == 5 && n > 4){
 		
 		println("  if (n > 6 || 2 > 1) {");
 		println("");
-		println("entered");
+		println("    entered");
 		println("");
 		
 		if(n > 5 && false) {

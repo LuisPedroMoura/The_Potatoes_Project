@@ -214,7 +214,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		ST assignment = varAssignmentST(type, varNewName, "! "+varOpName); 	
 	
-		updateSymbolsTable(varOriginalName, varNewName, !(Boolean)getValueFromSymbolsTable(varOpName));
+		updateSymbolTables(varOriginalName, varNewName, !(Boolean)getValueFromSymbolsTable(varOpName));
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -255,17 +255,17 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			Variable temp = (Variable) getValueFromSymbolsTable((String)valueST.getAttribute("var"));
 			Variable d = new Variable(temp);
-			updateSymbolsTable(originalName, varNewName, d);
+			updateSymbolTables(originalName, varNewName, d);
 		}
 		else if(type.equals("String")) {
 			String s = value;
 			assignment.add("operation", s);
-			updateSymbolsTable(originalName, varNewName, s);
+			updateSymbolTables(originalName, varNewName, s);
 		}
 		else { //typeValue.equals("Boolean")
 			Boolean b = Boolean.parseBoolean((ctx.value().getText()));
 			assignment.add("operation", b);
-			updateSymbolsTable(originalName, varNewName, b);
+			updateSymbolTables(originalName, varNewName, b);
 		}
 		
 		if(debug) {
@@ -304,7 +304,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		//get the var name in potatoes code 
 		String originalName = ctx.varDeclaration().ID().getText();
 		
-		updateSymbolsTable(originalName, varNewName, getValueFromSymbolsTable(resultVarName));
+		updateSymbolTables(originalName, varNewName, getValueFromSymbolsTable(resultVarName));
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -362,7 +362,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		else assignment.add("operation", resultVarName);
 		
 		
-		updateSymbolsTable(originalName, varNewName, getValueFromSymbolsTable(resultVarName));
+		updateSymbolTables(originalName, varNewName, getValueFromSymbolsTable(resultVarName));
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -388,19 +388,23 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitAssignment_Var_Not_Boolean(Assignment_Var_Not_BooleanContext ctx) {
 		
 		//get typeValue from var declaration ST 
-		String type = "Boolean";
+		//String type = "Boolean";
 		//get the new var name of this assignment from var declaration ST 
 		String originalName = ctx.var(0).getText();	
-		String varNewName = getNewVarName();
+		String varNewName = symbolTableName.get(originalName); //getNewVarName();
 
 		String varOpOriginalName = ctx.var(1).getText();
 		String varOpName = symbolTableName.get(varOpOriginalName);
 		
 		//create a ST for this assignment
-		ST assignment = varAssignmentST(type, varNewName, "! "+varOpName);
+		//ST assignment = varAssignmentST(type, varNewName, "! "+varOpName);
 
 		
-		updateSymbolsTable(originalName, varNewName, !(Boolean)getValueFromSymbolsTable(varOpOriginalName));
+		ST assignment = stg.getInstanceOf("varAssignment");
+		assignment.add("var", varNewName);
+		assignment.add("operation",  "! "+varOpName);
+		
+		symbolTableValue.put(varNewName, !(Boolean)getValueFromSymbolsTable(varOpOriginalName));
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -424,28 +428,28 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 		//create a ST for this assignment
 		ST assignment = stg.getInstanceOf("varAssignment");
-		String varNewName = getNewVarName();
+		String varNewName = symbolTableName.get(originalName);  //getNewVarName();
 		assignment.add("var", varNewName);
 		
 		Object typeValue = getValueFromSymbolsTable(originalName);
 		
 		
 		if(typeValue instanceof Boolean) {
-			assignment.add("type", "Boolean");
+			//assignment.add("type", "Boolean");
 			Boolean b = Boolean.parseBoolean((ctx.value().getText()));
 			assignment.add("operation", b);
-			updateSymbolsTable(originalName, varNewName, b);
+			symbolTableValue.put(varNewName, b);
 		}
 		else if(typeValue instanceof String) {
-			assignment.add("type", "String");
+			//assignment.add("type", "String");
 			String s = ctx.value().getText();
 			assignment.add("operation", s);
-			updateSymbolsTable(originalName, varNewName, s);
+			symbolTableValue.put(varNewName, s);
 		}
 		else { //typeValue.equals("number")||typeValue.equals("ID")
 			ST valueST = visit(ctx.value());
 			
-			assignment.add("type", "Double");
+			//assignment.add("type", "Double");
 			
 			String operation = (String)valueST.getAttribute("operation");
 			assignment.add("operation", operation);	
@@ -453,7 +457,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			Variable temp = (Variable) getValueFromSymbolsTable((String)valueST.getAttribute("var"));
 			Variable a = new Variable(temp);
 			
-			updateSymbolsTable(originalName, varNewName, a);
+			symbolTableValue.put(varNewName, a);
 		}
 
 		if(debug) {
@@ -475,7 +479,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		//get the var name in potatoes code
 		String originalName = ctx.var().getText();
-		String varNewName = getNewVarName();
+		String varNewName = symbolTableName.get(originalName);// getNewVarName();
 				
 		//get ST of comparison
 		ST comparison = visit(ctx.comparison());
@@ -485,12 +489,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String comparisonVarName = (String) comparison.getAttribute("var");
 		
 		//get typeValue from var declaration ST 
-		String type = "Boolean";
+		//String type = "Boolean";
 		
 		//create a ST for this assignment
-		ST assignment = varAssignmentST(previousDec, type, varNewName, comparisonVarName);
+		ST assignment = varAssignmentST(previousDec, "", varNewName, comparisonVarName);
 		
-		updateSymbolsTable(originalName, varNewName, getValueFromSymbolsTable(comparisonVarName));
+		symbolTableValue.put(varNewName, getValueFromSymbolsTable(comparisonVarName));
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -517,7 +521,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST assignment = stg.getInstanceOf("varAssignment");
 		
 		//get the new var name
-		String newVarName = getNewVarName();
+		String newVarName = symbolTableName.get(originalName);//getNewVarName();
 		assignment.add("var", newVarName);
 		
 		//get ST of operation
@@ -533,18 +537,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		
 		if(obj instanceof Boolean) {
-			assignment.add("type", "Boolean");
+			//assignment.add("type", "Boolean");
 			assignment.add("operation", operationName);
-			updateSymbolsTable(originalName, newVarName, obj);
+			symbolTableValue.put( newVarName, obj);
 		}
 		else if(obj instanceof String) {
-			assignment.add("type", "String");
+			//assignment.add("type", "String");
 			assignment.add("operation", operationName);
-			updateSymbolsTable(originalName, newVarName, obj);
+			symbolTableValue.put( newVarName, obj);
 		}
 		else { //typeValue.equals("number")||typeValue.equals("ID")
 			
-			assignment.add("type", "Double");
+			//assignment.add("type", "Double");
 			
 			Variable temp = (Variable) obj;
 			Variable a = new Variable(temp);
@@ -561,7 +565,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			assignment.add("operation", operationName+"*"+factor);
 			
-			updateSymbolsTable(originalName, newVarName, a);
+			symbolTableValue.put( newVarName, a);
 			
 		}
 	
@@ -730,72 +734,44 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		//assignments
 		int size = ctx.assignment().size();
-		if(size==1){// FOR '(' EOL logicalOperation EOL assignment ')'
+		if(size!=1){// FOR '('assignment EOL logicalOperation EOL assignment ')'
 			ST assignment = visit(ctx.assignment(0));
 			forLoop.add("outsideStatements", assignment.render());
-			
-			String stat [] = assignment.render().split("Double");
-			for(String s: stat)
-				forLoop.add("finalAssignment", s);
-		}
-		else {// FOR '(' assignment EOL logicalOperation EOL assignment ')'
-			ST assignment0 = visit(ctx.assignment(0));
-			ST assignment1 = visit(ctx.assignment(1));
-			forLoop.add("outsideStatements", "//"+ctx.assignment(0).getText());
-			forLoop.add("outsideStatements", assignment0.render());
-			forLoop.add("outsideStatements", "//"+ctx.assignment(1).getText());
-			
-		
-			String statLogicalOperation [] = assignment1.render().split(";");
-			for(String s: statLogicalOperation) {
-					String [] stat2 = s.split(" ");
-						forLoop.add("outsideStatements", stat2[0]+" "+stat2[1]+";");
-				}
-			
-			
-			//forLoop.add("outsideStatements", assignment1.render());
-			
-			//logical operation
-			ST logicalOperation = visit(ctx.logicalOperation());
-			forLoop.add("outsideStatements", "//"+ctx.logicalOperation().getText());
-			forLoop.add("outsideStatements", logicalOperation.render());
-			
-			//String operation = (String)logicalOperation.getAttribute("operation");
-			String comparison = (String) logicalOperation.getAttribute("var");//operation.substring(0, operation.length());
-			forLoop.add("logicalOperation", "!"+comparison);
-			
-			//var actualization
-
-			String statLogicalOperation1 [] = logicalOperation.render().split("Double");
-			for(String s: statLogicalOperation1) {
-				if(s.contains("Boolean")) {
-					String [] stat2 = s.split("Boolean");
-					for(String s2: stat2) {
-						forLoop.add("finalAssignment", s2);
-					}
-					break;
-
-				}
-				forLoop.add("finalAssignment", s);
-			}
-			
-			
-			
-			//var actualization
-			String statAssignment11 [] = assignment1.render().split("Double");
-			for(String s: statAssignment11)
-				forLoop.add("finalAssignment", s);
 		}
 		
-				
-		//statements
-		/*for(StatementContext context : ctx.statement()) {
+		//logical operation
+		ST logicalOperation = visit(ctx.logicalOperation());
+		forLoop.add("outsideStatements", "//"+ctx.logicalOperation().getText());
+		forLoop.add("outsideStatements", logicalOperation.render());
+		String booleanVarName = (String) logicalOperation.getAttribute("var");
+		forLoop.add("logicalOperation", "!"+booleanVarName);
+		
+		//content
+		for(StatementContext context : ctx.statement()) {
 			ST statements = visit(context);
 			forLoop.add("content", statements.render());
 		}
 		
 		forLoop.add("content", "\n//finalAssignment actualization");
-		*/
+		
+		
+		if(size==1) {// FOR '(' EOL logicalOperation EOL assignment ')'
+			ST assignment0 = visit(ctx.assignment(0));
+			forLoop.add("finalAssignment",assignment0.render() );
+		}
+		else {// FOR '('assignment EOL logicalOperation EOL assignment ')'
+			ST assignment1 = visit(ctx.assignment(1));
+			forLoop.add("finalAssignment", assignment1.render());
+		}
+		
+		
+		//logical operation
+		ST logicalOperation1 = visit(ctx.logicalOperation());
+		forLoop.add("finalAssignment", "//"+ctx.logicalOperation().getText());
+		forLoop.add("finalAssignment", logicalOperation1.render());
+		String booleanVarName1 = (String) logicalOperation1.getAttribute("var");
+		String reAssignment = booleanVarName + "=" + booleanVarName1 + ";";
+		forLoop.add("finalAssignment", reAssignment);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -819,12 +795,21 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		//logicalOperation
 		ST logicalOperation = visit(ctx.logicalOperation());
 		whileLoop.add("previousStatements", logicalOperation.render());
-		whileLoop.add("logicalOperation", logicalOperation.getAttribute("operation"));
+		String booleanVarName = (String) logicalOperation.getAttribute("var");
+		whileLoop.add("logicalOperation", booleanVarName);
 		//statements
 		for(StatementContext context : ctx.statement()) {
 			ST statements = visit(context);
 			whileLoop.add("content", statements.render());
 		}
+		
+		//logical operation
+		ST logicalOperation1 = visit(ctx.logicalOperation());
+		whileLoop.add("content", "//"+ctx.logicalOperation().getText());
+		whileLoop.add("content", logicalOperation1.render());
+		String booleanVarName1 = (String) logicalOperation1.getAttribute("var");
+		String reAssignment = booleanVarName + "=" + booleanVarName1 + ";";
+		whileLoop.add("content", reAssignment);
 
 		return whileLoop;
 	}
@@ -957,7 +942,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Boolean b0 = (Boolean) getValueFromSymbolsTable(nameVar0);
 		Boolean b1 = (Boolean) getValueFromSymbolsTable(nameVar1);
 		
-		updateSymbolsTable(varNewName, varNewName, getLogicOperationResult(b0,b1,op));
+		symbolTableValue.put( varNewName, getLogicOperationResult(b0,b1,op));
 		
 		return assign;
 	}
@@ -985,7 +970,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String varNewName = getNewVarName();
 		ST assignment = varAssignmentST(previousDec, type, varNewName, comparisonVarName);
 		
-		updateSymbolsTable(varNewName, varNewName, !(Boolean)getValueFromSymbolsTable(comparisonVarName));
+		symbolTableValue.put( varNewName, !(Boolean)getValueFromSymbolsTable(comparisonVarName));
 		
 		return assignment;
 	}
@@ -998,7 +983,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String varNewName = getNewVarName();
 		String resultVarName = symbolTableName.get(originalName);
 		ST assignment = varAssignmentST(type, varNewName, resultVarName);
-		updateSymbolsTable(varNewName, varNewName, getValueFromSymbolsTable(resultVarName));
+		symbolTableValue.put(varNewName, getValueFromSymbolsTable(resultVarName));
 		
 		return assignment;
 	}
@@ -1011,7 +996,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String varNewName = getNewVarName();
 		String resultVarName = symbolTableName.get(originalName);
 		ST assignment = varAssignmentST(type, varNewName, resultVarName);
-		updateSymbolsTable(varNewName, varNewName, !(Boolean)getValueFromSymbolsTable(resultVarName));
+		symbolTableValue.put( varNewName, !(Boolean)getValueFromSymbolsTable(resultVarName));
 		return assignment;
 	}
 
@@ -1022,7 +1007,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String type = "Boolean";
 		String varNewName = getNewVarName();
 		ST assignment = varAssignmentST(type, varNewName, value+"");
-		updateSymbolsTable(varNewName, varNewName, value);
+		symbolTableValue.put( varNewName, value);
 		
 		return assignment;
 	}
@@ -1034,7 +1019,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String type = "Boolean";
 		String varNewName = getNewVarName();
 		ST assignment = varAssignmentST(type, varNewName, value);
-		updateSymbolsTable(varNewName, varNewName, !Boolean.parseBoolean(value));
+		symbolTableValue.put( varNewName, !Boolean.parseBoolean(value));
 		
 		return assignment;
 	}
@@ -1072,7 +1057,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			Boolean b0 = (Boolean) getValueFromSymbolsTable(varNameOp0);
 			Boolean b1 = (Boolean) getValueFromSymbolsTable(varNameOp1);
 			
-			updateSymbolsTable(varNewName, varNewName, getBooleanResult(b0,b1,compareOp));
+			symbolTableValue.put( varNewName, getBooleanResult(b0,b1,compareOp));
 		}
 		else {
 			
@@ -1080,7 +1065,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			Variable v0 = new Variable(temp);
 			temp = (Variable) getValueFromSymbolsTable(varNameOp1);
 			Variable v1 = new Variable(temp);
-			updateSymbolsTable(varNewName, varNewName, getBooleanResult(v0.getValue(),v1.getValue(),compareOp));
+			symbolTableValue.put( varNewName, getBooleanResult(v0.getValue(),v1.getValue(),compareOp));
 		}
 		
 
@@ -1106,7 +1091,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Boolean", newName, b+""); 
 		
-		updateSymbolsTable(newName, newName, b);
+		symbolTableValue.put( newName, b);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -1149,7 +1134,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		newVariable.add("stat", oldVariable.render());//all the declarations until now
 		
-		updateSymbolsTable(newName, newName, a);
+		symbolTableValue.put( newName, a);
 		
 		
 		if(debug) {
@@ -1245,7 +1230,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				assert false: "missing semantic check";
 		}		
 
-		updateSymbolsTable(newName, newName, result);
+		symbolTableValue.put( newName, result);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -1278,7 +1263,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		//add all the declarations until now
 		newVariable.add("stat", previousVariable.render());
 		
-		updateSymbolsTable(newName, newName, a);
+		symbolTableValue.put( newName, a);
 		
 		
 		if(debug) {
@@ -1340,7 +1325,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			newVariable.add("operation", op0Name + " - " + op1Name+"*"+factor);
 		}
 		
-		updateSymbolsTable(newName, newName, result);
+		symbolTableValue.put(newName, result);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -1375,7 +1360,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		temp = (Variable) getValueFromSymbolsTable(nameVar1);
 		Variable b = new Variable(temp);
 		
-		updateSymbolsTable(newName, newName, Variable.power(a, b));
+		symbolTableValue.put( newName, Variable.power(a, b));
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -1416,7 +1401,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 
 		newVariable.add("operation", varOpNewName);
-		updateSymbolsTable(varOpOriginalName, newVariableName, value);
+		symbolTableValue.put( newVariableName, value);
 
 		
 		if(debug) {
@@ -1448,7 +1433,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable numberVar = createNumberVariable(number);
 		ST newVariable = varAssignmentST( "Double", getNewVarName(), numberVar.getValue()+"");
 		String newName = (String) newVariable.getAttribute("var");
-		updateSymbolsTable(newName, newName, numberVar);
+		symbolTableValue.put( newName, numberVar);
 		
 		//ErrorHandling.printInfo(ctx,"newVariable.getAttribute(var) = " + newVariable.getAttribute("var"));
 		
@@ -1487,7 +1472,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		String originalVarName = ctx.ID().getText();
 
-		updateSymbolsTable(originalVarName, newVarName, null );
+		symbolTableValue.put(newVarName, null );
 		
 		return varDeclaration;
 	}
@@ -1554,7 +1539,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Double", newName, number+"*"+factor); 
 		
-		updateSymbolsTable(newName, newName, a);
+		symbolTableValue.put(newName, a);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -1576,7 +1561,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Double", newName, result.getValue()+""); 
 		
-		updateSymbolsTable(newName, newName, result);
+		symbolTableValue.put( newName, result);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -1596,7 +1581,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Boolean", newName, b+""); 
 		
-		updateSymbolsTable(newName, newName, b);
+		symbolTableValue.put( newName, b);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -1684,7 +1669,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 		
 	
-	protected static void updateSymbolsTable(String originalName,String newName, Object value) {
+	protected static void updateSymbolTables(String originalName,String newName, Object value) {
 		symbolTableName.put(originalName, newName);
 		symbolTableValue.put(newName, value);
 	}
