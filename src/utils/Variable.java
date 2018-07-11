@@ -1,3 +1,16 @@
+/***************************************************************************************
+*	Title: PotatoesProject - Variable Class Source Code
+*	Code version: 2.0
+*	Author: Luis Moura (https://github.com/LuisPedroMoura)
+*	Acknowledgments for version 1.0: Pedro Teixeira (https://pedrovt.github.io),
+*	Maria João Lavoura (https://github.com/mariajoaolavoura), for the help in
+*	brainstorming the concepts needed to create the first working version of this Class
+*	that could deal with different type Variables operations.
+*	Date: July-2018
+*	Availability: https://github.com/LuisPedroMoura/PotatoesProject
+*
+***************************************************************************************/
+
 package utils;
 
 import java.util.List;

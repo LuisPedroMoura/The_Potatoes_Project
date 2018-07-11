@@ -1,3 +1,16 @@
+/***************************************************************************************
+*	Title: PotatoesProject - Type Class Source Code
+*	Code version: 2.0
+*	Author: Luis Moura (https://github.com/LuisPedroMoura)
+*	Co-author in version 1.0: Pedro Teixeira (https://pedrovt.github.io)
+*	Acknowledgments for version 1.0: Maria João Lavoura (https://github.com/mariajoaolavoura),
+*	for the help in brainstorming the concepts needed to create the first working version
+*	of this Class that could deal with different type Variables operations.
+*	Date: July-2018
+*	Availability: https://github.com/LuisPedroMoura/PotatoesProject
+*
+***************************************************************************************/
+
 package utils;
 
 import java.util.ArrayList;
@@ -9,8 +22,8 @@ import java.util.List;
  * 
  * <b>Type</b><p>
  * 
- * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
- * @version May-June 2018
+ * @author Luis Moura
+ * @version 2.0 - July 2018
  */
 public class Type {
 
@@ -30,9 +43,9 @@ public class Type {
 	// Instance Fields
 	private String typeName;
 	private String printName;
-	private final double code;
-	private List<Type>	  opTypes 	= new ArrayList<>();
-	private List<Boolean> checkList = new ArrayList<>();
+	private Code code;
+	//private List<Integer> numCodes = new ArrayList<>();		// numerator codes
+	//private List<Integer> denCodes = new ArrayList<>();		// denominator codes
 
 	// --------------------------------------------------------------------------
 	// CTORs
@@ -43,7 +56,7 @@ public class Type {
 	 * @param printName	for example 'm' (meter)
 	 */
 	public Type(String typeName, String printName) {
-		this(typeName, printName, (double) primes.get(index));
+		this(typeName, printName, new Code(primes.get(index)));
 		index++;
 	}
 
@@ -53,26 +66,31 @@ public class Type {
 	 * @param name	for example 'distance'
 	 * @param printName	for example 'm' (meter)
 	 * @param code a unique prime number, or the result of operating with other codes
-	 * @throws ArithmeticException if the code can't be represented by a double (overflow). See {@link https://stackoverflow.com/questions/31974837/can-doubles-or-bigdecimal-overflow}.
+	 * @throws ArithmeticException if the code can't be represented by a double (overflow).
+	 * See {@link https://stackoverflow.com/questions/31974837/can-doubles-or-bigdecimal-overflow}.
 	 */
-	public Type(String typeName, String printName, Double code) {
+	public Type(String typeName, String printName, Code code) {
 		this.typeName = typeName;
 		this.printName = printName;
-		if (Double.isInfinite(code) || Double.isNaN(code)) throw new ArithmeticException("overflow");
-		this.code = code; 
+		this.code = code;
+		//this.numCodes.add(numCode); 	//TODO verify in TypesGrammar that Math.multiplyExact() is used to garantee a valid numCode
+		//this.denCodes.add(denCode);
 	}
 
 	/**
 	 * Constructor for temporary types<p>
 	 * Create a new type based on another type 
 	 * @param code a unique prime number, or the result of operating with other codes
-	 * @throws ArithmeticException if the code can't be represented by a double (overflow). See {@link https://stackoverflow.com/questions/31974837/can-doubles-or-bigdecimal-overflow}.
+	 * @throws ArithmeticException if the code can't be represented by a double (overflow).
+	 * See {@link https://stackoverflow.com/questions/31974837/can-doubles-or-bigdecimal-overflow}.
 	 */
-	public Type(Double code) {
+	public Type(Code code) {
+		//TODO verify that this method is still necessary. Is only used in TypesGrammar
 		this.typeName  = "temp";
 		this.printName = "";
-		if (Double.isInfinite(code) || Double.isNaN(code)) throw new ArithmeticException("overflow");
 		this.code = code;
+		//this.numCodes.add(numCode); 	//TODO verify in TypesGrammar that Math.multiplyExact() is used to garantee a valid numCode
+		//this.denCodes.add(denCode);
 	}
 
 	/** 
@@ -82,56 +100,39 @@ public class Type {
 	 */ 
 	public Type(Type type) { 
 		this.typeName  = type.typeName; 
-		this.printName = type.printName; 
-		this.code      = type.code; 
-		this.opTypes   = new ArrayList<>(type.opTypes); 
-		this.checkList = new ArrayList<>(type.checkList); 
+		this.printName = type.printName;
+		this.code = new Code(type.getCode());
 	}
 
 	// --------------------------------------------------------------------------
 	// Getters 
 
 	/**
-	 * @return typeName
+	 * @return typeName, the name of this Type
 	 */
 	public String getTypeName() {
 		return typeName;
 	}
 
 	/**
-	 * @return printName
+	 * @return printName, the name to be printed in Variables with this Type
+	 * example: Type meter prints "m"
 	 */
 	public String getPrintName() {
 		return printName;
 	}
-
+	
 	/**
-	 * @return codeID the type unique code
+	 * @return the Code of this Type
 	 */
-	public double getCode() {
+	public Code getCode() {
 		return code;
 	}
 
-	/**
-	 * @return opTypes List
-	 */
-	public List<Type> getOpTypes() {
-		return opTypes;
-	}	
-
 	// --------------------------------------------------------------------------
 	// Setters 
-
+	// TODO, decide if these setter methods will be available in final version
 	/**
-	 * 
-	 * @param opTypes
-	 */
-	public void setOpTypes(List<Type> opTypes) { 
-		this.opTypes = opTypes; 
-	} 
-
-	/**
-	 * 
 	 * @param typeName
 	 */
 	public void setTypeName(String typeName) {
@@ -139,7 +140,6 @@ public class Type {
 	}
 
 	/**
-	 * 
 	 * @param printName
 	 */
 	public void setPrintName(String printName) {
@@ -148,41 +148,41 @@ public class Type {
 
 	// --------------------------------------------------------------------------
 	// Op Types & Checklist Manipulations
-	public void addOpType(Type type) {
-		opTypes.add(type);
-		checkList.add(false);
-	}
-
-	public boolean checkType(Type type) {
-		Double code = type.getCode();
-
-		for (int i = 0; i < checkList.size(); i++) {
-			if (checkList.get(i) == false) {
-				if (opTypes.get(i).getCode() == code) {
-					checkList.set(i, true);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public List<Type> getUncheckedOpTypes(){
-		List<Type> unchecked = new LinkedList<>();
-		for (int i = 0; i < checkList.size(); i++) {
-			if (checkList.get(i) == false) {
-				unchecked.add(opTypes.get(i));
-			}
-		}
-		return unchecked;
-	}
-
-	public boolean clearCheckList() {
-		for(int i = 0; i < checkList.size(); i++) {
-			checkList.set(i, false);
-		}
-		return true;
-	}
+//	public void addNumCode() {
+//		opTypes.add(type);
+//		checkList.add(false);
+//	}
+//
+//	public boolean checkType(Type type) {
+//		Double code = type.getCode();
+//
+//		for (int i = 0; i < checkList.size(); i++) {
+//			if (checkList.get(i) == false) {
+//				if (opTypes.get(i).getCode() == code) {
+//					checkList.set(i, true);
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	}
+//
+//	public List<Type> getUncheckedOpTypes(){
+//		List<Type> unchecked = new LinkedList<>();
+//		for (int i = 0; i < checkList.size(); i++) {
+//			if (checkList.get(i) == false) {
+//				unchecked.add(opTypes.get(i));
+//			}
+//		}
+//		return unchecked;
+//	}
+//
+//	public boolean clearCheckList() {
+//		for(int i = 0; i < checkList.size(); i++) {
+//			checkList.set(i, false);
+//		}
+//		return true;
+//	}
 
 	// --------------------------------------------------------------------------
 	// Operations with Types (Multiplication and Division)
@@ -191,14 +191,15 @@ public class Type {
 	 * @return new Type with correspondent code
 	 */
 	public static Type multiply(Type a, Type b) {
-		return new Type(a.getCode() * b.getCode());
+		// FIXME add verifications, try to come up with idea to give corret type Name
+		return new Type(Code.multiply(a.getCode(), b.getCode()));
 	}
 
 	/**
 	 * @return new Type with correspondent code
 	 */
 	public static Type divide(Type a, Type b) {
-		return new Type(a.getCode() / b.getCode());
+		return new Type(Code.divide(a.getCode(), b.getCode()));
 	}
 
 
@@ -247,20 +248,10 @@ public class Type {
 		}
 		builder.append("code=");
 		builder.append(code);
-		builder.append(", ");
-		if (opTypes != null) {
-			builder.append("opTypes=");
-			builder.append(opTypes);
-			builder.append(", ");
-		}
-		if (checkList != null) {
-			builder.append("checkList=");
-			builder.append(checkList);
-		}
 		builder.append("]");
 		return builder.toString();
 
-		//return typeName;
+		// return typeName;
 		// return printName;
 	}
 
@@ -268,11 +259,7 @@ public class Type {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((checkList == null) ? 0 : checkList.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(code);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((opTypes == null) ? 0 : opTypes.hashCode());
+		result = prime * result + ((code == null) ? 0 : code.hashCode());
 		result = prime * result + ((printName == null) ? 0 : printName.hashCode());
 		result = prime * result + ((typeName == null) ? 0 : typeName.hashCode());
 		return result;
@@ -287,17 +274,10 @@ public class Type {
 		if (getClass() != obj.getClass())
 			return false;
 		Type other = (Type) obj;
-		if (checkList == null) {
-			if (other.checkList != null)
+		if (code == null) {
+			if (other.code != null)
 				return false;
-		} else if (!checkList.equals(other.checkList))
-			return false;
-		if (Double.doubleToLongBits(code) != Double.doubleToLongBits(other.code))
-			return false;
-		if (opTypes == null) {
-			if (other.opTypes != null)
-				return false;
-		} else if (!opTypes.equals(other.opTypes))
+		} else if (!code.equals(other.code))
 			return false;
 		if (printName == null) {
 			if (other.printName != null)
@@ -311,4 +291,6 @@ public class Type {
 			return false;
 		return true;
 	}
+
+
 }
