@@ -1,55 +1,61 @@
-/* Types Grammar
- * Ines Justo (84804), Luis Pedro Moura (83808)
- * Maria Joao Lavoura (84681), Pedro Teixeira (84715)
- */
+/***************************************************************************************
+*	Title: PotatoesProject - Types Grammar Source Code
+*	Code version: 2.0
+*	Author: Luis Moura (https://github.com/LuisPedroMoura)
+*	Author of version 1.0: Pedro Teixeira (https://pedrovt.github.io),
+*	Date: July-2018
+*	Availability: https://github.com/LuisPedroMoura/PotatoesProject
+*
+***************************************************************************************/
 
 grammar Types;
 
 @header{
-/**
- * 
- * <b>Types Grammar</b><p>
- * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
- * @version May-June 2018
- */
 package typesGrammar;
 }
 
 // -----------------------------------------------------------------------------
 // Parser
-typesFile	: prefixDeclar? typesDeclar	  EOF
-			| typesDeclar   prefixDeclar? EOF
+typesFile	: declaration* EOF 
 			;
+			
+declaration : prefixDeclaration
+			| typesDeclaration
+			;
+	  			
+// -----------------------------------------------------------------------------
+// Types
+typesDeclaration	: 'types' '{' (type EOL)* '}' 
+					;
+					
+type	: ID STRING 				 		#typeBasic
+		| ID STRING ':' typesComposition	#typeCompounded
+		| ID STRING ':' typesEquivalence 	#typeEquivalent
+	  	;
+	  		
+typesEquivalence	: equivalentType ('|' equivalentType)*							
+					;
 
-// Prefixes ------------------------
-prefixDeclar: 'prefixes' '{' prefix* '}' 
-			;
+equivalentType : '(' value ')' ID;
+	
+typesComposition	: '(' typesComposition ')'							#Type_Op_Parenthesis
+					| typesComposition op=('*' | '/') typesComposition	#Type_Op_MultDiv
+					| <assoc=right> ID '^' NUMBER						#Type_Op_Power
+					| ID												#Type_Op_ID
+					;
+
+// -----------------------------------------------------------------------------
+// Prefixes
+prefixDeclaration	: 'prefixes' '{' (prefix EOL)* '}' 
+					;
 					
 prefix		: ID STRING ':' value
 	  		;
-	  			
-// Types ------------------------
-typesDeclar	: 'types' '{' type* '}' 
-			;
-					
-type		: ID STRING 				 			#Type_Basic
-			| ID STRING ':' typeOp 					#Type_Derived
-			| ID STRING ':' typeOpOr 				#Type_Derived_Or
-	  		;
-	  		
-typeOpOr	: typeOpOrAlt ('|' typeOpOrAlt)*							
-			;
 
-typeOpOrAlt : '(' value ')' ID;
-	
-typeOp		: '(' typeOp ')'						#Type_Op_Parenthesis
-			| typeOp op=('*' | '/') typeOp			#Type_Op_MultDiv
-			| <assoc=right> ID '^' NUMBER			#Type_Op_Power
-			| ID									#Type_Op_ID
-			;
-
-// Value ------------------------		
+// -----------------------------------------------------------------------------
+// Value
 value		: '(' value ')' 						#Value_Parenthesis
+			| '-' value								#Value_Simetric
 			| <assoc=right> value '^' value			#Value_Power
 			| value op=('/' | '*') value			#Value_MultDiv
 			| value op=('+' | '-') value 			#Value_AddSub
@@ -58,16 +64,17 @@ value		: '(' value ')' 						#Value_Parenthesis
 			
 // -----------------------------------------------------------------------------
 // Lexer
-ID					: LETTER (LETTER | DIGIT)*;
-STRING				: QUOTE_MARK (ESC | . )*? QUOTE_MARK;
-NUMBER				: '0' | ('-' | '+')? INT ('.' DIGIT+)? ;
+EOL					: ';';
 
-fragment LETTER		: [a-zA-Z] |'_';
+ID					: [a-zA-Z] [a-zA-Z0-9_]*;
+
 fragment QUOTE_MARK	: '"' ;
 fragment ESC		: '\\"' | '\\\\' ;
+STRING				: QUOTE_MARK (ESC | . )*? QUOTE_MARK;
 
 fragment DIGIT		: [0-9];
 fragment INT		: '0' | [1-9] DIGIT* ;
+NUMBER				: '0' | INT ('.' DIGIT+)? ;
 
 COMMENTS			: '//' .*? '\n' -> skip;
 WS					: [ \n\r\t]+ 	-> skip;
