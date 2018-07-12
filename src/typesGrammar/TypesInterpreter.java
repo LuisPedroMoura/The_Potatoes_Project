@@ -4,21 +4,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import typesGrammar.TypesParser.*;
+import utils.Code;
 import utils.Factor;
 import utils.Graph;
 import utils.Prefix;
 import utils.Type;
 import utils.errorHandling.ErrorHandling;
 
-/**
- * <b>TypesInterpreter</b><p>
- * 
- * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
- * @version May-June 2018
- */
+
 public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// Static Field (Debug Only)
@@ -27,12 +24,13 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// --------------------------------------------------------------------------
 	// Instance Fields 
 	private Map<String, Type>    typesTable    = new HashMap<>();
-	//private Graph<Type, Factor>  typesGraph    = new DirectedSparseGraph<>();
+	private Map<String, Prefix>  prefixesTable = new HashMap<>();
 	private Graph typesGraph = new Graph();
-	private Map<String, Prefix>  prefixesTable = new HashMap<>();	
-
+		
 	private ParseTreeProperty<Type>   types    = new ParseTreeProperty<>();
 	private ParseTreeProperty<Double> values   = new ParseTreeProperty<>();
+	
+	private Code newCode = null; // used as global variable to calculate new Code with multiple methods
 
 	// --------------------------------------------------------------------------
 	// Getters
@@ -47,58 +45,49 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Map<String, Prefix> getPrefixesTable() {
 		return prefixesTable;
 	}
-
+	
 	// --------------------------------------------------------------------------
 	// Callbacks 
 	@Override
 	public Boolean visitTypesFile(TypesFileContext ctx) {
-		typesTable.put("number", new Type("number", "", 1.0));
+		// add dimentionless Type number
+		typesTable.put("number", new Type("number", "", new Code(1)));
 
-		// Rule NEW_LINE* prefixDeclar?  typesDeclar NEW_LINE*
-		return ctx.prefixDeclar() != null ? visit(ctx.prefixDeclar()) && visit(ctx.typesDeclar()) 
-				: visit(ctx.typesDeclar());
+		return visitChildren(ctx);
+	}
+	
+	@Override
+	public Boolean visitDeclaration(DeclarationContext ctx) {
+		return visitChildren(ctx);
 	}
 
 	// --------------------------------------------------------------
-	// Types Callbacks 
+	// Types Callbacks
 	@Override
-	public Boolean visitTypesDeclar(TypesDeclarContext ctx) {
-		// Rule ... (type NEW_LINE+)* ...
+	public Boolean visitTypesDeclaration(TypesDeclarationContext ctx) {
 
 		Boolean valid = true;
 
 		List<TypeContext> typesDeclared = ctx.type(); 
 		for (TypeContext type : typesDeclared) {
-			//if (debug) ErrorHandling.printInfo(ctx, "Processing type " + type.getText() + "...");
-			Boolean visit = visit(type);		// visit all declared types
-			valid = visit;	
+			if (debug) ErrorHandling.printInfo(ctx, "Processing type " + type.getText() + "...");
+			valid = visit(type);		// visit all declared types
+			if (!valid) return false;
 		}	
 
 		return valid;
 	}
-
+	
 	@Override
 	public Boolean visitType_Basic(Type_BasicContext ctx) {
-		// Rule ID STRING
-
+		
 		String typeName = ctx.ID().getText();
+		String printName = getStringText(ctx.STRING().getText());
 
-		// Semantic Analysis : Types can't be redefined
-		if (typesTable.containsKey(typeName)) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
-			return false;
-		}
-
-		// temp, number and boolean are reserved types
-		String temp = typeName.trim().toLowerCase();
-		if (temp.equals("temp") || temp.equals("number") || temp.equals("boolean") || temp.equals("string")) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
-			return false;
-		}
-
+		if(!isValidNewTypeName(typeName, ctx)) return false;
 
 		// Create basic type
-		Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""));
+		Type t = new Type(typeName, printName);
 		typesTable.put(typeName, t);
 
 		if (debug) {
@@ -109,32 +98,22 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitType_Derived(Type_DerivedContext ctx) {
-		// Rule ID STRING COLON typeOp 						
-		//System.out.println("-----------------------\n" + ctx.getText() + "\n");
+	public Boolean visitType_Compounded(Type_CompoundedContext ctx) {
+
 		String typeName = ctx.ID().getText();
+		String printName = getStringText(ctx.STRING().getText());
 
-		// Semantic Analysis
-		Boolean valid = visit(ctx.typeOp());
-
-
+		if(!isValidNewTypeName(typeName, ctx)) return false;
+			
+		newCode = new Code();
+		Boolean valid = visit(ctx.typesComposition());
+		
+		// FIXME I think the adaptation below works. Sill needs to be tested
+			
+		// Create derived type based on typesComposition
 		if (valid) {
-			// Semantic Analysis : Types can't be redefined
-			if (typesTable.containsKey(typeName)) {
-				ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
-				return false;
-			}
-
-			// temp, number, boolean and string are reserved types
-			String temp = typeName.trim().toLowerCase();
-			if (temp.equals("temp") || temp.equals("number") || temp.equals("boolean") || temp.equals("string")) {
-				ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
-				return false;
-			}
-
-			// Create derived type based on typeOp
-			Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""), types.get(ctx.typeOp()).getCode());
-			types.get(ctx.typeOp()).getOpTypes().forEach(c -> t.addOpType(c));
+			
+			Type t = new Type(typeName, printName, newCode);
 
 			// Update Types & Symbol Tables
 			typesTable.put(typeName, t);
@@ -148,30 +127,21 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitType_Derived_Or(Type_Derived_OrContext ctx) {
-		// Rule ID STRING COLON typeOpOr							
+	public Boolean visitType_Equivalent(Type_EquivalentContext ctx) {
 
 		String typeName = ctx.ID().getText();
+		String printName = getStringText(ctx.STRING().getText());
+		
+		if(!isValidNewTypeName(typeName, ctx)) return false;
 
 		// Temporary type (reference is needed for the visitor of rule typeOpOr)
-		Type t = new Type(typeName, ctx.STRING().getText().replaceAll("\"", ""));
+		Type t = new Type(typeName, printName);
 		types.put(ctx, t);
 
-		Boolean valid = visit(ctx.typeOpOr());
+		Boolean valid = visit(ctx.typesEquivalence());
 
 		if (valid) {
-			// Semantic Analysis : Types can't be redefined
-			if (typesTable.containsKey(typeName)) {
-				ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
-				return false;
-			}
 
-			// Create derived type based on typeOpOr
-			//t = new Type(typeName, , types.get(ctx.typeOpOr()).getCode());
-
-			// Update the types graph : done in each visitor for each alternative
-
-			// Update the Types Table
 			typesTable.put(typeName, t);
 
 			if (debug) {
@@ -184,7 +154,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// Type Operations -------------------------------
 	@Override
-	public Boolean visitTypeOpOr(TypeOpOrContext ctx) {
+	public Boolean visitTypesEquivalence(TypesEquivalenceContext ctx) {
 		// Rule typeOpOrAlt (OR typeOpOrAlt)*	
 
 		Boolean localDebug = debug && true;
@@ -195,16 +165,16 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		Boolean valid = true;
 		Type t = types.get(ctx.parent);
 
-		List<TypeOpOrAltContext> orTypeAlternatives = ctx.typeOpOrAlt(); 
-		for (TypeOpOrAltContext orAlt : orTypeAlternatives) {
-			// visit all types declared in the Or 
-			Boolean visit = visit(orAlt);
+		List<EquivalentTypeContext> equivTypeAlternatives = ctx.equivalentType(); 
+		for (EquivalentTypeContext equivAlt : equivTypeAlternatives) {
+			// visit all types declared in the equivalence 
+			Boolean visit = visit(equivAlt);
 			valid = valid && visit;	
 
 			if (valid) {
 				// Create the Type with a new alternative
-				Type alternative = types.get(orAlt);
-				Double factor    = values.get(orAlt);
+				Type alternative = types.get(equivAlt);
+				Double factor    = values.get(equivAlt);
 				t.addOpType(alternative);
 
 				// Debug
@@ -232,7 +202,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitTypeOpOrAlt(TypeOpOrAltContext ctx) {
+	public Boolean visitEquivalentType(EquivalentTypeContext ctx) {
 		// Rule value ID
 
 		Boolean valid = visit(ctx.value());
@@ -377,7 +347,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// --------------------------------------------------------------
 	// Prefixes Callbacks
 	@Override
-	public Boolean visitPrefixDeclar(PrefixDeclarContext ctx) {
+	public Boolean visitPrefixDeclaration(PrefixDeclarationContext ctx) {
 		// Rule ... (prefix NEW_LINE+)*  ...
 
 		Boolean valid = true;
@@ -430,7 +400,42 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		return valid;
 	}
+	
+	@Override
+	public Boolean visitValue_Simetric(Value_SimetricContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitValue_Simetric(ctx);
+	}
+	
+	@Override
+	public Boolean visitValue_Power(Value_PowerContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
 
+		if (valid) {
+			Double op 	 = values.get(ctx.value(0));
+			Double power = values.get(ctx.value(1));
+			values.put(ctx, Math.pow(op, power));	
+		}
+
+		return valid;
+	}
+	
+	@Override
+	public Boolean visitValue_MultDiv(Value_MultDivContext ctx) {
+		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
+
+		if (valid) {
+			Double op1 = values.get(ctx.value(0));
+			Double op2 = values.get(ctx.value(1));
+			Double result;
+			if (ctx.op.getText().equals("*")) result = op1 * op2; 
+			else result = op1 / op2;
+			values.put(ctx, result);	
+		}
+
+		return valid;
+	}
+	
 	@Override
 	public Boolean visitValue_AddSub(Value_AddSubContext ctx) {
 		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
@@ -448,35 +453,6 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitValue_Power(Value_PowerContext ctx) {
-		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
-
-		if (valid) {
-			Double op 	 = values.get(ctx.value(0));
-			Double power = values.get(ctx.value(1));
-			values.put(ctx, Math.pow(op, power));	
-		}
-
-		return valid;
-	}
-
-	@Override
-	public Boolean visitValue_MultDiv(Value_MultDivContext ctx) {
-		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
-
-		if (valid) {
-			Double op1 = values.get(ctx.value(0));
-			Double op2 = values.get(ctx.value(1));
-			Double result;
-			if (ctx.op.getText().equals("*")) result = op1 * op2; 
-			else result = op1 / op2;
-			values.put(ctx, result);	
-		}
-
-		return valid;
-	}
-
-	@Override
 	public Boolean visitValue_Number(Value_NumberContext ctx) {
 		try {
 			Double result = Double.parseDouble(ctx.NUMBER().getText());
@@ -487,5 +463,30 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			return false;
 		}
 	}
-
+	
+	// --------------------------------------------------------------
+	// Auxiliar Methods
+	
+	private String getStringText(String str) {
+		str = str.substring(1, str.length()-1);
+		return str;
+	}
+	
+	private boolean isValidNewTypeName(String typeName, ParserRuleContext ctx) {
+		// Semantic Analysis : Types can't be redefined
+		if (typesTable.containsKey(typeName)) {
+			ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
+			return false;
+		}
+		
+		// temp, number, boolean, string and void are reserved types
+		String temp = typeName.toLowerCase();
+		if (temp.equals("temp") || temp.equals("number") || temp.equals("boolean") || temp.equals("string") || temp.equals("void")) {
+			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
+			return false;
+		}
+		
+		return true;
+	}
+	
 }

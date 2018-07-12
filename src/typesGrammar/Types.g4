@@ -28,9 +28,9 @@ declaration : prefixDeclaration
 typesDeclaration	: 'types' '{' (type EOL)* '}' 
 					;
 					
-type	: ID STRING 				 		#typeBasic
-		| ID STRING ':' typesComposition	#typeCompounded
-		| ID STRING ':' typesEquivalence 	#typeEquivalent
+type	: ID STRING 				 		#Type_Basic
+		| ID STRING ':' typesComposition	#Type_Compounded
+		| ID STRING ':' typesEquivalence 	#Type_Equivalent
 	  	;
 	  		
 typesEquivalence	: equivalentType ('|' equivalentType)*							

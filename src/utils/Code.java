@@ -13,7 +13,13 @@ public class Code {
 
 	private List<Integer> numCodes = new ArrayList<>();;		// numerator codes
 	private List<Integer> denCodes = new ArrayList<>();;		// denominator codes
-
+	
+	
+	/**
+	 * Constructor of empty Code, to use in types operations
+	 */
+	public Code () {}
+	
 	/**
 	 * Constructor for Code of basic Types
 	 * @param primeNumber
@@ -22,8 +28,6 @@ public class Code {
 	public Code (Integer primeNumber) {
 		numCodes.add(primeNumber);
 	}
-	
-	public Code () {}
 	
 	/**
 	 * Copy Constructor
