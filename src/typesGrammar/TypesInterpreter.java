@@ -30,7 +30,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	private ParseTreeProperty<Type>   types    = new ParseTreeProperty<>();
 	private ParseTreeProperty<Double> values   = new ParseTreeProperty<>();
 	
-	private Code newCode = null; // used as global variable to calculate new Code with multiple methods
+	//private Code newCode = null; // used as global variable to calculate new Code with multiple methods
+	private Type newType = null; // used as global variable to calculate new Code with multiple methods
 
 	// --------------------------------------------------------------------------
 	// Getters
@@ -86,7 +87,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		if(!isValidNewTypeName(typeName, ctx)) return false;
 
-		// Create basic type
+		// Create basic type with new auto Code
 		Type t = new Type(typeName, printName);
 		typesTable.put(typeName, t);
 
@@ -104,23 +105,22 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		String printName = getStringText(ctx.STRING().getText());
 
 		if(!isValidNewTypeName(typeName, ctx)) return false;
-			
-		newCode = new Code();
+		
+		// visits typesComposition to create the new Code for this Type
+		newType = new Type(typeName, printName, new Code());
 		Boolean valid = visit(ctx.typesComposition());
 		
 		// FIXME I think the adaptation below works. Sill needs to be tested
 			
 		// Create derived type based on typesComposition
 		if (valid) {
-			
-			Type t = new Type(typeName, printName, newCode);
 
 			// Update Types & Symbol Tables
-			typesTable.put(typeName, t);
-			types.put(ctx, t);		
+			typesTable.put(typeName, newType);
+			types.put(ctx, newType);		
 
 			if (debug) {
-				ErrorHandling.printInfo(ctx, "Added Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+				ErrorHandling.printInfo(ctx, "Added Derived Type " + newType + "\n\tOriginal line: " + ctx.getText() + ")\n");
 			}
 		}
 		return valid;
@@ -133,8 +133,10 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		String printName = getStringText(ctx.STRING().getText());
 		
 		if(!isValidNewTypeName(typeName, ctx)) return false;
-
-		// Temporary type (reference is needed for the visitor of rule typeOpOr)
+		
+		// FIXME when will this Type be added to the graph??
+		
+		// Create new Type with its Code
 		Type t = new Type(typeName, printName);
 		types.put(ctx, t);
 
@@ -155,7 +157,6 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// Type Operations -------------------------------
 	@Override
 	public Boolean visitTypesEquivalence(TypesEquivalenceContext ctx) {
-		// Rule typeOpOrAlt (OR typeOpOrAlt)*	
 
 		Boolean localDebug = debug && true;
 		if (localDebug) {
@@ -163,7 +164,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		}
 
 		Boolean valid = true;
-		Type t = types.get(ctx.parent);
+		Type parentType = types.get(ctx.parent);
 
 		List<EquivalentTypeContext> equivTypeAlternatives = ctx.equivalentType(); 
 		for (EquivalentTypeContext equivAlt : equivTypeAlternatives) {
@@ -175,7 +176,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				// Create the Type with a new alternative
 				Type alternative = types.get(equivAlt);
 				Double factor    = values.get(equivAlt);
-				t.addOpType(alternative);
+				parentType.addOpType(alternative);
 
 				// Debug
 				if (localDebug) {
@@ -196,40 +197,49 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			ErrorHandling.printInfo(ctx, "[PVT Debug]\tObtained type: " + t);
 		}
 
-		types.put(ctx, t);
+		types.put(ctx, parentType);
 
 		return valid;
 	}
-
+	
+	// FIXME I dont think this is really necessary, the grammar garantees value exists. check what false return means
 	@Override
 	public Boolean visitEquivalentType(EquivalentTypeContext ctx) {
-		// Rule value ID
 
-		Boolean valid = visit(ctx.value());
-
+		Boolean validFactor = visit(ctx.value());
 		String typeName = ctx.ID().getText();
-
-		if (valid) {
-			// Semantic Analysis : Verify it the type already exists
-			if (!typesTable.containsKey(typeName)) {
-				ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
-				return false;
-			}
-
-			types.put(ctx, typesTable.get(typeName));
-			values.put(ctx, values.get(ctx.value()));
+		
+		// Verify that factor exists
+		if (!validFactor) {
+			ErrorHandling.printError(ctx, "Equivalent types must have a conversion factor");
+			return false;
+		}
+		
+		// Conversion factor must be different than zero
+		if (Double.parseDouble(ctx.value().getText()) == 0.0) {
+			ErrorHandling.printError(ctx, "Convertion factor has to be different than zero");
+			return false;
+		}
+		
+		// Verify that the type already exists (it must)
+		if (!typesTable.containsKey(typeName)) {
+			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
+			return false;
 		}
 
-		return valid;
+		types.put(ctx, typesTable.get(typeName));
+		values.put(ctx, values.get(ctx.value()));
+		
+		return true;
 	}
-
+	
+	// DONE
 	@Override
 	public Boolean visitType_Op_Parenthesis(Type_Op_ParenthesisContext ctx) {
-		// Rule PAR_OPEN typeOp PAR_CLOSE					
 
-		Boolean valid = visit(ctx.typeOp());
+		Boolean valid = visit(ctx.typesComposition());
 		if (valid) {
-			types.put(ctx, types.get(ctx.typeOp()));
+			types.put(ctx, types.get(ctx.typesComposition()));
 		}
 
 		return valid;
@@ -237,17 +247,15 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	@Override
 	public Boolean visitType_Op_MultDiv(Type_Op_MultDivContext ctx) {
-		// Rule typeOp op=(MULTIPLY | DIVIDE) typeOp	
 
-		Boolean valid1 = visit(ctx.typeOp(0));
-		Boolean valid2 = visit(ctx.typeOp(1));
+		Boolean valid1 = visit(ctx.typesComposition(0));
+		Boolean valid2 = visit(ctx.typesComposition(1));
 		Boolean valid  = valid1 && valid2;
 
 		if (valid) {
 
-			Type a = types.get(ctx.typeOp(0));
-
-			Type b = types.get(ctx.typeOp(1));
+			Type a = types.get(ctx.typesComposition(0));
+			Type b = types.get(ctx.typesComposition(1));
 
 			Type res;
 			if (ctx.op.getText().equals("*"))
@@ -255,90 +263,55 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			else
 				res = Type.divide(a, b);
 
-			if (a.getTypeName().equals("temp")) a.getOpTypes().forEach(c -> res.addOpType(c));
-			else res.addOpType(a);
-
-			if (b.getTypeName().equals("temp")) b.getOpTypes().forEach(d -> res.addOpType(d));
-			else res.addOpType(b);
-
 			types.put(ctx, res);
-
-			//System.out.println("visit_mult_div a: " + a);
-			//System.out.println("visit_mult_div b: " + b);
-			//System.out.println("visit_mult_div res: " + res);
-			//if (res.getTypeName().equals("temp")) System.out.println("ATTENTION!! ADDED TEMP at visit_mult_div " + ctx.getText());
+			// FIXME verify that some method above deal with temp type and converts to correct name
 		}
 
 		return valid;
 	}
 
 	@Override
-	public Boolean visitType_Op_Power(Type_Op_PowerContext ctx) {
-		// Rule <assoc=right> ID POWER INT					
-		Boolean localDebug = debug && false;
+	public Boolean visitType_Op_Power(Type_Op_PowerContext ctx) {			
 
 		String typeName = ctx.ID().getText();
 
-		// Semantic Analysis : Verify it the type already exists
-		if (!typesTable.containsKey(typeName)) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
-			return false;
-		}
+		// Type must exist
+		if (!typeExists(typeName, ctx)) return false;
 
 		// Create power of the type
 		int power = 0;
 		String numberToParse = ctx.NUMBER().getText();
+		
+		// power cannot be decimal
 		if (numberToParse.contains(".")) {
 			ErrorHandling.printError(ctx, "Value \"" + numberToParse + "\" is not a valid value for a power of a type!");
 			return false;
 		}
-
+		
+		// try parsing the exponent value
 		try {
 			power = Integer.parseInt(numberToParse);
-			if (localDebug) ErrorHandling.printInfo(ctx, "[PVT Debug]\tObtained power: " + power);
 		} catch (Exception e) {
 			ErrorHandling.printError(ctx, "Value \"" + numberToParse + "\" is not a valid value for a power of a type!");
 			return false;
 		}
-
+		
+		// calculate the powered type
 		Type t = typesTable.get(typeName);
-		if (power < 0) {
-			power = Math.abs(power);
-			for (int i = 0; i < power - 1; i++) {
-				Type res = Type.divide(t, t);
-				if (t.getTypeName().equals("temp")) t.getOpTypes().forEach(opType -> res.addOpType(opType));
-				else res.addOpType(t);
-				t = res;
-			}
-		} 
-		else {
-			for (int i = 0; i < power - 1; i++) {			
-				Type res = Type.multiply(t, t);
-				if (t.getTypeName().equals("temp")) t.getOpTypes().forEach(opType -> res.addOpType(opType));
-				else res.addOpType(t);
-				t = res;
-			}
-		}
-
-		types.put(ctx, t);
+		Type res = Type.power(t, power);
+		
+		types.put(ctx, res);
 		return true;
+
 	}
 
 	@Override
 	public Boolean visitType_Op_ID(Type_Op_IDContext ctx) {
-		// Rule ID										
-
-		// Creating an aux method to verify the ID (thus eliminating the need to 
-		// duplicate the code from visitTypeOpOrAlt) would mean no access to ctx
-		// context, needed to print the error message.
 
 		String typeName = ctx.ID().getText();
 
-		// Semantic Analysis : Verify it the type already exists
-		if (!typesTable.containsKey(typeName)) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
-			return false;
-		}
+		// Type must exist
+		if (!typeExists(typeName, ctx)) return false;
 
 		types.put(ctx, typesTable.get(typeName));
 		return true;
@@ -348,13 +321,11 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// Prefixes Callbacks
 	@Override
 	public Boolean visitPrefixDeclaration(PrefixDeclarationContext ctx) {
-		// Rule ... (prefix NEW_LINE+)*  ...
 
 		Boolean valid = true;
 
 		List<PrefixContext> prefixesDeclared = ctx.prefix(); 
-		for (PrefixContext prefix : prefixesDeclared) {
-			//if (debug) ErrorHandling.printInfo(ctx, "Processing prefix " + prefix.getText() + "...");			
+		for (PrefixContext prefix : prefixesDeclared) {		
 			valid = valid && visit(prefix);	// visit all declared prefixes
 		}	
 		return valid;
@@ -362,32 +333,36 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	@Override
 	public Boolean visitPrefix(PrefixContext ctx) {
-		// Rule ID STRING COLON value
 
 		String prefixName = ctx.ID().getText();
-
-		// Semantic Analysis 
-		Boolean value = true;
-
+		String printName = getStringText(ctx.STRING().getText());
+		
 		// Prefixes can't be redefined
 		if (prefixesTable.containsKey(prefixName)) {
 			ErrorHandling.printError(ctx, "Prefix \"" + prefixName +"\" already defined!");
-			value = false;
+			return false;
 		}
+		
+		Boolean validValue = visit(ctx.value());
+		
+		if (validValue) {
 
-		value = value && visit(ctx.value());
+			double value = values.get(ctx.value());
 
-		// Create prefix
-		Prefix p = new Prefix(prefixName, ctx.STRING().getText().replaceAll("\"", ""), values.get(ctx.value()));
-		prefixesTable.put(prefixName, p);
+			// Create prefix
+			Prefix p = new Prefix(prefixName, printName, value);
+			prefixesTable.put(prefixName, p);
 
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "Added " + p + "\n\tOriginal line: " + ctx.getText() + "\n");
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "Added " + p + "\n\tOriginal line: " + ctx.getText() + "\n");
+			}
 		}
-
-		return value;
+		
+		return validValue;
 	}
-
+	
+	// TODO continue from here
+	
 	// --------------------------------------------------------------
 	// Value Callbacks 
 	@Override
@@ -467,7 +442,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	// --------------------------------------------------------------
 	// Auxiliar Methods
 	
-	private String getStringText(String str) {
+	private static String getStringText(String str) {
 		str = str.substring(1, str.length()-1);
 		return str;
 	}
@@ -486,6 +461,14 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			return false;
 		}
 		
+		return true;
+	}
+	
+	private boolean typeExists(String typeName, ParserRuleContext ctx) {
+		if (!typesTable.containsKey(typeName)) {
+			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
+			return false;
+		}
 		return true;
 	}
 	

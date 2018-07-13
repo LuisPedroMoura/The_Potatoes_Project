@@ -29,15 +29,16 @@ public class Type {
 
 	// Static Fields
 	private static List<Integer> primes;	
-	private static int index;
+	private static int newCode = 1;
+	//private static int index;
 
 	// --------------------------------------------------------------------------
 	// Static CTOR
-	static { 
-		primes = new LinkedList<>();
-		index  = 0;
-		initPrimeNumbersList(1000);
-	}
+//	static { 
+//		primes = new LinkedList<>();
+//		index  = 0;
+//		initPrimeNumbersList(1000);
+//	}
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
@@ -56,8 +57,8 @@ public class Type {
 	 * @param printName	for example 'm' (meter)
 	 */
 	public Type(String typeName, String printName) {
-		this(typeName, printName, new Code(primes.get(index)));
-		index++;
+		this(typeName, printName, new Code(++newCode));
+		//index++;
 	}
 
 	/**
@@ -191,7 +192,7 @@ public class Type {
 	 * @return new Type with correspondent code
 	 */
 	public static Type multiply(Type a, Type b) {
-		// FIXME add verifications, try to come up with idea to give corret type Name
+		// FIXME add verifications, try to come up with idea to give correct type Name
 		return new Type(Code.multiply(a.getCode(), b.getCode()));
 	}
 
@@ -200,6 +201,13 @@ public class Type {
 	 */
 	public static Type divide(Type a, Type b) {
 		return new Type(Code.divide(a.getCode(), b.getCode()));
+	}
+	
+	/**
+	 * @return new Type with correspondent code
+	 */
+	public static Type power(Type a, int exponent) {
+		return new Type(Code.power(a.getCode(), exponent));
 	}
 
 

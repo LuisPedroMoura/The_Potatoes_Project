@@ -10,10 +10,9 @@ import java.util.List;
  * @version July 2018
  */
 public class Code {
-
+	
 	private List<Integer> numCodes = new ArrayList<>();;		// numerator codes
 	private List<Integer> denCodes = new ArrayList<>();;		// denominator codes
-	
 	
 	/**
 	 * Constructor of empty Code, to use in types operations
@@ -81,6 +80,14 @@ public class Code {
 		Code newCode = new Code();
 		newCode.multiplyCode(a);
 		newCode.divideCode(b);		
+		return newCode;
+	}
+	
+	public static Code power(Code a, int exponent) {
+		Code newCode = new Code();
+		for (int i = 0; i < exponent; i++) {
+			newCode.multiplyCode(a);
+		}
 		return newCode;
 	}
 	
