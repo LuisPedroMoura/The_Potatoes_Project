@@ -1,3 +1,13 @@
+/***************************************************************************************
+*	Title: PotatoesProject - TypesInterpreter Source Code
+*	Code version: 2.0
+*	Author: Luis Moura (https://github.com/LuisPedroMoura)
+*	Author of version 1.0: Pedro Teixeira (https://pedrovt.github.io),
+*	Date: July-2018
+*	Availability: https://github.com/LuisPedroMoura/PotatoesProject
+*
+***************************************************************************************/
+
 package typesGrammar;
 
 import java.util.HashMap;
@@ -7,6 +17,7 @@ import java.util.Map;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import potatoesGrammar.PotatoesParser.StatementContext;
 import typesGrammar.TypesParser.*;
 import utils.Code;
 import utils.Factor;
@@ -15,23 +26,44 @@ import utils.Prefix;
 import utils.Type;
 import utils.errorHandling.ErrorHandling;
 
-
+/* HOW TO
+ * 
+ * Unidades
+ * Cada unidade é adicionada ao grafo com o respetivo caminho/ factor de conversao.
+ * As dimensoes ou classes tambem sao adicionadas ao grafo como unidades que terao fator de conversao
+ * 1 para a sua unidade base.
+ * As estruturas tambem sao aicionadas ao grafo como unidades, mas terao de ter um tag que inidica
+ * que nao podem servir para construir caminhos de conversao.
+ * O caminho a ser considerado par aas conversoes tem de ser de custo 1 para garantir a conversao
+ * mais direta entre as declaradas.
+ * 
+ * Prefixos
+ * possibilidade 1 - criar automaticamente todos os tipos que sao a combinao cao dos prefixos com todas as unidades
+ * depois é só correr a arvore e reconhecer os simbolos já existentes. mais processamente inicial, simplifica depois.
+ * possibilidade 2 - criar uma tabela de prefixos e  ir lendo e convertendo á medida do possivel.
+ * 
+ * 
+ * NO final de tudo, é possivel criar um grafo completo ou uma tabela de maneira a acelerar a compilacao
+ * de programas mais complexos e exigentes a nivel das conversoes, para evitar estar constantemente a correr
+ * o algoritmo de dijkstra. seria mais puxado no inicio, mas apenas uma vez.
+ */
 public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// Static Field (Debug Only)
 	private static final boolean debug = false; 
 
 	// --------------------------------------------------------------------------
-	// Instance Fields 
+	// Instance Fields	
 	private Map<String, Type>    typesTable    = new HashMap<>();
 	private Map<String, Prefix>  prefixesTable = new HashMap<>();
 	private Graph typesGraph = new Graph();
+	private Graph inheritanceGraph = new Graph(); // may be needed to guarantee logic in dimension
 		
 	private ParseTreeProperty<Type>   types    = new ParseTreeProperty<>();
 	private ParseTreeProperty<Double> values   = new ParseTreeProperty<>();
 	
 	//private Code newCode = null; // used as global variable to calculate new Code with multiple methods
-	private Type newType = null; // used as global variable to calculate new Code with multiple methods
+	private Type newTypeGlobal = null; // used as global variable to calculate new Code with multiple methods
 
 	// --------------------------------------------------------------------------
 	// Getters
@@ -46,6 +78,42 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Map<String, Prefix> getPrefixesTable() {
 		return prefixesTable;
 	}
+	
+	
+	
+	
+	
+	
+	
+
+	@Override
+	public Boolean visitType_Class(Type_ClassContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitType_Class(ctx);
+	}
+
+	@Override
+	public Boolean visitStructureDeclaration(StructureDeclarationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStructureDeclaration(ctx);
+	}
+
+	@Override
+	public Boolean visitStructure(StructureContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStructure(ctx);
+	}
+
+	@Override
+	public Boolean visitTypesAssociation(TypesAssociationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitTypesAssociation(ctx);
+	}
+
+	
+	
+	
+	
 	
 	// --------------------------------------------------------------------------
 	// Callbacks 
@@ -71,7 +139,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		List<TypeContext> typesDeclared = ctx.type(); 
 		for (TypeContext type : typesDeclared) {
-			if (debug) ErrorHandling.printInfo(ctx, "Processing type " + type.getText() + "...");
+			if (debug) ErrorHandling.printInfo(ctx, "--- Processing type " + type.getText() + "...");
 			valid = visit(type);		// visit all declared types
 			if (!valid) return false;
 		}	
@@ -99,31 +167,38 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	}
 
 	@Override
-	public Boolean visitType_Compounded(Type_CompoundedContext ctx) {
+	public Boolean visitType_Derived(Type_DerivedContext ctx) {
 
 		String typeName = ctx.ID().getText();
 		String printName = getStringText(ctx.STRING().getText());
-
-		if(!isValidNewTypeName(typeName, ctx)) return false;
 		
-		// visits typesComposition to create the new Code for this Type
-		newType = new Type(typeName, printName, new Code());
-		Boolean valid = visit(ctx.typesComposition());
+		// Type is already declared as a Basic Type
+		if (!isValidNewTypeName(typeName, ctx)) {
+			ErrorHandling.printError(ctx, "The Type \"" + typeName + "\" is already declared as Basic Type");
+			return false;
+		}
 		
-		// FIXME I think the adaptation below works. Sill needs to be tested
-			
-		// Create derived type based on typesComposition
+		// New Type is declared
+		// visits typesDerivation to create the new Code for this Type
+		// TODO verify that newTypeGlobal is still needed. I dont think so
+		//newTypeGlobal = new Type(typeName, printName, new Code()); // new Type with empty code
+		Boolean valid = visit(ctx.typesDerivation());
+		
+		// Create derived type based on typesDerivation
 		if (valid) {
-
+			// TODO verify that typesDerivation stores a Type in the ParseTreeProperty
+			Code code = types.get(ctx.typesDerivation()).getCode();
+			Type t = new Type(typeName, printName, new Code(code));
 			// Update Types & Symbol Tables
-			typesTable.put(typeName, newType);
-			types.put(ctx, newType);		
+			typesTable.put(typeName, t);
+			types.put(ctx, t);		
 
 			if (debug) {
-				ErrorHandling.printInfo(ctx, "Added Derived Type " + newType + "\n\tOriginal line: " + ctx.getText() + ")\n");
+				ErrorHandling.printInfo(ctx, "Added Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
 			}
 		}
-		return valid;
+		
+		return true;
 	}
 
 	@Override
@@ -132,80 +207,65 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		String typeName = ctx.ID().getText();
 		String printName = getStringText(ctx.STRING().getText());
 		
-		if(!isValidNewTypeName(typeName, ctx)) return false;
+		Boolean validNewTypeName = isValidNewTypeName(typeName, ctx);
 		
-		// FIXME when will this Type be added to the graph??
+		// Type was already declared. A new Symbol is being declared.
+		if (!validNewTypeName && !getStringText(ctx.STRING().getText()).equals(typesTable.get(typeName).getPrintName())) {
+			ErrorHandling.printError(ctx, "The Type \"" + typeName + "\" is already declared with another symbol");
+			return false;
+		}
 		
+		// Type was already declared. The same Symbol is being re-declared.
+		if (!validNewTypeName && !getStringText(ctx.STRING().getText()).equals(typesTable.get(typeName).getPrintName())) {
+			ErrorHandling.printWarning(ctx, "The Type \"" + typeName + "\" is already declared. Symbol is not needed in assignments");
+		}
+		
+		// New Type declared without Symbol
+		if (validNewTypeName && ctx.STRING() == null) {
+			ErrorHandling.printError(ctx, "A Symbol for this Type must be declared");
+			return false;
+		}
+		
+		// New Type declared correctly
 		// Create new Type with its Code
 		Type t = new Type(typeName, printName);
-		types.put(ctx, t);
-
+		
 		Boolean valid = visit(ctx.typesEquivalence());
-
+		// TODO verify that typesEquivalence visitsChildren so the next code can perform correctly
 		if (valid) {
-
+			// Add Types to the graph
+			// TODO think if hierarchy will be implemented in the Graph or in the Factor and extra Class
+			for (EquivalentTypeContext typeCtx : ctx.typesEquivalence().equivalentType()) {
+				typesGraph.addEdge(values.get(typeCtx), t, types.get(typeCtx));
+				typesGraph.addEdge(1/values.get(typeCtx), types.get(typeCtx), t);
+			}
+			
 			typesTable.put(typeName, t);
+			types.put(ctx, t);
 
 			if (debug) {
 				ErrorHandling.printInfo(ctx, "Added Or Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
 			}
 		}
-
-		return valid;
+		
+		return true;
 	}
 
 	// Type Operations -------------------------------
 	@Override
 	public Boolean visitTypesEquivalence(TypesEquivalenceContext ctx) {
-
-		Boolean localDebug = debug && true;
-		if (localDebug) {
-			ErrorHandling.printInfo(ctx, "[PVT Debug] Parsing " + ctx.getText());
-		}
-
 		Boolean valid = true;
-		Type parentType = types.get(ctx.parent);
-
-		List<EquivalentTypeContext> equivTypeAlternatives = ctx.equivalentType(); 
-		for (EquivalentTypeContext equivAlt : equivTypeAlternatives) {
-			// visit all types declared in the equivalence 
+		for (EquivalentTypeContext equivAlt : ctx.equivalentType()) {
 			Boolean visit = visit(equivAlt);
-			valid = valid && visit;	
-
-			if (valid) {
-				// Create the Type with a new alternative
-				Type alternative = types.get(equivAlt);
-				Double factor    = values.get(equivAlt);
-				parentType.addOpType(alternative);
-
-				// Debug
-				if (localDebug) {
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tParent Type: " 			  + t);
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Type: "   + alternative);
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tThis alternative Factor: " + factor);
-					ErrorHandling.printInfo(ctx, "[PVT Debug]\tGoing to update the graph with an edge " 
-							+ factor + ", " + alternative + ", " + factor);
-				}
-
-				// Update the types graph
-				typesGraph.addEdge(new Factor(factor, true), alternative, t);
-				typesGraph.addEdge(new Factor(factor, false), t, alternative);
-			}
-		}	
-
-		if (localDebug) {
-			ErrorHandling.printInfo(ctx, "[PVT Debug]\tObtained type: " + t);
+			valid = valid && visit;
 		}
-
-		types.put(ctx, parentType);
-
 		return valid;
 	}
 	
-	// FIXME I dont think this is really necessary, the grammar garantees value exists. check what false return means
+	// FIXME I dont think this is really necessary, the grammar guarantees value exists. check what false return means
 	@Override
 	public Boolean visitEquivalentType(EquivalentTypeContext ctx) {
-
+		
 		Boolean validFactor = visit(ctx.value());
 		String typeName = ctx.ID().getText();
 		
@@ -237,25 +297,22 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	@Override
 	public Boolean visitType_Op_Parenthesis(Type_Op_ParenthesisContext ctx) {
 
-		Boolean valid = visit(ctx.typesComposition());
-		if (valid) {
-			types.put(ctx, types.get(ctx.typesComposition()));
+		if (visit(ctx.typesDerivation())){
+			types.put(ctx, types.get(ctx.typesDerivation()));
+			return true;
 		}
-
-		return valid;
+		return false;
 	}
 
 	@Override
 	public Boolean visitType_Op_MultDiv(Type_Op_MultDivContext ctx) {
 
-		Boolean valid1 = visit(ctx.typesComposition(0));
-		Boolean valid2 = visit(ctx.typesComposition(1));
-		Boolean valid  = valid1 && valid2;
+		Boolean valid = visit(ctx.typesDerivation(0)) && visit(ctx.typesDerivation(1));
 
 		if (valid) {
 
-			Type a = types.get(ctx.typesComposition(0));
-			Type b = types.get(ctx.typesComposition(1));
+			Type a = types.get(ctx.typesDerivation(0));
+			Type b = types.get(ctx.typesDerivation(1));
 
 			Type res;
 			if (ctx.op.getText().equals("*"))
@@ -264,7 +321,6 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				res = Type.divide(a, b);
 
 			types.put(ctx, res);
-			// FIXME verify that some method above deal with temp type and converts to correct name
 		}
 
 		return valid;

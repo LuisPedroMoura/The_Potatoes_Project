@@ -19,8 +19,9 @@ package typesGrammar;
 typesFile	: declaration* EOF 
 			;
 			
-declaration : prefixDeclaration
-			| typesDeclaration
+declaration : typesDeclaration
+			| structureDeclaration
+			| prefixDeclaration
 			;
 	  			
 // -----------------------------------------------------------------------------
@@ -28,9 +29,10 @@ declaration : prefixDeclaration
 typesDeclaration	: 'types' '{' (type EOL)* '}' 
 					;
 					
-type	: ID STRING 				 		#Type_Basic
-		| ID STRING ':' typesComposition	#Type_Compounded
-		| ID STRING ':' typesEquivalence 	#Type_Equivalent
+type	: ID STRING 				 			#Type_Basic
+		| ID STRING ':' typesDerivation			#Type_Derived
+		| ID STRING? ':' typesEquivalence 		#Type_Equivalent
+		| ID '[' ID ']' ':' typesEquivalence	#Type_Class
 	  	;
 	  		
 typesEquivalence	: equivalentType ('|' equivalentType)*							
@@ -38,10 +40,22 @@ typesEquivalence	: equivalentType ('|' equivalentType)*
 
 equivalentType : '(' value ')' ID;
 	
-typesComposition	: '(' typesComposition ')'							#Type_Op_Parenthesis
-					| typesComposition op=('*' | '/') typesComposition	#Type_Op_MultDiv
+typesDerivation	: '(' typesDerivation ')'								#Type_Op_Parenthesis
+					| typesDerivation op=('*' | '/') typesDerivation	#Type_Op_MultDiv
 					| <assoc=right> ID '^' NUMBER						#Type_Op_Power
 					| ID												#Type_Op_ID
+					;
+
+// -----------------------------------------------------------------------------
+// Structures
+
+structureDeclaration	: 'structures' '{' (structure EOL)* '}'
+						;
+
+structure 	: ID STRING ':' typesAssociation
+			;
+			
+typesAssociation	: equivalentType ('&' equivalentType)*
 					;
 
 // -----------------------------------------------------------------------------

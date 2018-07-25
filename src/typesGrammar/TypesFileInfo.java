@@ -16,13 +16,7 @@ import utils.Type;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
-/**
- * 
- * <b>TypesFileInfo</b><p>
- * 
- * @author Inês Justo (84804), Luis Pedro Moura (83808), Maria João Lavoura (84681), Pedro Teixeira (84715)
- * @version May-June 2018
- */
+
 public class TypesFileInfo {
 
 	// Instance Fields

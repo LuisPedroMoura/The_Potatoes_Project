@@ -3,7 +3,7 @@
 *	Code version: 2.0
 *	Author: Luis Moura (https://github.com/LuisPedroMoura)
 *	Co-author in version 1.0: Pedro Teixeira (https://pedrovt.github.io)
-*	Acknowledgments for version 1.0: Maria João Lavoura (https://github.com/mariajoaolavoura),
+*	Acknowledgments for version 1.0: Maria Joao Lavoura (https://github.com/mariajoaolavoura),
 *	for the help in brainstorming the concepts needed to create the first working version
 *	of this Class that could deal with different type Variables operations.
 *	Date: July-2018
@@ -27,6 +27,8 @@ import java.util.List;
  */
 public class Type {
 
+	// TODO corrigir javadocs dos metodos. está tudo errado quase.
+	
 	// Static Fields
 	private static List<Integer> primes;	
 	private static int newCode = 1;
@@ -45,6 +47,8 @@ public class Type {
 	private String typeName;
 	private String printName;
 	private Code code;
+	private boolean isClass;
+	private boolean isStructure;
 	//private List<Integer> numCodes = new ArrayList<>();		// numerator codes
 	//private List<Integer> denCodes = new ArrayList<>();		// denominator codes
 
@@ -74,8 +78,25 @@ public class Type {
 		this.typeName = typeName;
 		this.printName = printName;
 		this.code = code;
-		//this.numCodes.add(numCode); 	//TODO verify in TypesGrammar that Math.multiplyExact() is used to garantee a valid numCode
-		//this.denCodes.add(denCode);
+		this.isClass = false;
+		this.isStructure = false;
+	}
+	
+	/**
+	 * 
+	 * Constructor
+	 * @param typeName
+	 * @param printName
+	 * @param code
+	 * @param isClass
+	 * @param isStructure
+	 */
+	public Type(String typeName, String printName, Code code, boolean isClass, boolean isStructure) {
+		this.typeName = typeName;
+		this.printName = printName;
+		this.code = code;
+		this.isClass = isClass;
+		this.isStructure = isStructure;
 	}
 
 	/**
@@ -90,8 +111,6 @@ public class Type {
 		this.typeName  = "temp";
 		this.printName = "";
 		this.code = code;
-		//this.numCodes.add(numCode); 	//TODO verify in TypesGrammar that Math.multiplyExact() is used to garantee a valid numCode
-		//this.denCodes.add(denCode);
 	}
 
 	/** 
@@ -129,6 +148,8 @@ public class Type {
 	public Code getCode() {
 		return code;
 	}
+	
+	
 
 	// --------------------------------------------------------------------------
 	// Setters 
