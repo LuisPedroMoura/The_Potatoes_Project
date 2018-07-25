@@ -1,7 +1,18 @@
+/***************************************************************************************
+*	Title: PotatoesProject - Graph Class Source Code
+*	Code version: 2.0
+*	Author: Luis Moura (https://github.com/LuisPedroMoura)
+*	Co-author in version 1.0: Pedro Teixeira (https://pedrovt.github.io)
+*	Date: July-2018
+*	Availability: https://github.com/LuisPedroMoura/PotatoesProject
+*
+***************************************************************************************/
 package utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import utils.errorHandling.ErrorHandling;
 
@@ -9,10 +20,11 @@ import utils.errorHandling.ErrorHandling;
  * 
  * <b>Graph</b><p>
  * Implementation based on adjcencies lists.<p>
- * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
- * @version May-June 2018
+ *
+ * @author Luis Moura (https://github.com/LuisPedroMoura)
+ * @version July 2018
  */
-public class Graph {
+public class Graph <V,E> {
 
 	// Static Constant (Debug Only)
 	private static final boolean debug = false;
@@ -23,52 +35,63 @@ public class Graph {
 	 * 
 	 * <b>Node</b><p>
 	 * Internal Class (Structure)
-	 * Contains Type and InComing Edge (Factor).
+	 * Contains V and InComing Edge.
 	 * Visited field is helpful to function getPath() to determine paths between two Nodes in Graph
 	 * 
-	 * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
-	 * @version May-June 2018
+	 * @author Luis Moura (https://github.com/LuisPedroMoura)
+	 * @version July 2018
 	 */
-	public class Node {
-
-		private Type type;
-		private Factor factor;
+	public class Node<V,E> {
+		
+		// attributes
+		private V vertex;
+		private E edge;		// incoming edge (cost to get to this.vertex)
 		private boolean visited = false;
-
-		public Node(Type type, Factor factor) {
-			super();
-			this.type = type;
-			this.factor = factor;
+		
+		/**
+		 * 
+		 * Constructor
+		 * @param vertex
+		 * @param edge
+		 */
+		public Node(V vertex, E edge) {
+			this.vertex = vertex;
+			this.edge = edge;
 		}
-
-		public Type getType() {
-			return type;
+		
+		/**
+		 * @return the vertex of this Node
+		 */
+		public V getVertex() {
+			return vertex;
 		}
-
-		public void setType(Type type) {
-			this.type = type;
+		
+		/**
+		 * @return the edge of this Node
+		 */
+		public E getEdge() {
+			return edge;
 		}
-
-		public Factor getFactor() {
-			return factor;
-		}
-
-		public void setFactor(Factor factor) {
-			this.factor = factor;
-		}
-
+		
+		/**
+		 * @return visited
+		 */
 		public boolean isVisited() {
 			return visited;
 		}
-
+		
+		/**
+		 * @param b boolean value
+		 */
 		public void setVisited(boolean b) {
 			visited = b;
 		}
-
-		public void markPathVisited(Type Type) {
+		
+		// FIXME estava no NODE nao consigo já lembrar porquê... nao faz muito sentido. tentar dar a volta era boa idea.
+		public void markPathVisited(V vertex) {
 			this.visited = true;
-			for (ArrayList<Node> list : adjList) {
-				if (list.get(0).getType().equals(type)) {
+			for (ArrayList<Node<V,E>> list : adjList) {
+				if (list.get(0).getVertex().equals(vertex)) {
 					list.get(0).setVisited(true);
 					break;
 				}
@@ -80,52 +103,80 @@ public class Graph {
 	// End of Internal Class Node
 	//---------------------------------------------------------------------------
 	
+	
 	// --------------------------------------------------------------------------
 	// Static Fields
-	private static double pathFactor = 1.0;
+	private static double pathCost = 1.0;
 	private static boolean found = false;
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
-	private List<ArrayList<Node>> adjList = new ArrayList<>();
+	private Map<V,ArrayList<Node<V,E>>> adjList = new HashMap<>();
 	private int size;
 
 	// --------------------------------------------------------------------------
-	// Constructor
+	/**
+	 * Constructor
+	 */
 	public Graph() {}
 
+	
 	// --------------------------------------------------------------------------
 	// Getters, Setters and Reseters
 	
+	public Node<V,E> getNode(V vertex){
+		for (ArrayList<Node<V,E>> list : adjList) {
+			if (list.get(0).getVertex().equals(vertex)) {
+				return list.get(0);
+			}
+		}
+		return null;
+	}
+	
+	public Node<V,E> getNode(E edge){
+		for (ArrayList<Node<V,E>> list : adjList) {
+			for (Node<V,E> node : list) {
+				if (node.getEdge().equals(edge)) {
+					return node;
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	
 	/**
-	 * @return pathFactor used in getPath()
+	 * @return pathE used in getPath()
 	 */
-	static public double getPathFactor() {
-		return pathFactor;
+	public static double getPathCost() {
+		return pathCost;
 	}
 
 	/**
 	 * @return adjList
 	 */
-	public List<ArrayList<Node>> getAdjList() {
+	public List<ArrayList<Node<V,E>>> getAdjList() {
 		return adjList;
 	}
 	
 	/**
-	 * Resets Factor used in getPath()
+	 * Resets E used in getPath()
 	 */
-	static public void resetFactor() {
-		pathFactor = 1.0;
+	static public void resetPathCost() {
+		pathCost = 1.0;
 		found = false;
 	}
-
+	
+	
+	
 	/**
 	 * Clears all visited fields from all Nodes
 	 * This function should be called every time after using getPath()
 	 */
 	public void clearVisited() {
-		for (ArrayList<Node> list : adjList) {
-			for (Node node : list) {
+		for (ArrayList<Node<V,E>> list : adjList) {
+			for (Node<V,E> node : list) {
 				node.setVisited(false);
 			}
 		}
@@ -135,132 +186,126 @@ public class Graph {
 	// Public Methods
 	
 	/**
-	 * @param factor cost of the Edge and isChildToParent relation
-	 * @param start type of the Node to apply outGoing Edge (Factor)
-	 * @param end type of the Node to apply inComing Edge (Factor)
-	 * @return true if Edge is added, false if any of the types is not present in the Graph
+	 * @param vertex to be added to the Graph
+	 * @return true if vertex is added, false if it already exists
 	 */
-	public boolean addEdge(Factor factor, Type start, Type end) {
-		
-		this.size++;
-
-		if (factor == null || start == null || end == null) {
-			return false;
-		}
-
-		// creates start node with Factor 1 to himself
-		Node nodeStart = new Node(start, new Factor(1.0, false));
-
-		// creates end node with given Factor
-		Node nodeEnd = new Node(end, new Factor (1/factor.getFactor(), !factor.getIsChildToParent()));
-
-		boolean foundStart = false;
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(start)) {
-				list.add(nodeEnd);
-				foundStart = true;
-				size += 1;
-				return true;
-			}
-		}
-		if (!foundStart) {
-			ArrayList<Node> newList = new ArrayList<>();
-			newList.add(nodeStart);
-			newList.add(nodeEnd);
-			adjList.add(newList);
-			size += 2;
+	public boolean addVertex(V vertex) {
+		if (!adjList.containsKey(vertex)) {
+			adjList.put(vertex, new ArrayList<>());
 			return true;
 		}
-
-
-		// invert nodes to maintain Factor convertion logic
-		nodeEnd = new Node(end, new Factor(1.0, false));
-		Factor newFactor = new Factor (1/factor.getFactor(), false);
-		nodeStart = new Node(start, newFactor);
-
-		boolean foundEnd = false;
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(end)) {
-				list.add(nodeStart);
-				foundEnd = true;
-				size += 1;
-				return true;
-			}
-		}
-		if (!foundEnd) {
-			ArrayList<Node> newList = new ArrayList<>();
-			newList.add(nodeEnd);
-			newList.add(nodeStart);
-			adjList.add(newList);
-			size += 2;
-			return true;
-		}
-
 		return false;
-
 	}
 	
 	/**
-	 * @param type
-	 * @return true if type belongs to any Node, false if is not present in any Node of the Graph
+	 * @param edge
+	 * @param startVertex the vertex to apply outGoing edge
+	 * @param endVertex the vertex to apply inComing edge (in the Node object)
+	 * @throws NullPointerException if any param is null
+	 * @return true if Edge is added, false if edge already exists
 	 */
-	public boolean containsVertex(Type type) {
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				return true;
+	public boolean addEdge(E edge, V startVertex, V endVertex) {
+		
+		this.size++;
+		
+		if (edge == null || startVertex == null || endVertex == null) {
+			throw new NullPointerException();
+		}
+		
+		// add new Vertices to the Graph
+		addVertex(startVertex);
+		addVertex(endVertex);
+		
+		// A new Edge between existing connected vertices is not allowed
+		for (Node<V,E> node : adjList.get(startVertex)) {	
+			if (node.getVertex().equals(endVertex)){
+				return false;
+			}
+		}
+		
+		// Edge does not exist, so its linked to vertices
+		adjList.get(startVertex).add(new Node<V,E>(endVertex, edge));
+		
+		// create end Node and add to startVertex adjacency list
+		Node<V,E> endNode = new Node<V,E>(endVertex, edge);
+		adjList.get(startVertex).add(endNode);
+		
+		return true;
+	}
+	
+	/**
+	 * @param vertex
+	 * @return true if vertex is in the Graph
+	 */
+	public boolean containsVertex(V vertex) {
+		if(adjList.containsKey(vertex)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean containsEdge(E edge, V startVertex, V endVertex) {
+		if (adjList.containsKey(startVertex)) {
+			for (Node<V,E> node : adjList.get(startVertex)) {
+				if (node.getEdge().equals(edge) && node.getVertex().equals(endVertex)){
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 	
 	/** 
-	 * @param type
-	 * @return outEdges for vertex type
+	 * @param vertex
+	 * @return List<E> of outgoing Edges for vertex
 	 */
-	public List<Factor> getOutEdges(Type type){
-		List<Factor> newList = new ArrayList<>();
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				for (Node node : list) {
-					if(!node.getType().equals(type))
-						newList.add(node.getFactor());
+	public List<E> getOutgoingEdges(V vertex){
+		List<E> newList = new ArrayList<>();
+		for (Node<V,E> node : adjList.get(vertex)) {
+			newList.add(node.getEdge());	
+		}
+		return newList;
+	}
+	
+	/**
+	 * @param vertex
+	 * @return List<E> of incoming Edges for vertex
+	 */
+	public List<E> getIncomingEdges(V vertex){
+		List<E> newList = new ArrayList<>();
+		for (V key : adjList.keySet()) {
+			ArrayList<Node<V,E>> list = adjList.get(key);
+			for (Node<V,E> node : list) {
+				if (node.getVertex().equals(vertex)) {
+					newList.add(node.getEdge());
 				}
-				return newList;
 			}
 		}
-		return null;
+		return newList;
 	}
 
 	/**
-	 * @param type
+	 * @param vertex
 	 * @param f
-	 * @return destination vertex of edge f starting in vertex type
+	 * @return destination vertex of edge f starting in vertex, null if destination does not exist
 	 */
-	public Type getDest(Type type, Factor f){
-		List<Node> nodes = new ArrayList<>();;
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
-				for (Node node : list) {
-					if(!node.getType().equals(type))
-						nodes.add(node);
-				}
-			}
-		}
-		for (Node node : nodes) {
-			if (node.getFactor().equals(f)) {
-				return node.getType();
+	public V getDest(V startVertex, E edge){
+		List<Node<V,E>> nodes = new ArrayList<>();;
+		for (Node<V,E> node : adjList.get(startVertex)) {
+			if (node.getEdge().equals(edge)) {
+				return node.getVertex();
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * @param type
-	 * @return the index of the adjacency list to the Node with type "type"
+	 * @param vertex
+	 * @return the index of the adjacency list to the Node with vertex "vertex"
 	 */
-	public int getIndexOfNode(Type type) {
+	public int getIndexOfNode(V vertex) {
 		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getType().equals(type)) {
+			if (list.get(0).getV().equals(vertex)) {
 				if (debug) {
 					ErrorHandling.printInfo("LIST INDEX : " + adjList.indexOf(list));
 				}
@@ -271,12 +316,12 @@ public class Graph {
 	}
 
 	/**
-	 * @param start type of the Node to start path from
-	 * @param end type of the Node to end path in
-	 * @return the cost of traversing the path (as a factor)
-	 * @throws Exception if any of the types given is not present in Graph
+	 * @param start vertex of the Node to start path from
+	 * @param end vertex of the Node to end path in
+	 * @return the cost of traversing the path (as a edge)
+	 * @throws Exception if any of the vertexs given is not present in Graph
 	 */
-	public double getPathCost(Type start, Type end) {
+	public double getPathCost(V start, V end) {
 
 		int index = getIndexOfNode(start);
 		if (index != -1) {
@@ -287,27 +332,27 @@ public class Graph {
 				if (!found) {
 					node = adj.get(i);
 					if (debug) {
-						ErrorHandling.printInfo("Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
-						ErrorHandling.printInfo("Factor is: "+ pathFactor);
-						ErrorHandling.printInfo(node.getType().getTypeName() + " " + node.getFactor().getFactor());
+						ErrorHandling.printInfo("E is: "+ pathE + " node is: " + node.getV().getVName() + " with edge "+node.getE().getE());
+						ErrorHandling.printInfo("E is: "+ pathE);
+						ErrorHandling.printInfo(node.getV().getVName() + " " + node.getE().getE());
 					}
-					pathFactor *= node.getFactor().getFactor();
+					pathE *= node.getE().getE();
 				}
 
-				if (node.getType().equals(end)) {
+				if (node.getV().equals(end)) {
 					found = true;
 					//clearVisited();
-					return node.getFactor().getFactor();
+					return node.getE().getE();
 				}
 				if (!node.isVisited() && !found) {
-					node.markPathVisited(node.getType());
-					pathFactor *= getPathCost(node.getType(),end);
-					if (debug) ErrorHandling.printInfo("Factor is: "+ pathFactor);
+					node.markPathVisited(node.getV());
+					pathE *= getPathCost(node.getV(),end);
+					if (debug) ErrorHandling.printInfo("E is: "+ pathE);
 				}
 			}
 		}
 		//clearVisited();
-		return pathFactor;
+		return pathE;
 	}
 	
 	/**
@@ -316,7 +361,7 @@ public class Graph {
 	 * @param end
 	 * @return
 	 */
-	public boolean isCompatible(Type start, Type end) {
+	public boolean isCompatible(V start, V end) {
 
 		int index = getIndexOfNode(start);
 		if (index != -1) {
@@ -327,15 +372,15 @@ public class Graph {
 				if (!found) {
 					node = adj.get(i);
 					if (debug) {
-						ErrorHandling.printInfo("GRAPH Factor is: "+ pathFactor + " node is: " + node.getType().getTypeName() + " with factor "+node.getFactor().getFactor());
-						ErrorHandling.printInfo(node.getType().getTypeName() + " " + node.getFactor().getFactor());
+						ErrorHandling.printInfo("GRAPH E is: "+ pathE + " node is: " + node.getV().getVName() + " with edge "+node.getE().getE());
+						ErrorHandling.printInfo(node.getV().getVName() + " " + node.getE().getE());
 					}
 				}
 
 				if (debug) {
-					ErrorHandling.printInfo("GRAPH THIS IS NODE: "+ node.getType());
+					ErrorHandling.printInfo("GRAPH THIS IS NODE: "+ node.getV());
 				}
-				if (node.getType().equals(end)) {
+				if (node.getV().equals(end)) {
 					if (debug) {
 						ErrorHandling.printInfo("FOUND COMPATIBLE TYPE!");
 					}
@@ -344,10 +389,10 @@ public class Graph {
 					break;
 				}
 				if (!node.isVisited() && !found) {
-					node.markPathVisited(node.getType());
-					isCompatible(node.getType(),end);
+					node.markPathVisited(node.getV());
+					isCompatible(node.getV(),end);
 					if (debug) {
-						ErrorHandling.printInfo("GRAPH Factor is: "+ pathFactor);
+						ErrorHandling.printInfo("GRAPH E is: "+ pathE);
 					}
 				}
 			}
@@ -369,7 +414,7 @@ public class Graph {
 	public void printGraph() {
 		for (ArrayList<Node> list : adjList) {
 			for (Node node : list) {
-				System.out.print(" |  " + node.getType().getTypeName() + " " + node.getFactor().getFactor() + " " + node.getFactor().getIsChildToParent());
+				System.out.print(" |  " + node.getV().getVName() + " " + node.getE().getE() + " " + node.getE().getIsChildToParent());
 			}
 		}
 	}
