@@ -19,9 +19,7 @@ package typesGrammar;
 typesFile	: declaration* EOF 
 			;
 			
-declaration : typesDeclaration
-			| structureDeclaration
-			| prefixDeclaration
+declaration : typesDeclaration structureDeclaration prefixDeclaration
 			;
 	  			
 // -----------------------------------------------------------------------------

@@ -10,6 +10,7 @@
 
 package typesGrammar;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,16 +55,14 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// --------------------------------------------------------------------------
 	// Instance Fields	
-	private Map<String, Type>    typesTable    = new HashMap<>();
-	private Map<String, Prefix>  prefixesTable = new HashMap<>();
-	private Graph typesGraph = new Graph();
-	private Graph inheritanceGraph = new Graph(); // may be needed to guarantee logic in dimension
+	private Map<String, Type>	typesTable    		= new HashMap<>();
+	private Map<String, Type>	prefixedTypesTable	= new HashMap<>();
+	private Map<String, Type>	classesTable		= new HashMap<>();
+	private Graph	typesGraph			= new Graph();
+	private Graph	inheritanceGraph	= new Graph(); // may be needed to guarantee logic in dimension
 		
-	private ParseTreeProperty<Type>   types    = new ParseTreeProperty<>();
-	private ParseTreeProperty<Double> values   = new ParseTreeProperty<>();
-	
-	//private Code newCode = null; // used as global variable to calculate new Code with multiple methods
-	private Type newTypeGlobal = null; // used as global variable to calculate new Code with multiple methods
+	private ParseTreeProperty<Type>		types	= new ParseTreeProperty<>();
+	private ParseTreeProperty<Double>	values	= new ParseTreeProperty<>();
 
 	// --------------------------------------------------------------------------
 	// Getters
@@ -75,45 +74,9 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		return typesGraph;
 	}
 
-	public Map<String, Prefix> getPrefixesTable() {
-		return prefixesTable;
+	public Map<String, Type> getPrefixedTypesTable() {
+		return prefixedTypesTable;
 	}
-	
-	
-	
-	
-	
-	
-	
-
-	@Override
-	public Boolean visitType_Class(Type_ClassContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitType_Class(ctx);
-	}
-
-	@Override
-	public Boolean visitStructureDeclaration(StructureDeclarationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStructureDeclaration(ctx);
-	}
-
-	@Override
-	public Boolean visitStructure(StructureContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitStructure(ctx);
-	}
-
-	@Override
-	public Boolean visitTypesAssociation(TypesAssociationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitTypesAssociation(ctx);
-	}
-
-	
-	
-	
-	
 	
 	// --------------------------------------------------------------------------
 	// Callbacks 
@@ -180,13 +143,11 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		
 		// New Type is declared
 		// visits typesDerivation to create the new Code for this Type
-		// TODO verify that newTypeGlobal is still needed. I dont think so
-		//newTypeGlobal = new Type(typeName, printName, new Code()); // new Type with empty code
 		Boolean valid = visit(ctx.typesDerivation());
 		
 		// Create derived type based on typesDerivation
 		if (valid) {
-			// TODO verify that typesDerivation stores a Type in the ParseTreeProperty
+
 			Code code = types.get(ctx.typesDerivation()).getCode();
 			Type t = new Type(typeName, printName, new Code(code));
 			// Update Types & Symbol Tables
@@ -231,7 +192,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		Type t = new Type(typeName, printName);
 		
 		Boolean valid = visit(ctx.typesEquivalence());
-		// TODO verify that typesEquivalence visitsChildren so the next code can perform correctly
+
 		if (valid) {
 			// Add Types to the graph
 			// TODO think if hierarchy will be implemented in the Graph or in the Factor and extra Class
@@ -239,14 +200,64 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				typesGraph.addEdge(values.get(typeCtx), t, types.get(typeCtx));
 				typesGraph.addEdge(1/values.get(typeCtx), types.get(typeCtx), t);
 			}
-			
-			typesTable.put(typeName, t);
-			types.put(ctx, t);
 
 			if (debug) {
 				ErrorHandling.printInfo(ctx, "Added Or Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
 			}
 		}
+		
+		typesTable.put(typeName, t);
+		types.put(ctx, t);
+		
+		return true;
+	}
+	
+	@Override
+	public Boolean visitType_Class(Type_ClassContext ctx) {
+		
+		String className = ctx.ID(0).getText();
+		String baseTypeName = ctx.ID(1).getText();
+		
+		Boolean validNewClassName = isValidNewTypeName(className, ctx);
+		Boolean validTypeName = isValidNewTypeName(baseTypeName, ctx);
+		
+		// The Class of Types already exists.
+		if (!validNewClassName) {
+			ErrorHandling.printError(ctx, "The Class of Types \"" + className + "\" already exist");
+			return false;
+		}
+		
+		// The  Class Base Type is not declared.
+		if (validTypeName) {
+			ErrorHandling.printError(ctx, "The Base Type \"" + baseTypeName + "\" is not declared");
+			return false;
+		}
+		
+		// New Class declared correctly
+		// Create new Type with its Code. The Symbol is the same as the Base Type
+		Type t = new Type(className, typesTable.get(baseTypeName).getPrintName());
+		
+		// add the Class and Base Type to the Graph
+		typesGraph.addEdge(1, t, typesTable.get(baseTypeName));
+		typesGraph.addEdge(1, typesTable.get(baseTypeName), t);
+		
+		Boolean valid = visit(ctx.typesEquivalence());
+
+		if (valid) {
+			// Add Types to the graph
+			// TODO think if hierarchy will be implemented in the Graph or in the Factor and extra Class
+			for (EquivalentTypeContext typeCtx : ctx.typesEquivalence().equivalentType()) {
+				typesGraph.addEdge(values.get(typeCtx), t, types.get(typeCtx));
+				typesGraph.addEdge(1/values.get(typeCtx), types.get(typeCtx), t);
+			}
+
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "Added Or Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
+			}
+		}
+		
+		classesTable.put(className, t); // goes to own table so its not prefixed later
+		types.put(ctx, t);				// goes to types ParseTree because it is a Type.
 		
 		return true;
 	}
@@ -262,7 +273,6 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		return valid;
 	}
 	
-	// FIXME I dont think this is really necessary, the grammar guarantees value exists. check what false return means
 	@Override
 	public Boolean visitEquivalentType(EquivalentTypeContext ctx) {
 		
@@ -372,7 +382,28 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		types.put(ctx, typesTable.get(typeName));
 		return true;
 	}
+	
+	// --------------------------------------------------------------
+	// Structures Callbacks
+	@Override
+	public Boolean visitStructureDeclaration(StructureDeclarationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStructureDeclaration(ctx);
+	}
 
+	@Override
+	public Boolean visitStructure(StructureContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitStructure(ctx);
+	}
+
+	@Override
+	public Boolean visitTypesAssociation(TypesAssociationContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitTypesAssociation(ctx);
+	}
+	
+	
 	// --------------------------------------------------------------
 	// Prefixes Callbacks
 	@Override
@@ -394,7 +425,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		String printName = getStringText(ctx.STRING().getText());
 		
 		// Prefixes can't be redefined
-		if (prefixesTable.containsKey(prefixName)) {
+		if (prefixedTypesTable.containsKey(prefixName)) {
 			ErrorHandling.printError(ctx, "Prefix \"" + prefixName +"\" already defined!");
 			return false;
 		}
@@ -404,38 +435,49 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		if (validValue) {
 
 			double value = values.get(ctx.value());
+			
+			if (value == Double.POSITIVE_INFINITY || value == Double.NEGATIVE_INFINITY || value == 0.0) {
+				ErrorHandling.printError(ctx, "Prefix \"" + prefixName +"\" value is not a valid value");
+				return false;
+			}
 
-			// Create prefix
-			Prefix p = new Prefix(prefixName, printName, value);
-			prefixesTable.put(prefixName, p);
-
-			if (debug) {
-				ErrorHandling.printInfo(ctx, "Added " + p + "\n\tOriginal line: " + ctx.getText() + "\n");
+			// Create prefixed Types and add them to the Graph linked to all units
+			for (String key : typesTable.keySet()) {
+				Type t = typesTable.get(key);
+				String prefixedName = prefixName + t.getTypeName();
+				String prefixedSymbol = printName + t.getPrintName();
+				Type prefix = new Type(prefixedName, prefixedSymbol);
+				typesGraph.addEdge(value, t, prefix);
+				typesGraph.addEdge(1/value, prefix, t);
+				prefixedTypesTable.put(prefixedName, prefix);
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, "Added " + prefix + "\n\tOriginal line: " + ctx.getText() + "\n");
+				}
 			}
 		}
 		
 		return validValue;
 	}
 	
-	// TODO continue from here
-	
 	// --------------------------------------------------------------
 	// Value Callbacks 
 	@Override
 	public Boolean visitValue_Parenthesis(Value_ParenthesisContext ctx) {
-		Boolean valid = visit(ctx.value());
-
-		if (valid) {
+		if (visit(ctx.value())) {
 			values.put(ctx, values.get(ctx.value()));
+			return true;
 		}
-
-		return valid;
+		return false;
 	}
 	
 	@Override
 	public Boolean visitValue_Simetric(Value_SimetricContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitValue_Simetric(ctx);
+		if (visit(ctx.value())) {
+			values.put(ctx, -values.get(ctx.value()));
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -443,9 +485,16 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		Boolean valid = visit(ctx.value(0)) && visit(ctx.value(1));
 
 		if (valid) {
-			Double op 	 = values.get(ctx.value(0));
+			Double base = values.get(ctx.value(0));
 			Double power = values.get(ctx.value(1));
-			values.put(ctx, Math.pow(op, power));	
+			
+			Double res = Math.pow(base, power);
+			if (res == Double.POSITIVE_INFINITY || res == Double.NEGATIVE_INFINITY) {
+				ErrorHandling.printError(ctx, "Expression overflows");
+				return false;
+			}
+			
+			values.put(ctx, res);	
 		}
 
 		return valid;
@@ -458,10 +507,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		if (valid) {
 			Double op1 = values.get(ctx.value(0));
 			Double op2 = values.get(ctx.value(1));
-			Double result;
-			if (ctx.op.getText().equals("*")) result = op1 * op2; 
-			else result = op1 / op2;
-			values.put(ctx, result);	
+			Double res;
+			if (ctx.op.getText().equals("*")) {
+				res = op1 * op2; 
+			}
+			else res = op1 / op2;
+			
+			if (res == Double.POSITIVE_INFINITY || res == Double.NEGATIVE_INFINITY) {
+				ErrorHandling.printError(ctx, "Expression overflows");
+				return false;
+			}
+			
+			values.put(ctx, res);	
 		}
 
 		return valid;
@@ -474,10 +531,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		if (valid) {
 			Double op1 = values.get(ctx.value(0));
 			Double op2 = values.get(ctx.value(1));
-			Double result;
-			if (ctx.op.getText().equals("+")) result = op1 + op2; 
-			else result = op1 - op2;
-			values.put(ctx, result);	
+			Double res;
+			if (ctx.op.getText().equals("+")) {
+				res = op1 + op2;
+			}
+			else res = op1 - op2;
+			
+			if (res == Double.POSITIVE_INFINITY || res == Double.NEGATIVE_INFINITY) {
+				ErrorHandling.printError(ctx, "Expression overflows");
+				return false;
+			}
+			
+			values.put(ctx, res);	
 		}
 
 		return valid;
@@ -490,7 +555,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			values.put(ctx, result);
 			return true;
 		} catch (Exception e) {
-			ErrorHandling.printError(ctx, "Value \"" + ctx.NUMBER().getText() + "\" is not a valid number!");
+			ErrorHandling.printError(ctx, "Value \"" + ctx.NUMBER().getText() + "\" is not a valid number");
 			return false;
 		}
 	}
@@ -506,14 +571,19 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	private boolean isValidNewTypeName(String typeName, ParserRuleContext ctx) {
 		// Semantic Analysis : Types can't be redefined
 		if (typesTable.containsKey(typeName)) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined!");
+			ErrorHandling.printError(ctx, "Type \"" + typeName +"\" already defined");
+			return false;
+		}
+		
+		if (classesTable.containsKey(typeName)) {
+			ErrorHandling.printError(ctx, "The name \"" + typeName +"\" is already defined as a Class of Types");
 			return false;
 		}
 		
 		// temp, number, boolean, string and void are reserved types
 		String temp = typeName.toLowerCase();
 		if (temp.equals("temp") || temp.equals("number") || temp.equals("boolean") || temp.equals("string") || temp.equals("void")) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined!");
+			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is reserved and can't be defined");
 			return false;
 		}
 		
@@ -522,7 +592,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	
 	private boolean typeExists(String typeName, ParserRuleContext ctx) {
 		if (!typesTable.containsKey(typeName)) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists!");
+			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" does not exists");
 			return false;
 		}
 		return true;
