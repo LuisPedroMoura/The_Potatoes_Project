@@ -10,11 +10,14 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import utils.errorHandling.ErrorHandling;
+import java.util.Set;
+import java.util.function.Function;
+import java.lang.Number;
 
 /**
  * 
@@ -46,11 +49,10 @@ public class Graph <V,E> {
 		// attributes
 		private V vertex;
 		private E edge;		// incoming edge (cost to get to this.vertex)
-		private boolean visited = false;
 		
 		/**
 		 * 
-		 * Constructor
+		 * <b>Constructor</b><p>
 		 * @param vertex
 		 * @param edge
 		 */
@@ -72,114 +74,80 @@ public class Graph <V,E> {
 		public E getEdge() {
 			return edge;
 		}
-		
-		/**
-		 * @return visited
-		 */
-		public boolean isVisited() {
-			return visited;
-		}
-		
-		/**
-		 * @param b boolean value
-		 */
-		public void setVisited(boolean b) {
-			visited = b;
-		}
-		
-		// FIXME estava no NODE nao consigo já lembrar porquê... nao faz muito sentido. tentar dar a volta era boa idea.
-		public void markPathVisited(V vertex) {
-			this.visited = true;
-			for (ArrayList<Node<V,E>> list : adjList) {
-				if (list.get(0).getVertex().equals(vertex)) {
-					list.get(0).setVisited(true);
-					break;
-				}
-			}
-		}
 
 	}
 	
 	// End of Internal Class Node
 	//---------------------------------------------------------------------------
 	
-	
-	// --------------------------------------------------------------------------
-	// Static Fields
-	private static double pathCost = 1.0;
-	private static boolean found = false;
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
+	protected Function<? super E, ? extends Number> edgeCostFunction;
 	private Map<V,ArrayList<Node<V,E>>> adjList = new HashMap<>();
 	private int size;
 
 	// --------------------------------------------------------------------------
 	/**
-	 * Constructor
+	 * <b>Constructor</b><p> creates the graph. Assumes the Type E (the Edge) is or extends Class Number
 	 */
-	public Graph() {}
+	public Graph() {
+		// TODO verify what else can be done to prevent errors and avoid System.exit
+		// TODO and verify if this actually works
+		this.edgeCostFunction = new Function<E, Number>() {
+			
+			public Number apply(E edge) {
+				Number number = null;
+				try {
+					number = (Number) edge;
+				}
+				catch (Exception e) {
+					System.out.println("ERROR: default constructor of Graph<V,E> must have Type E that extends Number");
+					System.out.println("Use constructor: Graph(Function<E, ? extends Number>) with a function that returns\n"
+										+ "the Double value of the Edge cost");
+					System.exit(1);
+				}
+				return number.doubleValue();
+			}
+		};
+	}
+	
+	/**
+	 * <b>Constructor</b> - creates the graph and the specified method of extracting cost from edges 
+	 * @param edgeCostFunction the specified method of extracting cost from edges
+	 */
+	public Graph(Function<E, ? extends Number> edgeCostFunction) {
+		this.edgeCostFunction = edgeCostFunction;
+	}
 
 	
 	// --------------------------------------------------------------------------
 	// Getters, Setters and Reseters
 	
-	public Node<V,E> getNode(V vertex){
-		for (ArrayList<Node<V,E>> list : adjList) {
-			if (list.get(0).getVertex().equals(vertex)) {
-				return list.get(0);
-			}
-		}
-		return null;
-	}
-	
-	public Node<V,E> getNode(E edge){
-		for (ArrayList<Node<V,E>> list : adjList) {
-			for (Node<V,E> node : list) {
-				if (node.getEdge().equals(edge)) {
-					return node;
-				}
-			}
-		}
-		return null;
-	}
-	
-	
-	
 	/**
-	 * @return pathE used in getPath()
+	 * @return edgeCostFunction
 	 */
-	public static double getPathCost() {
-		return pathCost;
+	public Function<? super E, ? extends Number> getEdgeCostFunction(){
+		return edgeCostFunction;
 	}
-
+	
 	/**
 	 * @return adjList
 	 */
-	public List<ArrayList<Node<V,E>>> getAdjList() {
+	public Map<V,ArrayList<Node<V,E>>> getAdjList() {
 		return adjList;
 	}
 	
 	/**
-	 * Resets E used in getPath()
+	 * 
+	 * @param edge
+	 * @return
 	 */
-	static public void resetPathCost() {
-		pathCost = 1.0;
-		found = false;
-	}
-	
-	
-	
-	/**
-	 * Clears all visited fields from all Nodes
-	 * This function should be called every time after using getPath()
-	 */
-	public void clearVisited() {
-		for (ArrayList<Node<V,E>> list : adjList) {
-			for (Node<V,E> node : list) {
-				node.setVisited(false);
-			}
+	public double getEdgeCost(E edge) {
+		if (edge instanceof Number) {
+			return ((Number) edge).doubleValue();
 		}
+		return edgeCostFunction.apply(edge).doubleValue();
 	}
 	
 	// --------------------------------------------------------------------------
@@ -244,6 +212,13 @@ public class Graph <V,E> {
 		return false;
 	}
 	
+	/**
+	 * checks if the Graph contains the specific Edge that connects the given vertices in the correct direction
+	 * @param edge
+	 * @param startVertex
+	 * @param endVertex
+	 * @return
+	 */
 	public boolean containsEdge(E edge, V startVertex, V endVertex) {
 		if (adjList.containsKey(startVertex)) {
 			for (Node<V,E> node : adjList.get(startVertex)) {
@@ -255,11 +230,44 @@ public class Graph <V,E> {
 		return false;
 	}
 	
+	public boolean containsEdge(V startVertex, V endVertex) {
+		if (adjList.containsKey(startVertex)) {
+			for (Node<V,E> node : adjList.get(startVertex)) {
+				if (node.getVertex().equals(endVertex)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean containsEdge(E edge) {
+		for (V key : adjList.keySet()) {
+			for (Node<V,E> node : adjList.get(key)) {
+				if (node.getEdge().equals(edge)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public E getEdge(V startVertex, V endVertex) {
+		if (adjList.containsKey(startVertex)) {
+			for (Node<V,E> node : adjList.get(startVertex)) {
+				if (node.getVertex().equals(endVertex)){
+					return node.getEdge();
+				}
+			}
+		}
+		return null;
+	}
+	
 	/** 
 	 * @param vertex
 	 * @return List<E> of outgoing Edges for vertex
 	 */
-	public List<E> getOutgoingEdges(V vertex){
+	public List<E> getVertexOutgoingEdges(V vertex){
 		List<E> newList = new ArrayList<>();
 		for (Node<V,E> node : adjList.get(vertex)) {
 			newList.add(node.getEdge());	
@@ -271,7 +279,7 @@ public class Graph <V,E> {
 	 * @param vertex
 	 * @return List<E> of incoming Edges for vertex
 	 */
-	public List<E> getIncomingEdges(V vertex){
+	public List<E> getVertexIncomingEdges(V vertex){
 		List<E> newList = new ArrayList<>();
 		for (V key : adjList.keySet()) {
 			ArrayList<Node<V,E>> list = adjList.get(key);
@@ -283,139 +291,228 @@ public class Graph <V,E> {
 		}
 		return newList;
 	}
+	
+	/**
+	 * 
+	 * @param vertex
+	 * @return
+	 */
+	public List<V> getVertexOutgoingNeighbors(V vertex){
+		List<V> newList = new ArrayList<>();
+		for (Node<V,E> node : adjList.get(vertex)) {
+			newList.add(node.getVertex());	
+		}
+		return newList;
+	}
+	
+	/**
+	 * 
+	 * @param vertex
+	 * @return
+	 */
+	public List<V> getVertexIncomingNeighbors(V vertex){
+		List<V> newList = new ArrayList<>();
+		for (V key : adjList.keySet()) {
+			for (Node<V,E> node : adjList.get(key)) {
+				if (node.getVertex().equals(vertex)) {
+					newList.add(key);
+				}
+			}
+		}
+		return newList;
+	}
 
 	/**
 	 * @param vertex
 	 * @param f
-	 * @return destination vertex of edge f starting in vertex, null if destination does not exist
+	 * @return destination vertex of edge starting in startVertex, null if destination does not exist
 	 */
 	public V getDest(V startVertex, E edge){
-		List<Node<V,E>> nodes = new ArrayList<>();;
 		for (Node<V,E> node : adjList.get(startVertex)) {
 			if (node.getEdge().equals(edge)) {
 				return node.getVertex();
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * @param vertex
-	 * @return the index of the adjacency list to the Node with vertex "vertex"
-	 */
-	public int getIndexOfNode(V vertex) {
-		for (ArrayList<Node> list : adjList) {
-			if (list.get(0).getV().equals(vertex)) {
-				if (debug) {
-					ErrorHandling.printInfo("LIST INDEX : " + adjList.indexOf(list));
-				}
-				return adjList.indexOf(list);
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * @param start vertex of the Node to start path from
-	 * @param end vertex of the Node to end path in
-	 * @return the cost of traversing the path (as a edge)
-	 * @throws Exception if any of the vertexs given is not present in Graph
-	 */
-	public double getPathCost(V start, V end) {
-
-		int index = getIndexOfNode(start);
-		if (index != -1) {
-			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
-			found = false;
-			for (int i = 1; i < adj.size(); i++) {
-				Node node = null;
-				if (!found) {
-					node = adj.get(i);
-					if (debug) {
-						ErrorHandling.printInfo("E is: "+ pathE + " node is: " + node.getV().getVName() + " with edge "+node.getE().getE());
-						ErrorHandling.printInfo("E is: "+ pathE);
-						ErrorHandling.printInfo(node.getV().getVName() + " " + node.getE().getE());
-					}
-					pathE *= node.getE().getE();
-				}
-
-				if (node.getV().equals(end)) {
-					found = true;
-					//clearVisited();
-					return node.getE().getE();
-				}
-				if (!node.isVisited() && !found) {
-					node.markPathVisited(node.getV());
-					pathE *= getPathCost(node.getV(),end);
-					if (debug) ErrorHandling.printInfo("E is: "+ pathE);
-				}
-			}
-		}
-		//clearVisited();
-		return pathE;
-	}
+	}	
 	
 	/**
-	 * Same function as previous, boolean return
-	 * @param start
-	 * @param end
+	 * 
+	 * @param startVertex
 	 * @return
 	 */
-	public boolean isCompatible(V start, V end) {
-
-		int index = getIndexOfNode(start);
-		if (index != -1) {
-			ArrayList<Node> adj = adjList.get(getIndexOfNode(start));
-			found = false;
-			for (int i = 1; i < adj.size(); i++) {
-				Node node = null; 
-				if (!found) {
-					node = adj.get(i);
-					if (debug) {
-						ErrorHandling.printInfo("GRAPH E is: "+ pathE + " node is: " + node.getV().getVName() + " with edge "+node.getE().getE());
-						ErrorHandling.printInfo(node.getV().getVName() + " " + node.getE().getE());
-					}
-				}
-
-				if (debug) {
-					ErrorHandling.printInfo("GRAPH THIS IS NODE: "+ node.getV());
-				}
-				if (node.getV().equals(end)) {
-					if (debug) {
-						ErrorHandling.printInfo("FOUND COMPATIBLE TYPE!");
-					}
-					found = true;
-					//clearVisited();
-					break;
-				}
-				if (!node.isVisited() && !found) {
-					node.markPathVisited(node.getV());
-					isCompatible(node.getV(),end);
-					if (debug) {
-						ErrorHandling.printInfo("GRAPH E is: "+ pathE);
-					}
+	public List<ArrayList<V>> dijkstraShortestPaths(V startVertex) {
+		
+		Map<V, Double> totalCosts = new HashMap<>(); 	// stores the minimum cost from startVertex to all other vertices
+		Map<V,V> prevVertex = new HashMap<>();			// stores the connections that build the minimum Cost Tree
+		Map<V, Double> minPath = new HashMap<>();		// improvised Priority Queue, easier to use
+		Set<V> visited = new HashSet<>();				// keeps track of visited vertices
+		
+		// initialize with startVertex
+		totalCosts.put(startVertex, 0.0);
+		minPath.put(startVertex, 0.0);
+		
+		// initialize the cost to all vertices as infinity
+		for (V vertex : getAdjList().keySet()) {
+			if (vertex != startVertex) {
+				totalCosts.put(vertex, Double.POSITIVE_INFINITY);
+			}
+		}
+		
+		// Dijkstra algorithm, runs while there are cheaper paths to be explored
+		while (!minPath.isEmpty()) {
+			
+			// Find the next Vertex to be analyzed by finding the minimum Path so far
+			double minPathsmallestValue = minPath.get(0);
+			V newSmallest = null;
+			for (V vertex : minPath.keySet()) {
+				if(minPath.get(vertex) <= minPathsmallestValue) {
+					newSmallest = vertex;
 				}
 			}
-			return true;
+			// once found, removes path that will be processed and adds vertex as visited
+			minPath.remove(newSmallest);
+			visited.add(newSmallest);
+			
+			// search for neighbors and update paths costs
+			List<V> neighbors = getVertexOutgoingNeighbors(newSmallest);
+			for (V neighbor : neighbors) {
+				// if already visited, no update necessary
+				if (!visited.contains(neighbor)) {
+					// calculate path cost
+					double altPathCost = totalCosts.get(newSmallest) + getEdgeCost(getEdge(newSmallest, neighbor));
+					// if calculated path cost is cheaper than previous calculation, replace and store information
+					if (altPathCost < totalCosts.get(neighbor)) {
+						// update total cost to get to this vertex (now is cheaper)
+						totalCosts.put(neighbor, altPathCost);
+						// update the previous vertex to this one that made the path cheaper
+						prevVertex.put(neighbor, newSmallest);
+						// store the new minimum path to later processing
+						minPath.put(neighbor, altPathCost);
+					}
+				}
+			}	
 		}
-		return false;
+		
+		// shortest paths are calculated but not organized, connection between vertices that form the minimum Cost Tree
+		// are calculated but not ordered. The following steps stores a List of Lists of all the minimum cost paths
+		// starting in startVertex to all other vertices.
+		List<ArrayList<V>> shortestPaths = new ArrayList<>();
+		
+		Set<V> vertexSet = getAdjList().keySet();
+		vertexSet.remove(startVertex);
+		
+		// creates paths in reverse other (starting with endVertex to startVertex)
+		for (V vertex : vertexSet) {
+			ArrayList<V> path = new ArrayList<>();
+			path.add(vertex);
+			while(vertex != startVertex) {
+				V next = prevVertex.get(vertex);
+				path.add(next);
+				vertex = next;
+			}
+			Collections.reverse(path);
+			shortestPaths.add(path);
+		}
+
+		return shortestPaths;
 	}
 	
-	
+	/**
+	 * Same as dijkstraShortestPaths() but all paths are considered as having cost 1
+	 * @param startVertex
+	 * @return
+	 */
+	public List<ArrayList<V>> dijkstraStraightFowardPaths(V startVertex) {
+		
+		Map<V, Double> totalCosts = new HashMap<>(); 	// stores the minimum cost from startVertex to all other vertices
+		Map<V,V> prevVertex = new HashMap<>();			// stores the connections that build the minimum Cost Tree
+		Map<V, Double> minPath = new HashMap<>();		// improvised Priority Queue, easier to use
+		Set<V> visited = new HashSet<>();				// keeps track of visited vertices
+		
+		// initialize with startVertex
+		totalCosts.put(startVertex, 0.0);
+		minPath.put(startVertex, 0.0);
+		
+		// initialize the cost to all vertices as infinity
+		for (V vertex : getAdjList().keySet()) {
+			if (vertex != startVertex) {
+				totalCosts.put(vertex, Double.POSITIVE_INFINITY);
+			}
+		}
+		
+		// Dijkstra algorithm, runs while there are cheaper paths to be explored
+		while (!minPath.isEmpty()) {
+			
+			// Find the next Vertex to be analyzed by finding the minimum Path so far
+			double minPathsmallestValue = minPath.get(0);
+			V newSmallest = null;
+			for (V vertex : minPath.keySet()) {
+				if(minPath.get(vertex) <= minPathsmallestValue) {
+					newSmallest = vertex;
+				}
+			}
+			// once found, removes path that will be processed and adds vertex as visited
+			minPath.remove(newSmallest);
+			visited.add(newSmallest);
+			
+			// search for neighbors and update paths costs
+			List<V> neighbors = getVertexOutgoingNeighbors(newSmallest);
+			for (V neighbor : neighbors) {
+				// if already visited, no update necessary
+				if (!visited.contains(neighbor)) {
+					// calculate path cost
+					double altPathCost = totalCosts.get(newSmallest) + 1.0;
+					// if calculated path cost is cheaper than previous calculation, replace and store information
+					if (altPathCost < totalCosts.get(neighbor)) {
+						// update total cost to get to this vertex (now is cheaper)
+						totalCosts.put(neighbor, altPathCost);
+						// update the previous vertex to this one that made the path cheaper
+						prevVertex.put(neighbor, newSmallest);
+						// store the new minimum path to later processing
+						minPath.put(neighbor, altPathCost);
+					}
+				}
+			}	
+		}
+		
+		// shortest paths are calculated but not organized, connection between vertices that form the minimum Cost Tree
+		// are calculated but not ordered. The following steps stores a List of Lists of all the minimum cost paths
+		// starting in startVertex to all other vertices.
+		List<ArrayList<V>> shortestPaths = new ArrayList<>();
+		
+		Set<V> vertexSet = getAdjList().keySet();
+		vertexSet.remove(startVertex);
+		
+		// creates paths in reverse other (starting with endVertex to startVertex)
+		for (V vertex : vertexSet) {
+			ArrayList<V> path = new ArrayList<>();
+			path.add(vertex);
+			while(vertex != startVertex) {
+				V next = prevVertex.get(vertex);
+				path.add(next);
+				vertex = next;
+			}
+			Collections.reverse(path);
+			shortestPaths.add(path);
+		}
 
+		return shortestPaths;
+	}
 	
-
 
 	// --------------------------------------------------------------------------
 	// Other Methods
-	/**
-	 * Prints the graph rudimentarily in the console
-	 */
-	public void printGraph() {
-		for (ArrayList<Node> list : adjList) {
-			for (Node node : list) {
-				System.out.print(" |  " + node.getV().getVName() + " " + node.getE().getE() + " " + node.getE().getIsChildToParent());
+
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		for (V key : adjList.keySet()) {
+			for (Node<V,E> node : adjList.get(key)) {
+				str.append(node.getVertex() + " " + node.getEdge() + "  |  ");
 			}
+			str.append("\n");
 		}
+		return str.toString();
 	}
 }
