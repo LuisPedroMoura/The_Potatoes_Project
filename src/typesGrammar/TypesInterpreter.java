@@ -10,6 +10,7 @@
 
 package typesGrammar;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	private Map<String, Type>	classesTable			= new HashMap<>();
 	private HierarchyDiGraph<Type, Double>	typesGraph	= new HierarchyDiGraph<>();
 	//private Graph<Double, Type>	inheritanceGraph	= new Graph(); // may be needed to guarantee logic in dimension
-		
+	private List<String> reservedWords = new ArrayList<>();
 	private ParseTreeProperty<Type>		types	= new ParseTreeProperty<>();
 	private ParseTreeProperty<Double>	values	= new ParseTreeProperty<>();
 
@@ -72,6 +73,10 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	public Map<String, Type> getPrefixedTypesTable() {
 		return prefixedTypesTable;
+	}
+	
+	public List<String> getReservedWords(){
+		return reservedWords;
 	}
 	
 	// --------------------------------------------------------------------------
@@ -111,12 +116,18 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		
 		String typeName = ctx.ID().getText();
 		String printName = getStringText(ctx.STRING().getText());
+		if (printName.equals("")) {
+			ErrorHandling.printError(ctx, "Type declaration symbol cannot be empty");
+			return false;
+		}
 
 		if(!isValidNewTypeName(typeName, ctx)) return false;
 
 		// Create basic type with new auto Code
 		Type t = new Type(typeName, printName);
 		typesTable.put(typeName, t);
+		reservedWords.add(typeName);
+		reservedWords.add(printName);
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Added Basic Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
@@ -130,6 +141,10 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		String typeName = ctx.ID().getText();
 		String printName = getStringText(ctx.STRING().getText());
+		if (printName.equals("")) {
+			ErrorHandling.printError(ctx, "Type declaration symbol cannot be empty");
+			return false;
+		}
 		
 		// Type is already declared as a Basic Type
 		if (!isValidNewTypeName(typeName, ctx)) {
@@ -148,7 +163,9 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 			Type t = new Type(typeName, printName, new Code(code));
 			// Update Types & Symbol Tables
 			typesTable.put(typeName, t);
-			types.put(ctx, t);		
+			types.put(ctx, t);
+			reservedWords.add(typeName);
+			reservedWords.add(printName);
 
 			if (debug) {
 				ErrorHandling.printInfo(ctx, "Added Derived Type " + t + "\n\tOriginal line: " + ctx.getText() + ")\n");
@@ -162,7 +179,17 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitType_Equivalent(Type_EquivalentContext ctx) {
 
 		String typeName = ctx.ID().getText();
-		String printName = getStringText(ctx.STRING().getText());
+		String printName;
+		if (ctx.STRING() != null) {
+			printName = getStringText(ctx.STRING().getText());
+			if (printName.equals("")) {
+				ErrorHandling.printError(ctx, "Type declaration symbol cannot be empty");
+				return false;
+			}
+		}
+		else {
+			printName = null;
+		}
 		
 		Boolean validNewTypeName = isValidNewTypeName(typeName, ctx);
 		
@@ -191,7 +218,6 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		if (valid) {
 			// Add Types to the graph
-			// TODO think if hierarchy will be implemented in the Graph or in the Factor and extra Class
 			for (EquivalentTypeContext typeCtx : ctx.typesEquivalence().equivalentType()) {
 				typesGraph.addEdge(values.get(typeCtx), t, types.get(typeCtx));
 				typesGraph.addEdge(1/values.get(typeCtx), types.get(typeCtx), t);
@@ -204,6 +230,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		
 		typesTable.put(typeName, t);
 		types.put(ctx, t);
+		reservedWords.add(typeName);
+		reservedWords.add(printName);
 		
 		return true;
 	}
@@ -242,7 +270,6 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 		if (valid) {
 			// Add Types to the graph
-			// TODO think if hierarchy will be implemented in the Graph or in the Factor and extra Class
 			for (EquivalentTypeContext typeCtx : ctx.typesEquivalence().equivalentType()) {
 				typesGraph.addEdge(values.get(typeCtx), t, types.get(typeCtx));
 				typesGraph.addEdge(1/values.get(typeCtx), types.get(typeCtx), t);
@@ -255,6 +282,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		
 		classesTable.put(className, t); // goes to own table so its not prefixed later
 		types.put(ctx, t);				// goes to types ParseTree because it is a Type.
+		reservedWords.add(className);
 		
 		return true;
 	}
@@ -447,6 +475,8 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 				typesGraph.addEdge(value, t, prefix);
 				typesGraph.addEdge(1/value, prefix, t);
 				prefixedTypesTable.put(prefixedName, prefix);
+				reservedWords.add(prefixedName);
+				reservedWords.add(prefixedSymbol);
 				
 				if (debug) {
 					ErrorHandling.printInfo(ctx, "Added " + prefix + "\n\tOriginal line: " + ctx.getText() + "\n");

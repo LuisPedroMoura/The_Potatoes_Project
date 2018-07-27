@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import potatoesGrammar.PotatoesBaseVisitor;
@@ -30,8 +31,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Static Fields
 	static String path;
-	private static 	 TypesFileInfo typesFileInfo; // initialized in visitUsing();
-	private static 	 Map<String, Type> typesTable;
+	private static	TypesFileInfo		typesFileInfo; // initialized in visitUsing();
+	private static	List<String>		reservedWords;
+	private static	Map<String, Type> 	typesTable;
 
 	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
@@ -68,6 +70,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// Get information from the types file
 		path = getStringText(ctx.STRING().getText());
 		typesFileInfo = new TypesFileInfo(path);
+		reservedWords = typesFileInfo.getReservedWords();
 		typesTable = typesFileInfo.getTypesTable();
 
 		// Debug
@@ -87,12 +90,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override 
 	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
 		Boolean result =  visit(ctx.assignment());
-
-		// Debug
-		if(debug) {
-			ErrorHandling.printInfo("Visited " + ctx.assignment().getText() + " : " + result);
-		}
-
+		if(debug) {ErrorHandling.printInfo("Visited " + ctx.assignment().getText() + " : " + result);}
 		return result;
 	}
 
@@ -112,11 +110,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override 
 	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
 		boolean valid =  visit(ctx.assignment());
-
-		if(debug) {
-			ErrorHandling.printInfo(ctx, "Visited " + ctx.assignment().getText() + " : " + valid);
-		}
-
+		if(debug) {ErrorHandling.printInfo(ctx, "Visited " + ctx.assignment().getText() + " : " + valid);}
 		return valid;
 	}
 
@@ -145,7 +139,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override 
 	public Boolean visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
-		if (!visit(ctx.varDeclaration())) {
+		if (!visit(ctx.varDeclaration()) || !visit(ctx.var())) {
 			return false;
 		};
 
@@ -158,50 +152,39 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// verify that variable to be created has valid name
-		if (typesTable.containsKey(varName)) {
+		if (symbolTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, varName + " is already declared");
 			return false;
 		}
 
-		// verify that assigned Variable is of Type boolean
-		if (typeName.equals("boolean")) {
-			if (!visit(ctx.var())) {
-				return false;
-			};
-
-			Object obj = mapCtxObj.get(ctx.var());
-
-			if (obj instanceof Boolean) {
-				symbolTable.put(ctx.varDeclaration().ID().getText(), true);
-				mapCtxObj.put(ctx, true);
-
-				if(debug) {
-					ErrorHandling.printInfo(ctx, "boolean variable was assigned");
-				}
-
-				return true;
-			}
-
-			ErrorHandling.printError(ctx, "Cannot assign logical operation to non boolean Type");
+		// verify that Variable to be assigned is of Type boolean
+		if (!typeName.equals("boolean")) {
+			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" and boolean are not compatible");
 			return false;
 		}
 
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" and boolean are not compatible");
+		Object obj = mapCtxObj.get(ctx.var());
+
+		if (obj instanceof Boolean) {
+			symbolTable.put(ctx.varDeclaration().ID().getText(), true);
+			mapCtxObj.put(ctx, true);
+
+			if(debug) {ErrorHandling.printInfo(ctx, "boolean variable was assigned");}
+
+			return true;
+		}
+
+		ErrorHandling.printError(ctx, "Cannot assign logical operation to non boolean Type");
 		return false;
 	}
 
 	@Override 
 	public Boolean visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
-		if (!visit(ctx.varDeclaration())) {
+		if (!visit(ctx.varDeclaration()) || !visit(ctx.value())) {
 			return false;
 		}
-
 		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
 		String varName = ctx.varDeclaration().ID().getText();
-
-		if (!visit(ctx.value())) {
-			return false;
-		}
 		Object value = mapCtxObj.get(ctx.value());
 
 		if (debug) {
@@ -211,10 +194,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// verify that variable to be created has valid name
-		if (symbolTable.containsKey(varName)) {
-			ErrorHandling.printError(ctx, varName + " is already declared");
-			return false;
-		}
+		if(!isValidNewVariableName(varName, ctx)) return false;
 
 		// assign boolean to boolean
 		if (value instanceof Boolean && typeName.equals("boolean")) {
@@ -242,12 +222,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// assign compatible types
 		if (typesTable.containsKey(typeName)) {
-			destinationType = typesTable.get(typeName);
-			destinationType.clearCheckList();
-			Variable temp = (Variable) value;
-			Variable a = new Variable(temp);
-			Type type = destinationType;
-			if (a.convertTypeTo(type) == true) {
+			Variable aux = (Variable) value;
+			Variable a = new Variable(aux); // deep copy
+			Type typeToConvertTo = ((Variable) mapCtxObj.get(ctx.varDeclaration())).getType();
+			if (a.convertTypeTo(typeToConvertTo) == true) {
 				symbolTable.put(ctx.varDeclaration().ID().getText(), a);
 				mapCtxObj.put(ctx, a);
 
@@ -1395,11 +1373,25 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	// --------------------------------------------------------------------------
-	// Auxiliar Functions 
+	// Auxiliar Functions
+	
+	private boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
+
+		if (symbolTable.containsKey(varName)) {
+			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" already declared");
+			return false;
+		}
+		
+		if (reservedWords.contains(varName)) {
+			ErrorHandling.printError(ctx, varName +"\" is a reserved word");
+			return false;
+		}
+		
+		return true;
+	}
 
 	private static String getStringText(String str) {
 		str = str.substring(1, str.length() -1);
-		// FIXME escapes still need to be removed from antlr STRING token to have correct text.
 		return str;
 	}
 

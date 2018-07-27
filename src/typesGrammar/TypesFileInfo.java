@@ -10,6 +10,7 @@
 package typesGrammar;
 
 import java.io.*;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.CharStream;
@@ -26,6 +27,7 @@ import utils.errorHandling.ErrorHandlingListener;
 public class TypesFileInfo {
 
 	// Instance Fields
+	private final List<String> reservedWords;
 	private final Map<String, Type>  prefixedTypesTable;
 	private final Map<String, Type>    typesTable;
 	//private final Graph<Type, Factor>  typesGraph;
@@ -86,13 +88,15 @@ public class TypesFileInfo {
 			this.prefixedTypesTable = visitor0.getPrefixedTypesTable();
 			this.typesTable			= visitor0.getTypesTable();
 			this.typesGraph			= visitor0.getTypesGraph();
+			this.reservedWords		= visitor0.getReservedWords();
 		}
 		else {
 			// this code should be unreachable but is needed 
 			// since the fields are final
 			this.prefixedTypesTable = null;
-			this.typesTable    = null;
-			this.typesGraph	   = null;
+			this.typesTable			= null;
+			this.typesGraph			= null;
+			this.reservedWords		= null;
 			System.exit(3);
 		}
 	}
@@ -124,6 +128,10 @@ public class TypesFileInfo {
 	 */
 	public Map<String, Type> getTypesTable() {
 		return typesTable;
+	}
+	
+	public List<String> getReservedWords(){
+		return reservedWords;
 	}
 
 	// --------------------------------------------------------------------------
