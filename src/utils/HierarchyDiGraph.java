@@ -27,7 +27,7 @@ import java.lang.Number;
  * @author Luis Moura (https://github.com/LuisPedroMoura)
  * @version July 2018
  */
-public class Graph <V,E> {
+public class HierarchyDiGraph <V,E> {
 
 	// Static Constant (Debug Only)
 	private static final boolean debug = false;
@@ -49,6 +49,7 @@ public class Graph <V,E> {
 		// attributes
 		private V vertex;
 		private E edge;		// incoming edge (cost to get to this.vertex)
+		private boolean isParent = false;
 		
 		/**
 		 * 
@@ -74,6 +75,20 @@ public class Graph <V,E> {
 		public E getEdge() {
 			return edge;
 		}
+		
+		/**
+		 * @return
+		 */
+		public boolean isParent() {
+			return isParent;
+		}
+		
+		/**
+		 * 
+		 */
+		public void setAsParent() {
+			isParent = true;
+		}
 
 	}
 	
@@ -91,7 +106,7 @@ public class Graph <V,E> {
 	/**
 	 * <b>Constructor</b><p> creates the graph. Assumes the Type E (the Edge) is or extends Class Number
 	 */
-	public Graph() {
+	public HierarchyDiGraph() {
 		// TODO verify what else can be done to prevent errors and avoid System.exit
 		// TODO and verify if this actually works
 		this.edgeCostFunction = new Function<E, Number>() {
@@ -116,7 +131,7 @@ public class Graph <V,E> {
 	 * <b>Constructor</b> - creates the graph and the specified method of extracting cost from edges 
 	 * @param edgeCostFunction the specified method of extracting cost from edges
 	 */
-	public Graph(Function<E, ? extends Number> edgeCostFunction) {
+	public HierarchyDiGraph(Function<E, ? extends Number> edgeCostFunction) {
 		this.edgeCostFunction = edgeCostFunction;
 	}
 

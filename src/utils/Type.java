@@ -13,10 +13,8 @@
 
 package utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -30,17 +28,8 @@ public class Type {
 	// TODO corrigir javadocs dos metodos. está tudo errado quase.
 	
 	// Static Fields
-	private static List<Integer> primes;	
 	private static int newCode = 1;
-	//private static int index;
-
-	// --------------------------------------------------------------------------
-	// Static CTOR
-//	static { 
-//		primes = new LinkedList<>();
-//		index  = 0;
-//		initPrimeNumbersList(1000);
-//	}
+	private static Map<Integer, Type> basicTypesCodesTable = new HashMap<>();
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
@@ -62,7 +51,8 @@ public class Type {
 	 */
 	public Type(String typeName, String printName) {
 		this(typeName, printName, new Code(++newCode));
-		//index++;
+		// TODO does this even work?? because this is not created yet, is it???
+		basicTypesCodesTable.put(newCode, this);
 	}
 
 	/**
@@ -106,11 +96,10 @@ public class Type {
 	 * @throws ArithmeticException if the code can't be represented by a double (overflow).
 	 * See {@link https://stackoverflow.com/questions/31974837/can-doubles-or-bigdecimal-overflow}.
 	 */
-	public Type(Code code) {
-		//TODO verify that this method is still necessary. Is only used in TypesGrammar
+	public Type(Code calculatedCode) {
 		this.typeName  = "temp";
 		this.printName = "";
-		this.code = code;
+		this.code = calculatedCode;
 	}
 
 	/** 
@@ -126,7 +115,14 @@ public class Type {
 
 	// --------------------------------------------------------------------------
 	// Getters 
-
+	
+	/**
+	 * @return
+	 */
+	public static Map<Integer, Type> getBasicTypesCodesTable() {
+		return basicTypesCodesTable;
+	}
+	
 	/**
 	 * @return typeName, the name of this Type
 	 */
@@ -149,62 +145,32 @@ public class Type {
 		return code;
 	}
 	
+	/**
+	 * @return
+	 */
+	public boolean isClass() {
+		return isClass;
+	}
+	/**
+	 * 
+	 */
+	public void setAsClass() {
+		this.isClass = true;
+	}
 	
-
-	// --------------------------------------------------------------------------
-	// Setters 
-	// TODO, decide if these setter methods will be available in final version
 	/**
-	 * @param typeName
+	 * @return
 	 */
-	public void setTypeName(String typeName) {
-		this.typeName = typeName;
+	public boolean isStructure() {
+		return isStructure;
 	}
-
+	
 	/**
-	 * @param printName
+	 * 
 	 */
-	public void setPrintName(String printName) {
-		this.printName = printName;
+	public void setAsStructure() {
+		this.isStructure = true;
 	}
-
-	// --------------------------------------------------------------------------
-	// Op Types & Checklist Manipulations
-//	public void addNumCode() {
-//		opTypes.add(type);
-//		checkList.add(false);
-//	}
-//
-//	public boolean checkType(Type type) {
-//		Double code = type.getCode();
-//
-//		for (int i = 0; i < checkList.size(); i++) {
-//			if (checkList.get(i) == false) {
-//				if (opTypes.get(i).getCode() == code) {
-//					checkList.set(i, true);
-//					return true;
-//				}
-//			}
-//		}
-//		return false;
-//	}
-//
-//	public List<Type> getUncheckedOpTypes(){
-//		List<Type> unchecked = new LinkedList<>();
-//		for (int i = 0; i < checkList.size(); i++) {
-//			if (checkList.get(i) == false) {
-//				unchecked.add(opTypes.get(i));
-//			}
-//		}
-//		return unchecked;
-//	}
-//
-//	public boolean clearCheckList() {
-//		for(int i = 0; i < checkList.size(); i++) {
-//			checkList.set(i, false);
-//		}
-//		return true;
-//	}
 
 	// --------------------------------------------------------------------------
 	// Operations with Types (Multiplication and Division)
@@ -229,31 +195,6 @@ public class Type {
 	 */
 	public static Type power(Type a, int exponent) {
 		return new Type(Code.power(a.getCode(), exponent));
-	}
-
-
-	// --------------------------------------------------------------------------
-	// Auxiliar Methods
-
-	/**
-	 * @param n number of prime numbers to be generated
-	 * @see   {@link http://www.baeldung.com/java-generate-prime-numbers}
-	 */
-	private static void initPrimeNumbersList(int n) {
-		boolean prime[] = new boolean[n + 1];
-		Arrays.fill(prime, true);
-		for (int p = 2; p * p <= n; p++) {
-			if (prime[p]) {
-				for (int i = p * 2; i <= n; i += p) {
-					prime[i] = false;
-				}
-			}
-		}
-		for (int i = 2; i <= n; i++) {
-			if (prime[i]) {
-				primes.add(i);
-			}
-		}
 	}
 
 	// --------------------------------------------------------------------------

@@ -19,16 +19,16 @@ import java.util.Set;
  * @author Luis Moura (https://github.com/LuisPedroMoura)
  * @version July 2018
  */
-public class GraphInfo<V,E> extends Graph<V,E>{
+public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 	
-	Graph<V,E> graph;
+	HierarchyDiGraph<V,E> graph;
 	List<ArrayList<V>> allShortestPaths;
 	List<ArrayList<V>> allStraightFowardPaths;
-	Graph<V,Double> shortestPathsGraph;
-	Graph<V,Double> straightfowardPathsGraph;
-	Graph<V,Double> straightfowardPathsCostsGraph;
+	HierarchyDiGraph<V,Double> shortestPathsGraph;
+	HierarchyDiGraph<V,Double> straightfowardPathsGraph;
+	HierarchyDiGraph<V,Double> straightfowardPathsCostsGraph;
 	
-	GraphInfo(Graph<V,E> graph) {
+	GraphInfo(HierarchyDiGraph<V,E> graph) {
 		this.graph = graph;
 		allShortestPaths = getAllShortestPaths(graph);
 		allStraightFowardPaths = getAllStraightfowardPaths(graph);
@@ -42,7 +42,7 @@ public class GraphInfo<V,E> extends Graph<V,E>{
 	 * @param graph
 	 * @return
 	 */
-	private List<ArrayList<V>> getAllStraightfowardPaths(Graph<V,E> graph) {
+	private List<ArrayList<V>> getAllStraightfowardPaths(HierarchyDiGraph<V,E> graph) {
 		List<ArrayList<V>> allPaths = new ArrayList<>();
 		Set<V> vertices = graph.getAdjList().keySet();
 		for (V vertex : vertices) {
@@ -57,7 +57,7 @@ public class GraphInfo<V,E> extends Graph<V,E>{
 	 * @param graph
 	 * @return
 	 */
-	private List<ArrayList<V>> getAllShortestPaths(Graph<V,E> graph) {
+	private List<ArrayList<V>> getAllShortestPaths(HierarchyDiGraph<V,E> graph) {
 		List<ArrayList<V>> allPaths = new ArrayList<>();
 		Set<V> vertices = graph.getAdjList().keySet();
 		for (V vertex : vertices) {

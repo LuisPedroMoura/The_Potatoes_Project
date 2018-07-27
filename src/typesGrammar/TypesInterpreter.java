@@ -10,7 +10,6 @@
 
 package typesGrammar;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +17,9 @@ import java.util.Map;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
-import potatoesGrammar.PotatoesParser.StatementContext;
 import typesGrammar.TypesParser.*;
 import utils.Code;
-import utils.Factor;
-import utils.Graph;
-import utils.Prefix;
+import utils.HierarchyDiGraph;
 import utils.Type;
 import utils.errorHandling.ErrorHandling;
 
@@ -55,11 +51,11 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 
 	// --------------------------------------------------------------------------
 	// Instance Fields	
-	private Map<String, Type>	typesTable    		= new HashMap<>();
-	private Map<String, Type>	prefixedTypesTable	= new HashMap<>();
-	private Map<String, Type>	classesTable		= new HashMap<>();
-	private Graph	typesGraph			= new Graph();
-	private Graph	inheritanceGraph	= new Graph(); // may be needed to guarantee logic in dimension
+	private Map<String, Type>	typesTable    			= new HashMap<>();
+	private Map<String, Type>	prefixedTypesTable		= new HashMap<>();
+	private Map<String, Type>	classesTable			= new HashMap<>();
+	private HierarchyDiGraph<Type, Double>	typesGraph	= new HierarchyDiGraph<>();
+	//private Graph<Double, Type>	inheritanceGraph	= new Graph(); // may be needed to guarantee logic in dimension
 		
 	private ParseTreeProperty<Type>		types	= new ParseTreeProperty<>();
 	private ParseTreeProperty<Double>	values	= new ParseTreeProperty<>();
@@ -70,7 +66,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		return typesTable;
 	}
 
-	public Graph getTypesGraph() {
+	public HierarchyDiGraph<Type,Double> getTypesGraph() {
 		return typesGraph;
 	}
 
@@ -236,10 +232,11 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		// New Class declared correctly
 		// Create new Type with its Code. The Symbol is the same as the Base Type
 		Type t = new Type(className, typesTable.get(baseTypeName).getPrintName());
+		t.setAsClass();
 		
 		// add the Class and Base Type to the Graph
-		typesGraph.addEdge(1, t, typesTable.get(baseTypeName));
-		typesGraph.addEdge(1, typesTable.get(baseTypeName), t);
+		typesGraph.addEdge(1.0, t, typesTable.get(baseTypeName));
+		typesGraph.addEdge(1.0, typesTable.get(baseTypeName), t);
 		
 		Boolean valid = visit(ctx.typesEquivalence());
 

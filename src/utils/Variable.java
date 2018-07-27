@@ -33,7 +33,8 @@ public class Variable {
 
 	// --------------------------------------------------------------------------
 	// Static Fields
-	private static Graph typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
+	// FIXME colocar aqui o Grafo que já vem tratado no GraphInfo. Verificar onde tem de se ir buscar.
+	private static HierarchyDiGraph<Type,Double> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
 	private static double pathCost;
 
 	// --------------------------------------------------------------------------
@@ -84,6 +85,7 @@ public class Variable {
 	/**
 	 * @return double pathCost of last calculated path between types in Graph
 	 */
+	// TODO stays or deletes?
 	public static double getPathCost() {
 		return pathCost;
 	}
@@ -96,7 +98,8 @@ public class Variable {
 	 */
 	public static Variable multiply(Variable a, Variable b) {
 		Type newType = Type.multiply(a.getType(), b.getType());
-		double newValue = a.getValue() * b.getValue();
+		double codeSimplificationFactor = newType.getCode().simplifyCodeWithConvertions();
+		double newValue = a.getValue() * b.getValue() * codeSimplificationFactor;
 		return new Variable(newType, newValue);
 	}
 
@@ -105,7 +108,8 @@ public class Variable {
 	 */
 	public static Variable divide(Variable a, Variable b) {
 		Type newType = Type.divide(a.getType(), b.getType());
-		double newValue = a.getValue() / b.getValue();
+		double codeSimplificationFactor = newType.getCode().simplifyCodeWithConvertions();
+		double newValue = a.getValue() / b.getValue() * codeSimplificationFactor;
 		return new Variable(newType, newValue);
 	}
 
@@ -114,10 +118,15 @@ public class Variable {
 	 */
 	public static Variable add(Variable a, Variable b) {
 		if (!a.getType().equals(b.getType())) {
-			throw new IllegalArgumentException();
+			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+			if (conversionFactor == Double.POSITIVE_INFINITY) {
+				throw new IllegalArgumentException();
+			}
+			double newValue = (a.getValue() * conversionFactor) + b.getValue();
+			return new Variable(b.getType(), newValue);
 		}
 		double newValue = a.getValue() + b.getValue();
-		return new Variable(a.getType(), newValue);
+		return new Variable(b.getType(), newValue);
 	}
 
 	/**
@@ -125,9 +134,14 @@ public class Variable {
 	 */
 	public static Variable subtract(Variable a, Variable b) {
 		if (!a.getType().equals(b.getType())) {
-			throw new IllegalArgumentException();
+			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+			if (conversionFactor == Double.POSITIVE_INFINITY) {
+				throw new IllegalArgumentException();
+			}
+			double newValue = (a.getValue() * conversionFactor) - b.getValue();
+			return new Variable(b.getType(), newValue);
 		}
-		double newValue = a.getValue() + b.getValue();
+		double newValue = a.getValue() - b.getValue();
 		return new Variable(a.getType(), newValue);
 	}
 
@@ -144,13 +158,11 @@ public class Variable {
 	 */
 	public static Variable power(Variable a, Variable b) {
 
-		// Variable b type==number is already checked in Visitor
-
+		// Variable b type==number is already checked in Syntactic Analysis
+		
+		Type newType = Type.power(a.getType(), (int)b.getValue());
 		Double newValue = Math.pow(a.getValue(), b.getValue());
-		Double newCode = Math.pow(a.getType().getCode(), b.getValue());
-		Type newType = new Type ("temp", "", newCode); // Type names don't need to be corrected, assignment will resolve
-		Variable res = new Variable(newType, newValue);
-		return res;
+		return new Variable(newType, newValue);
 	}
 
 	/**
@@ -161,247 +173,68 @@ public class Variable {
 			return true;
 		}
 
-		// verify thar types exist in graph
+		// verify that types exist in graph
 		if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(type)) {
 			return false;
 		}
 
-		//typesGraph.printGraph();
-		boolean isCompatible = typesGraph.isCompatible(this.type, type);
-		Graph.resetFactor();
-		return isCompatible;
-	}
-
-	/**
-	 * @return true if this.type is converted to newType, false
-	 */
-	public boolean convertTypeTo(Type newType) {
-
-		// variable type is already the one we're trying to convert to
-		if (newType.getCode() == this.type.getCode()){
-			pathCost = 1;
-			if(debug) {if (debug) ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}
-			return true;
-		}
-
-		// verify that newType exists and its not number
-		if (!newType.getTypeName().equals("number")) {
-			if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.getType())) {
-				if(debug) {if (debug) ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");	}			
-				return false;
-			}
-		}
-
-		// verify thar types exist in graph
-		if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(newType)) {
+		double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, type));
+		// if there is no path between the types. It means the conversion is not possible
+		if (conversionFactor == Double.POSITIVE_INFINITY) {
 			return false;
 		}
-
-		// always reset factor before calculating path
-		Graph.resetFactor();
-
-		boolean isCompatible = typesGraph.isCompatible(this.type, newType);
-		if (isCompatible) {
-			if (debug) {
-				ErrorHandling.printInfo("BEFORE TRYING TO FIND PATH");
-				ErrorHandling.printInfo("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
-			}
-
-			typesGraph.getPathCost(this.type, newType);
-			pathCost = Graph.getPathFactor();
-
-			if (debug) {
-				ErrorHandling.printInfo("AFTER TRYING TO FIND PATH");
-			}
-
-			//typesGraph.clearVisited();
-
-			if (debug) {
-				ErrorHandling.printInfo("Final Factor is: "+ pathCost);
-				typesGraph.printGraph();
-			}
-
-			// calculate new value using convertion factors
-			this.value *= pathCost;
-
-			// convert code to type code
-			this.type = newType;
-
-			if(debug) {
-				ErrorHandling.printInfo("CONVERT_TYPE_TO - converted");	
-			}	
-
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * When making operations with different dimensions its necessary
-	 * to convert the variables type to the ones that compose the type
-	 * they are being assign to. 
-	 * @param type
-	 * @return true if converted
-	 */
-	public boolean convertTypeToFirstUncheckedTypeInOpTypeArray(Type type) {
-		if (debug) {
-			ErrorHandling.printInfo("----- convertTypeToFirstUncheckedTypeInOpTypeArray");
-		}
-
-		List<Type> unchecked = type.getUncheckedOpTypes();
-		if(debug) { 
-			ErrorHandling.printInfo("Trying to check an unchecked type. List is ");
-			for (Type utype : unchecked) {
-				ErrorHandling.printInfo(utype.getTypeName());
-			}	
-		}
-
-		for (Type t : unchecked) {
-			if(convertTypeTo(t)) {
-				type.checkType(t);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * When a variable is not converted in the previous methods, its necessary
-	 * to try to convert all extra variables to the same type. So converting to the
-	 * first possible case, guarantees that alike types will cancel if the oportunity
-	 * is presented 
-	 * @param destinationType
-	 * @return
-	 */
-	public boolean convertTypeToFirstPossibleTypeInOpTypeArrayOf(Type destinationType) {
-		if (debug) {
-			ErrorHandling.printInfo("----- convertTypeToFirstPossibleTypeInOpTypeArrayOf");
-		}
-
-		List<Type> opTypes = destinationType.getOpTypes();
-
-		if(debug) { 
-			ErrorHandling.printInfo("Trying to convert to first possible checked. List is ");
-			for (Type utype : opTypes) {
-				ErrorHandling.printInfo(utype.getTypeName());
-			}
-		}
-
-		for (Type t : opTypes) {
-			if (convertTypeTo(t)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * When the previous two methods fail to convert a variable type, it means
-	 * the dimention is not compatible with neither the variable to be assigned
-	 * nor any of the types that compose it.
-	 * In that case, the conversion is done to the highest hieralchical parent.
-	 * The attempt is made hopping to maximize the change of cancelation futher 
-	 * in the calculations.
-	 * The result is garanteed when there is simple inheritance, but may or may not
-	 * be resolved if there is multiple inheritance.
-	 * @param destinationType
-	 * @return
-	 * @throws Exception
-	 */
-	public boolean convertTypeToMaxParentType() {
-		if (debug) {
-			ErrorHandling.printInfo("----- convertTypeToMaxParentType");
-		}
-
-		Type parent = this.type;
-		boolean hasParent = true;
-
-		while(hasParent) {
-			List<Factor> edges = typesGraph.getOutEdges(parent);
-
-			if (debug) {
-				ErrorHandling.printInfo("edges: " + edges);
-			}
-
-			if (edges == null) {
-				this.type = parent;
-				return true;
-			}
-
-			for (Factor f : edges) {
-				if (debug) {
-					ErrorHandling.printInfo("f.getIsChildToParent(): " + f.getIsChildToParent());
-				}
-
-				if (f.getIsChildToParent() == false) {
-					parent = typesGraph.getDest(parent, f);
-
-					if (parent == null) { //impossible
-						return false;
-					}
-
-					break;
-				}
-			}
-			hasParent = false;
-			this.type = parent;
-			break;
-		}
-		this.type = parent;
 		return true;
 	}
 
 	/**
-	 * This method manages the ink bewtween the previous three methods in order
-	 * to maximize correct results in calculations
-	 * @param destinationType
-	 * @return
-	 * @throws Exception
+	 * @param	newType the Type that is Variable is to be converted to
+	 * @return	true if this.type is converted to newType
+	 * 		 	false if one of the Types is not defined in the typesTable
+	 * @throws	NullPointerException if the conversion is not possible (there's no path that connects the Vertices in the Graph)
 	 */
-	public boolean MultDivCheckConvertType(Type destinationType) throws Exception {
-		boolean typeIsCompatible = false;
-		boolean checkType = false;
-		boolean convertToUnchecked = false;
-		boolean convertToFirstPossible = false;
+	public boolean convertTypeTo(Type newType) {
 
-		typeIsCompatible = convertTypeTo(destinationType);
-
-		// check if destinatioType and variable are of the same dimention
-		// as the asignement may be to a OR Type, and a cast might be applies,
-		// converting to the destinationType is necessary
-		if (typeIsCompatible == true) {
+		// variable type is already the one we're trying to convert to
+		if (newType.getCode().equals(this.type.getCode())){
+			pathCost = 1;
+			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}
 			return true;
 		}
 
-		checkType = destinationType.checkType(this.type);
-
-		// check this type in destinationType checkList. This type does not change
-		// else, if direct check is not possible try to convert this type to one of the unchecked types
-		if (checkType == true) {
-			return true;
-		}
-		convertToUnchecked = this.convertTypeToFirstUncheckedTypeInOpTypeArray(destinationType);
-
-		// if this type was converted to an unchecked type, return true
-		// else try to to convert to first possible checked type in destinationType checkList
-		// this step warrants that COMPATIBLE units with multiple inheritance can be resolved
-		if (convertToUnchecked == true) {
-			return true;
-		}
-		convertToFirstPossible = this.convertTypeToFirstPossibleTypeInOpTypeArrayOf(destinationType);
-
-		// if this type was converted to an checked type, retrun true
-		// else, means that the type is NOT COMPATIBLE with any destinationType type in checklist
-		// still, instances with simple inheritance will still be resolved
-		// instances with multiple inheritance may or may not be resolved correctly (but errors will be detected)
-		if (convertToFirstPossible == true) {
-			return true;
+		// verify that this and newType exist in the typesGraph
+		if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.type)) {
+			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");}			
+			return false;
 		}
 
-		this.convertTypeToMaxParentType();
+		if (debug) {
+			ErrorHandling.printInfo("BEFORE TRYING TO FIND PATH");
+			ErrorHandling.printInfo("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
+		}
 
-		throw new Exception();
+		double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, newType));
+		
+		// if there is no path between the types. It means the conversion is not possible
+		if (conversionFactor == Double.POSITIVE_INFINITY) {
+			throw new NullPointerException();
+		}
+
+		if (debug) {
+			ErrorHandling.printInfo("AFTER TRYING TO FIND PATH");
+			ErrorHandling.printInfo("Final Factor is: "+ pathCost);
+			ErrorHandling.printInfo(typesGraph.toString());
+		}
+		
+		// calculate new value using conversion factor
+		this.value *= conversionFactor;
+
+		// convert code to type code
+		this.type = newType;
+
+		if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - converted");}	
+
+		return true;
+
 	}
 
 	// --------------------------------------------------------------------------
