@@ -196,7 +196,6 @@ public class Variable {
 
 		// variable type is already the one we're trying to convert to
 		if (newType.getCode().equals(this.type.getCode())){
-			pathCost = 1;
 			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}
 			return true;
 		}

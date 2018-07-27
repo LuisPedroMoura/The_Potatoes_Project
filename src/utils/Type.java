@@ -26,7 +26,6 @@ import java.util.Map;
 public class Type {
 
 	// TODO corrigir javadocs dos metodos. está tudo errado quase.
-	
 	// Static Fields
 	private static int newCode = 1;
 	private static Map<Integer, Type> basicTypesCodesTable = new HashMap<>();

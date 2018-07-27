@@ -100,7 +100,9 @@ logicalOperation	: '(' logicalOperation ')'								# logicalOperation_Parenthesi
 					| logicalOperation op=('&&' | '||') logicalOperation	# logicalOperation_Operation
 					| logicalOperand										# logicalOperation_logicalOperand
 					;
-					
+
+// TODO change the ! to logicalOperation, then in varDeclarations and etc put logicalOperation to the right
+		
 logicalOperand 		: comparison						# logicalOperand_Comparison
 					| '!' comparison					# logicalOperand_Not_Comparison
 					| var								# logicalOperand_Var
