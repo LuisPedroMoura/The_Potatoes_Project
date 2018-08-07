@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import potatoesGrammar.PotatoesBaseVisitor;
+import potatoesGrammar.PotatoesFunctionNames;
 import potatoesGrammar.PotatoesParser.*;
 import typesGrammar.TypesFileInfo;
 import utils.Code;
@@ -32,13 +33,22 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Static Fields
 	private static String TypesFilePath;
+	private static String PotatoesFilePath;
+	
 	private static	TypesFileInfo		typesFileInfo; // initialized in visitUsing();
 	private static	List<String>		reservedWords;
 	private static	Map<String, Type> 	typesTable;
+	private static PotatoesFunctionNames functions = new PotatoesFunctionNames(PotatoesFilePath);
+	private static Map<String, ParserRuleContext> functionNames = functions.getFunctions();
 
 	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
-
+	
+	
+	public PotatoesSemanticCheck(String PotatoesFilePath){
+		PotatoesSemanticCheck.PotatoesFilePath = PotatoesFilePath;
+	}
+	
 	// --------------------------------------------------------------------------
 	// Getters
 	public static ParseTreeProperty<Object> getMapCtxObj(){
@@ -97,6 +107,20 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitCode_Function(Code_FunctionContext ctx) {
 		return visitChildren(ctx);
 	}
+	
+	// FIXME still need to create function that saves scope and then restores it (first check IF case)
+	@Override
+	public Boolean visitScope(ScopeContext ctx) {
+		Boolean valid = true;
+		List<StatementContext> statements = ctx.statement();
+
+		// Visit all code rules
+		for (StatementContext stat : statements) {
+			Boolean res = visit(stat);
+			valid = valid && res;
+		}
+		return valid;
+	}
 
 	// --------------------------------------------------------------------------
 	// Statements 
@@ -134,7 +158,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	// --------------------------------------------------------------------------
-	// Assignements
+	// Assignments
 
 	@Override 
 	public Boolean visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
@@ -533,12 +557,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitFunction_Main(Function_MainContext ctx) {
-		Boolean valid = true;
-		for (StatementContext stat : ctx.statement()) {
-			Boolean res = visit(stat);
-			valid = valid && res;
-		}
-		return valid;
+		return visit(ctx.scope());
 	}
 
 	@Override
@@ -550,9 +569,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitFunctionReturn(FunctionReturnContext ctx) {
 		return super.visitFunctionReturn(ctx);
 	}
-
+	
+	// FIXME must be greatly improved... this is only the idea to get the function. still needs to run it and get return value
 	@Override
 	public Boolean visitFunctionCall(FunctionCallContext ctx) {
+		ParserRuleContext function = functionNames.get(ctx.ID().getText());
+		visit(function);
+		
 		return super.visitFunctionCall(ctx);
 	}
 
@@ -579,11 +602,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		res = visit(ctx.logicalOperation());
 		valid = valid && res;
 
-		// visit all statements
-		for (StatementContext b : ctx.statement()) {
-			res = visit(b);
-			valid = valid && res;
-		}
+		// visit scope
+		valid = valid && visit(ctx.scope());
+
 		return valid;
 	}
 
@@ -593,11 +614,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean res = visit(ctx.logicalOperation());
 		valid = valid && res;
 
-		// visit all statements
-		for (StatementContext b : ctx.statement()) {
-			res = visit(b);
-			valid = valid && res;
-		}
+		// visit all scope
+		valid = valid && visit(ctx.scope());
+
 		return valid;
 	}
 
@@ -610,18 +629,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitCondition_withElse(Condition_withElseContext ctx) {
 		return visitChildren(ctx);
 	}
-
+	
+	//FIXME verify that scopes work ly for IF statements and loops and functions
 	@Override 
 	public Boolean visitIfCondition(IfConditionContext ctx) {
 		Boolean valid = true;
 		Boolean res = visit(ctx.logicalOperation());
 		valid = valid && res;
 
-		// visit all statements
-		for (StatementContext b : ctx.statement()) {
-			res = visit(b);
-			valid = valid && res;
-		}
+		// visit all scope
+		valid = valid && visit(ctx.scope());
+		
 		return valid;
 	}
 
@@ -631,11 +649,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean res = visit(ctx.logicalOperation());
 		valid = valid && res;
 
-		// visit all statements
-		for (StatementContext b : ctx.statement()) {
-			res = visit(b);
-			valid = valid && res;
-		}
+		// visit all scope
+		valid = valid && visit(ctx.scope());
+		
 		return valid;
 	}
 
@@ -643,11 +659,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitElseCondition(ElseConditionContext ctx) {
 		Boolean valid = true;
 
-		// visit all statements
-		for (StatementContext b : ctx.statement()) {
-			Boolean res = visit(b);
-			valid = valid && res;
-		}
+		// visit all scope
+		valid = valid && visit(ctx.scope());
+				
 		return valid;
 	}
 
@@ -950,7 +964,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// Multiplication operation
-		// TODO melhorar o acesso a typesTable e a códigos. Talvez devesse haver uma classe apenas para resolver cenas com a tabela.
+		// TODO melhorar o acesso a typesTable e a cï¿½digos. Talvez devesse haver uma classe apenas para resolver cenas com a tabela.
 		if (op.equals("*")) {
 			Variable res = Variable.multiply(a, b); 
 			Code resCode = res.getType().getCode(); 
@@ -1056,7 +1070,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// Addition operation
 		// TODO mudar o grafo talvez. Tenho de verificar se tipos sao iguais, deveria bastar tentar converter
-		// para tal é necessário que se introduza aresta do tipo para ele proprio. Verificar se isso nao tras outros problemas.
+		// para tal ï¿½ necessï¿½rio que se introduza aresta do tipo para ele proprio. Verificar se isso nao tras outros problemas.
 		if (ctx.op.getText().equals("+")) {
 			try {
 				Variable res = Variable.add(a, b);
@@ -1155,7 +1169,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		// verify that var is not of type string
-		// TODO na reliade esta funcao impede que String suba nas opercoes, como tal, nao é possivel concatenar strings.
+		// TODO na reliade esta funcao impede que String suba nas opercoes, como tal, nao ï¿½ possivel concatenar strings.
 		if (obj instanceof String) {
 			ErrorHandling.printError(ctx, "Cannot operate with string!");
 			return false;

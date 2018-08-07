@@ -12,6 +12,7 @@ import org.stringtemplate.v4.ST;
 
 import compiler.PotatoesCompiler;
 import compiler.PotatoesSemanticCheck;
+import potatoesGrammar.PotatoesFunctionsCheck;
 import potatoesGrammar.PotatoesLexer;
 import potatoesGrammar.PotatoesParser;
 import utils.errorHandling.ErrorHandling;
@@ -31,8 +32,7 @@ public class PotatoesMain {
 			exit(10);
 		}
 
-		out.println("The Potatoes Project | LFA 28 June 2018");
-		out.println("Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)\n");
+		out.println("The Potatoes Project");
 
 		// create a stream from the file
 		InputStream fileStream = null;
@@ -77,13 +77,13 @@ public class PotatoesMain {
 		if (parser.getNumberOfSyntaxErrors() == 0) {
 			// print LISP-style tree:
 			// System.out.println(tree.toStringTree(parser));
-			PotatoesSemanticCheck visitor0 = new PotatoesSemanticCheck();
-			if (visitor0.visit(tree)) {
+			PotatoesSemanticCheck visitor1 = new PotatoesSemanticCheck(args[0]);
+			if (visitor1.visit(tree)) {
 				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
 
 				//System.out.print("Semantic Analyzis skiped! :P\n");
-				PotatoesCompiler visitor1 = new PotatoesCompiler();
-				ST program = visitor1.visit(tree);
+				PotatoesCompiler visitor2 = new PotatoesCompiler();
+				ST program = visitor2.visit(tree);
 				program.add("name", name);
 				PrintWriter pw = new PrintWriter(new File(name+".java"));
 				pw.print(program.render());

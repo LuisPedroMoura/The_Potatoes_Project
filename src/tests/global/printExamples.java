@@ -1,3 +1,5 @@
+package tests.global;
+
 public class printExamples {
 	public static void main(String[] args) {
 		Boolean var0 = true;

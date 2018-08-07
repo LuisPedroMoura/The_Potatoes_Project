@@ -4,11 +4,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typeValue ::= [
-   "number"	:"Double",
+   "number"	:"double",
    "string"	:"String",
-   "boolean":"Boolean",
+   "boolean":"boolean",
    "void"	:"void",
-   "id"		:"Double",
+   "id"		:"double",
    ""		:"",
    default	:"null"
 ]
@@ -42,13 +42,19 @@ public class <name> {
 }
 >>
 
+scope(stat) ::= <<
+{
+	<stats(stat)>
+}
+>>
+
 //-------------------------------------------------------------------------------
 //CLASS - ASSIGNMENTS------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
 
-varAssignment(type, var, operation, stat ) ::= <<
-<stats(stat)>
+varAssignment(type, var, operation, previousStatements ) ::= <<
+<stats(previousStatements)>
 <if(type)><varDeclaration(type, var)><else><var><endif> = <operation>;
 >>
 

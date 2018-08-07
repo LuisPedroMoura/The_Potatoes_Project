@@ -27,7 +27,7 @@ import utils.errorHandling.ErrorHandling;
 /* HOW TO
  * 
  * Unidades
- * Cada unidade é adicionada ao grafo com o respetivo caminho/ factor de conversao.
+ * Cada unidade Ã© adicionada ao grafo com o respetivo caminho/ factor de conversao.
  * As dimensoes ou classes tambem sao adicionadas ao grafo como unidades que terao fator de conversao
  * 1 para a sua unidade base.
  * As estruturas tambem sao aicionadas ao grafo como unidades, mas terao de ter um tag que inidica
@@ -37,11 +37,11 @@ import utils.errorHandling.ErrorHandling;
  * 
  * Prefixos
  * possibilidade 1 - criar automaticamente todos os tipos que sao a combinao cao dos prefixos com todas as unidades
- * depois é só correr a arvore e reconhecer os simbolos já existentes. mais processamente inicial, simplifica depois.
- * possibilidade 2 - criar uma tabela de prefixos e  ir lendo e convertendo á medida do possivel.
+ * depois e so correr a arvore e reconhecer os simbolos ja existentes. mais processamente inicial, simplifica depois.
+ * possibilidade 2 - criar uma tabela de prefixos e  ir lendo e convertendo a medida do possivel.
  * 
  * 
- * NO final de tudo, é possivel criar um grafo completo ou uma tabela de maneira a acelerar a compilacao
+ * NO final de tudo, Ã© possivel criar um grafo completo ou uma tabela de maneira a acelerar a compilacao
  * de programas mais complexos e exigentes a nivel das conversoes, para evitar estar constantemente a correr
  * o algoritmo de dijkstra. seria mais puxado no inicio, mas apenas uma vez.
  */

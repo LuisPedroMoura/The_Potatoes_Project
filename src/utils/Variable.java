@@ -3,7 +3,7 @@
 *	Code version: 2.0
 *	Author: Luis Moura (https://github.com/LuisPedroMoura)
 *	Acknowledgments for version 1.0: Pedro Teixeira (https://pedrovt.github.io),
-*	Maria João Lavoura (https://github.com/mariajoaolavoura), for the help in
+*	Maria Joï¿½o Lavoura (https://github.com/mariajoaolavoura), for the help in
 *	brainstorming the concepts needed to create the first working version of this Class
 *	that could deal with different type Variables operations.
 *	Date: July-2018
@@ -12,8 +12,6 @@
 ***************************************************************************************/
 
 package utils;
-
-import java.util.List;
 
 import compiler.PotatoesSemanticCheck;
 import utils.errorHandling.ErrorHandling;
@@ -33,9 +31,8 @@ public class Variable {
 
 	// --------------------------------------------------------------------------
 	// Static Fields
-	// FIXME colocar aqui o Grafo que já vem tratado no GraphInfo. Verificar onde tem de se ir buscar.
+	// FIXME colocar aqui o Grafo que jÃ¡ vem tratado no GraphInfo. Verificar onde tem de se ir buscar.
 	private static HierarchyDiGraph<Type,Double> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
-	private static double pathCost;
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
@@ -82,13 +79,6 @@ public class Variable {
 		return value;
 	}
 
-	/**
-	 * @return double pathCost of last calculated path between types in Graph
-	 */
-	// TODO stays or deletes?
-	public static double getPathCost() {
-		return pathCost;
-	}
 
 	// --------------------------------------------------------------------------
 	// Operations with Variables
@@ -159,7 +149,6 @@ public class Variable {
 	public static Variable power(Variable a, Variable b) {
 
 		// Variable b type==number is already checked in Syntactic Analysis
-		
 		Type newType = Type.power(a.getType(), (int)b.getValue());
 		Double newValue = Math.pow(a.getValue(), b.getValue());
 		return new Variable(newType, newValue);
@@ -220,7 +209,6 @@ public class Variable {
 
 		if (debug) {
 			ErrorHandling.printInfo("AFTER TRYING TO FIND PATH");
-			ErrorHandling.printInfo("Final Factor is: "+ pathCost);
 			ErrorHandling.printInfo(typesGraph.toString());
 		}
 		
@@ -234,6 +222,19 @@ public class Variable {
 
 		return true;
 
+	}
+	
+	/**
+	 * @param a, a Variable
+	 * @param b, a VAriable
+	 * @return the convertion factor between a type and b type if compatible
+	 */
+	public static double pathCost(Variable a, Variable b) {
+		double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+		if (conversionFactor == Double.POSITIVE_INFINITY) {
+			throw new IllegalArgumentException();
+		}
+		return conversionFactor;
 	}
 
 	// --------------------------------------------------------------------------

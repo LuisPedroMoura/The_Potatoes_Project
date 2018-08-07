@@ -23,7 +23,10 @@ using				: USING STRING EOL
 code				: varDeclaration EOL							#code_Declaration 
 					| assignment EOL								#code_Assignment
 					| function										#code_Function
-					;	
+					;
+					
+scope				: '{' statement* '}'
+					;
 					
 // ----------------------------------------------
 // Rules
@@ -53,8 +56,8 @@ assignment			: varDeclaration '=' '!' var					#assignment_Var_Declaration_Not_Bo
 // ----------------------------------------------
 // Functions
 
-function			: FUN MAIN '{' statement* '}'					#function_Main
-					| FUN ID '(' (type var (',' type var)* )* ')' '{' statement* '}'	#function_ID
+function			: FUN MAIN scope										#function_Main
+					| FUN ID '(' (type var (',' type var)* )* ')' scope		#function_ID
 					;
 
 functionReturn		: RETURN (var|value|operation) EOL
@@ -72,11 +75,10 @@ controlFlowStatement: condition
  					;	
 
 // Must have scopes for the sake of simplicity 
-forLoop				: FOR '(' assignment? EOL logicalOperation EOL assignment ')'
-					  '{' statement* '}' 
+forLoop				: FOR '(' assignment? EOL logicalOperation EOL assignment ')' scope 
  					;
  			
-whileLoop			: WHILE '(' logicalOperation ')' '{' statement* '}'
+whileLoop			: WHILE '(' logicalOperation ')' scope
 					;
  			
 //[MJ] must have scopes for the sake of simplicity 
@@ -84,13 +86,13 @@ condition			: ifCondition elseIfCondition*					#condition_withoutElse
 					|  ifCondition elseIfCondition* elseCondition	#condition_withElse
 					;
 
-ifCondition			: IF '(' logicalOperation ')' '{' statement* '}'
+ifCondition			: IF '(' logicalOperation ')' scope
 					;
 					
-elseIfCondition		: ELSE IF '(' logicalOperation ')' '{' statement* '}'
+elseIfCondition		: ELSE IF '(' logicalOperation ')' scope
 					;
 					
-elseCondition		: ELSE '{' statement* '}'
+elseCondition		: ELSE scope
 					;
 
 // ----------------------------------------------
