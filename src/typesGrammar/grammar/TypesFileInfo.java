@@ -7,7 +7,7 @@
 *
 ***************************************************************************************/
 
-package typesGrammar;
+package typesGrammar.grammar;
 
 import java.io.*;
 import java.util.List;
@@ -18,8 +18,9 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import utils.HierarchyDiGraph;
-import utils.Type;
+import typesGrammar.utils.GraphInfo;
+import typesGrammar.utils.HierarchyDiGraph;
+import typesGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
@@ -27,12 +28,13 @@ import utils.errorHandling.ErrorHandlingListener;
 public class TypesFileInfo {
 
 	// Instance Fields
-	private final List<String> reservedWords;
-	private final Map<String, Type>  prefixedTypesTable;
-	private final Map<String, Type>    typesTable;
-	//private final Graph<Type, Factor>  typesGraph;
+	private final Map<String, Type>				typesTable;
+	private final Map<String, Type>				prefixedTypesTable;
+	private final Map<String, Type>				classesTable;
 	private final HierarchyDiGraph<Type,Double> typesGraph;
-
+	private final List<String>					reservedWords;
+	private final GraphInfo<Type, Double>		graphInfo;
+	
 	// --------------------------------------------------------------------------
 	// CTOR
 	/**
@@ -48,7 +50,8 @@ public class TypesFileInfo {
 		CharStream input = null;
 
 		try {
-			fileStream = new FileInputStream(new File(path)); 
+			File f = new File(path);
+			fileStream = new FileInputStream(f);
 			input = CharStreams.fromStream(fileStream);
 			fileStream.close();
 		} catch(FileNotFoundException e) {
@@ -85,24 +88,37 @@ public class TypesFileInfo {
 			}
 
 			// Information to be transmited to the Potatoes Semantic Checker
-			this.prefixedTypesTable = visitor0.getPrefixedTypesTable();
 			this.typesTable			= visitor0.getTypesTable();
+			this.prefixedTypesTable = visitor0.getPrefixedTypesTable();
+			this.classesTable		= visitor0.getClassesTable();
 			this.typesGraph			= visitor0.getTypesGraph();
 			this.reservedWords		= visitor0.getReservedWords();
+			this.graphInfo			= new GraphInfo<Type, Double>(typesGraph);
 		}
 		else {
 			// this code should be unreachable but is needed 
 			// since the fields are final
-			this.prefixedTypesTable = null;
 			this.typesTable			= null;
+			this.prefixedTypesTable = null;
+			this.classesTable		= null;
 			this.typesGraph			= null;
 			this.reservedWords		= null;
+			this.graphInfo			= null;
 			System.exit(3);
 		}
 	}
 
 	// --------------------------------------------------------------------------
 	// Getters
+	/**
+	 * Returns the table of types defined in the file. 
+	 * Can be an empty table (if no types were declared in the file).
+	 * @return typesTable
+	 */
+	public Map<String, Type> getTypesTable() {
+		return typesTable;
+	}
+	
 	/**
 	 * Returns the table of prefixes defined in the file. 
 	 * Can be an empty table (if no prefixes were declared in the file).
@@ -113,25 +129,23 @@ public class TypesFileInfo {
 	}
 
 	/**
-	 * Returns the graph of types defined in the file. 
-	 * Can be an empty graph (if no types were declared in the file).
-	 * @return typesGraph
+	 * @return the classesTable
 	 */
-	public HierarchyDiGraph<Type,Double> getTypesGraph() {
-		return typesGraph;
+	public Map<String, Type> getClassesTable() {
+		return classesTable;
 	}
 
-	/**
-	 * Returns the table of types defined in the file. 
-	 * Can be an empty table (if no types were declared in the file).
-	 * @return typesTable
-	 */
-	public Map<String, Type> getTypesTable() {
-		return typesTable;
-	}
+	
 	
 	public List<String> getReservedWords(){
 		return reservedWords;
+	}
+
+	/**
+	 * @return the graphInfo
+	 */
+	public GraphInfo<Type, Double> getGraphInfo() {
+		return graphInfo;
 	}
 
 	// --------------------------------------------------------------------------

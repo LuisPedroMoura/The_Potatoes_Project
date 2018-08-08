@@ -7,7 +7,7 @@
 *	Availability: https://github.com/LuisPedroMoura/PotatoesProject
 *
 ***************************************************************************************/
-package utils;
+package typesGrammar.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +44,7 @@ public class HierarchyDiGraph <V,E> {
 	 * @author Luis Moura (https://github.com/LuisPedroMoura)
 	 * @version July 2018
 	 */
+	@SuppressWarnings("hiding")
 	public class Node<V,E> {
 		
 		// attributes
@@ -57,7 +58,7 @@ public class HierarchyDiGraph <V,E> {
 		 * @param vertex
 		 * @param edge
 		 */
-		public Node(V vertex, E edge) {
+		protected Node(V vertex, E edge) {
 			this.vertex = vertex;
 			this.edge = edge;
 		}
@@ -65,28 +66,28 @@ public class HierarchyDiGraph <V,E> {
 		/**
 		 * @return the vertex of this Node
 		 */
-		public V getVertex() {
+		protected V getVertex() {
 			return vertex;
 		}
 		
 		/**
 		 * @return the edge of this Node
 		 */
-		public E getEdge() {
+		protected E getEdge() {
 			return edge;
 		}
 		
 		/**
 		 * @return
 		 */
-		public boolean isParent() {
+		protected boolean isParent() {
 			return isParent;
 		}
 		
 		/**
 		 * 
 		 */
-		public void setAsParent() {
+		protected void setAsParent() {
 			isParent = true;
 		}
 

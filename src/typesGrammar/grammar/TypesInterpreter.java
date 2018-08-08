@@ -8,7 +8,7 @@
 *
 ***************************************************************************************/
 
-package typesGrammar;
+package typesGrammar.grammar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,10 +18,10 @@ import java.util.Map;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
-import typesGrammar.TypesParser.*;
-import utils.Code;
-import utils.HierarchyDiGraph;
-import utils.Type;
+import typesGrammar.grammar.TypesParser.*;
+import typesGrammar.utils.Code;
+import typesGrammar.utils.HierarchyDiGraph;
+import typesGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 
 /* HOW TO
@@ -57,25 +57,30 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	private Map<String, Type>	classesTable			= new HashMap<>();
 	private HierarchyDiGraph<Type, Double>	typesGraph	= new HierarchyDiGraph<>();
 	//private Graph<Double, Type>	inheritanceGraph	= new Graph(); // may be needed to guarantee logic in dimension
-	private List<String> reservedWords = new ArrayList<>();
+	private List<String> 		reservedWords 			= new ArrayList<>();
+	
 	private ParseTreeProperty<Type>		types	= new ParseTreeProperty<>();
 	private ParseTreeProperty<Double>	values	= new ParseTreeProperty<>();
 
 	// --------------------------------------------------------------------------
 	// Getters
-	public Map<String, Type> getTypesTable() {
+	protected Map<String, Type> getTypesTable() {
 		return typesTable;
 	}
-
-	public HierarchyDiGraph<Type,Double> getTypesGraph() {
-		return typesGraph;
-	}
-
-	public Map<String, Type> getPrefixedTypesTable() {
+	
+	protected Map<String, Type> getPrefixedTypesTable() {
 		return prefixedTypesTable;
 	}
 	
-	public List<String> getReservedWords(){
+	protected Map<String, Type> getClassesTable() {
+		return classesTable;
+	}
+
+	protected HierarchyDiGraph<Type,Double> getTypesGraph() {
+		return typesGraph;
+	}
+
+	protected List<String> getReservedWords(){
 		return reservedWords;
 	}
 	

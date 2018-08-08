@@ -10,25 +10,20 @@
 *
 ***************************************************************************************/
 
-package utils;
+package typesGrammar.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import compiler.PotatoesSemanticCheck;
-
 /**
  * <b>Code</b><p>
  * 
  * @author Luis Moura (https://github.com/LuisPedroMoura)
- * @version July 2018
+ * @version 2.0 - July 2018
  */
 public class Code {
 	
-	// FIXME colocar aqui o Grafo que já vem tratado no GraphInfo. Verificar onde tem de se ir buscar.
-	private static HierarchyDiGraph<Type, Double> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
-	private static Map<Integer, Type> basicTypesCodesTable = Type.getBasicTypesCodesTable();
 	private List<Integer> numCodes = new ArrayList<>();;		// numerator codes
 	private List<Integer> denCodes = new ArrayList<>();;		// denominator codes
 	
@@ -143,7 +138,7 @@ public class Code {
 	/**
 	 * 
 	 */
-	public void simplifyCodeWithoutConversions() {
+	public void simplifyCode() {
 		for (Integer numCode : numCodes) {
 			if (denCodes.contains(numCode)) {
 				numCodes.remove(numCode);
@@ -155,16 +150,18 @@ public class Code {
 	/**
 	 * @return
 	 */
-	public double simplifyCodeWithConvertions() {
+	public double simplifyCodeWithConvertions(HierarchyDiGraph<Type, Double> typesGraph) {
 		Double factor = 1.0;
 		Double conversionFactor = 1.0;
 		while (conversionFactor != null) {
 			factor *= conversionFactor;
-			conversionFactor = simplifyCodeWithConvertionsPrivate();
+			conversionFactor = simplifyCodeWithConvertionsPrivate(typesGraph);
 		}
 		return factor;
 	}
-	private Double simplifyCodeWithConvertionsPrivate() {
+	// TODO not very efficient
+	private Double simplifyCodeWithConvertionsPrivate(HierarchyDiGraph<Type, Double> typesGraph) {
+		Map<Integer, Type> basicTypesCodesTable = Type.getBasicTypesCodesTable();
 		for (int numCode : this.numCodes) {
 			for (int denCode : this.denCodes) {
 				Type numType = basicTypesCodesTable.get(numCode);

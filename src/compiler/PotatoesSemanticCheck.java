@@ -8,13 +8,13 @@ import java.util.Map;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
-import potatoesGrammar.PotatoesBaseVisitor;
-import potatoesGrammar.PotatoesFunctionNames;
-import potatoesGrammar.PotatoesParser.*;
-import typesGrammar.TypesFileInfo;
-import utils.Code;
-import utils.Type;
-import utils.Variable;
+import potatoesGrammar.grammar.PotatoesBaseVisitor;
+import potatoesGrammar.grammar.PotatoesFunctionNames;
+import potatoesGrammar.grammar.PotatoesParser.*;
+import potatoesGrammar.utils.Variable;
+import typesGrammar.grammar.TypesFileInfo;
+import typesGrammar.utils.Code;
+import typesGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 
 /**
@@ -28,25 +28,26 @@ import utils.errorHandling.ErrorHandling;
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	// Static Constant (Debug Only)
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	// --------------------------------------------------------------------------
 	// Static Fields
 	private static String TypesFilePath;
-	private static String PotatoesFilePath;
 	
-	private static	TypesFileInfo		typesFileInfo; // initialized in visitUsing();
-	private static	List<String>		reservedWords;
-	private static	Map<String, Type> 	typesTable;
-	private static PotatoesFunctionNames functions = new PotatoesFunctionNames(PotatoesFilePath);
-	private static Map<String, ParserRuleContext> functionNames = functions.getFunctions();
+	private	static TypesFileInfo		typesFileInfo; // initialized in visitUsing();
+	private	static List<String>		reservedWords;
+	private static Map<String, Type> 	typesTable;
+	private static PotatoesFunctionNames functions;
+	private static Map<String, ParserRuleContext> functionNames;
 
 	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
 	protected static Map<String, Object> symbolTable = new HashMap<>();
 	
 	
 	public PotatoesSemanticCheck(String PotatoesFilePath){
-		PotatoesSemanticCheck.PotatoesFilePath = PotatoesFilePath;
+		functions = new PotatoesFunctionNames(PotatoesFilePath);
+		functionNames = functions.getFunctions();
+		if (debug) ErrorHandling.printInfo("The PotatoesFilePath is: " + PotatoesFilePath);
 	}
 	
 	// --------------------------------------------------------------------------
@@ -78,6 +79,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitUsing(UsingContext ctx) {
 		// Get information from the types file
 		TypesFilePath = getStringText(ctx.STRING().getText());
+		if (debug) ErrorHandling.printInfo(ctx, TypesFilePath);
 		typesFileInfo = new TypesFileInfo(TypesFilePath);
 		reservedWords = typesFileInfo.getReservedWords();
 		typesTable = typesFileInfo.getTypesTable();
@@ -1356,7 +1358,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Auxiliar Functions
 	
-	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
+	private boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
 		if (symbolTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" already declared");

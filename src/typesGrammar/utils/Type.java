@@ -11,7 +11,7 @@
 *
 ***************************************************************************************/
 
-package utils;
+package typesGrammar.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,12 +20,12 @@ import java.util.Map;
  * 
  * <b>Type</b><p>
  * 
- * @author Luis Moura
+ * @author Luis Moura (https://github.com/LuisPedroMoura)
  * @version 2.0 - July 2018
  */
 public class Type {
 
-	// TODO corrigir javadocs dos metodos. está tudo errado quase.
+	// TODO corrigir javadocs dos metodos. esta tudo errado quase.
 	// Static Fields
 	private static int newCode = 1;
 	private static Map<Integer, Type> basicTypesCodesTable = new HashMap<>();
@@ -194,6 +194,10 @@ public class Type {
 	 */
 	public static Type power(Type a, int exponent) {
 		return new Type(Code.power(a.getCode(), exponent));
+	}
+	
+	public double adjustTypeOperationResultToKnowType(HierarchyDiGraph<Type, Double> typesGraph) {
+		return this.code.simplifyCodeWithConvertions(typesGraph);
 	}
 
 	// --------------------------------------------------------------------------

@@ -12,9 +12,8 @@ import org.stringtemplate.v4.ST;
 
 import compiler.PotatoesCompiler;
 import compiler.PotatoesSemanticCheck;
-import potatoesGrammar.PotatoesFunctionsCheck;
-import potatoesGrammar.PotatoesLexer;
-import potatoesGrammar.PotatoesParser;
+import potatoesGrammar.grammar.PotatoesLexer;
+import potatoesGrammar.grammar.PotatoesParser;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
@@ -46,7 +45,7 @@ public class PotatoesMain {
 
 		try {
 			File f = new File(args[0]);
-			fileStream = new FileInputStream(f); 
+			fileStream = new FileInputStream(f);
 			out.println("Compiling \"" + f.getAbsolutePath() + "\"...");
 			input = CharStreams.fromStream(fileStream);
 			fileStream.close();

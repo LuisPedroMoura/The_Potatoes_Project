@@ -7,7 +7,7 @@
 *
 ***************************************************************************************/
 
-package potatoesGrammar;
+package potatoesGrammar.grammar;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import potatoesGrammar.PotatoesParser.*;
+import potatoesGrammar.grammar.PotatoesParser.*;
 
 
 public class PotatoesFunctionsCheck extends PotatoesBaseVisitor<Boolean>  {

@@ -1,4 +1,4 @@
-package potatoesGrammar;
+package potatoesGrammar.grammar;
 
 import java.io.File;
 import java.io.FileInputStream;

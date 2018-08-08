@@ -11,9 +11,11 @@
 *
 ***************************************************************************************/
 
-package utils;
+package potatoesGrammar.utils;
 
 import compiler.PotatoesSemanticCheck;
+import typesGrammar.utils.HierarchyDiGraph;
+import typesGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 
 /**
@@ -32,7 +34,9 @@ public class Variable {
 	// --------------------------------------------------------------------------
 	// Static Fields
 	// FIXME colocar aqui o Grafo que já vem tratado no GraphInfo. Verificar onde tem de se ir buscar.
-	private static HierarchyDiGraph<Type,Double> typesGraph = PotatoesSemanticCheck.getTypesFileInfo().getTypesGraph();
+	private static HierarchyDiGraph<Type,Double> typesGraph =  PotatoesSemanticCheck.getTypesFileInfo()
+																					.getGraphInfo()
+																					.getShortestPathsGraph();
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
@@ -88,7 +92,7 @@ public class Variable {
 	 */
 	public static Variable multiply(Variable a, Variable b) {
 		Type newType = Type.multiply(a.getType(), b.getType());
-		double codeSimplificationFactor = newType.getCode().simplifyCodeWithConvertions();
+		double codeSimplificationFactor = newType.adjustTypeOperationResultToKnowType(typesGraph);
 		double newValue = a.getValue() * b.getValue() * codeSimplificationFactor;
 		return new Variable(newType, newValue);
 	}
@@ -98,7 +102,7 @@ public class Variable {
 	 */
 	public static Variable divide(Variable a, Variable b) {
 		Type newType = Type.divide(a.getType(), b.getType());
-		double codeSimplificationFactor = newType.getCode().simplifyCodeWithConvertions();
+		double codeSimplificationFactor = newType.adjustTypeOperationResultToKnowType(typesGraph);
 		double newValue = a.getValue() / b.getValue() * codeSimplificationFactor;
 		
 		return new Variable(newType, newValue);

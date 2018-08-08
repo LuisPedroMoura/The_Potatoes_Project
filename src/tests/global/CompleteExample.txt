@@ -1,4 +1,4 @@
-using "CompleteExample_Types.txt";
+using "tests/global/CompleteExample_Types.txt";
 
 fun main {
 

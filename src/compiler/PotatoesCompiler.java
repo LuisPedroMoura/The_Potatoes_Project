@@ -8,9 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.stringtemplate.v4.*;
-import potatoesGrammar.PotatoesBaseVisitor;
-import potatoesGrammar.PotatoesParser.*;
-import typesGrammar.TypesFileInfo;
+
+import potatoesGrammar.grammar.PotatoesBaseVisitor;
+import potatoesGrammar.grammar.PotatoesParser.*;
+import potatoesGrammar.utils.Variable;
+import typesGrammar.grammar.TypesFileInfo;
+import typesGrammar.utils.Code;
+import typesGrammar.utils.Type;
 
 /**
  * * <b>PotatoesCompiler</b><p>

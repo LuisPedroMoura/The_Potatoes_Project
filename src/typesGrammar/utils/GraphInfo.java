@@ -7,7 +7,7 @@
 *
 ***************************************************************************************/
 
-package utils;
+package typesGrammar.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 	HierarchyDiGraph<V,Double> straightfowardPathsGraph;
 	HierarchyDiGraph<V,Double> straightfowardPathsCostsGraph;
 	
-	GraphInfo(HierarchyDiGraph<V,E> graph) {
+	public GraphInfo(HierarchyDiGraph<V,E> graph) {
 		this.graph = graph;
 		allShortestPaths = getAllShortestPaths(graph);
 		allStraightFowardPaths = getAllStraightfowardPaths(graph);
@@ -37,6 +37,62 @@ public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 		createStraightfowardPathsCostsGraph();
 	}
 	
+	
+	
+	/**
+	 * @return the graph
+	 */
+	public HierarchyDiGraph<V, E> getGraph() {
+		return graph;
+	}
+
+
+
+	/**
+	 * @return the allShortestPaths
+	 */
+	public List<ArrayList<V>> getAllShortestPaths() {
+		return allShortestPaths;
+	}
+
+
+
+	/**
+	 * @return the allStraightFowardPaths
+	 */
+	public List<ArrayList<V>> getAllStraightFowardPaths() {
+		return allStraightFowardPaths;
+	}
+
+
+
+	/**
+	 * @return the shortestPathsGraph
+	 */
+	public HierarchyDiGraph<V, Double> getShortestPathsGraph() {
+		return shortestPathsGraph;
+	}
+
+
+
+	/**
+	 * @return the straightfowardPathsGraph
+	 */
+	public HierarchyDiGraph<V, Double> getStraightfowardPathsGraph() {
+		return straightfowardPathsGraph;
+	}
+
+
+
+	/**
+	 * @return the straightfowardPathsCostsGraph
+	 */
+	public HierarchyDiGraph<V, Double> getStraightfowardPathsCostsGraph() {
+		return straightfowardPathsCostsGraph;
+	}
+
+
+
 	/**
 	 * 
 	 * @param graph
