@@ -21,6 +21,9 @@ import java.util.Set;
  */
 public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 	
+	// Static Field (Debug Only)
+	private static final boolean debug = true; 
+	
 	HierarchyDiGraph<V,E> graph;
 	List<ArrayList<V>> allShortestPaths;
 	List<ArrayList<V>> allStraightFowardPaths;
@@ -29,7 +32,7 @@ public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 	HierarchyDiGraph<V,Double> straightfowardPathsCostsGraph;
 	
 	public GraphInfo(HierarchyDiGraph<V,E> graph) {
-		this.graph = graph;
+		this.graph = graph;		if (debug) System.out.print(graph);
 		allShortestPaths = getAllShortestPaths(graph);
 		allStraightFowardPaths = getAllStraightfowardPaths(graph);
 		createShortestPathsGraph();

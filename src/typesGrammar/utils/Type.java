@@ -210,16 +210,13 @@ public class Type {
 		StringBuilder builder = new StringBuilder();
 		builder.append("\nType [");
 		if (typeName != null) {
-			builder.append("typeName=");
 			builder.append(typeName);
 			builder.append(", ");
 		}
 		if (printName != null) {
-			builder.append("printName=");
 			builder.append(printName);
 			builder.append(", ");
 		}
-		builder.append("code=");
 		builder.append(code);
 		builder.append("]");
 		return builder.toString();

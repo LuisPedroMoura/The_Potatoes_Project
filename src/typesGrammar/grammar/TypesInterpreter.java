@@ -90,8 +90,14 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitTypesFile(TypesFileContext ctx) {
 		// add dimentionless Type number
 		typesTable.put("number", new Type("number", "", new Code(1)));
-
-		return visitChildren(ctx);
+		
+		Boolean valid = true;
+		for (DeclarationContext dec : ctx.declaration()) {
+			valid = visit(dec);
+			if (!valid) return false;
+		}
+		
+		return valid;
 	}
 	
 	@Override
@@ -297,7 +303,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 	public Boolean visitTypesEquivalence(TypesEquivalenceContext ctx) {
 		Boolean valid = true;
 		for (EquivalentTypeContext equivAlt : ctx.equivalentType()) {
-			Boolean visit = visit(equivAlt);
+			boolean visit = visit(equivAlt);
 			valid = valid && visit;
 		}
 		return valid;
@@ -316,7 +322,7 @@ public class TypesInterpreter extends TypesBaseVisitor<Boolean> {
 		}
 		
 		// Conversion factor must be different than zero
-		if (Double.parseDouble(ctx.value().getText()) == 0.0) {
+		if (values.get(ctx.value()) == 0.0) {
 			ErrorHandling.printError(ctx, "Convertion factor has to be different than zero");
 			return false;
 		}

@@ -183,14 +183,14 @@ public class Code {
 		
 		// For Debug Purposes Only
 		StringBuilder builder = new StringBuilder();
-		builder.append("\nType [");
+		builder.append("Code [");
 		if (numCodes != null) {
-			builder.append("numCodes=");
+			builder.append("num=");
 			builder.append(numCodes);
 			builder.append(", ");
 		}
 		if (denCodes != null) {
-			builder.append("denCodes=");
+			builder.append("den=");
 			builder.append(denCodes);
 			builder.append(", ");
 		}

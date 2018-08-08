@@ -379,8 +379,9 @@ public class HierarchyDiGraph <V,E> {
 		while (!minPath.isEmpty()) {
 			
 			// Find the next Vertex to be analyzed by finding the minimum Path so far
-			double minPathsmallestValue = minPath.get(0);
-			V newSmallest = null;
+			V newSmallest = (V) minPath.keySet().toArray()[0];
+			double minPathsmallestValue = minPath.get(newSmallest);
+			
 			for (V vertex : minPath.keySet()) {
 				if(minPath.get(vertex) <= minPathsmallestValue) {
 					newSmallest = vertex;
@@ -524,8 +525,9 @@ public class HierarchyDiGraph <V,E> {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		for (V key : adjList.keySet()) {
+			str.append(key + " ->");
 			for (Node<V,E> node : adjList.get(key)) {
-				str.append(node.getVertex() + " " + node.getEdge() + "  |  ");
+				str.append("\t\t" + node.getVertex() + " " + node.getEdge() + "  |  ");
 			}
 			str.append("\n");
 		}
