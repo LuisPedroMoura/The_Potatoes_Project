@@ -948,23 +948,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op		 " + op + "\n");
 			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] temp: " + aux);
 		}
-
+		
+		// TODO update to using Variable.mod();
 		// Modulus operation
 		if (op.equals("%")) {
-			// verify that right side of mod operation is of Type Number
-			if (b.getType().equals(typesTable.get("number"))) {
-				Double moddedValue = a.getValue() % b.getValue();
-				a = new Variable (typesTable.get(a.getType().getTypeName()), moddedValue);
-				mapCtxObj.put(ctx, a);
+			try {
+				Variable res = Variable.mod(a, b);
+				mapCtxObj.put(ctx, res);
 				return true;
 			}
-			ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number!");
-			return false;
-
+			catch (IllegalArgumentException e) {
+				ErrorHandling.printError(ctx, "Right side of mod operation has to be of Type Number!");
+				return false;
+			}
 		}
 
 		// Multiplication operation
-		// TODO melhorar o acesso a typesTable e a c�digos. Talvez devesse haver uma classe apenas para resolver cenas com a tabela.
+		// TODO melhorar o acesso a typesTable e a codigos. Talvez devesse haver uma classe apenas para resolver cenas com a tabela.
 		if (op.equals("*")) {
 			Variable res = Variable.multiply(a, b); 
 			Code resCode = res.getType().getCode(); 
@@ -1070,7 +1070,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// Addition operation
 		// TODO mudar o grafo talvez. Tenho de verificar se tipos sao iguais, deveria bastar tentar converter
-		// para tal � necess�rio que se introduza aresta do tipo para ele proprio. Verificar se isso nao tras outros problemas.
+		// para tal é necessário que se introduza aresta do tipo para ele proprio. Verificar se isso nao tras outros problemas.
 		if (ctx.op.getText().equals("+")) {
 			try {
 				Variable res = Variable.add(a, b);

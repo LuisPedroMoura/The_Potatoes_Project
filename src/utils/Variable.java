@@ -100,7 +100,17 @@ public class Variable {
 		Type newType = Type.divide(a.getType(), b.getType());
 		double codeSimplificationFactor = newType.getCode().simplifyCodeWithConvertions();
 		double newValue = a.getValue() / b.getValue() * codeSimplificationFactor;
+		
 		return new Variable(newType, newValue);
+	}
+	
+	
+	public static Variable mod(Variable a, Variable b) {
+		// verify that Variable b is of Type number
+		if (!b.getType().getTypeName().equals("number")) {
+			throw new IllegalArgumentException();
+		}
+		return new Variable(a.getType(), a.getValue()%b.getValue());
 	}
 
 	/**

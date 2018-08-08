@@ -36,10 +36,12 @@ stats(stat) ::= <<
 
 class(name,stat) ::= <<
 public class <name> {
-	public static void main(String[] args) {
-		<stats(stat)>
-	}
+	<stats(stat)>
 }
+>>
+
+main(scope) ::= <<
+public static void main(String[] args) <stats(scope)>
 >>
 
 scope(stat) ::= <<
@@ -65,46 +67,34 @@ varAssignment(type, var, operation, previousStatements ) ::= <<
 
 
 // CONDITION----------------------------------------------------------------------
-ifCondition(previousStatements, logicalOperation, content) ::= <<
+ifCondition(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-if(<logicalOperation>){
-	<stats(content)>
-}
+if(<logicalOperation>) <stats(scope)>
 >>
 
-elseIfCondition(previousStatements, logicalOperation, content) ::= <<
+elseIfCondition(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-else if(<logicalOperation>){
-	<stats(content)>
-}
+else if(<logicalOperation>) <stats(scope)>
 >>
-elseCondition(content) ::= <<
-else {
-	<stats(content)>
-}
+elseCondition(scope) ::= <<
+else <stats(scope)>
 >>
 
 
 // FOR LOOP-----------------------------------------------------------------------
-forLoop(outsideStatements, logicalOperation, finalAssignment, content) ::= <<
+forLoop(outsideStatements, logicalOperation, content) ::= <<
 <stats(outsideStatements)>	
 while(true){
 	if(<logicalOperation>) break;
-	else{
-		<stats(content)>
-		
-		<stats(finalAssignment)>
-	}
+	else <stats(scope)>
 }
 >>
 
 
 // WHILE LOOP---------------------------------------------------------------------
-whileLoop(previousStatements, logicalOperation, content) ::= <<
+whileLoop(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-while(<logicalOperation>){
-	<stats(content)>
-} 
+while(<logicalOperation>) <stats(scope)>
 >>
 
 //-------------------------------------------------------------------------------
