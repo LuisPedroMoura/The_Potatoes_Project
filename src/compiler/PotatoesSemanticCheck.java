@@ -1,6 +1,17 @@
+/***************************************************************************************
+*	Title: PotatoesProject - PotatoesSemanticCheck Class Source Code
+*	Code version: 2.0
+*	Author: Luis Moura (https://github.com/LuisPedroMoura)
+*	Acknowledgments for version 1.0: Maria Joao Lavoura
+*	(https://github.com/mariajoaolavoura), for the help in brainstorming the concepts
+*	needed to create the first working version of this Class.
+*	Date: July-2018
+*	Availability: https://github.com/LuisPedroMoura/PotatoesProject
+*
+***************************************************************************************/
+
 package compiler;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +24,6 @@ import potatoesGrammar.grammar.PotatoesFunctionNames;
 import potatoesGrammar.grammar.PotatoesParser.*;
 import potatoesGrammar.utils.Variable;
 import typesGrammar.grammar.TypesFileInfo;
-import typesGrammar.utils.Code;
 import typesGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 
@@ -34,14 +44,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// Static Fields
 	private static String TypesFilePath;
 	
-	private	static TypesFileInfo		typesFileInfo; // initialized in visitUsing();
-	private	static List<String>		reservedWords;
-	private static Map<String, Type> 	typesTable;
-	private static PotatoesFunctionNames functions;
-	private static Map<String, ParserRuleContext> functionNames;
+	private	static TypesFileInfo					typesFileInfo; // initialized in visitUsing();
+	private	static List<String>						reservedWords;
+	private static Map<String, Type> 				typesTable;
+	private static PotatoesFunctionNames			functions;
+	private static Map<String, ParserRuleContext>	functionNames;
 
-	protected static ParseTreeProperty<Object> mapCtxObj = new ParseTreeProperty<>();
-	protected static Map<String, Object> symbolTable = new HashMap<>();
+	protected static ParseTreeProperty<Object> 		mapCtxObj	= new ParseTreeProperty<>();
+	protected static Map<String, Object>			symbolTable = new HashMap<>();
 	
 	
 	public PotatoesSemanticCheck(String PotatoesFilePath){
@@ -230,7 +240,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				mapCtxObj.put(ctx, "str");
 				return true;
 			}
-			// TODO mudar estes prints de erro
 			ErrorHandling.printError(ctx, "expression result is not compatible with string Type");
 			return false;
 		}
@@ -268,401 +277,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return false;
 	}
 	
-	
-	@Override 
-	public Boolean visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
-		if (!visit(ctx.varDeclaration()) || !visit(ctx.var())) {
-			return false;
-		};
-
-		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
-		String varName = ctx.varDeclaration().ID().getText();
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NotBoolean] Visited visitAssignment_Var_Declaration_NotBoolean");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
-		}
-
-		// verify that variable to be created has valid name
-		if (symbolTable.containsKey(varName)) {
-			ErrorHandling.printError(ctx, varName + " is already declared");
-			return false;
-		}
-
-		// verify that Variable to be assigned is of Type boolean
-		if (!typeName.equals("boolean")) {
-			ErrorHandling.printError(ctx, "Type \"" + typeName + "\" and boolean are not compatible");
-			return false;
-		}
-
-		Object obj = mapCtxObj.get(ctx.var());
-
-		if (obj instanceof Boolean) {
-			symbolTable.put(ctx.varDeclaration().ID().getText(), true);
-			mapCtxObj.put(ctx, true);
-
-			if(debug) {ErrorHandling.printInfo(ctx, "boolean variable was assigned");}
-
-			return true;
-		}
-
-		ErrorHandling.printError(ctx, "Cannot assign logical expression to non boolean Type");
-		return false;
-	}
-
-	
-
-	@Override 
-	public Boolean visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
-		if (!visit(ctx.varDeclaration()) || !visit(ctx.value())) {
-			return false;
-		}
-		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
-		String varName = ctx.varDeclaration().ID().getText();
-		Object value = mapCtxObj.get(ctx.value());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] Visited visitAssignment_Var_Declaration_Value");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
-			ErrorHandling.printInfo(ctx, "--- Value to assign is " + value);
-		}
-
-		// verify that variable to be created has valid name
-		if(!isValidNewVariableName(varName, ctx)) return false;
-
-		// assign boolean to boolean
-		if (value instanceof Boolean && typeName.equals("boolean")) {
-			symbolTable.put(ctx.varDeclaration().ID().getText(), true);
-			mapCtxObj.put(ctx, true);
-
-			if(debug) {
-				ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.varDeclaration().ID().getText());
-			}
-
-			return true;
-		}
-
-		// assign string to string
-		if (value instanceof String && typeName.equals("string")) {
-			symbolTable.put(ctx.varDeclaration().ID().getText(), "str");
-			mapCtxObj.put(ctx, "str");
-
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned string to " + ctx.varDeclaration().ID().getText());}
-
-			return true;
-		}
-
-		// assign compatible types
-		if (typesTable.containsKey(typeName)) {
-			Variable aux = (Variable) value;
-			Variable a = new Variable(aux); // deep copy
-			Type typeToConvertTo = ((Variable) mapCtxObj.get(ctx.varDeclaration())).getType();
-			if (a.convertTypeTo(typeToConvertTo) == true) {
-				symbolTable.put(ctx.varDeclaration().ID().getText(), a);
-				mapCtxObj.put(ctx, a);
-
-				if(debug) {
-					ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-							"val=" + a.getValue() + " to " + ctx.varDeclaration().ID().getText());
-				}
-
-				return true;
-			}
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with given Type");
-		return false;
-	}
-
-	@Override  
-	public Boolean visitAssignment_Var_Declaration_Comparison(Assignment_Var_Declaration_ComparisonContext ctx) {
-		if (!visit(ctx.varDeclaration()) || !visit(ctx.comparison())) {
-			return false;
-		};
-		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
-		String varName = ctx.varDeclaration().ID().getText();
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] Visited visitAssignment_Var_Declaration_Comparison");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
-		}
-		
-		// verify that variable to be created has valid name
-		if(!isValidNewVariableName(varName, ctx)) return false;
-
-		// assign boolean to boolean
-		if (typeName.equals("boolean")) {
-
-			symbolTable.put(ctx.varDeclaration().ID().getText(), true);
-			mapCtxObj.put(ctx, true);
-
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.varDeclaration().ID().getText());}
-			return true;
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with boolean");
-		return false;
-	}
-
-	@Override 
-	public Boolean visitAssignment_Var_Declaration_Expression(Assignment_Var_Declaration_ExpressionContext ctx) {
-		if (!visit(ctx.varDeclaration()) || !visit(ctx.expression())) {
-			return false;
-		};
-
-		String typeName = (String) mapCtxObj.get(ctx.varDeclaration().type());
-		String varName = ctx.varDeclaration().ID().getText();
-		Object obj = mapCtxObj.get(ctx.expression());
-
-		// verify that variable to be created has valid name
-		if(!isValidNewVariableName(varName, ctx)) return false;
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
-			if(!typeName.equals("boolean") || !typeName.equals("string")) {
-				ErrorHandling.printInfo(ctx, "--- destinationType is " + typeName);
-			}
-		}
-
-		// assign Variable to string is not possible
-		if(typeName.equals("string")) {
-			if (obj instanceof String) {
-				symbolTable.put(ctx.varDeclaration().ID().getText(), "str");
-				mapCtxObj.put(ctx, "str");
-				return true;
-			}
-			ErrorHandling.printError(ctx, "righthand side of assignment is not compatible with string Type");
-			return false;
-		}
-
-		// assign Variable to boolean is not possible
-		if (typeName.equals("boolean")) {
-			if (obj instanceof Boolean) {
-				symbolTable.put(ctx.varDeclaration().ID().getText(), true);
-				mapCtxObj.put(ctx, true);
-				return true;
-			}
-			ErrorHandling.printError(ctx, "righthand side of assignment is not compatible with boolean Type");
-			return false;
-		}
-
-		// assign Variable to Variable
-		Variable temp = (Variable) mapCtxObj.get(ctx.expression());
-		Variable a = new Variable(temp); // deep copy
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
-			ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));
-		}
-
-		if (a.convertTypeTo(typesTable.get(typeName))) {
-			symbolTable.put(ctx.varDeclaration().ID().getText(), a);
-			mapCtxObj.put(ctx, a);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-					"val=" + a.getValue() + " to " + ctx.varDeclaration().ID().getText());}
-			return true;
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"!");
-		return false;
-	}
-
-	@Override
-	public Boolean visitAssignment_Var_Declaration_FunctionCall(Assignment_Var_Declaration_FunctionCallContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	@Override 
-	public Boolean visitAssignment_Var_Not_Boolean(Assignment_Var_Not_BooleanContext ctx) {
-		if (!visit(ctx.var(0))) {
-			return false;
-		};
-		
-		Object obj = symbolTable.get(ctx.var(0).ID().getText());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_NOT_BOOLEAN] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var(0).ID().getText() + " with type " + symbolTable.get(ctx.var(0).ID().getText()));
-		}
-		
-		// verify that assigned Variable is of Type boolean
-		if (obj instanceof Boolean) {
-			if (!visit(ctx.var(1))) {return false;}
-			Object obj2 = mapCtxObj.get(ctx.var(1));
-			if (obj2 instanceof Boolean) {
-				symbolTable.put(ctx.var(0).ID().getText(), true);
-				mapCtxObj.put(ctx, true);
-				if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.var(0).ID().getText());}
-				return true;
-			}
-			ErrorHandling.printError(ctx,"Cannot apply Not Logical Operand to a non boolean Type");
-			return false;
-		}
-		
-		// variable to be assigned is not boolean (is Variable)
-		if (obj instanceof Variable) {
-			// creates Variable only to extract name for Error print
-			Variable temp = (Variable) obj;
-			Variable a = new Variable(temp);
-			ErrorHandling.printError(ctx, "Type \"" + a.getType().getTypeName() + "\" and boolean are not compatible");
-		}
-		
-		// variable to be assigned is not bollean (is string)
-		if (obj instanceof String) {
-			ErrorHandling.printError(ctx, "Type \"string\" and \"boolean\" are not compatible");
-		}
-		
-		return false;
-	}
-
-	@Override 
-	public Boolean visitAssignment_Var_Value(Assignment_Var_ValueContext ctx) {
-		if (!visit(ctx.var()) || !visit(ctx.value())) {
-			return false;
-		}
-
-		Object obj = symbolTable.get(ctx.var().ID().getText());
-		Object value = mapCtxObj.get(ctx.value());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_VALUE] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
-		}
-
-		// assign boolean to boolean
-		if (value instanceof Boolean && obj instanceof Boolean) {
-			symbolTable.put(ctx.var().ID().getText(), true);
-			mapCtxObj.put(ctx, true);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.var().ID().getText());}
-			return true;
-		}
-
-		// assign string to string
-		if (value instanceof String && obj instanceof String) {
-			symbolTable.put(ctx.var().ID().getText(), "str");
-			mapCtxObj.put(ctx, "str");
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned string to " + ctx.var().ID().getText());}
-			return true;
-		}
-
-		// assign compatible types
-		Variable temp = (Variable) obj;
-		Variable a = new Variable(temp); // deep copy
-
-		String typeName = a.getType().getTypeName();
-		if (typesTable.containsKey(typeName)) {
-			Type type = typesTable.get(typeName);
-			if (a.convertTypeTo(type) == true) {
-				symbolTable.put(ctx.var().ID().getText(), a);
-				mapCtxObj.put(ctx, a);
-				if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-						"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
-				return true;
-			}
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with given Type!");
-		return false;
-	}
-
-	@Override 
-	public Boolean visitAssignment_Var_Comparison(Assignment_Var_ComparisonContext ctx) {
-		if (!visit(ctx.var())) {
-			return false;
-		};
-		Object obj = mapCtxObj.get(ctx.var());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_COMP] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
-		}
-
-		// verify that assigned var has type boolean
-		if (obj instanceof Boolean) {
-			if (!visit(ctx.comparison())) {
-				return false;
-			}
-			symbolTable.put(ctx.var().ID().getText(), true);
-			mapCtxObj.put(ctx, true);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned boolean to " + ctx.var().ID().getText());}
-			return true;
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type is not compatible with boolean!");
-		return false;
-	}
-
-	@Override 
-	public Boolean visitAssignment_Var_Expression(Assignment_Var_ExpressionContext ctx) {
-		if (!visit(ctx.var()) || !visit(ctx.expression())) {
-			return false;
-		};
-		Object obj = mapCtxObj.get(ctx.var());
-		Object opRes = mapCtxObj.get(ctx.expression());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
-		}
-
-		if(obj instanceof String) {
-			if (opRes instanceof String) {
-				symbolTable.put(ctx.var().ID().getText(), "str");
-				mapCtxObj.put(ctx, "str");
-				return true;
-			}
-			// TODO mudar estes prints de erro
-			ErrorHandling.printError(ctx, "string Type is not compatible with \"" +ctx.expression().getText() + "\"");
-			return false;
-		}
-
-		if(obj instanceof Boolean) {
-			if (opRes instanceof Boolean) {
-				symbolTable.put(ctx.var().ID().getText(), true);
-				mapCtxObj.put(ctx, true);
-				return true;
-			}
-			ErrorHandling.printError(ctx, "boolean Type is not compatible with the expression \"" +ctx.expression().getText() + "\"");
-			return false;
-		}
-
-		Variable aux = (Variable) obj;
-		Variable var = new Variable(aux);
-		String typeName = var.getType().getTypeName();
-
-		aux = (Variable) opRes;
-		Variable a = new Variable(aux);
-
-		if (debug) {ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);}
-
-		// If type of variable a can be converted to the destination type (ie are compatible)
-		if (a.convertTypeTo(typesTable.get(typeName))) {
-			symbolTable.put(ctx.var().ID().getText(), a);
-			mapCtxObj.put(ctx, a);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-					"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
-			return true;
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"");
-		return false;
-	}
-
-	@Override
-	public Boolean visitAssingment_Var_FunctionCall(Assingment_Var_FunctionCallContext ctx) {
-		if (!visit(ctx.var()) || !visit(ctx.functionCall())) {
-			return false;
-		}
-		return true;
-	}
-
 	// --------------------------------------------------------------------------
 	// Functions
 
@@ -741,7 +355,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return visitChildren(ctx);
 	}
 	
-	//FIXME verify that scopes work ly for IF statements and loops and functions
 	@Override 
 	public Boolean visitIfCondition(IfConditionContext ctx) {
 		Boolean valid = true;
@@ -789,164 +402,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		return valid;
 	}
-	// --------------------------------------------------------------------------
-	// Logical Expressions
-
-	@Override 
-	public Boolean visitLogicalExpression_Parenthesis(LogicalExpression_ParenthesisContext ctx) {
-		if(!visit(ctx.logicalExpression())) {
-			// TODO faz sentido esta mensagem de erro aqui?
-			ErrorHandling.printError(ctx, "Logical operands must have value boolean");
-			return false;
-		}
-		if (debug) {ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_PAR]");}
-		return true;
-	}
-
-	@Override 
-	public Boolean visitLogicalExpression_Expression(LogicalExpression_ExpressionContext ctx) {
-		Boolean validOp0 = visit(ctx.logicalExpression(0));
-		Boolean validOp1 = visit(ctx.logicalExpression(1));
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_OP]");
-		}
-
-		if (validOp0 && validOp1) {
-			return true;
-		}
-
-		ErrorHandling.printError(ctx, "Logical operands must have value boolean");
-		return false;
-
-	}
-
-	@Override 
-	public Boolean visitLogicalExpression_logicalOperand(LogicalExpression_logicalOperandContext ctx) {
-		Boolean valid = visit(ctx.logicalOperand());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OP_OPERAND]");
-		}
-
-		mapCtxObj.put(ctx, mapCtxObj.get(ctx.logicalOperand()));
-		return valid;
-	}
-
-	@Override 
-	public Boolean visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
-		return visit(ctx.comparison());
-	}
-
-	@Override 
-	public Boolean visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
-		return visit(ctx.comparison());
-	}
-
-	@Override
-	public Boolean visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
-		String varName = ctx.var().ID().getText();
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_VAR]");
-		}
-
-		// verify that variable exists
-		if (symbolTable.containsKey(varName)) {
-			Object obj = symbolTable.get(varName);
-			if (obj instanceof Boolean) {
-				mapCtxObj.put(ctx, obj);
-				return true;
-			}
-			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean!");
-			return false;
-		}
-		ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
-		return false;
-	}
-
-	@Override
-	public Boolean visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
-		String varName = ctx.var().ID().getText();
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_NOT_VAR]");
-		}
-
-		// verify that variable exists
-		if (symbolTable.containsKey(varName)) {
-			Object obj = symbolTable.get(varName);
-			if (obj instanceof Boolean) {
-				mapCtxObj.put(ctx, obj);
-				return true;
-			}
-			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not boolean!");
-			return false;
-		}
-		ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
-		return false;
-	}
-
-	@Override
-	public Boolean visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
-		Boolean valid = visit(ctx.value());
-		Object obj = mapCtxObj.get(ctx.value());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_VALUE]");
-		}
-
-		if (valid) {
-			if (obj instanceof Boolean) {
-				mapCtxObj.put(ctx, obj);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	@Override
-	public Boolean visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
-		Boolean valid = visit(ctx.value());
-		Object obj = mapCtxObj.get(ctx.value());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_NOT_VALUE]");
-		}
-
-		if (valid) {
-			if (obj instanceof Boolean) {
-				mapCtxObj.put(ctx, obj);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	@Override
-	public Boolean visitComparison(ComparisonContext ctx) {
-		
-	}
-
-	@Override
-	public Boolean visitCompareExpression_Expression(CompareExpression_ExpressionContext ctx) {
-		Boolean valid = visitChildren(ctx);
-		mapCtxObj.put(ctx, mapCtxObj.get(ctx.expression()));
-		return valid;
-	}
-
-	@Override
-	public Boolean visitCompareExpression_BOOLEAN(CompareExpression_BOOLEANContext ctx) {
-		mapCtxObj.put(ctx, true);
-		return true;
-	}
-
-	@Override
-	public Boolean visitCompareOperator(CompareOperatorContext ctx) {
-		return true;
-	}
 
 	// --------------------------------------------------------------------------
 	// Expressions
@@ -956,12 +411,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.expression())) {
 			return false;
 		}
-
-		if(mapCtxObj.get(ctx.expression()) instanceof Boolean || mapCtxObj.get(ctx.expression()) instanceof String) {
-			ErrorHandling.printError(ctx, "Incompatible types in expression");
-			return false;
-		}
-
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.expression()));
 		return true;
 	}
@@ -972,41 +421,59 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		// booleans and string cannot be casted
-		if(mapCtxObj.get(ctx.expression()) instanceof Boolean || mapCtxObj.get(ctx.expression()) instanceof String) {
-			ErrorHandling.printError(ctx, "Type cannot be casted");
+		String castName = ctx.cast().ID().getText();
+		Object obj = mapCtxObj.get(ctx.expression());
+		
+		// erify if cast is valid ID
+		if (!typesTable.keySet().contains(castName)) {
+			ErrorHandling.printError(ctx, "'" + castName + "' is not a valid Type");
 			return false;
 		}
-
-		Variable temp = (Variable) mapCtxObj.get(ctx.expression());
-		Variable opRes = new Variable(temp); // deep copy
-		String destinationType = ctx.cast().ID().getText();
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_CAST] Visited Expression Cast");
-			ErrorHandling.printInfo(ctx, "[OP_CAST] Casting Variable " + opRes);
-			ErrorHandling.printInfo(ctx, "[OP_CAST] Casting to " + destinationType + ". Cast can happen? "
-			+ (opRes.getType().getCode() == typesTable.get("number").getCode()) + "\n");
-		}
-
-		// cast is to a compatible type.
-		if (opRes.convertTypeTo(typesTable.get(destinationType))) {
-			return true;
+		
+		// booleans cannot be casted
+		if(obj instanceof Boolean) {
+			ErrorHandling.printError(ctx, "boolean Type cannot be casted");
+			return false;
 		}
 		
-		// type is number cast is possible
-		if (opRes.getType().equals(typesTable.get("number"))) {
-			Type newType = typesTable.get(ctx.cast().ID().getText());
-			if (newType == null) {
-				ErrorHandling.printError(ctx,"Cast Type is not declared");
+		if (obj instanceof String) {
+			try {
+				String str = (String) obj;
+				Double value = Double.parseDouble(str);
+				Type newType = typesTable.get(castName);
+				mapCtxObj.put(ctx, new Variable(newType, value));
+				return true;
+			}
+			catch (NumberFormatException e) {
+				ErrorHandling.printError("String does not contain a parsable value");
 				return false;
 			}
-			Variable res = new Variable(newType, opRes.getValue());
-			if (debug) {ErrorHandling.printInfo(ctx, "[OP_CAST] variable res " + res);}
-			mapCtxObj.put(ctx, res);
+			catch (NullPointerException e) {
+				ErrorHandling.printError("String is null");
+				return false;
+			}
+		}
+		
+		if (obj instanceof Variable) {
+			Variable temp = (Variable) obj;
+			Variable opRes = new Variable(temp); // deep copy
+			Type newType = typesTable.get(ctx.cast().ID().getText());
+
+			boolean wasConverted = opRes.convertTypeTo(newType);
+			//Types are not compatible
+			if (!wasConverted) {
+				if (castName.equals("number")){
+					opRes = new Variable(newType, opRes.getValue());
+				}
+				else {
+					ErrorHandling.printError(ctx,"cast and expression Types are not compatible");
+					return false;
+				}	
+			}
+
+			mapCtxObj.put(ctx, opRes);
 			return true;
 		}
-	
 		return false;
 	}
 	
@@ -1059,48 +526,48 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
-		Object obj0 = mapCtxObj.get(ctx.expression(0));
-		Object obj1 = mapCtxObj.get(ctx.expression(1));
-
-		if (obj0 instanceof String || obj1 instanceof String) {
-			ErrorHandling.printError(ctx, "Type string is not compatible with power expression");
+		
+		Object base = mapCtxObj.get(ctx.expression(0));
+		Object pow = mapCtxObj.get(ctx.expression(1));
+		
+		// pow has to have type number
+		if (pow instanceof String || pow instanceof Boolean) {
+			ErrorHandling.printError(ctx, "exponent has invalid Type for power operation");
 			return false;
 		}
-
-		if (obj0 instanceof Boolean || obj1 instanceof Boolean) {
-			ErrorHandling.printError(ctx, "Type boolean is not compatible with power expression");
+		if (pow instanceof Variable) {
+			Variable var = (Variable) pow;
+			if (!var.getType().equals(typesTable.get("number"))) {
+				
+			}
+		}
+		
+		if (base instanceof Boolean) {
+			ErrorHandling.printError(ctx, "boolean Type cannot be powered");
 			return false;
 		}
-
-		Variable aux = (Variable) obj1;
-		Variable pow = new Variable(aux);
-
-		if (!pow.getType().getTypeName().equals("number")) {
-			ErrorHandling.printError(ctx, "power expression requires type number in exponent");
-			return false;
+		if (base instanceof String) { 
+			mapCtxObj.put(ctx, "str"); // strings can be powered, "str"^3 == "strstrstr"
+			return true;
+		}
+		if (base instanceof Variable) {
+			Variable aux = (Variable) pow;
+			Variable powVar = new Variable(aux);
+			aux = (Variable) base;
+			Variable baseVar = new Variable(aux);
+			
+			Variable res = Variable.power(baseVar, powVar);
+			mapCtxObj.put(ctx, res);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "[OP_POWER] Visited Expression Power");
+				ErrorHandling.printInfo(ctx, "--- Powering Variable " + base + "with power " + pow + "and result is " + res);
+			}
+			return true;
 		}
 
-		aux = (Variable) obj0;
-		Variable base = new Variable(aux);
-
-		Variable res = Variable.power(base, pow);
-		Code resCode = res.getType().getCode(); 
-		Collection<Type> types = typesTable.values(); 
-		for (Type t : types) { 
-			if (t.getCode() == resCode) {
-				res = new Variable(typesTable.get(t.getTypeName()), res.getValue());
-				break; 
-			} 
-
-		} 
-		mapCtxObj.put(ctx, res);
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_POWER] Visited Expression Power");
-			ErrorHandling.printInfo(ctx, "--- Powering Variable " + base + "with power " + pow + "and result is " + res);
-		}
-
-		return true;
+		
+		return false;
 	}
 	
 	@Override 
@@ -1108,85 +575,88 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
-
-		if(mapCtxObj.get(ctx.expression(0)) instanceof Boolean || mapCtxObj.get(ctx.expression(0)) instanceof String) {
-			ErrorHandling.printError(ctx, "Incompatible types in expression");
-			return false;
-		}
-
-		if(mapCtxObj.get(ctx.expression(1)) instanceof Boolean || mapCtxObj.get(ctx.expression(1)) instanceof String) {
-			ErrorHandling.printError(ctx, "Incompatible types in expression");
-			return false;
-		}
-
-		Variable aux = (Variable) mapCtxObj.get(ctx.expression(0));
-		Variable a = new Variable(aux); // deep copy
-		
-		aux = (Variable) mapCtxObj.get(ctx.expression(1));
-		Variable b = new Variable(aux); // deep copy
 		
 		String op = ctx.op.getText();
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		
+		if(obj0 instanceof Boolean || obj1 instanceof Boolean) {
+			ErrorHandling.printError(ctx, "bad operand Types for operator '" + op + "'");
+			return false;
+		}
 
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] Visiting Expression Mult_Div_Mod");
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op0: " + ctx.expression(0).getText());
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op1: " + ctx.expression(1).getText());
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable a " + a);
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable b " + b);
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op		 " + op + "\n");
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] temp: " + aux);
+		if(obj0 instanceof String || obj1 instanceof String) {
+			ErrorHandling.printError(ctx, "bad operand Types for operator '" + op + "'");
+			return false;
 		}
 		
-		// TODO update to using Variable.mod();
-		// Modulus expression
-		if (op.equals("%")) {
-			try {
-				Variable res = Variable.mod(a, b);
-				mapCtxObj.put(ctx, res);
+		// string multiplication (expanded concatenation)
+		if(obj0 instanceof String && obj1 instanceof Variable) {
+			Variable var = (Variable) obj1;
+			if (var.getType().equals(typesTable.get("number")) && op.equals("*")) {
+				mapCtxObj.put(ctx, "str");
 				return true;
 			}
-			catch (IllegalArgumentException e) {
-				ErrorHandling.printError(ctx, "Right side of mod expression has to be of Type Number!");
-				return false;
+		}
+		if(obj0 instanceof Variable && obj1 instanceof String) {
+			Variable var = (Variable) obj0;
+			if (var.getType().equals(typesTable.get("number")) && op.equals("*")) {
+				mapCtxObj.put(ctx, "str");
+				return true;
 			}
 		}
-
-		// Multiplication expression
-		// TODO melhorar o acesso a typesTable e a codigos. Talvez devesse haver uma classe apenas para resolver cenas com a tabela.
-		if (op.equals("*")) {
-			Variable res = Variable.multiply(a, b); 
-			Code resCode = res.getType().getCode(); 
-			Collection<Type> types = typesTable.values(); 
-			for (Type t : types) { 
-				if (t.getCode().equals(resCode)) {
-					res = new Variable(typesTable.get(t.getTypeName()), res.getValue());
-					break; 
-				} 
-
-			} 
-			if (debug) { ErrorHandling.printInfo(ctx, "result of multiplication is Variable " + res);}
-			mapCtxObj.put(ctx, res); 
-		}
 		
-		// Division expression
-		if (op.equals("/")) {
+		if (obj0 instanceof Variable && obj1 instanceof Variable) {
+			Variable aux = (Variable) obj0;
+			Variable a = new Variable(aux); // deep copy
+			aux = (Variable) obj1;
+			Variable b = new Variable(aux); // deep copy
 			
-			if (b.getValue() == 0) {ErrorHandling.printError(ctx, "Can't divide by zero!");}
+			// Modulus
+			if (op.equals("%")) {
+				try {
+					Variable res = Variable.mod(a, b);
+					mapCtxObj.put(ctx, res);
+					return true;
+				}
+				catch (IllegalArgumentException e) {
+					ErrorHandling.printError(ctx, "Right side of mod expression has to be of Type Number!");
+					return false;
+				}
+			}
 			
-			Variable res = Variable.divide(a, b); 
-			Code resCode = res.getType().getCode(); 
-			Collection<Type> types = typesTable.values(); 
-			for (Type t : types) { 
-				if (t.getCode() == resCode) { 
-					res = new Variable(typesTable.get(t.getTypeName()), res.getValue());
-					break; 
-				} 
-
-			} 
-			if (debug) { ErrorHandling.printInfo(ctx, "result of division is Variable " + res);}
-			mapCtxObj.put(ctx, res);
-		}	
-		return true;
+			// Multiplication
+			if (op.equals("*")) {
+				Variable res = Variable.multiply(a, b); 
+				mapCtxObj.put(ctx, res); 
+				if (debug) { ErrorHandling.printInfo(ctx, "result of multiplication is Variable " + res);}
+				return true;
+			}
+			
+			// Division expression
+			if (op.equals("/")) {
+				try {
+					Variable res = Variable.divide(a, b); 
+					mapCtxObj.put(ctx, res);
+					if (debug) { ErrorHandling.printInfo(ctx, "result of division is Variable " + res);}
+					return true;
+				}
+				catch (ArithmeticException e) {
+					ErrorHandling.printError(ctx, "Cannot divide by zero");
+				}
+			}
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] Visiting Expression Mult_Div_Mod");
+				ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op0: " + ctx.expression(0).getText());
+				ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op1: " + ctx.expression(1).getText());
+				ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable a " + a);
+				ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable b " + b);
+				ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op		 " + op + "\n");
+				ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] temp: " + aux);
+			}
+		}
+		return false;
 	}
 	
 	@Override 
@@ -1201,64 +671,41 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// one of the elements in expression is boolean
 		if(obj0 instanceof Boolean || obj1 instanceof Boolean) {
-			ErrorHandling.printError(ctx, "Incompatible types in expression");
+			ErrorHandling.printError(ctx, "bad operand Types for operator '" + op + "'");
 			return false;
 		}
 		
-		// both elemts are string and expression is + (concatenation)
+		// both elements are string (concatenation or removeAll)
 		if(obj0 instanceof String && obj1 instanceof String) {
-			if (op.equals("+")) {
-				String str0 = (String) obj0;
-				String str1 = (String) obj1;
-				mapCtxObj.put(ctx, str0 + str1);
-				return true;
-			}
-			ErrorHandling.printError(ctx, "Incompatible types in expression");
-			return false;
+			mapCtxObj.put(ctx, "str");
+			return true;
 		}
 		
-		// only one element is string other is Variable - incompatible
+		// only one element is string (not possible)
 		if (obj0 instanceof String || obj1 instanceof String) {
-			ErrorHandling.printError(ctx, "Incompatible types in expression");
+			ErrorHandling.printError(ctx, "bad operand Types for operator '" + op + "'");
 			return false;
 		}
 		
 		// both elements are Variables
-		Variable aux = (Variable) obj0;
-		Variable a = new Variable(aux); // deep copy
-		
-		aux = (Variable) obj1;
-		Variable b = new Variable(aux); // deep copy
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] Visiting Expression Add_Sub");
-			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable a " + a);
-			ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable b " + b + "\n");
-		}
-
-		// Addition expression
-		// TODO mudar o grafo talvez. Tenho de verificar se tipos sao iguais, deveria bastar tentar converter
-		// para tal é necessário que se introduza aresta do tipo para ele proprio. Verificar se isso nao tras outros problemas.
-		if (ctx.op.getText().equals("+")) {
+		if (obj0 instanceof Variable && obj1 instanceof Variable) {
+			Variable aux = (Variable) obj0;
+			Variable a = new Variable(aux); // deep copy
+			aux = (Variable) obj1;
+			Variable b = new Variable(aux); // deep copy
+	
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "[OP_ADDSUB] Visiting Expression Add_Sub");
+				ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable a " + a);
+				ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable b " + b + "\n");
+			}
+	
+			// Addition or Subtraction (if one is compatible the other is also compatible
 			try {
 				Variable res = Variable.add(a, b);
 				if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable " + res);}
 				mapCtxObj.put(ctx, res);
-			}
-			catch (IllegalArgumentException e) {
-				ErrorHandling.printError(ctx, "Incompatible types in expression");
-				return false;
-			}
-			
-			
-		}
-		
-		// Subtraction expression
-		if (ctx.op.getText().equals("-")) {
-			try {
-				Variable res = Variable.subtract(a, b);
-				if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable " + res);}
-				mapCtxObj.put(ctx, res);
+				return true;
 			}
 			catch (IllegalArgumentException e) {
 				ErrorHandling.printError(ctx, "Incompatible types in expression");
@@ -1266,20 +713,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 		}
 		
-		return true;
+		return false;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	@Override
 	public Boolean visitExpression_RelationalQuantityOperators(Expression_RelationalQuantityOperatorsContext ctx) {
@@ -1292,110 +727,130 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		Object obj0 = mapCtxObj.get(ctx.expression(0));
-		Object obj1 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		String op = ctx.op.getText();
 		
-		
-		if(obj0 instanceof Boolean || obj1 instanceof Boolean || obj0 instanceof String || obj1 instanceof String) {
-			ErrorHandling.printError(ctx, "bad operand types for binary operator '<'");
-			return false;
-		}
-
-		Variable a = (Variable) obj0;
-		Variable b = (Variable) obj1;
-		
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "THIS IS A : " + a);
-			ErrorHandling.printInfo(ctx, "THIS IS B : " + b);
-		}
-		
-		boolean comparisonIsPossible = a.typeIsCompatible(b.getType());
-		
-		if(!comparisonIsPossible) {
-			ErrorHandling.printError(ctx, "Types to be compared are not compatible");
+		if(obj0 instanceof Boolean || obj1 instanceof Boolean) {
+			ErrorHandling.printError(ctx, "bad operand types for relational operator '" + op + "'");
 			return false;
 		}
 		
-		mapCtxObj.put(ctx, comparisonIsPossible);
-		return true;
+		if(obj0 instanceof String && obj1 instanceof String) {
+			mapCtxObj.put(ctx, true);
+			return true;
+		}
+		
+		if(obj0 instanceof String || obj1 instanceof String) {
+			ErrorHandling.printError(ctx, "bad operand types for relational operator '" + op + "'");
+			return false;
+		}
+		
+		if(obj0 instanceof Variable && obj1 instanceof Variable) {
+			Variable a = (Variable) obj0;
+			Variable b = (Variable) obj1;
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "THIS IS A : " + a);
+				ErrorHandling.printInfo(ctx, "THIS IS B : " + b);
+			}
+			
+			boolean comparisonIsPossible = a.typeIsCompatible(b);
+			
+			if(!comparisonIsPossible) {
+				ErrorHandling.printError(ctx, "Types are not compatible");
+				return false;
+			}
+			
+			mapCtxObj.put(ctx, comparisonIsPossible);
+			return true;
+		}
+		return false;
 	}
 
-	
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.grammar.PotatoesBaseVisitor#visitExpression_Value(potatoesGrammar.grammar.PotatoesParser.Expression_ValueContext)
-	 */
-	@Override
-	public Boolean visitExpression_Value(Expression_ValueContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_Value(ctx);
-	}
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.grammar.PotatoesBaseVisitor#visitExpression_UnaryOperators(potatoesGrammar.grammar.PotatoesParser.Expression_UnaryOperatorsContext)
-	 */
-	
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.grammar.PotatoesBaseVisitor#visitExpression_RelationalQuantityOperators(potatoesGrammar.grammar.PotatoesParser.Expression_RelationalQuantityOperatorsContext)
-	 */
-	
-
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.grammar.PotatoesBaseVisitor#visitExpression_RelationalEquality(potatoesGrammar.grammar.PotatoesParser.Expression_RelationalEqualityContext)
-	 */
 	@Override
 	public Boolean visitExpression_RelationalEquality(Expression_RelationalEqualityContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_RelationalEquality(ctx);
-	}
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
 
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.grammar.PotatoesBaseVisitor#visitExpression_logicalOperation(potatoesGrammar.grammar.PotatoesParser.Expression_logicalOperationContext)
-	 */
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_COMPARISON]");
+		}
+		
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		
+		if (obj0 instanceof Boolean && obj1 instanceof Boolean) {
+			mapCtxObj.put(ctx, true);
+			return true;
+		}
+		
+		if (obj0 instanceof String && obj1 instanceof String) {
+			mapCtxObj.put(ctx, "str");
+			return true;
+		}
+		
+		if (obj0 instanceof Variable && obj1 instanceof Variable) {
+			Variable a = (Variable) obj0;
+			Variable b = (Variable) obj1;
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, "THIS IS A : " + a);
+				ErrorHandling.printInfo(ctx, "THIS IS B : " + b);
+			}
+			
+			boolean comparisonIsPossible = a.typeIsCompatible(b);
+			
+			if(!comparisonIsPossible) {
+				ErrorHandling.printError(ctx, "Types to be compared are not compatible");
+				return false;
+			}
+			
+			mapCtxObj.put(ctx, comparisonIsPossible);
+			return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public Boolean visitExpression_logicalOperation(Expression_logicalOperationContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_logicalOperation(ctx);
-	}
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
 
-	
-
-	@Override 
-	public Boolean visitExpression_Simetric(Expression_SimetricContext ctx) {
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "[OP_COMPARISON]");
+		}
 		
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		String op = ctx.op.getText();
+		
+		if(obj0 instanceof Variable || obj1 instanceof Variable || obj0 instanceof String || obj1 instanceof String) {
+			ErrorHandling.printError(ctx, "bad operand types for logical operator '" + op + "'");
+			return false;
+		}
+		
+		// both obj have Type boolean
+		mapCtxObj.put(ctx, true);
+		return true;
 	}
-
 	
-
-
-
 	@Override 
 	public Boolean visitExpression_Var(Expression_VarContext ctx) {
 		if(!visit(ctx.var())) {
 			return false;
 		}
-		
-		// TODO na realidade acho que, uma vez que esta funcao nao deixa passar booleans, nao preciso verificar tudo em cima
-		Object obj = symbolTable.get(ctx.var().ID().getText());
-		if (obj instanceof Boolean) {
-			ErrorHandling.printError(ctx, "Cannot operate with boolean!");
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_VAR] Visited Expression Variable");
-			ErrorHandling.printInfo(ctx, "[OP_VAR] varName is " + ctx.var().ID().getText());
-			ErrorHandling.printInfo(ctx, "[OP_VAR] obj " + obj);
-		}
-
-		// verify that var is not of type string
-		// TODO na reliade esta funcao impede que String suba nas opercoes, como tal, nao 'e possivel concatenar strings.
-		if (obj instanceof String) {
-			ErrorHandling.printError(ctx, "Cannot operate with string!");
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.var()));
+		return true;
+	}
+	
+	@Override
+	public Boolean visitExpression_Value(Expression_ValueContext ctx) {
+		if(!visit(ctx.value())) {
 			return false;
 		}
-
-		// var is of type Variable
-		mapCtxObj.put(ctx, mapCtxObj.get(ctx.var()));
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.value()));
 		return true;
 	}
 
@@ -1404,63 +859,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 
-	@Override 
-	public Boolean visitExpression_NUMBER(Expression_NUMBERContext ctx) {
-		try {
-			Double value = Double.parseDouble(ctx.NUMBER().getText());
-			Variable a = new Variable(typesTable.get("number"), value);
-			mapCtxObj.put(ctx, a);
-		}
-		catch (NumberFormatException e) {
-			ErrorHandling.printError(ctx, "Not a valid value");
-			return false;
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_NUMBER] Visited Expression Number");
-			ErrorHandling.printInfo(ctx, "--- Value is " + Double.parseDouble(ctx.NUMBER().getText()));
-		}
-
-		return true;
-	}
-
 	// --------------------------------------------------------------------------
 	// Prints
-
+	
 	@Override
-	public Boolean visitPrint_Print(Print_PrintContext ctx) {
-		boolean valid = true;
-		boolean res = true;
-
-		// visit all PrintVars
-		for (PrintVarContext pvc : ctx.printVar()) {
-			res = visit(pvc);
-			valid = valid && res;
+	public Boolean visitPrint(PrintContext ctx) {
+		if(!visit(ctx.expression())) {
+			return false;
 		}
-		return valid;
-	}
-
-	@Override
-	public Boolean visitPrint_Println(Print_PrintlnContext ctx) {
-		boolean valid = true;
-		boolean res = true;
-
-		// visit all PrintVars
-		for (PrintVarContext pvc : ctx.printVar()) {
-			res = visit(pvc);
-			valid = valid && res;
-		}
-		return valid;
-	}
-
-	@Override
-	public Boolean visitPrintVar_Value(PrintVar_ValueContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	@Override
-	public Boolean visitPrintVar_Var(PrintVar_VarContext ctx) {
-		return visitChildren(ctx);
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.expression()));
+		return true;
 	}
 
 	// --------------------------------------------------------------------------
@@ -1519,50 +927,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// Values
 
 	@Override 
-	public Boolean visitValue_Cast_Number(Value_Cast_NumberContext ctx) {
-		if (!visit(ctx.cast())) {
-			return false;
-		};
-		String castType = ctx.cast().ID().getText();
-
-		// verify that cast type exists
-		if (!typesTable.containsKey(castType)) {
-			ErrorHandling.printError(ctx, "Cast Type \"" + castType + "\" + is not defined!");
-			return false;
-		}
-
-		// create new Variable and store it in mapCtxObj
-		Type type = typesTable.get(castType);
-		Double value = Double.parseDouble(ctx.NUMBER().getText());
-		Variable a = new Variable(new Type(typesTable.get(type.getTypeName())), value);
-		mapCtxObj.put(ctx, a);
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[CAST] Visited Cast");
-			ErrorHandling.printInfo(ctx, "[CAST] Casting the value " + value + " to " + type.getTypeName());
-		}
-		return true;
-	}
-
-	@Override 
 	public Boolean visitValue_Number(Value_NumberContext ctx) {
-		Double number = Double.parseDouble(ctx.NUMBER().getText());
-		Variable a = new Variable(typesTable.get("number"), number);
+		Variable a = new Variable(typesTable.get("number"), 1.0);
 		mapCtxObj.put(ctx, a);
 		return true;
 	}
 
 	@Override 
 	public Boolean visitValue_Boolean(Value_BooleanContext ctx) {
-		Boolean b = Boolean.parseBoolean(ctx.BOOLEAN().getText());
-		mapCtxObj.put(ctx, b);
+		mapCtxObj.put(ctx, true);
 		return true;
 	}
 
 	@Override 
 	public Boolean visitValue_String(Value_StringContext ctx) {
-		String str = getStringText(ctx.STRING().getText());
-		mapCtxObj.put(ctx, str);
+		mapCtxObj.put(ctx, "str");
 		return true;
 	}
 

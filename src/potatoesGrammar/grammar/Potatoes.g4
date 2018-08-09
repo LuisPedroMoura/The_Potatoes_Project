@@ -106,10 +106,6 @@ expression			: '(' expression ')' 							#expression_Parenthesis
 print				: printType=(PRINT | PRINTLN)  '(' expression ')'
 					;
 
-printVar			: value	#printVar_Value
-					| var	#printVar_Var
-					;
-
 // ----------------------------------------------
 // Variables
 

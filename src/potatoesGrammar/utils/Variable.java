@@ -101,6 +101,9 @@ public class Variable {
 	 * @return new Variable with new code and value
 	 */
 	public static Variable divide(Variable a, Variable b) {
+		if (b.getValue() == 0.0) {
+			throw new ArithmeticException();
+		}
 		Type newType = Type.divide(a.getType(), b.getType());
 		double codeSimplificationFactor = newType.adjustTypeOperationResultToKnowType(typesGraph);
 		double newValue = a.getValue() / b.getValue() * codeSimplificationFactor;
@@ -171,8 +174,8 @@ public class Variable {
 	/**
 	 * @return true if type is compatible with this.type
 	 */
-	public boolean typeIsCompatible(Type type){
-		if(this.getType().getCode() == type.getCode()) {
+	public boolean typeIsCompatible(Variable a){
+		if(this.getType().getCode() == a.getType().getCode()) {
 			return true;
 		}
 
@@ -206,7 +209,7 @@ public class Variable {
 		// verify that this and newType exist in the typesGraph
 		if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.type)) {
 			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");}			
-			return false;
+			throw new NullPointerException();
 		}
 
 		if (debug) {
@@ -218,7 +221,7 @@ public class Variable {
 		
 		// if there is no path between the types. It means the conversion is not possible
 		if (conversionFactor == Double.POSITIVE_INFINITY) {
-			throw new NullPointerException();
+			return false;
 		}
 
 		if (debug) {
