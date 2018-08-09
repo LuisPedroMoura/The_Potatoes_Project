@@ -346,12 +346,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	@Override
-	public Boolean visitCondition_withoutElse(Condition_withoutElseContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	@Override
-	public Boolean visitCondition_withElse(Condition_withElseContext ctx) {
+	public Boolean visitCondition(ConditionContext ctx) {
 		return visitChildren(ctx);
 	}
 	
@@ -954,7 +949,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Auxiliar Functions
 	
-	private boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
+	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
 		if (symbolTable.containsKey(varName)) {
 			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" already declared");

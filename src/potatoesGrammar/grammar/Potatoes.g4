@@ -14,15 +14,15 @@ grammar Potatoes;
 
 // ----------------------------------------------
 // Main Rules
-program				: using code+ EOF	
+program				: using globalStatement* EOF	
 					;
 	
 using				: USING STRING EOL
 					;	
 					
-code				: varDeclaration EOL							#code_Declaration 
-					| assignment EOL								#code_Assignment
-					| function										#code_Function
+globalStatement		: varDeclaration EOL							#globalStatement_Declaration 
+					| assignment EOL								#globalStatement_Assignment
+					| function										#globalStatement_Function
 					;
 					
 // ----------------------------------------------
@@ -32,7 +32,7 @@ statement			: varDeclaration EOL							#statement_Declaration
 					| assignment EOL								#statement_Assignment
 					| controlFlowStatement							#statement_Control_Flow_Statement
 					| functionCall EOL								#statement_FunctionCall
-					| functionReturn EOL								#statement_Function_Return
+					| functionReturn EOL							#statement_Function_Return
 					| print	EOL										#statement_Print
 					;
 
@@ -44,13 +44,13 @@ assignment			: varDeclaration '=' expression					#assignment_Var_Declaration_Exp
 // Functions
 
 function			: FUN MAIN scope										#function_Main
-					| FUN ID '(' (type var (',' type var)* )* ')' scope		#function_ID
+					| FUN ID '(' type var (',' type var)* ')' scope		#function_ID
 					;
 
-functionReturn		: RETURN (var|value|expression)
+functionReturn		: RETURN expression
 					;
 					
-functionCall		: ID '(' ((var|value|expression) (',' (var|value|expression))* )* ')'
+functionCall		: ID '(' expression (',' (expression))* ')'
 					;
 
 // ----------------------------------------------
@@ -67,8 +67,7 @@ forLoop				: FOR '(' assignment? EOL expression EOL assignment ')' scope
 whileLoop			: WHILE '(' expression ')' scope
 					;
  			
-condition			: ifCondition elseIfCondition*					#condition_withoutElse
-					| ifCondition elseIfCondition* elseCondition	#condition_withElse
+condition			: ifCondition elseIfCondition* elseCondition?
 					;
 
 ifCondition			: IF '(' expression ')' scope
@@ -105,7 +104,12 @@ expression			: '(' expression ')' 							#expression_Parenthesis
 
 print				: printType=(PRINT | PRINTLN)  '(' expression ')'
 					;
-
+					
+save				: SAVE '(' expression (',' APPEND)? ')'
+					;
+					
+input				: INPUT '(' ')' 
+					;
 // ----------------------------------------------
 // Variables
 
@@ -136,51 +140,54 @@ cast				: '(' ID ')'
 // -----------------------------------------------------------------------------
 // Lexer
 
-USING			  : 'using';
+USING				: 'using';
 
 // Separator between instructions
-EOL               : ';';
+EOL					: ';';
 
 // Functions
-MAIN			  : 'main' ;
-FUN 			  : 'fun';
-RETURN            : 'return';
+MAIN				: 'main' ;
+FUN					: 'fun';
+RETURN				: 'return';
 
 // Control Flow
-IF                : 'if';
-ELSE			  : 'else';
-FOR               : 'for';
-WHILE             : 'while';
+IF					: 'if';
+ELSE				: 'else';
+FOR					: 'for';
+WHILE				: 'while';
 
 // Reserved Types
-NUMBER_TYPE       : 'number';
-BOOLEAN_TYPE      : 'boolean';
-STRING_TYPE       : 'string';
-VOID_TYPE         : 'void';
+NUMBER_TYPE			: 'number';
+BOOLEAN_TYPE		: 'boolean';
+STRING_TYPE			: 'string';
+VOID_TYPE			: 'void';
 
 // Boolean Values
-BOOLEAN           : 'false' | 'true';
+BOOLEAN				: 'false' | 'true';
 
 // Prints
-PRINT			  : 'print';
-PRINTLN			  : 'println';
+PRINT				: 'print';
+PRINTLN				: 'println';
+INPUT				: 'input';
+SAVE				: 'save';
+APPEND				: 'append';
 
 // Variables 
-ID                : [a-z] [a-zA-Z0-9_]*;
+ID					: [a-z] [a-zA-Z0-9_]*;
 
 // Type Agroupment
-NUMBER            : '0'
-				  | [0-9] ('.'[0-9]+)?
-				  | [1-9][0-9]* ('.'[0-9]+)?
-				  ;
+NUMBER				: '0'
+					| [0-9] ('.'[0-9]+)?
+					| [1-9][0-9]* ('.'[0-9]+)?
+					;
 
-STRING            : '"' (ESC | . )*? '"';
-fragment ESC      : '//"' | '\\\\';
+STRING				: '"' (ESC | . )*? '"';
+fragment ESC		: '//"' | '\\\\';
 
 // Comments & White Space
-LINE_COMMENT      : '//' .*? '\n' -> skip;
-COMMENT           : '/*' .*? '*/' -> skip;
-WS                : [ \t\n\r]+ -> skip;
+LINE_COMMENT		: '//' .*? '\n' -> skip;
+COMMENT				: '/*' .*? '*/' -> skip;
+WS					: [ \t\n\r]+ -> skip;
 		
 		
 		
