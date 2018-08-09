@@ -1,6 +1,6 @@
 /***************************************************************************************
-*	Title: PotatoesProject - PotatoesSemanticCheck Class Source Code
-*	Code version: 2.0
+*	Title: PotatoesProject - PotatoesSemanticCheck Class Source GlobalStatement
+*	GlobalStatement version: 2.0
 *	Author: Luis Moura (https://github.com/LuisPedroMoura)
 *	Acknowledgments for version 1.0: Maria Joao Lavoura
 *	(https://github.com/mariajoaolavoura), for the help in brainstorming the concepts
@@ -12,6 +12,7 @@
 
 package compiler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,19 +45,22 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// Static Fields
 	private static String TypesFilePath;
 	
-	private	static TypesFileInfo					typesFileInfo; // initialized in visitUsing();
-	private	static List<String>						reservedWords;
-	private static Map<String, Type> 				typesTable;
-	private static PotatoesFunctionNames			functions;
-	private static Map<String, ParserRuleContext>	functionNames;
+	private	static TypesFileInfo					typesFileInfo;	// initialized in visitUsing();
+	private	static List<String>						reservedWords;	// initialized in visitUsing();
+	private static Map<String, Type> 				typesTable;		// initialized in visitUsing();
+	private static PotatoesFunctionNames			functions;		// initialized in CTOR;
+	private static Map<String, ParserRuleContext>	functionNames;	// initialized in CTOR;
 
-	protected static ParseTreeProperty<Object> 		mapCtxObj	= new ParseTreeProperty<>();
-	protected static Map<String, Object>			symbolTable = new HashMap<>();
+	protected static ParseTreeProperty<Object> 		mapCtxObj		= new ParseTreeProperty<>();
+	protected static List<HashMap<String, Object>>	symbolTable 	= new ArrayList<>();
 	
+	protected static boolean visitedMain = false;
+	protected static Object currentReturn = null;
 	
-	public PotatoesSemanticCheck(String PotatoesFilePath){
+ 	public PotatoesSemanticCheck(String PotatoesFilePath){
 		functions = new PotatoesFunctionNames(PotatoesFilePath);
 		functionNames = functions.getFunctions();
+		symbolTable.add(new HashMap<String, Object>());
 		if (debug) ErrorHandling.printInfo("The PotatoesFilePath is: " + PotatoesFilePath);
 	}
 	
@@ -75,10 +79,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override 
 	public Boolean visitProgram(ProgramContext ctx) {
 		Boolean valid = visit(ctx.using());
-		List<CodeContext> codesInstructions = ctx.code();
+		List<GlobalStatementContext> globalStatementsInstructions = ctx.globalStatement();
 
-		// Visit all code rules
-		for (CodeContext c : codesInstructions) {
+		// Visit all globalStatement rules
+		for (GlobalStatementContext c : globalStatementsInstructions) {
 			Boolean res = visit(c);
 			valid = valid && res;
 		}
@@ -104,19 +108,19 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	@Override
-	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
+	public Boolean visitGlobalStatement_Declaration(GlobalStatement_DeclarationContext ctx) {
 		return visit(ctx.varDeclaration());
 	}
 
 	@Override 
-	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
+	public Boolean visitGlobalStatement_Assignment(GlobalStatement_AssignmentContext ctx) {
 		Boolean result =  visit(ctx.assignment());
 		if(debug) {ErrorHandling.printInfo("Visited " + ctx.assignment().getText() + " : " + result);}
 		return result;
 	}
 
 	@Override
-	public Boolean visitCode_Function(Code_FunctionContext ctx) {
+	public Boolean visitGlobalStatement_Function(GlobalStatement_FunctionContext ctx) {
 		return visitChildren(ctx);
 	}
 
@@ -179,7 +183,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// assign Variable to string is not possible
 		if(typeName.equals("string")) {
 			if (obj instanceof String) {
-				symbolTable.put(ctx.varDeclaration().ID().getText(), "str");
+				updateSymbolTable(ctx.varDeclaration().ID().getText(), "str");
 				mapCtxObj.put(ctx, "str");
 				return true;
 			}
@@ -190,7 +194,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// assign Variable to boolean is not possible
 		if (typeName.equals("boolean")) {
 			if (obj instanceof Boolean) {
-				symbolTable.put(ctx.varDeclaration().ID().getText(), true);
+				updateSymbolTable(ctx.varDeclaration().ID().getText(), true);
 				mapCtxObj.put(ctx, true);
 				return true;
 			}
@@ -208,7 +212,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 
 		if (a.convertTypeTo(typesTable.get(typeName))) {
-			symbolTable.put(ctx.varDeclaration().ID().getText(), a);
+			updateSymbolTable(ctx.varDeclaration().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
 					"val=" + a.getValue() + " to " + ctx.varDeclaration().ID().getText());}
@@ -231,12 +235,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + symbolTable.get(ctx.var().ID().getText()));
+			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + checkSymbolTable().get(ctx.var().ID().getText()));
 		}
 
 		if(varObj instanceof String) {
 			if (exprResObj instanceof String) {
-				symbolTable.put(ctx.var().ID().getText(), "str");
+				updateSymbolTable(ctx.var().ID().getText(), "str");
 				mapCtxObj.put(ctx, "str");
 				return true;
 			}
@@ -246,7 +250,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		if(varObj instanceof Boolean) {
 			if (exprResObj instanceof Boolean) {
-				symbolTable.put(ctx.var().ID().getText(), true);
+				updateSymbolTable(ctx.var().ID().getText(), true);
 				mapCtxObj.put(ctx, true);
 				return true;
 			}
@@ -265,7 +269,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// If type of variable a can be converted to the destination type (ie are compatible)
 		if (a.convertTypeTo(typesTable.get(typeName))) {
-			symbolTable.put(ctx.var().ID().getText(), a);
+			updateSymbolTable(ctx.var().ID().getText(), a);
 			mapCtxObj.put(ctx, a);
 			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
 					"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
@@ -279,26 +283,75 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	// --------------------------------------------------------------------------
 	// Functions
-
+	
 	@Override
 	public Boolean visitFunction_Main(Function_MainContext ctx) {
-		return visit(ctx.scope());
+		if (visitedMain == true) {
+			ErrorHandling.printError(ctx, "Only one main function is allowed");
+			return false;
+		}
+		
+		visitedMain = true;
+		
+		openFunctionScope();
+		visit(ctx.scope());
+		
+		return true;
 	}
 
 	@Override
 	public Boolean visitFunction_ID(Function_IDContext ctx) {
-		return super.visitFunction_ID(ctx);
+		boolean valid = false;
+		
+		for (TypeContext type : ctx.type()) {
+			visit(type);
+			String typeName = (String) mapCtxObj.get(type);
+			if (typeName.equals("string") || typeName.equals("boolean") || typesTable.keySet().contains(typeName)) {
+				valid = true;
+			}
+		}
+		openFunctionScope();
+		return valid && visit(ctx.scope());
 	}
 
 	@Override
 	public Boolean visitFunctionReturn(FunctionReturnContext ctx) {
-		return super.visitFunctionReturn(ctx);
+		if(!visit(ctx.expression())) {
+			return false;
+		}
+		
+		Object obj = mapCtxObj.get(ctx.expression());
+		
+		if ((currentReturn instanceof String && obj instanceof String) || (currentReturn instanceof Boolean && obj instanceof Boolean)) {
+			mapCtxObj.put(ctx, mapCtxObj.get(ctx.expression()));
+			return true;
+		}
+		
+		if (currentReturn instanceof Variable && obj instanceof Variable) {
+			Variable a = (Variable) obj;
+			Variable b = (Variable) currentReturn;
+			if(a.typeIsCompatible(b)) {
+				mapCtxObj.put(ctx, mapCtxObj.get(ctx.expression()));
+				return true;
+			}
+		}
+		
+		ErrorHandling.printError(ctx, "return is not compatible with function signature");
+		return false;
 	}
 	
-	// FIXME must be greatly improved... this is only the idea to get the function. still needs to run it and get return value
+	//FIXME complete! Falta verificar qual 'e realmente o contexto function, para poder adicionar aoscope as variaveis.
 	@Override
 	public Boolean visitFunctionCall(FunctionCallContext ctx) {
 		ParserRuleContext function = functionNames.get(ctx.ID().getText());
+		
+		List<Object> list = new ArrayList<>();
+		for (ExpressionContext expr : ctx.expression()) {
+			visit(expr);
+			list.add(mapCtxObj.get(expr));
+		}
+		
+		mapCtxObj.put(ctx, list);
 		visit(function);
 		
 		return super.visitFunctionCall(ctx);
@@ -310,6 +363,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override 
 	public Boolean visitControlFlowStatement(ControlFlowStatementContext ctx) {
+		extendScope();
 		return visitChildren(ctx);
 	}
 
@@ -384,17 +438,19 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return valid;
 	}
 
-	// FIXME still need to create function that saves scope and then restores it (first check IF case)
 	@Override
 	public Boolean visitScope(ScopeContext ctx) {
 		Boolean valid = true;
 		List<StatementContext> statements = ctx.statement();
 
-		// Visit all code rules
+		// Visit all statement rules
 		for (StatementContext stat : statements) {
 			Boolean res = visit(stat);
 			valid = valid && res;
 		}
+		
+		closeScope();
+		
 		return valid;
 	}
 
@@ -851,6 +907,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitExpression_FunctionCall(Expression_FunctionCallContext ctx) {
+		if(!visit(ctx.functionCall())) {
+			return false;
+		}
+		mapCtxObj.put(ctx, mapCtxObj.get(ctx.functionCall()));
 		return true;
 	}
 
@@ -865,18 +925,29 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		mapCtxObj.put(ctx, mapCtxObj.get(ctx.expression()));
 		return true;
 	}
+	
+	@Override
+	public Boolean visitSave(SaveContext ctx) {
+		return visit(ctx.expression());
+	}
+	
+	@Override
+	public Boolean visitInput(InputContext ctx) {
+		return true;
+	}
 
 	// --------------------------------------------------------------------------
 	// Variables
+	
 
 	@Override 
 	public Boolean visitVar(VarContext ctx) {
 		String key = ctx.ID().getText();
-		if (!symbolTable.containsKey(key)) {
+		if (!checkSymbolTable().containsKey(key)) {
 			ErrorHandling.printError(ctx, "Variable \"" + key + "\" is not declared!");
 			return false;
 		};
-		mapCtxObj.put(ctx, symbolTable.get(key));
+		mapCtxObj.put(ctx, checkSymbolTable().get(key));
 		return true;
 	}
 
@@ -949,9 +1020,51 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Auxiliar Functions
 	
+	/**
+	 * Extends the previous scope into a new scope for use inside control flow statements
+	 */
+	private static void extendScope() {
+		int lastIndex = symbolTable.size()-1;
+		// create copy of scope context
+		HashMap<String, Object> newScope = new HashMap<>();
+		HashMap<String, Object> oldScope = symbolTable.get(0);
+		for (String key : oldScope.keySet()) {
+			newScope.put(key, oldScope.get(key));
+		}
+		symbolTable.add(newScope);
+	}
+	
+	/**
+	 * Creates a new clean scope for the function and adds global variables (that are always in scope[0]
+	 */
+	private static void openFunctionScope() {
+		HashMap<String, Object> newScope = new HashMap<>();
+		HashMap<String, Object> globalScope = symbolTable.get(0);
+		for (String key : globalScope.keySet()) {
+			newScope.put(key, globalScope.get(key));
+		}
+		symbolTable.add(newScope);
+	}
+	
+	private static void closeScope() {
+		int lastIndex = symbolTable.size();
+		symbolTable.remove(lastIndex);
+	}
+	
+	private static void updateSymbolTable(String key, Object value) {
+		int lastIndex = symbolTable.size();
+		symbolTable.get(lastIndex).put(key, value);
+	}
+	
+	private static HashMap<String, Object> checkSymbolTable() {
+		int lastIndex = symbolTable.size();
+		return symbolTable.get(lastIndex);
+	}
+	
+
 	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
-		if (symbolTable.containsKey(varName)) {
+		if (checkSymbolTable().containsKey(varName)) {
 			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" already declared");
 			return false;
 		}

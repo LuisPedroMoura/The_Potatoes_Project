@@ -43,8 +43,8 @@ assignment			: varDeclaration '=' expression					#assignment_Var_Declaration_Exp
 // ----------------------------------------------
 // Functions
 
-function			: FUN MAIN scope										#function_Main
-					| FUN ID '(' type var (',' type var)* ')' scope		#function_ID
+function			: FUN MAIN scope									#function_Main
+					| FUN ID '(' type ID (',' type ID)* ')' scope		#function_ID
 					;
 
 functionReturn		: RETURN expression
@@ -79,7 +79,7 @@ elseIfCondition		: ELSE IF '(' expression ')' scope
 elseCondition		: ELSE scope
 					;			
 
-scope				: '{' statement* '}'
+scope				: '{' statement* functionReturn?'}'
 					;
 					
 // ----------------------------------------------
@@ -108,7 +108,7 @@ print				: printType=(PRINT | PRINTLN)  '(' expression ')'
 save				: SAVE '(' expression (',' APPEND)? ')'
 					;
 					
-input				: INPUT '(' ')' 
+input				: INPUT '(' STRING ')' 
 					;
 // ----------------------------------------------
 // Variables
