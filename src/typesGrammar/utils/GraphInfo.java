@@ -9,7 +9,10 @@
 
 package typesGrammar.utils;
 
+import static java.lang.System.out;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,10 +22,10 @@ import java.util.Set;
  * @author Luis Moura (https://github.com/LuisPedroMoura)
  * @version July 2018
  */
-public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
+public class GraphInfo<V,E>{
 	
 	// Static Field (Debug Only)
-	private static final boolean debug = true; 
+	private static final boolean debug = false; 
 	
 	HierarchyDiGraph<V,E> graph;
 	List<ArrayList<V>> allShortestPaths;
@@ -32,9 +35,17 @@ public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 	HierarchyDiGraph<V,Double> straightfowardPathsCostsGraph;
 	
 	public GraphInfo(HierarchyDiGraph<V,E> graph) {
-		this.graph = graph;		if (debug) System.out.print(graph);
-		allShortestPaths = getAllShortestPaths(graph);
-		allStraightFowardPaths = getAllStraightfowardPaths(graph);
+		this.graph = graph;
+		
+		if (debug) {
+			out.println("---");
+			out.print("GRAPHINFO- constructor: printing Graph: " + graph);
+			out.println("---");
+		}
+		
+		// have to use deep copy of graph or functions in HerarchyDiGraph Class will create concurrent modification exception
+		allShortestPaths = getAllShortestPaths(new HierarchyDiGraph<V,E>(graph));
+		allStraightFowardPaths = getAllStraightfowardPaths(new HierarchyDiGraph<V,E>(graph));
 		createShortestPathsGraph();
 		createStraightfowardPathsGraph();
 		createStraightfowardPathsCostsGraph();
@@ -105,7 +116,7 @@ public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 		List<ArrayList<V>> allPaths = new ArrayList<>();
 		Set<V> vertices = graph.getAdjList().keySet();
 		for (V vertex : vertices) {
-			List<ArrayList<V>> paths = dijkstraStraightFowardPaths(vertex);
+			List<ArrayList<V>> paths = graph.dijkstraStraightFowardPaths(vertex);
 			allPaths.addAll(paths);
 		}
 		return allPaths;
@@ -120,7 +131,7 @@ public class GraphInfo<V,E> extends HierarchyDiGraph<V,E>{
 		List<ArrayList<V>> allPaths = new ArrayList<>();
 		Set<V> vertices = graph.getAdjList().keySet();
 		for (V vertex : vertices) {
-			List<ArrayList<V>> paths = dijkstraShortestPaths(vertex);
+			List<ArrayList<V>> paths = graph.dijkstraShortestPaths(vertex);
 			allPaths.addAll(paths);
 		}
 		return allPaths;

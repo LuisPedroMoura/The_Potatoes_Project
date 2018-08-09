@@ -185,14 +185,11 @@ public class Code {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Code [");
 		if (numCodes != null) {
-			builder.append("num=");
 			builder.append(numCodes);
-			builder.append(", ");
+			builder.append(" / ");
 		}
 		if (denCodes != null) {
-			builder.append("den=");
 			builder.append(denCodes);
-			builder.append(", ");
 		}
 		return builder.toString();
 	}

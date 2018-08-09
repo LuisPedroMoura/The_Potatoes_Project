@@ -11,7 +11,7 @@
 grammar Types;
 
 @header{
-package typesGrammar;
+package typesGrammar.grammar;
 }
 
 // -----------------------------------------------------------------------------

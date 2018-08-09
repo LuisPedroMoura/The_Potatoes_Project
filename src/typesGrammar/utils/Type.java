@@ -208,7 +208,7 @@ public class Type {
 
 		// For Debug Purposes Only
 		StringBuilder builder = new StringBuilder();
-		builder.append("\nType [");
+		builder.append("Type [");
 		if (typeName != null) {
 			builder.append(typeName);
 			builder.append(", ");

@@ -9,6 +9,7 @@
 ***************************************************************************************/
 package typesGrammar.utils;
 
+import static java.lang.System.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.lang.Number;
 
 /**
@@ -135,7 +137,21 @@ public class HierarchyDiGraph <V,E> {
 	public HierarchyDiGraph(Function<E, ? extends Number> edgeCostFunction) {
 		this.edgeCostFunction = edgeCostFunction;
 	}
-
+	
+	// FIXME complete or delete
+	public HierarchyDiGraph(HierarchyDiGraph<V,E> graph) {
+		this.edgeCostFunction = graph.getEdgeCostFunction();
+		Map<V, ArrayList<Node<V,E>>> newAdjList = new HashMap<>();
+		Set<V> keys = graph.getAdjList().keySet();
+		for (V key : keys) {
+			ArrayList<Node<V,E>> newList = new ArrayList<>();
+			for (Node<V,E> n : graph.getAdjList().get(key)) {
+				newList.add(n);
+			}
+			newAdjList.put(key, newList);
+		}
+		this.size = graph.getSize();
+	}
 	
 	// --------------------------------------------------------------------------
 	// Getters, Setters and Reseters
@@ -155,6 +171,14 @@ public class HierarchyDiGraph <V,E> {
 	}
 	
 	/**
+	 * @return the size
+	 */
+	public int getSize() {
+		return size;
+	}
+	
+
+	/**
 	 * 
 	 * @param edge
 	 * @return
@@ -166,6 +190,8 @@ public class HierarchyDiGraph <V,E> {
 		return edgeCostFunction.apply(edge).doubleValue();
 	}
 	
+	
+	
 	// --------------------------------------------------------------------------
 	// Public Methods
 	
@@ -176,6 +202,14 @@ public class HierarchyDiGraph <V,E> {
 	public boolean addVertex(V vertex) {
 		if (!adjList.containsKey(vertex)) {
 			adjList.put(vertex, new ArrayList<>());
+			
+			if (debug) {
+				out.println("\n---");
+				out.println("HIERARCHYDIGRAPH - ADDED VERTEX: " + vertex);
+				printGraph();
+				out.print("---");
+			}
+			
 			return true;
 		}
 		return false;
@@ -208,11 +242,18 @@ public class HierarchyDiGraph <V,E> {
 		}
 		
 		// Edge does not exist, so its linked to vertices
-		adjList.get(startVertex).add(new Node<V,E>(endVertex, edge));
+		//adjList.get(startVertex).add(new Node<V,E>(endVertex, edge));
 		
 		// create end Node and add to startVertex adjacency list
 		Node<V,E> endNode = new Node<V,E>(endVertex, edge);
 		adjList.get(startVertex).add(endNode);
+		
+		if (debug) {
+			out.println("\n---");
+			out.println("HIERARCHYDIGRAPH - ADDED EDGE: " + startVertex + " -> " + edge + " -> " + endVertex);
+			printGraph();
+			out.println("---");
+		}
 		
 		return true;
 	}
@@ -315,6 +356,14 @@ public class HierarchyDiGraph <V,E> {
 	 */
 	public List<V> getVertexOutgoingNeighbors(V vertex){
 		List<V> newList = new ArrayList<>();
+		
+		if (debug) {
+			out.println("---");
+			out.println("HIERARCHYDIGRAPH - getVertexOutgoingNeighbors(): for vertex: " + vertex);
+			printGraph();
+			out.print("---");
+		}
+		
 		for (Node<V,E> node : adjList.get(vertex)) {
 			newList.add(node.getVertex());	
 		}
@@ -520,6 +569,10 @@ public class HierarchyDiGraph <V,E> {
 
 	// --------------------------------------------------------------------------
 	// Other Methods
+	
+	public void printGraph() {
+		System.out.print(this);
+	}
 
 	@Override
 	public String toString() {
@@ -527,7 +580,7 @@ public class HierarchyDiGraph <V,E> {
 		for (V key : adjList.keySet()) {
 			str.append(key + " ->");
 			for (Node<V,E> node : adjList.get(key)) {
-				str.append("\t\t" + node.getVertex() + " " + node.getEdge() + "  |  ");
+				str.append("\n\t" + node.getVertex() + " " + node.getEdge() + "  |  ");
 			}
 			str.append("\n");
 		}

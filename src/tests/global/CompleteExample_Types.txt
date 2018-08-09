@@ -1,10 +1,10 @@
 types {
 	
-	bar "b";
-	
 	meter "m";
 	doubleMeter "dm";
 	tripleMeter "tm";
+	
+	bar "b";
     
 	distance "d"	: (1)meter | (1/2)doubleMeter | (1/2.5)bar;
     

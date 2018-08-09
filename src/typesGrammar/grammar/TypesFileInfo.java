@@ -9,6 +9,7 @@
 
 package typesGrammar.grammar;
 
+import static java.lang.System.*;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
