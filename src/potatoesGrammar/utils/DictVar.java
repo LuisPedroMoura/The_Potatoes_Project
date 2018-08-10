@@ -14,10 +14,14 @@ public class DictVar {
 	private Map<Object, Object> dict = new HashMap<>();
 	private String keyType;
 	private String valueType;
+	private boolean blockedKeyType;
+	private boolean blockedValueType;
 	
-	public DictVar(String keyType, String valueType) {
+	public DictVar(String keyType, boolean blockedKey, String valueType, boolean blockedValue) {
 		this.keyType = keyType;
 		this.valueType = valueType;
+		this.blockedKeyType = blockedKey;
+		this.blockedValueType = blockedValue;
 	}
 
 	/**
@@ -41,6 +45,18 @@ public class DictVar {
 		return valueType;
 	}
 	
+	/**
+	 * @return is blockedKeyType
+	 */
+	public boolean isBlockedKey() {
+		return blockedKeyType;
+	}
 	
+	/**
+	 * @return is blockedValueType
+	 */
+	public boolean isBlockedValue() {
+		return blockedValueType;
+	}
 
 }

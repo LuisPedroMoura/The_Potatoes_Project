@@ -130,9 +130,9 @@ input				: INPUT '(' STRING ')'
 var					: ID
 					;
 
-varDeclaration		: type ID						#varDeclaration_Variable
-					| type '[' ID ']' ID			#varDeclaration_list
-					| type '[' ID ',' ID ']' ID		#varDeclaration_dict
+varDeclaration		: type ID												#varDeclaration_Variable
+					| type '[' block='?'? ID ']' ID							#varDeclaration_list
+					| type '[' block0='?' ID ',' block1='?'? ID ']' ID		#varDeclaration_dict
 					;			
 
 type				: NUMBER_TYPE		# type_Number_Type

@@ -13,9 +13,11 @@ public class ListVar {
 	
 	private List<Object> list = new ArrayList<>();
 	private String type;
+	private boolean blocked;
 	
-	public ListVar(String type) {
+	public ListVar(String type, boolean blocked) {
 		this.type = type;
+		this.blocked = blocked;
 	}
 
 	/**
@@ -30,6 +32,13 @@ public class ListVar {
 	 */
 	public String getType() {
 		return type;
+	}
+	
+	/**
+	 * @return is blocked
+	 */
+	public boolean isBlocked() {
+		return blocked;
 	}
 	
 	

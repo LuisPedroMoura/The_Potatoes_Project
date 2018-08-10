@@ -1038,12 +1038,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// expression to be searched is NOT type boolean || string || numeric -> error
-		if (!(obj1 instanceof Boolean) & !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
+		if (!(obj1 instanceof Boolean) && !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
 			ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
 			return false;
 		}
 		
-		// expression to search index on is type list -> ok
+		// expression to search index on is type list -> verify
 		if (obj0 instanceof ListVar) {
 			
 			ListVar list = (ListVar) obj0;
@@ -1076,13 +1076,39 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				}
 			}
 			
-			// expression is numeric -> verify
+			// list type is string || boolean, but expression is not compatible -> error
+			else if (listType.equals("string") || listType.equals("boolean")) {
+				ErrorHandling.printError(ctx, "Operands type are not compatible");
+				return false;
+			}
+			
+			// list type is numeric and expression type is numeric -> verify
 			else if (obj1 instanceof Variable) {
 				Variable aux = (Variable) obj1;
 				Variable a = new Variable(aux); // deep copy
 				
-				// list type and expression type are compatible -> ok
-				if (a.convertTypeTo(typesTable.get(listType))) {
+				// list accepts compatible types
+				if (!list.isBlocked()) {
+					// list type and expression type are compatible -> ok
+					if (a.convertTypeTo(typesTable.get(listType))) {	
+						try {
+							index = list.getList().indexOf(a);
+							mapCtxObj.put(ctx, new Variable(typesTable.get("number"), (double) index));
+							return true;
+						}
+						catch (NullPointerException e) {
+							ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+							return false;
+						}
+					}
+					// list type and expression type are not compatible -> error
+					ErrorHandling.printError(ctx, "Bad operand. Type '" + listType + "' is not compatible with '" + a.getType().getTypeName() + "'");
+					return false;
+				}
+				
+				// list is blocked to specific type -> verify
+				// list type and expression type are equals -> ok
+				if (a.getType().getTypeName().equals(listType)) {
 					try {
 						index = list.getList().indexOf(a);
 						mapCtxObj.put(ctx, new Variable(typesTable.get("number"), (double) index));
@@ -1093,21 +1119,34 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						return false;
 					}
 				}
-				
-				ErrorHandling.printError(ctx, "Bad operand. NUmeric operand are not compatible");
+				// list type and expression type are different -> error
+				ErrorHandling.printError(ctx, "Bad operand. List only accepts type '" + listType + "'");
 				return false;
-				
 			}
 		}
 		
-		if (obj0 instanceof String) {
+		// expression to search index on has type string -> verify
+		else if (obj0 instanceof String) {
 			
-			String str = "aaaaaaa";
-			str.indexOf(str)
+			// expression to be searched is boolean || numeric -> error
+			if (obj1 instanceof Boolean || obj1 instanceof Variable) {
+				ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
+				return false;
+			}
+			
+			// expression to be searched is string -> ok
+			String str = (String) obj0;
+			String subStr = (String) obj1;
+			int index = str.indexOf(subStr);
+			// string does not contain sub string
+			if (index == -1) {
+				ErrorHandling.printError(ctx, "String does not contain sub string");
+				return false;
+			}
+			mapCtxObj.put(ctx, new Variable(typesTable.get("number"), (double) index));
+			return true;
 		}
-		
-		
-		return super.visitExpression_INDEXOF(ctx);
+		return false;
 	}
 	
 	@Override 
@@ -1253,7 +1292,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// list type is string || boolean || numeric -> ok
 			if (listValuesType.equals("string") || listValuesType.equals("boolean") || symbolTableContains(listValuesType)) {
-				list = new ListVar(listValuesType);
+				boolean blockedType = false;
+				if (ctx.block == null) {
+					blockedType = true;
+				}
+				list = new ListVar(listValuesType, blockedType);
 				mapCtxObj.put(ctx, list);
 			}
 			
@@ -1312,7 +1355,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// dict key and value types are string || boolean || numeric -> ok
 			if (dictKeyType.equals("string") || dictKeyType.equals("boolean") || symbolTableContains(dictKeyType)) {
 				if (dictValueType.equals("string") || dictValueType.equals("boolean") || symbolTableContains(dictValueType)) {
-					dict = new DictVar(dictKeyType, dictValueType);
+					boolean blockKeyType = false;
+					boolean blockValType = false;
+					if (ctx.block0 == null) {
+						blockKeyType = true;
+					}
+					if (ctx.block1 == null) {
+						blockValType = true;
+					}
+					dict = new DictVar(dictKeyType, blockKeyType, dictValueType, blockValType);
 					mapCtxObj.put(ctx, dict);
 				}
 			}
@@ -1460,7 +1511,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
-		if (checkSymbolTable().containsKey(varName)) {
+		if (symbolTableContains(varName)) {
 			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" already declared");
 			return false;
 		}
