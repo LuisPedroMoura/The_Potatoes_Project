@@ -1,6 +1,6 @@
 /***************************************************************************************
-*	Title: PotatoesProject - PotatoesFunctionCheck Source Code
-*	Code version: 2.0
+*	Title: PotatoesProject - PotatoesFunctionCheck Source globalStatement
+*	globalStatement version: 2.0
 *	Author: Luis Moura (https://github.com/LuisPedroMoura)
 *	Date: August-2018
 *	Availability: https://github.com/LuisPedroMoura/PotatoesProject
@@ -9,6 +9,7 @@
 
 package potatoesGrammar.grammar;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,22 +21,27 @@ import potatoesGrammar.grammar.PotatoesParser.*;
 
 public class PotatoesFunctionsCheck extends PotatoesBaseVisitor<Boolean>  {
 	
-	Map<String, ParserRuleContext> functions = new HashMap<>();
+	Map<String, Function_IDContext> functionsCtx = new HashMap<>();
+	Map<String, List<String>> functionsArgs = new HashMap<>();
 	
 	/**
 	 * @return the Map functions
 	 */
-	public Map<String, ParserRuleContext> getFunctions() {
-		return functions;
+	public Map<String, Function_IDContext> getFunctionsCtx() {
+		return functionsCtx;
+	}
+	
+	public Map<String, List<String>> getFunctionsArgs() {
+		return functionsArgs;
 	}
 
 	@Override
 	public Boolean visitProgram(ProgramContext ctx) {
 		Boolean valid = true;
-		List<CodeContext> codesInstructions = ctx.code();
+		List<GlobalStatementContext> statInstructions = ctx.globalStatement();
 
-		// Visit all code rules
-		for (CodeContext c : codesInstructions) {
+		// Visit all globalStatement rules
+		for (GlobalStatementContext c : statInstructions) {
 			Boolean res = visit(c);
 			valid = valid && res;
 		}
@@ -43,17 +49,17 @@ public class PotatoesFunctionsCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	@Override
-	public Boolean visitCode_Declaration(Code_DeclarationContext ctx) {
+	public Boolean visitGlobalStatement_Declaration(GlobalStatement_DeclarationContext ctx) {
 		return true;
 	}
 
 	@Override
-	public Boolean visitCode_Assignment(Code_AssignmentContext ctx) {
+	public Boolean visitGlobalStatement_Assignment(GlobalStatement_AssignmentContext ctx) {
 		return true;
 	}
 
 	@Override
-	public Boolean visitCode_Function(Code_FunctionContext ctx) {
+	public Boolean visitGlobalStatement_Function(GlobalStatement_FunctionContext ctx) {
 		return visitChildren(ctx);
 	}
 
@@ -65,7 +71,12 @@ public class PotatoesFunctionsCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override
 	public Boolean visitFunction_ID(Function_IDContext ctx) {
 		String functionName = ctx.ID().getText();
-		functions.put(functionName, ctx);
+		List<String> typesNames = new ArrayList<>();
+		for (TypeContext type : ctx.type()) {
+			typesNames.add(type.getText());
+		}
+		functionsCtx.put(functionName, ctx);
+		functionsArgs.put(functionName, typesNames);
 		return true;
 	}
 }

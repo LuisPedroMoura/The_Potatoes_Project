@@ -49,7 +49,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	private	static List<String>						reservedWords;	// initialized in visitUsing();
 	private static Map<String, Type> 				typesTable;		// initialized in visitUsing();
 	private static PotatoesFunctionNames			functions;		// initialized in CTOR;
-	private static Map<String, ParserRuleContext>	functionNames;	// initialized in CTOR;
+	private static Map<String, Function_IDContext>	functionNames;	// initialized in CTOR;
+	private static Map<String, List<String>>		functionArgs;	// initialized in CTOR;
 
 	protected static ParseTreeProperty<Object> 		mapCtxObj		= new ParseTreeProperty<>();
 	protected static List<HashMap<String, Object>>	symbolTable 	= new ArrayList<>();
@@ -60,6 +61,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
  	public PotatoesSemanticCheck(String PotatoesFilePath){
 		functions = new PotatoesFunctionNames(PotatoesFilePath);
 		functionNames = functions.getFunctions();
+		functionArgs = functions.getFunctionsArgs();
 		symbolTable.add(new HashMap<String, Object>());
 		if (debug) ErrorHandling.printInfo("The PotatoesFilePath is: " + PotatoesFilePath);
 	}
@@ -301,16 +303,26 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitFunction_ID(Function_IDContext ctx) {
-		boolean valid = false;
-		
+		boolean valid = true;
 		for (TypeContext type : ctx.type()) {
-			visit(type);
-			String typeName = (String) mapCtxObj.get(type);
-			if (typeName.equals("string") || typeName.equals("boolean") || typesTable.keySet().contains(typeName)) {
-				valid = true;
-			}
+			valid = valid && visit(type);
 		}
+		if (!valid) {
+			return false;
+		}
+		
+		// get args list from function call
+		@SuppressWarnings("unchecked")
+		List<Object> args = (List<Object>) mapCtxObj.get(ctx.getParent());
+		
+		// open new scope
 		openFunctionScope();
+		
+		// store new variables with function call value and function signature name
+		for (int i = 0; i < args.size(); i++) {
+			updateSymbolTable((String) mapCtxObj.get(ctx.type(i)), args.get(i));
+		}
+		
 		return valid && visit(ctx.scope());
 	}
 
@@ -340,21 +352,63 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return false;
 	}
 	
-	//FIXME complete! Falta verificar qual 'e realmente o contexto function, para poder adicionar aoscope as variaveis.
 	@Override
 	public Boolean visitFunctionCall(FunctionCallContext ctx) {
-		ParserRuleContext function = functionNames.get(ctx.ID().getText());
-		
-		List<Object> list = new ArrayList<>();
+		Boolean valid = true;
 		for (ExpressionContext expr : ctx.expression()) {
-			visit(expr);
-			list.add(mapCtxObj.get(expr));
+			valid = valid && visit(expr);
+		}
+		if(!valid) {
+			return false;
 		}
 		
-		mapCtxObj.put(ctx, list);
-		visit(function);
+		// get function context to be visited and args needed from list of functions	
+		Function_IDContext functionToVisit = functionNames.get(ctx.ID().getText());
+		List<String> argsToUse	= functionArgs.get(ctx.ID().getText());
 		
-		return super.visitFunctionCall(ctx);
+		// get list of arguments given in function call
+		List<Object> functionCallArgs = new ArrayList<>();
+		for (ExpressionContext expr : ctx.expression()) {
+			visit(expr);
+			functionCallArgs.add(mapCtxObj.get(expr));
+		}
+				
+		// if number of arguments do not match -> error
+		if(argsToUse.size() != functionCallArgs.size()) {
+			ErrorHandling.printError(ctx, "NUmber of arguments in function call do not match required arguments");
+			return false;
+		}
+		
+		// verify that all arguments types match function arguments
+		for (int i = 0; i < argsToUse.size(); i++) {
+			if (argsToUse.get(i).equals("string") && functionCallArgs.get(i) instanceof String) {
+				continue;
+			}
+			else if (argsToUse.get(i).equals("boolean") && functionCallArgs.get(i) instanceof Boolean) {
+				continue;
+			}
+			else if (argsToUse.get(i).equals("string") || functionCallArgs.get(i) instanceof String) {
+				ErrorHandling.printError(ctx, "function call arguments are no compatible with function signature");
+				return false;
+			}
+			else if (argsToUse.get(i).equals("boolean") || functionCallArgs.get(i) instanceof Boolean) {
+				ErrorHandling.printError(ctx, "function call arguments are no compatible with function signature");
+				return false;
+			}
+			else {
+				Variable arg = (Variable) functionCallArgs.get(i);
+				String argTypeName = arg.getType().getTypeName();
+				if (argsToUse.get(i).equals(argTypeName)) {
+					continue;
+				}
+				ErrorHandling.printError(ctx, "function call arguments are no compatible with function signature");
+				return false;
+			}
+		}
+		
+		mapCtxObj.put(ctx, functionCallArgs);
+		visit(functionToVisit);
+		return true;
 	}
 
 
@@ -1024,7 +1078,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 * Extends the previous scope into a new scope for use inside control flow statements
 	 */
 	private static void extendScope() {
-		int lastIndex = symbolTable.size()-1;
 		// create copy of scope context
 		HashMap<String, Object> newScope = new HashMap<>();
 		HashMap<String, Object> oldScope = symbolTable.get(0);

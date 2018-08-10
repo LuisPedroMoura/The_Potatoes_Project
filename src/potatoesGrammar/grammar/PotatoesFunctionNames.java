@@ -5,27 +5,33 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import potatoesGrammar.grammar.PotatoesParser.Function_IDContext;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
 
 public class PotatoesFunctionNames {
 	
-	Map<String, ParserRuleContext> functions;
+	Map<String, Function_IDContext> functions;
+	Map<String, List<String>> functionsArgs;
 	
 	/**
 	 * @return the functions
 	 */
-	public Map<String, ParserRuleContext> getFunctions() {
+	public Map<String, Function_IDContext> getFunctions() {
 		return functions;
+	}
+	
+	public Map<String, List<String>> getFunctionsArgs() {
+		return functionsArgs;
 	}
 	
 
@@ -76,13 +82,15 @@ public class PotatoesFunctionNames {
 //			}
 
 			// Information to be transmited to the Potatoes Semantic Checker
-			this.functions = visitor0.getFunctions();
+			this.functions = visitor0.getFunctionsCtx();
+			this.functionsArgs = visitor0.getFunctionsArgs();
 
 		}
 		else {
 			// this code should be unreachable but is needed 
 			// since the fields are final
 			this.functions = null;
+			this.functionsArgs = null;
 			System.exit(3);
 		}
 	}
