@@ -1142,8 +1142,62 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitVarDeclaration_list(VarDeclaration_listContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitVarDeclaration_list(ctx);
+		if(!visit(ctx.type())) {
+			return false;
+		}
+		
+		String type = (String) mapCtxObj.get(ctx.type());
+		String newVarName = ctx.ID(1).getText();
+		
+		// new variable is already declared -> error
+		if(symbolTableContains(newVarName)) {
+			ErrorHandling.printError(ctx, "Variable '" + newVarName + "' is already declared");
+			return false;
+		}
+		
+		// type is string || type is boolean || type is numeric -> error
+		if (type.equals("string") || type.equals("boolean") || typesTable.containsKey(type)) {
+			ErrorHandling.printError(ctx, "Incorrect declaration for type '" + type + "'");
+			return false;
+		}
+		
+		// type is dict -> error
+		else if (type.equals("dict")) {
+			ErrorHandling.printError(ctx, "Incorrect number of arguments for type '" + type + "'");
+			return false;
+		}
+		
+		// type is list -> ok
+		else if (type.equals("list")){
+			String listTypeName = ctx.ID(0).getText();
+			Type listType;
+			Variable list;
+			
+			// list type is string || boolean || numeric -> ok
+			if (listTypeName.equals("string") || listTypeName.equals("boolean") || symbolTableContains(listTypeName)) {
+				listType = new Type("list", listTypeName, "external");
+				list = new Variable(listType, null);
+				mapCtxObj.put(ctx, list);
+			}
+			
+			// other list types or undefined types -> error
+			else {
+				ErrorHandling.printError(ctx, "Incorrect argument for list type");
+				return false;
+			}
+			
+		}
+		
+		// type is not defined -> error
+		else {
+			ErrorHandling.printError(ctx, "Type '" + type + "' is not defined in " + TypesFilePath);
+			return false;
+		}
+		
+		// update symbol table
+		updateSymbolTable(newVarName, null);
+		
+		return true;
 	}
 
 

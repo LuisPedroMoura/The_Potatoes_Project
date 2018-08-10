@@ -53,6 +53,16 @@ public class Type {
 		// TODO does this even work?? because this is not created yet, is it???
 		basicTypesCodesTable.put(newCode, this);
 	}
+	
+	public Type(String typeName, String printName, String tag) {
+		if (tag.equals("external")) {
+			this.typeName = typeName;
+			this.printName = printName;
+		}
+		else {
+			throw new IllegalArgumentException();
+		}
+	}
 
 	/**
 	 * Constructor for derived types<p>
