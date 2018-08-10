@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import potatoesGrammar.grammar.PotatoesBaseVisitor;
 import potatoesGrammar.grammar.PotatoesFunctionNames;
 import potatoesGrammar.grammar.PotatoesParser.*;
+import potatoesGrammar.utils.DictTuple;
 import potatoesGrammar.utils.DictVar;
 import potatoesGrammar.utils.ListVar;
 import potatoesGrammar.utils.Variable;
@@ -1023,7 +1024,89 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_INDEXOF(Expression_INDEXOFContext ctx) {
-		// TODO Auto-generated method stub
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
+		
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		
+		// expression to search index on is type boolean || numeric || dict || tuple -> error
+		if (obj0 instanceof Boolean || obj0 instanceof Variable || obj0 instanceof DictVar || obj0 instanceof DictTuple) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
+			return false;
+		}
+		
+		// expression to be searched is NOT type boolean || string || numeric -> error
+		if (!(obj1 instanceof Boolean) & !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
+			return false;
+		}
+		
+		// expression to search index on is type list -> ok
+		if (obj0 instanceof ListVar) {
+			
+			ListVar list = (ListVar) obj0;
+			String listType = list.getType();
+			int index;
+			
+			// list type is string and expression is string -> ok
+			if (listType.equals("string") && obj1 instanceof String) {
+				try {
+					index = list.getList().indexOf((String) obj1);
+					mapCtxObj.put(ctx, new Variable(typesTable.get("number"), (double) index));
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// list type is boolean and expression is boolean -> ok
+			else if (listType.equals("boolean") && obj1 instanceof Boolean) {
+				try {
+					index = list.getList().indexOf((Boolean) obj1);
+					mapCtxObj.put(ctx, new Variable(typesTable.get("number"), (double) index));
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// expression is numeric -> verify
+			else if (obj1 instanceof Variable) {
+				Variable aux = (Variable) obj1;
+				Variable a = new Variable(aux); // deep copy
+				
+				// list type and expression type are compatible -> ok
+				if (a.convertTypeTo(typesTable.get(listType))) {
+					try {
+						index = list.getList().indexOf(a);
+						mapCtxObj.put(ctx, new Variable(typesTable.get("number"), (double) index));
+						return true;
+					}
+					catch (NullPointerException e) {
+						ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+						return false;
+					}
+				}
+				
+				ErrorHandling.printError(ctx, "Bad operand. NUmeric operand are not compatible");
+				return false;
+				
+			}
+		}
+		
+		if (obj0 instanceof String) {
+			
+			String str = "aaaaaaa";
+			str.indexOf(str)
+		}
+		
+		
 		return super.visitExpression_INDEXOF(ctx);
 	}
 	
@@ -1312,14 +1395,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitValue_String(Value_StringContext ctx) {
-		mapCtxObj.put(ctx, "str");
+		mapCtxObj.put(ctx, getStringText(ctx.STRING().getText()));
 		return true;
 	}
-	
+
+	@Override
+	public Boolean visitCast(CastContext ctx) {
+		mapCtxObj.put(ctx, ctx.ID().getText());
+		return true;
+	}
 
 	// -------------------------------------------------------------------------
 	// Auxiliar Fucntion
 	
+	
+
 	
 
 	/**

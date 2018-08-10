@@ -174,8 +174,8 @@ public class Variable {
 	/**
 	 * @return true if type is compatible with this.type
 	 */
-	public boolean typeIsCompatible(Variable a){
-		if(this.getType().getCode() == a.getType().getCode()) {
+	public boolean typeIsCompatible(Type t){
+		if(this.getType().getCode() == t.getCode()) {
 			return true;
 		}
 
