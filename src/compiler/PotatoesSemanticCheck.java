@@ -1000,20 +1000,387 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_GET(Expression_GETContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_GET(ctx);
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
+		
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		
+		// expression to search on is not type list | dict -> error
+		if (!(obj0 instanceof ListVar) || !(obj0 instanceof DictVar)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'get'");
+			return false;
+		}
+		
+		// expression to search index on is list -> verify
+		if(obj0 instanceof ListVar) {
+			ListVar list = (ListVar) obj0;
+			
+			list.getList().remo
+			
+			// expression for index search is 'number' -> ok
+			if (obj1 instanceof Variable) {
+				Variable aux = (Variable) obj1;
+				Variable a = new Variable(aux);
+				
+				if (a.getType().equals(typesTable.get("number"))) {
+					try {
+						int index = (int) a.getValue();
+						mapCtxObj.put(ctx, list.getList().get(index));
+						return true;
+					}
+					catch (IndexOutOfBoundsException e) {
+						ErrorHandling.printError(ctx, "Index out of bounds");
+						return false;
+					}
+				}
+			}
+			
+			// expression for index search is not 'number -> error
+			ErrorHandling.printError(ctx, "Not a valid index");
+			return false;
+		}
+		
+		// expression to search key on is dict -> verify
+		if (obj0 instanceof DictVar) {
+			DictVar dict = (DictVar) obj1;
+			String keyType = dict.getKeyType();
+			
+			// key to be searched is NOT type boolean || string || numeric -> error
+			if (!(obj1 instanceof Boolean) && !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
+				ErrorHandling.printError(ctx, "Bad operand types for operator 'get'");
+				return false;
+			}
+			
+			// key to be searched is of type boolean -> verify
+			if (obj1 instanceof Boolean) {
+				
+				// dict as key type boolean -> ok
+				if (keyType.equals("boolean")) {
+					try {
+						
+						mapCtxObj.put(ctx, dict.getDict().get(obj1));
+						return true;
+					}
+					catch (NullPointerException e) {
+						ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+						return false;
+					}
+				}
+				
+				// dict has different key type
+				ErrorHandling.printError(ctx, "Operands types are not compatible");
+				return false;
+			}
+			
+			// key to be searched is of type string -> verify
+			else if (obj1 instanceof String) {
+				
+				// dict as key type string -> ok
+				if (keyType.equals("string")) {
+					try {
+						mapCtxObj.put(ctx, dict.getDict().get(obj1));
+						return true;
+					}
+					catch (NullPointerException e) {
+						ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+						return false;
+					}
+				}
+				
+				// dict has different key type
+				ErrorHandling.printError(ctx, "Operands types are not compatible");
+				return false;
+			}
+			
+			// key to be searched is of numeric type - > verify
+			else if (obj1 instanceof Variable) {
+				Variable aux = (Variable) obj1;
+				Variable a = new Variable(aux); // deep copy
+				
+				// dict key is string || boolean -> error
+				if (keyType.equals("string") || keyType.equals("boolean")) {
+					ErrorHandling.printError(ctx, "Operands types are not compatible");
+					return false;
+				}
+				
+				// dict accepts compatible key types -> verify
+				if (!dict.isBlockedValue()) {
+					
+					// dict key type and expression type are compatible -> ok
+					if (a.convertTypeTo(typesTable.get(keyType))) {	
+						try {
+							mapCtxObj.put(ctx, dict.getDict().get(a));
+							return true;
+						}
+						catch (NullPointerException e) {
+							ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+							return false;
+						}
+					}
+					// dict key type and expression type are not compatible -> error
+					ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + aux.getType().getTypeName() + "'");
+					return false;
+				}
+				
+				// dict key type is blocked to specific type -> verify
+				// dict key type and expression type are equals -> ok
+				if (a.getType().getTypeName().equals(keyType)) {
+					try {
+						mapCtxObj.put(ctx, dict.getDict().get(a));
+						return true;
+					}
+					catch (NullPointerException e) {
+						ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+						return false;
+					}
+				}
+				// dict key type and expression type are different -> error
+				ErrorHandling.printError(ctx, "Bad operand. List only accepts type '" + keyType + "'");
+				return false;
+			}
+		}
+		
+		return false;
 	}
 	
 	@Override
 	public Boolean visitExpression_CONTAINS(Expression_CONTAINSContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_CONTAINS(ctx);
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
+		
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		
+		// expression to search value on is not type list -> error
+		if (!(obj0 instanceof ListVar)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'contains'");
+			return false;
+		}
+		
+		// expression to search value on has type list. Create ListVar variable
+		ListVar dict = (ListVar) obj0;
+		String valueType = dict.getType();
+		
+		// expression to be searched is NOT type boolean || string || numeric -> error
+		if (!(obj1 instanceof Boolean) && !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'contains'");
+			return false;
+		}
+		
+		// expression to be searched is of type boolean -> verify
+		if (obj1 instanceof Boolean) {
+			
+			// list as value type boolean -> ok
+			if (valueType.equals("boolean")) {
+				try {
+					boolean contains = dict.getList().contains(obj1);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// list has different value type
+			ErrorHandling.printError(ctx, "Operands types are not compatible");
+			return false;
+		}
+		
+		// expression to be searched is of type boolean -> verify
+		else if (obj1 instanceof String) {
+			
+			// list has value type string -> ok
+			if (valueType.equals("string")) {
+				try {
+					boolean contains = dict.getList().contains(obj1);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// list has different value type
+			ErrorHandling.printError(ctx, "Operands types are not compatible");
+			return false;
+		}
+		
+		// expression to be searched is of numeric type - > verify
+		else if (obj1 instanceof Variable) {
+			Variable aux = (Variable) obj1;
+			Variable a = new Variable(aux); // deep copy
+			
+			// list value is string || boolean -> error
+			if (valueType.equals("string") || valueType.equals("boolean")) {
+				ErrorHandling.printError(ctx, "Operands types are not compatible");
+				return false;
+			}
+			
+			// list accepts compatible value types -> verify
+			if (!dict.isBlocked()) {
+				
+				// list value type and expression type are compatible -> ok
+				if (a.convertTypeTo(typesTable.get(valueType))) {	
+					try {
+						boolean contains = dict.getList().contains(a);
+						mapCtxObj.put(ctx, contains);
+						return true;
+					}
+					catch (NullPointerException e) {
+						ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+						return false;
+					}
+				}
+				// list value type and expression type are not compatible -> error
+				ErrorHandling.printError(ctx, "Bad operand. Type '" + valueType + "' is not compatible with '" + aux.getType().getTypeName() + "'");
+				return false;
+			}
+			
+			// list value type is blocked to specific type -> verify
+			// list value type and expression type are equals -> ok
+			if (a.getType().getTypeName().equals(valueType)) {
+				try {
+					boolean contains = dict.getList().contains(a);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			// list value type and expression type are different -> error
+			ErrorHandling.printError(ctx, "Bad operand. List only accepts type '" + valueType + "'");
+			return false;
+		}
+			
+		return false;
 	}
 	
 	@Override
 	public Boolean visitExpression_CONTAINSKEY(Expression_CONTAINSKEYContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_CONTAINSKEY(ctx);
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
+		
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		
+		// expression to search value on is not type dict -> error
+		if (!(obj0 instanceof DictVar)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'containsKey'");
+			return false;
+		}
+		
+		// expression to search value on has type dict. Create DicVar variable
+		DictVar dict = (DictVar) obj0;
+		String keyType = dict.getValueType();
+		
+		// expression to be searched is NOT type boolean || string || numeric -> error
+		if (!(obj1 instanceof Boolean) && !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'containsKey'");
+			return false;
+		}
+		
+		// expression to be searched is of type boolean -> verify
+		if (obj1 instanceof Boolean) {
+			
+			// dict as key type boolean -> ok
+			if (keyType.equals("boolean")) {
+				try {
+					boolean contains = dict.getDict().containsKey(obj1);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// dict has different key type
+			ErrorHandling.printError(ctx, "Operands types are not compatible");
+			return false;
+		}
+		
+		// expression to be searched is of type boolean -> verify
+		else if (obj1 instanceof String) {
+			
+			// dict as key type string -> ok
+			if (keyType.equals("string")) {
+				try {
+					boolean contains = dict.getDict().containsKey(obj1);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// dict has different key type
+			ErrorHandling.printError(ctx, "Operands types are not compatible");
+			return false;
+		}
+		
+		// expression to be searched is of numeric type - > verify
+		else if (obj1 instanceof Variable) {
+			Variable aux = (Variable) obj1;
+			Variable a = new Variable(aux); // deep copy
+			
+			// dict key is string || boolean -> error
+			if (keyType.equals("string") || keyType.equals("boolean")) {
+				ErrorHandling.printError(ctx, "Operands types are not compatible");
+				return false;
+			}
+			
+			// dict accepts compatible key types -> verify
+			if (!dict.isBlockedValue()) {
+				
+				// dict key type and expression type are compatible -> ok
+				if (a.convertTypeTo(typesTable.get(keyType))) {	
+					try {
+						boolean contains = dict.getDict().containsKey(a);
+						mapCtxObj.put(ctx, contains);
+						return true;
+					}
+					catch (NullPointerException e) {
+						ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+						return false;
+					}
+				}
+				// dict key type and expression type are not compatible -> error
+				ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + aux.getType().getTypeName() + "'");
+				return false;
+			}
+			
+			// dict key type is blocked to specific type -> verify
+			// dict key type and expression type are equals -> ok
+			if (a.getType().getTypeName().equals(keyType)) {
+				try {
+					boolean contains = dict.getDict().containsKey(a);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			// dict key type and expression type are different -> error
+			ErrorHandling.printError(ctx, "Bad operand. List only accepts type '" + keyType + "'");
+			return false;
+		}
+			
+		return false;
 	}
 	
 	@Override
@@ -1027,19 +1394,19 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// expression to search value on is not type dict -> error
 		if (!(obj0 instanceof DictVar)) {
-			ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
-			return false;
-		}
-		
-		// expression to be searched is NOT type boolean || string || numeric -> error
-		if (!(obj1 instanceof Boolean) && !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
-			ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'containsValue'");
 			return false;
 		}
 		
 		// expression to search value on has type dict. Create DicVar variable
 		DictVar dict = (DictVar) obj0;
 		String valueType = dict.getValueType();
+		
+		// expression to be searched is NOT type boolean || string || numeric -> error
+		if (!(obj1 instanceof Boolean) && !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'containsValue'");
+			return false;
+		}
 		
 		// expression to be searched is of type boolean -> verify
 		if (obj1 instanceof Boolean) {
@@ -1109,13 +1476,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						return false;
 					}
 				}
-				// list type and expression type are not compatible -> error
+				// dict value type and expression type are not compatible -> error
 				ErrorHandling.printError(ctx, "Bad operand. Type '" + valueType + "' is not compatible with '" + aux.getType().getTypeName() + "'");
 				return false;
 			}
 			
-			// list is blocked to specific type -> verify
-			// list type and expression type are equals -> ok
+			// dict value type is blocked to specific type -> verify
+			// dict value type and expression type are equals -> ok
 			if (a.getType().getTypeName().equals(valueType)) {
 				try {
 					boolean contains = dict.getDict().containsValue(a);
@@ -1127,10 +1494,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					return false;
 				}
 			}
-			// list type and expression type are different -> error
+			// dict value type and expression type are different -> error
 			ErrorHandling.printError(ctx, "Bad operand. List only accepts type '" + valueType + "'");
 			return false;
-			
 		}
 			
 		return false;
