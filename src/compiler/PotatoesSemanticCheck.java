@@ -521,6 +521,42 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 	
 	@Override
+	public Boolean visitExpression_LISTINDEX(Expression_LISTINDEXContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_LISTINDEX(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_ISEMPTY(Expression_ISEMPTYContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_ISEMPTY(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_SIZE(Expression_SIZEContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_SIZE(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_SORT(Expression_SORTContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_SORT(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_KEYS(Expression_KEYSContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_KEYS(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_VALUES(Expression_VALUESContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_VALUES(ctx);
+	}
+	
+	@Override
 	public Boolean visitExpression_Cast(Expression_CastContext ctx) {
 		if(!visitChildren(ctx)) {
 			return false;
@@ -941,6 +977,54 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 	
+	@Override
+	public Boolean visitExpression_tuple(Expression_tupleContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_tuple(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_ADD(Expression_ADDContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_ADD(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_REM(Expression_REMContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_REM(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_GET(Expression_GETContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_GET(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_CONTAINS(Expression_CONTAINSContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_CONTAINS(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_CONTAINSKEY(Expression_CONTAINSKEYContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_CONTAINSKEY(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_CONTAINSVALUE(Expression_CONTAINSVALUEContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_CONTAINSVALUE(ctx);
+	}
+	
+	@Override
+	public Boolean visitExpression_INDEXOF(Expression_INDEXOFContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitExpression_INDEXOF(ctx);
+	}
+	
 	@Override 
 	public Boolean visitExpression_Var(Expression_VarContext ctx) {
 		if(!visit(ctx.var())) {
@@ -968,9 +1052,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 
+	
 	// --------------------------------------------------------------------------
 	// Prints
 	
+
 	@Override
 	public Boolean visitPrint(PrintContext ctx) {
 		if(!visit(ctx.expression())) {
@@ -1005,10 +1091,68 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 
-	@Override  
-	public Boolean visitVarDeclaration(VarDeclarationContext ctx) {
-		return visit(ctx.type());
+	@Override
+	public Boolean visitVarDeclaration_Variable(VarDeclaration_VariableContext ctx) {
+		if(!visit(ctx.type())) {
+			return false;
+		}
+		
+		String type = (String) mapCtxObj.get(ctx.type());
+		String newVarName = ctx.ID().getText();
+		
+		// new variable is already declared -> error
+		if(symbolTableContains(newVarName)) {
+			ErrorHandling.printError(ctx, "Variable '" + newVarName + "' is already declared");
+			return false;
+		}
+		
+		// type is string -> ok
+		if (type.equals("string")) {
+			mapCtxObj.put(ctx, "str");
+		}
+		
+		// type is boolean -> ok
+		else if (type.equals("boolean")) {
+			mapCtxObj.put(ctx,  true);
+		}
+		
+		// type is numeric -> ok
+		else if (typesTable.containsKey(type)) {
+			mapCtxObj.put(ctx, new Variable(typesTable.get(type), null));
+		}
+		
+		// type is data structure -> error
+		else if (type.equals("list") || type.equals("dict")) {
+			ErrorHandling.printError(ctx, "Incorrect number of arguments for type '" + type + "'");
+			return false;
+		}
+		
+		// type is not defined -> error
+		else {
+			ErrorHandling.printError(ctx, "Type '" + type + "' is not defined in " + TypesFilePath);
+			return false;
+		}
+		
+		// update symbol table
+		updateSymbolTable(newVarName, null);
+		
+		return true;
 	}
+
+
+	@Override
+	public Boolean visitVarDeclaration_list(VarDeclaration_listContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitVarDeclaration_list(ctx);
+	}
+
+
+	@Override
+	public Boolean visitVarDeclaration_dict(VarDeclaration_dictContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitVarDeclaration_dict(ctx);
+	}
+	
 
 	// --------------------------------------------------------------------------
 	// Types
@@ -1036,6 +1180,20 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		mapCtxObj.put(ctx, ctx.VOID_TYPE().getText());
 		return true;
 	}
+	
+	@Override
+	public Boolean visitType_List_Type(Type_List_TypeContext ctx) {
+		mapCtxObj.put(ctx, ctx.LIST_TYPE().getText());
+		return super.visitType_List_Type(ctx);
+	}
+
+
+	@Override
+	public Boolean visitType_Dict_Type(Type_Dict_TypeContext ctx) {
+		mapCtxObj.put(ctx, ctx.DICT_TYPE().getText());
+		return super.visitType_Dict_Type(ctx);
+	}
+	
 
 	@Override 
 	public Boolean visitType_ID_Type(Type_ID_TypeContext ctx) {
@@ -1043,36 +1201,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 
-	// --------------------------------------------------------------------------
-	// Values
-
-	@Override 
-	public Boolean visitValue_Number(Value_NumberContext ctx) {
-		Variable a = new Variable(typesTable.get("number"), 1.0);
-		mapCtxObj.put(ctx, a);
-		return true;
-	}
-
-	@Override 
-	public Boolean visitValue_Boolean(Value_BooleanContext ctx) {
-		mapCtxObj.put(ctx, true);
-		return true;
-	}
-
-	@Override 
-	public Boolean visitValue_String(Value_StringContext ctx) {
-		mapCtxObj.put(ctx, "str");
-		return true;
-	}
-
-	@Override 
-	public Boolean visitCast(CastContext ctx) {
-		mapCtxObj.put(ctx, ctx.ID().getText());
-		return true;
-	}
-
-	// --------------------------------------------------------------------------
-	// Auxiliar Functions
+	// -------------------------------------------------------------------------
+	// Auxiliar Fucntion
 	
 	/**
 	 * Extends the previous scope into a new scope for use inside control flow statements
@@ -1099,6 +1229,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		symbolTable.add(newScope);
 	}
 	
+	
 	private static void closeScope() {
 		int lastIndex = symbolTable.size();
 		symbolTable.remove(lastIndex);
@@ -1114,6 +1245,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return symbolTable.get(lastIndex);
 	}
 	
+	private static boolean symbolTableContains(String key) {
+		int lastIndex = symbolTable.size();
+		return symbolTable.get(lastIndex).containsKey(key);
+	}
 
 	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
@@ -1129,6 +1264,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		return true;
 	}
+	
 
 	private static String getStringText(String str) {
 		str = str.substring(1, str.length() -1);

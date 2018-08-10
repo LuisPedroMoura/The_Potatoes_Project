@@ -86,14 +86,28 @@ scope				: '{' statement* functionReturn?'}'
 // Operations
 
 expression			: '(' expression ')' 							#expression_Parenthesis
+					| expression '[' expression ']'					#expression_LISTINDEX
+					| expression 'isEmpty'							#expression_ISEMPTY
+					| expression 'size'								#expression_SIZE
+					| expression 'sort'								#expression_SORT
+					| expression 'keys'								#expression_KEYS
+					| expression 'values'							#expression_VALUES
 					| cast expression								#expression_Cast
 					| op=('-'|'!') expression						#expression_UnaryOperators
-					|<assoc=right> expression '^' expression		#expression_Power
+					| <assoc=right> expression '^' expression		#expression_Power
 					| expression op=('*' | '/' | '%') expression	#expression_Mult_Div_Mod
 					| expression  op=('+' | '-') expression			#expression_Add_Sub				
 					| expression op=('<'|'<='|'>'|'>=') expression	#expression_RelationalQuantityOperators
 					| expression op=('=='|'!=') expression			#expression_RelationalEquality
 					| expression op=('&&'|'||') expression			#expression_logicalOperation
+					| expression '->' expression					#expression_tuple
+					| expression 'add' expression					#expression_ADD
+					| expression 'rem' expression					#expression_REM
+					| expression 'get' expression					#expression_GET
+					| expression 'contains' expression				#expression_CONTAINS
+					| expression 'containsKey' expression			#expression_CONTAINSKEY
+					| expression 'containsValue' expression			#expression_CONTAINSVALUE
+					| expression 'indexOf' expression				#expression_INDEXOF
 					| var											#expression_Var
 					| value											#expression_Value
 					| functionCall									#expression_FunctionCall
@@ -116,13 +130,17 @@ input				: INPUT '(' STRING ')'
 var					: ID
 					;
 
-varDeclaration		: type ID
+varDeclaration		: type ID						#varDeclaration_Variable
+					| type '[' ID ']' ID			#varDeclaration_list
+					| type '[' ID ',' ID ']' ID		#varDeclaration_dict
 					;			
 
 type				: NUMBER_TYPE		# type_Number_Type
 					| BOOLEAN_TYPE		# type_Boolean_Type
 					| STRING_TYPE		# type_String_Type
 					| VOID_TYPE			# type_Void_Type
+					| LIST_TYPE			# type_List_Type
+					| DICT_TYPE			# type_Dict_Type
 					| ID				# type_ID_Type
 					;
 	
@@ -161,6 +179,9 @@ NUMBER_TYPE			: 'number';
 BOOLEAN_TYPE		: 'boolean';
 STRING_TYPE			: 'string';
 VOID_TYPE			: 'void';
+LIST_TYPE			: 'list';
+DICT_TYPE			: 'dict';
+
 
 // Boolean Values
 BOOLEAN				: 'false' | 'true';

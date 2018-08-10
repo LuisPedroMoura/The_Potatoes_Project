@@ -70,7 +70,7 @@ public class PotatoesFunctionsCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitFunction_ID(Function_IDContext ctx) {
-		String functionName = ctx.ID().getText();
+		String functionName = ctx.ID(0).getText();
 		List<String> typesNames = new ArrayList<>();
 		for (TypeContext type : ctx.type()) {
 			typesNames.add(type.getText());

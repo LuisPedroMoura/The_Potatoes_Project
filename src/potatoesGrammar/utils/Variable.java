@@ -41,7 +41,7 @@ public class Variable {
 	// --------------------------------------------------------------------------
 	// Instance Fields
 	private Type type;
-	private double value;
+	private Double value;
 
 	// --------------------------------------------------------------------------
 	// CTORS
@@ -50,7 +50,7 @@ public class Variable {
 	 * @param type
 	 * @param value
 	 */
-	public Variable(Type type, double value) {
+	public Variable(Type type, Double value) {
 		this.type = type;
 		this.value = value;
 	}
