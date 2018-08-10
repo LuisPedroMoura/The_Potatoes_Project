@@ -23,6 +23,8 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import potatoesGrammar.grammar.PotatoesBaseVisitor;
 import potatoesGrammar.grammar.PotatoesFunctionNames;
 import potatoesGrammar.grammar.PotatoesParser.*;
+import potatoesGrammar.utils.DictVar;
+import potatoesGrammar.utils.ListVar;
 import potatoesGrammar.utils.Variable;
 import typesGrammar.grammar.TypesFileInfo;
 import typesGrammar.utils.Type;
@@ -1056,14 +1058,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Prints
 	
-
 	@Override
 	public Boolean visitPrint(PrintContext ctx) {
-		if(!visit(ctx.expression())) {
-			return false;
-		}
-		mapCtxObj.put(ctx, mapCtxObj.get(ctx.expression()));
-		return true;
+		return visit(ctx.expression());
 	}
 	
 	@Override
@@ -1071,6 +1068,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return visit(ctx.expression());
 	}
 	
+	// TODO its not useful if cannot be parsed from string to whatever
 	@Override
 	public Boolean visitInput(InputContext ctx) {
 		return true;
@@ -1079,15 +1077,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Variables
 	
-
 	@Override 
 	public Boolean visitVar(VarContext ctx) {
-		String key = ctx.ID().getText();
-		if (!checkSymbolTable().containsKey(key)) {
-			ErrorHandling.printError(ctx, "Variable \"" + key + "\" is not declared!");
+		String varName = ctx.ID().getText();
+		if (!symbolTableContains(varName)) {
+			ErrorHandling.printError(ctx, "Variable \"" + varName + "\" is not declared!");
 			return false;
-		};
-		mapCtxObj.put(ctx, checkSymbolTable().get(key));
+		}
+		mapCtxObj.put(ctx, symbolTableGet(varName));
 		return true;
 	}
 
@@ -1139,7 +1136,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 
-
 	@Override
 	public Boolean visitVarDeclaration_list(VarDeclaration_listContext ctx) {
 		if(!visit(ctx.type())) {
@@ -1169,14 +1165,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// type is list -> ok
 		else if (type.equals("list")){
-			String listTypeName = ctx.ID(0).getText();
-			Type listType;
-			Variable list;
+			String listValuesType = ctx.ID(0).getText();
+			ListVar list;
 			
 			// list type is string || boolean || numeric -> ok
-			if (listTypeName.equals("string") || listTypeName.equals("boolean") || symbolTableContains(listTypeName)) {
-				listType = new Type("list", listTypeName, "external");
-				list = new Variable(listType, null);
+			if (listValuesType.equals("string") || listValuesType.equals("boolean") || symbolTableContains(listValuesType)) {
+				list = new ListVar(listValuesType);
 				mapCtxObj.put(ctx, list);
 			}
 			
@@ -1185,7 +1179,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				ErrorHandling.printError(ctx, "Incorrect argument for list type");
 				return false;
 			}
-			
 		}
 		
 		// type is not defined -> error
@@ -1199,7 +1192,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		return true;
 	}
-
 
 	@Override
 	public Boolean visitVarDeclaration_dict(VarDeclaration_dictContext ctx) {
@@ -1230,16 +1222,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// type is dict -> ok
 		else if (type.equals("dict")){
-			String dictTypeName0 = ctx.ID(0).getText();
-			String dictTypeName1 = ctx.ID(1).getText();
-			Type dictType;
-			Variable dict;
+			String dictKeyType = ctx.ID(0).getText();
+			String dictValueType = ctx.ID(1).getText();
+			DictVar dict;
 			
 			// dict key and value types are string || boolean || numeric -> ok
-			if (dictTypeName0.equals("string") || dictTypeName0.equals("boolean") || symbolTableContains(dictTypeName0)) {
-				if (dictTypeName1.equals("string") || dictTypeName1.equals("boolean") || symbolTableContains(dictTypeName1)) {
-					dictType = new Type("dict", dictTypeName0+"."+dictTypeName1, "external");
-					dict = new Variable(dictType, null);
+			if (dictKeyType.equals("string") || dictKeyType.equals("boolean") || symbolTableContains(dictKeyType)) {
+				if (dictValueType.equals("string") || dictValueType.equals("boolean") || symbolTableContains(dictValueType)) {
+					dict = new DictVar(dictKeyType, dictValueType);
 					mapCtxObj.put(ctx, dict);
 				}
 			}
@@ -1248,8 +1238,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			else {
 				ErrorHandling.printError(ctx, "Incorrect argument for list type");
 				return false;
-			}
-			
+			}	
 		}
 		
 		// type is not defined -> error
@@ -1264,7 +1253,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 	
-
 	// --------------------------------------------------------------------------
 	// Types
 
@@ -1298,23 +1286,42 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return super.visitType_List_Type(ctx);
 	}
 
-
 	@Override
 	public Boolean visitType_Dict_Type(Type_Dict_TypeContext ctx) {
 		mapCtxObj.put(ctx, ctx.DICT_TYPE().getText());
 		return super.visitType_Dict_Type(ctx);
 	}
 	
-
 	@Override 
 	public Boolean visitType_ID_Type(Type_ID_TypeContext ctx) {
 		mapCtxObj.put(ctx, ctx.ID().getText());
 		return true;
 	}
+	
+	@Override
+	public Boolean visitValue_Number(Value_NumberContext ctx) {
+		mapCtxObj.put(ctx, new Variable(typesTable.get("number"), Double.parseDouble(ctx.NUMBER().getText())));
+		return true;
+	}
+
+	@Override
+	public Boolean visitValue_Boolean(Value_BooleanContext ctx) {
+		mapCtxObj.put(ctx, true);
+		return true;
+	}
+
+	@Override
+	public Boolean visitValue_String(Value_StringContext ctx) {
+		mapCtxObj.put(ctx, "str");
+		return true;
+	}
+	
 
 	// -------------------------------------------------------------------------
 	// Auxiliar Fucntion
 	
+	
+
 	/**
 	 * Extends the previous scope into a new scope for use inside control flow statements
 	 */
@@ -1351,9 +1358,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		symbolTable.get(lastIndex).put(key, value);
 	}
 	
-	private static HashMap<String, Object> checkSymbolTable() {
+	private static Object symbolTableGet(String key) {
 		int lastIndex = symbolTable.size();
-		return symbolTable.get(lastIndex);
+		return symbolTable.get(lastIndex).get(key);
 	}
 	
 	private static boolean symbolTableContains(String key) {
