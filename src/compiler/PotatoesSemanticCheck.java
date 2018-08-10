@@ -1018,8 +1018,122 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_CONTAINSVALUE(Expression_CONTAINSVALUEContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_CONTAINSVALUE(ctx);
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
+		
+		Object obj0 = mapCtxObj.get(ctx.expression(0));
+		Object obj1 = mapCtxObj.get(ctx.expression(1));
+		
+		// expression to search value on is not type dict -> error
+		if (!(obj0 instanceof DictVar)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
+			return false;
+		}
+		
+		// expression to be searched is NOT type boolean || string || numeric -> error
+		if (!(obj1 instanceof Boolean) && !(obj1 instanceof String) && !(obj1 instanceof Variable)) {
+			ErrorHandling.printError(ctx, "Bad operand types for operator 'indexof'");
+			return false;
+		}
+		
+		// expression to search value on has type dict. Create DicVar variable
+		DictVar dict = (DictVar) obj0;
+		String valueType = dict.getValueType();
+		
+		// expression to be searched is of type boolean -> verify
+		if (obj1 instanceof Boolean) {
+			
+			// dict as value type boolean -> ok
+			if (valueType.equals("boolean")) {
+				try {
+					boolean contains = dict.getDict().containsValue(obj1);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// dict has different value type
+			ErrorHandling.printError(ctx, "Operands types are not compatible");
+			return false;
+		}
+		
+		// expression to be searched is of type boolean -> verify
+		else if (obj1 instanceof String) {
+			
+			// dict as value type string -> ok
+			if (valueType.equals("string")) {
+				try {
+					boolean contains = dict.getDict().containsValue(obj1);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			
+			// dict has different value type
+			ErrorHandling.printError(ctx, "Operands types are not compatible");
+			return false;
+		}
+		
+		// expression to be searched is of numeric type - > verify
+		else if (obj1 instanceof Variable) {
+			Variable aux = (Variable) obj1;
+			Variable a = new Variable(aux); // deep copy
+			
+			// dict value is string || boolean -> error
+			if (valueType.equals("string") || valueType.equals("boolean")) {
+				ErrorHandling.printError(ctx, "Operands types are not compatible");
+				return false;
+			}
+			
+			// dict accepts compatible value types -> verify
+			if (!dict.isBlockedValue()) {
+				
+				// dict value type and expression type are compatible -> ok
+				if (a.convertTypeTo(typesTable.get(valueType))) {	
+					try {
+						boolean contains = dict.getDict().containsValue(a);
+						mapCtxObj.put(ctx, contains);
+						return true;
+					}
+					catch (NullPointerException e) {
+						ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+						return false;
+					}
+				}
+				// list type and expression type are not compatible -> error
+				ErrorHandling.printError(ctx, "Bad operand. Type '" + valueType + "' is not compatible with '" + aux.getType().getTypeName() + "'");
+				return false;
+			}
+			
+			// list is blocked to specific type -> verify
+			// list type and expression type are equals -> ok
+			if (a.getType().getTypeName().equals(valueType)) {
+				try {
+					boolean contains = dict.getDict().containsValue(a);
+					mapCtxObj.put(ctx, contains);
+					return true;
+				}
+				catch (NullPointerException e) {
+					ErrorHandling.printError(ctx, "Bad operand. Operand is null");
+					return false;
+				}
+			}
+			// list type and expression type are different -> error
+			ErrorHandling.printError(ctx, "Bad operand. List only accepts type '" + valueType + "'");
+			return false;
+			
+		}
+			
+		return false;
 	}
 	
 	@Override
@@ -1078,7 +1192,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// list type is string || boolean, but expression is not compatible -> error
 			else if (listType.equals("string") || listType.equals("boolean")) {
-				ErrorHandling.printError(ctx, "Operands type are not compatible");
+				ErrorHandling.printError(ctx, "Operands types are not compatible");
 				return false;
 			}
 			
@@ -1102,7 +1216,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						}
 					}
 					// list type and expression type are not compatible -> error
-					ErrorHandling.printError(ctx, "Bad operand. Type '" + listType + "' is not compatible with '" + a.getType().getTypeName() + "'");
+					ErrorHandling.printError(ctx, "Bad operand. Type '" + listType + "' is not compatible with '" + aux.getType().getTypeName() + "'");
 					return false;
 				}
 				
