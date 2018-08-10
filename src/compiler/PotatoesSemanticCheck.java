@@ -1203,8 +1203,65 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitVarDeclaration_dict(VarDeclaration_dictContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitVarDeclaration_dict(ctx);
+		if(!visit(ctx.type())) {
+			return false;
+		}
+		
+		String type = (String) mapCtxObj.get(ctx.type());
+		String newVarName = ctx.ID(2).getText();
+		
+		// new variable is already declared -> error
+		if(symbolTableContains(newVarName)) {
+			ErrorHandling.printError(ctx, "Variable '" + newVarName + "' is already declared");
+			return false;
+		}
+		
+		// type is string || type is boolean || type is numeric -> error
+		if (type.equals("string") || type.equals("boolean") || typesTable.containsKey(type)) {
+			ErrorHandling.printError(ctx, "Incorrect declaration for type '" + type + "'");
+			return false;
+		}
+		
+		// type is list -> error
+		else if (type.equals("list")) {
+			ErrorHandling.printError(ctx, "Incorrect number of arguments for type '" + type + "'");
+			return false;
+		}
+		
+		// type is dict -> ok
+		else if (type.equals("dict")){
+			String dictTypeName0 = ctx.ID(0).getText();
+			String dictTypeName1 = ctx.ID(1).getText();
+			Type dictType;
+			Variable dict;
+			
+			// dict key and value types are string || boolean || numeric -> ok
+			if (dictTypeName0.equals("string") || dictTypeName0.equals("boolean") || symbolTableContains(dictTypeName0)) {
+				if (dictTypeName1.equals("string") || dictTypeName1.equals("boolean") || symbolTableContains(dictTypeName1)) {
+					dictType = new Type("dict", dictTypeName0+"."+dictTypeName1, "external");
+					dict = new Variable(dictType, null);
+					mapCtxObj.put(ctx, dict);
+				}
+			}
+			
+			// other dict key and value types or undefined types -> error
+			else {
+				ErrorHandling.printError(ctx, "Incorrect argument for list type");
+				return false;
+			}
+			
+		}
+		
+		// type is not defined -> error
+		else {
+			ErrorHandling.printError(ctx, "Type '" + type + "' is not defined in " + TypesFilePath);
+			return false;
+		}
+		
+		// update symbol table
+		updateSymbolTable(newVarName, null);
+		
+		return true;
 	}
 	
 
