@@ -30,6 +30,8 @@ public class Variable {
 
 	// Static Constant (Debug Only)
 	private static final boolean debug = false;
+	
+	
 
 	// --------------------------------------------------------------------------
 	// Static Fields
@@ -37,11 +39,12 @@ public class Variable {
 	private static HierarchyDiGraph<Type,Double> typesGraph =  PotatoesSemanticCheck.getTypesFileInfo()
 																					.getGraphInfo()
 																					.getShortestPathsGraph();
-
+	
 	// --------------------------------------------------------------------------
 	// Instance Fields
 	private Type type;
-	private Double value;
+	private varType varType;
+	private Object value;
 
 	// --------------------------------------------------------------------------
 	// CTORS
@@ -50,8 +53,9 @@ public class Variable {
 	 * @param type
 	 * @param value
 	 */
-	public Variable(Type type, Double value) {
+	public Variable(Type type, varType varType, Object value) {
 		this.type = type;
+		this.varType = varType;
 		this.value = value;
 	}
 
@@ -79,10 +83,57 @@ public class Variable {
 	/**
 	 * @return type
 	 */
-	public double getValue() {
-		return value;
+	public Object getValue() {
+		String typeName = type.getTypeName();
+		switch (typeName) {
+			case "boolean"	:	return (Boolean) value;
+			case "string"	:	return (String) value;
+			case "list"		:	return (ListVar) value;
+			case "tuple"	:	return (DictTuple) value;
+			case "dict"		:	return (DictVar) value;
+			default			:	return (Double) value;
+		}
 	}
-
+	
+	public varType getvarType() {
+		return this.varType;
+	}
+	
+	public boolean isBoolean() {
+		if (varType == potatoesGrammar.utils.varType.BOOLEAN)
+			return true;
+		return false;
+	}
+	
+	public boolean isString() {
+		if (varType == potatoesGrammar.utils.varType.STRING)
+			return true;
+		return false;
+	}
+	
+	public boolean isList() {
+		if (varType == potatoesGrammar.utils.varType.LIST)
+			return true;
+		return false;
+	}
+	
+	public boolean isTuple() {
+		if (varType == potatoesGrammar.utils.varType.TUPLE)
+			return true;
+		return false;
+	}
+	
+	public boolean isDict() {
+		if (varType == potatoesGrammar.utils.varType.DICT)
+			return true;
+		return false;
+	}
+	
+	public boolean isNumeric() {
+		if (varType == potatoesGrammar.utils.varType.NUMERIC)
+			return true;
+		return false;
+	}
 
 	// --------------------------------------------------------------------------
 	// Operations with Variables
@@ -91,84 +142,106 @@ public class Variable {
 	 * @return new Variable with new code and value
 	 */
 	public static Variable multiply(Variable a, Variable b) {
-		Type newType = Type.multiply(a.getType(), b.getType());
-		double codeSimplificationFactor = newType.adjustTypeOperationResultToKnowType(typesGraph);
-		double newValue = a.getValue() * b.getValue() * codeSimplificationFactor;
-		return new Variable(newType, newValue);
+		if (a.isNumeric() && b.isNumeric()) {
+			Type newType = Type.multiply(a.getType(), b.getType());
+			double codeSimplificationFactor = newType.adjustTypeOperationResultToKnowType(typesGraph);
+			double newValue = (double) a.getValue() * (double) b.getValue() * codeSimplificationFactor;
+			return new Variable(newType, potatoesGrammar.utils.varType.NUMERIC, newValue);
+		}
+		throw new IllegalArgumentException();
 	}
 
 	/**
 	 * @return new Variable with new code and value
 	 */
 	public static Variable divide(Variable a, Variable b) {
-		if (b.getValue() == 0.0) {
-			throw new ArithmeticException();
+		if (a.isNumeric() && b.isNumeric()) {
+			if ((double)b.getValue() == 0.0) {
+				throw new ArithmeticException();
+			}
+			Type newType = Type.divide(a.getType(), b.getType());
+			double codeSimplificationFactor = newType.adjustTypeOperationResultToKnowType(typesGraph);
+			double newValue = (double) a.getValue() / (double)b.getValue() * codeSimplificationFactor;
+			
+			return new Variable(newType, potatoesGrammar.utils.varType.NUMERIC, newValue);
 		}
-		Type newType = Type.divide(a.getType(), b.getType());
-		double codeSimplificationFactor = newType.adjustTypeOperationResultToKnowType(typesGraph);
-		double newValue = a.getValue() / b.getValue() * codeSimplificationFactor;
-		
-		return new Variable(newType, newValue);
+		throw new IllegalArgumentException();
 	}
 	
 	
 	public static Variable mod(Variable a, Variable b) {
-		// verify that Variable b is of Type number
-		if (!b.getType().getTypeName().equals("number")) {
-			throw new IllegalArgumentException();
+		if (a.isNumeric() && b.isNumeric()) {
+			// verify that Variable b is of Type number
+			if (!b.getType().getTypeName().equals("number")) {
+				throw new IllegalArgumentException();
+			}
+			double newValue = (double) a.getValue() % (double) b.getValue();
+			return new Variable(a.getType(), potatoesGrammar.utils.varType.NUMERIC, newValue);
 		}
-		return new Variable(a.getType(), a.getValue()%b.getValue());
+		throw new IllegalArgumentException();
 	}
 
 	/**
 	 * @return new Variable with same code and value
 	 */
 	public static Variable add(Variable a, Variable b) {
-		if (!a.getType().equals(b.getType())) {
-			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
-			if (conversionFactor == Double.POSITIVE_INFINITY) {
-				throw new IllegalArgumentException();
+		if (a.isNumeric() && b.isNumeric()) {
+			if (!a.getType().equals(b.getType())) {
+				double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+				if (conversionFactor == Double.POSITIVE_INFINITY) {
+					throw new IllegalArgumentException();
+				}
+				double newValue = ((double) a.getValue() * conversionFactor) + (double) b.getValue();
+				return new Variable(b.getType(), potatoesGrammar.utils.varType.NUMERIC, newValue);
 			}
-			double newValue = (a.getValue() * conversionFactor) + b.getValue();
-			return new Variable(b.getType(), newValue);
+			double newValue = (double) a.getValue() + (double) b.getValue();
+			return new Variable(b.getType(), potatoesGrammar.utils.varType.NUMERIC, newValue);
 		}
-		double newValue = a.getValue() + b.getValue();
-		return new Variable(b.getType(), newValue);
+		throw new IllegalArgumentException();
 	}
 
 	/**
 	 * @return new Variable with same code and value
 	 */
 	public static Variable subtract(Variable a, Variable b) {
-		if (!a.getType().equals(b.getType())) {
-			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
-			if (conversionFactor == Double.POSITIVE_INFINITY) {
-				throw new IllegalArgumentException();
+		if (a.isNumeric() && b.isNumeric()) {
+			if (!a.getType().equals(b.getType())) {
+				double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+				if (conversionFactor == Double.POSITIVE_INFINITY) {
+					throw new IllegalArgumentException();
+				}
+				double newValue = ((double) a.getValue() * conversionFactor) - (double) b.getValue();
+				return new Variable(b.getType(), potatoesGrammar.utils.varType.NUMERIC, newValue);
 			}
-			double newValue = (a.getValue() * conversionFactor) - b.getValue();
-			return new Variable(b.getType(), newValue);
+			double newValue = (double) a.getValue() - (double) b.getValue();
+			return new Variable(a.getType(), potatoesGrammar.utils.varType.NUMERIC, newValue);
 		}
-		double newValue = a.getValue() - b.getValue();
-		return new Variable(a.getType(), newValue);
+		throw new IllegalArgumentException();
 	}
 
 	/**
 	 * @return new Variable with same code and multiplied value
 	 */
 	public static Variable simetric(Variable a) {
-		double newValue = a.getValue() * -1;
-		return new Variable(a.getType(), newValue);
+		if (a.isNumeric()) {
+			double newValue = (double) a.getValue() * -1;
+			return new Variable(a.getType(), potatoesGrammar.utils.varType.NUMERIC, newValue);
+		}
+		throw new IllegalArgumentException();
 	}
 
 	/**
 	 * @return new Variable with new code and multiplied value
 	 */
 	public static Variable power(Variable a, Variable b) {
-
-		// Variable b type==number is already checked in Syntactic Analysis
-		Type newType = Type.power(a.getType(), (int)b.getValue());
-		Double newValue = Math.pow(a.getValue(), b.getValue());
-		return new Variable(newType, newValue);
+		if (a.isNumeric() && b.isNumeric()) {
+			if (b.getType().getTypeName().equals("number")){
+				Type newType = Type.power(a.getType(), (int) b.getValue());
+				Double newValue = Math.pow((double) a.getValue(), (double) b.getValue());
+				return new Variable(newType, potatoesGrammar.utils.varType.NUMERIC, newValue);
+			}
+		}
+		throw new IllegalArgumentException();
 	}
 
 	/**
@@ -195,8 +268,7 @@ public class Variable {
 	/**
 	 * @param	newType the Type that is Variable is to be converted to
 	 * @return	true if this.type is converted to newType
-	 * 		 	false if one of the Types is not defined in the typesTable
-	 * @throws	NullPointerException if the conversion is not possible (there's no path that connects the Vertices in the Graph)
+	 * 		 	false if the conversion is not possible (there's no path that connects the Vertices in the Graph)
 	 */
 	public boolean convertTypeTo(Type newType) {
 
@@ -209,7 +281,7 @@ public class Variable {
 		// verify that this and newType exist in the typesGraph
 		if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.type)) {
 			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");}			
-			throw new NullPointerException();
+			return false;
 		}
 
 		if (debug) {
@@ -230,7 +302,9 @@ public class Variable {
 		}
 		
 		// calculate new value using conversion factor
-		this.value *= conversionFactor;
+		Double val = (Double) value;
+		val *= conversionFactor;
+		value = val;
 
 		// convert code to type code
 		this.type = newType;
@@ -262,40 +336,42 @@ public class Variable {
 		return "value " + value + ", type " + type;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(value);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		Variable other = (Variable) obj;
 		if (type == null) {
-			if (other.type != null) {
+			if (other.type != null)
 				return false;
-			}
-		} else if (!type.equals(other.type)) {
+		} else if (!type.equals(other.type))
 			return false;
-		}
-		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value)) {
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
 			return false;
-		}
 		return true;
 	}
 
+	
 }

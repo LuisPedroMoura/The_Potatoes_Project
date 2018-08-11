@@ -37,8 +37,6 @@ public class Type {
 	private Code code;
 	private boolean isClass;
 	private boolean isStructure;
-	//private List<Integer> numCodes = new ArrayList<>();		// numerator codes
-	//private List<Integer> denCodes = new ArrayList<>();		// denominator codes
 
 	// --------------------------------------------------------------------------
 	// CTORs
