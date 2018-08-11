@@ -271,9 +271,19 @@ public class Variable {
 	 * 		 	false if the conversion is not possible (there's no path that connects the Vertices in the Graph)
 	 */
 	public boolean convertTypeTo(Type newType) {
-
+		
+		// both varibles types are null
+		if (this.getType() == null && newType == null) {
+			return true;
+		}
+		
+		// only one of the variables type is null
+		if (this.getType() == null || newType == null) {
+			return false;
+		}
+		
 		// variable type is already the one we're trying to convert to
-		if (newType.getCode().equals(this.type.getCode())){
+		if (newType.equals(this.type)){
 			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}
 			return true;
 		}

@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class DictVar {
 	
-	private Map<Object, Object> dict = new HashMap<>();
+	private Map<Variable, Variable> dict = new HashMap<>();
 	private String keyType;
 	private String valueType;
 	private boolean blockedKeyType;
@@ -27,7 +27,7 @@ public class DictVar {
 	/**
 	 * @return the dict
 	 */
-	public Map<Object, Object> getDict() {
+	public Map<Variable, Variable> getDict() {
 		return dict;
 	}
 

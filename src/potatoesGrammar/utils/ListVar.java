@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class ListVar {
 	
-	private List<Object> list = new ArrayList<>();
+	private List<Variable> list = new ArrayList<>();
 	private String type;
 	private boolean blocked;
 	
@@ -20,7 +20,7 @@ public class ListVar {
 	/**
 	 * @return the list
 	 */
-	public List<Object> getList() {
+	public List<Variable> getList() {
 		return list;
 	}
 
