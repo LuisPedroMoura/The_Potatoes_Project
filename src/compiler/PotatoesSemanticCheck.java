@@ -1242,20 +1242,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (var0.isList()) {
 			
 			ListVar listVar = (ListVar) var0.getValue();
-			String listType = listVar.getType();
-			int index;
 			
 			// expression type is 'number' -> verify
 			if (var1.isNumeric()) {
-				
-				var1 = new Variable(var1); // deep copy
 					
 				if (var1.getType().equals(typesTable.get("number"))) {
 					try {
-						index = (int) var1.getValue();
+						int index = (int) var1.getValue();
 						Variable rem = listVar.getList().remove(index);
-						varType varType = newVarType(listType);
-						mapCtxVar.put(ctx, new Variable(typesTable.get("number"), varType , rem));
+						mapCtxVar.put(ctx, rem);
 						return true;
 					}
 					catch (IndexOutOfBoundsException e) {
@@ -1279,31 +1274,24 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// dict accepts compatible key types -> verify
 			if (!dictVar.isBlockedKey()) {
 				
-				// dict key type and expression type are compatible -> ok
-				if (var1.convertTypeTo(typesTable.get(keyType))) {	
-					Variable rem = dictVar.getDict().remove(var1);
-					if (rem == null) {
-						ErrorHandling.printError(ctx, "Dictionary does not contain key or value");
-						return false;
-					}
-					varType varType = newVarType(keyType);
-					mapCtxVar.put(ctx, new Variable(typesTable.get(dictVar.getValueType()), varType, rem));
-					return true;
-				}
-				
 				// dict key type and expression type are not compatible -> error
-				ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
-				return false;
+				if (!var1.convertTypeTo(typesTable.get(keyType))) {	
+					ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
+					return false;
+				}
+				// dict key type and expression type are compatible -> ok (jumps to next code
+				
 			}
 			
 			// dict key type is blocked to specific type -> verify
 			Variable rem = dictVar.getDict().remove(var1);
+			// if dictionary does not contain key
 			if (rem == null) {
 				ErrorHandling.printError(ctx, "Dictionary does not contain key or value");
 				return false;
 			}
-			varType varType = newVarType(keyType);
-			mapCtxVar.put(ctx, new Variable(typesTable.get(dictVar.getValueType()), varType, rem));
+			// update tables
+			mapCtxVar.put(ctx, rem);
 			return true;
 		}
 		
@@ -1370,40 +1358,26 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			String keyType = dictVar.getKeyType();
 			
 			// dict accepts compatible key types -> verify
-			if (!dictVar.isBlockedValue()) {
-				
-				// dict key type and expression type are compatible -> ok
-				if (var1.convertTypeTo(typesTable.get(keyType))) {	
-					try {
-						Variable get = (Variable) dictVar.getDict().get(var1);
-						mapCtxVar.put(ctx, get);
-						return true;
-					}
-					catch (NullPointerException e) {
-						ErrorHandling.printError(ctx, "Null pointer. Dictionary does not contain expresion or expression is null");
-						return false;
-					}
-				}
+			if (!dictVar.isBlockedKey()) {
 				
 				// dict key type and expression type are not compatible -> error
-				ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
-				return false;
+				if (!var1.convertTypeTo(typesTable.get(keyType))) {	
+					ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
+					return false;
+				}
+				// dict key type and expression type are compatible -> ok (jumps to next code)
 			}
 			
 			// dict does not accept compatible key types -> verify
-			try {
-				Variable get = (Variable) dictVar.getDict().get(var1);
-				if (get == null) {
-					ErrorHandling.printError(ctx, "Dictionary does not contain the expression");
-					return false;
-				}
-				mapCtxVar.put(ctx, get);
-				return true;
-			}
-			catch (NullPointerException e) {
-				ErrorHandling.printError(ctx, "Expression not a valid key");
+			Variable get = (Variable) dictVar.getDict().get(var1);
+			// if dictionary does not contain key
+			if (get == null) {
+				ErrorHandling.printError(ctx, "Dictionary does not contain key");
 				return false;
 			}
+			// update tables 
+			mapCtxVar.put(ctx, get);
+			return true;
 		}
 		
 		// left expression is not list || dict nor right expression is boolean || string || numeric -> error
