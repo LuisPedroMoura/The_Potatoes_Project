@@ -66,7 +66,8 @@ public class Variable {
 	 * @throws NullPointerException if a is null (ie new Variable (null)) 
 	 */ 
 	public Variable(Variable a) { 
-		this.type = new Type(a.type); 
+		this.type = new Type(a.type);
+		this.varType = a.getVarType();
 		this.value  = a.value; 
 	}
 
@@ -95,7 +96,7 @@ public class Variable {
 		}
 	}
 	
-	public varType getvarType() {
+	public varType getVarType() {
 		return this.varType;
 	}
 	
@@ -247,22 +248,36 @@ public class Variable {
 	/**
 	 * @return true if type is compatible with this.type
 	 */
-	public boolean typeIsCompatible(Type t){
-		if(this.getType().getCode() == t.getCode()) {
+	public boolean typeIsCompatible(Variable a){
+		// if varType is equal -> verify
+		if (this.varType == a.getvarType()) {
+			
+			// if varType is NUMERIC -> verify
+			if (this.isNumeric()) {
+				
+				// if types are equals -> compatible
+				if(this.getType().equals(a.getType())) {
+					return true;
+				}
+		
+				// if one of the types in not in graph -> not compatible
+				if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(type)) {
+					return false;
+				}
+				
+				// if there is no path between the types. It means the conversion is not possible -> not compatible
+				double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, type));
+				if (conversionFactor == Double.POSITIVE_INFINITY) {
+					return false;
+				}
+			}
+			
+			// varTypes are equals and not NUMERIC -> compatible
 			return true;
 		}
-
-		// verify that types exist in graph
-		if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(type)) {
-			return false;
-		}
-
-		double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, type));
-		// if there is no path between the types. It means the conversion is not possible
-		if (conversionFactor == Double.POSITIVE_INFINITY) {
-			return false;
-		}
-		return true;
+		
+		// varTypes are not equal -> not compatible
+		return false;
 	}
 
 	/**
@@ -272,56 +287,56 @@ public class Variable {
 	 */
 	public boolean convertTypeTo(Type newType) {
 		
-		// both varibles types are null
-		if (this.getType() == null && newType == null) {
+		// if type is numeric, attempting conversion is possible -> verify
+		if (this.isNumeric()) {
+			
+			// variable type is already the one we're trying to convert to -> conversion not needed
+			if (newType.equals(this.type)){
+				if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}
+				return true;
+			}
+			
+			// if one of the types is number, conversion is straightfoward. type number is not on the graph. 
+			if (this.getType().getTypeName().equals("number") || newType.getTypeName().equals("number")) {
+				this.type = newType;
+				return true;
+			}
+			
+			// if one of the types is not in the Graph -> conversion not possible
+			if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.type)) {
+				if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");}			
+				return false;
+			}
+	
+			if (debug) {
+				ErrorHandling.printInfo("BEFORE TRYING TO FIND PATH");
+				ErrorHandling.printInfo("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
+			}
+			
+			// if there is no path between the types -> conversion not possible
+			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, newType));
+			if (conversionFactor == Double.POSITIVE_INFINITY) {
+				return false;
+			}
+	
+			if (debug) {
+				ErrorHandling.printInfo("AFTER TRYING TO FIND PATH");
+				ErrorHandling.printInfo(typesGraph.toString());
+			}
+			
+			// at this point, conversion is possible -> do necessary calculations
+			Double val = (Double) value;
+			val *= conversionFactor;
+			value = val;
+			this.type = newType;
+	
+			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - converted");}	
+	
 			return true;
 		}
 		
-		// only one of the variables type is null
-		if (this.getType() == null || newType == null) {
-			return false;
-		}
-		
-		// variable type is already the one we're trying to convert to
-		if (newType.equals(this.type)){
-			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}
-			return true;
-		}
-
-		// verify that this and newType exist in the typesGraph
-		if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.type)) {
-			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");}			
-			return false;
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo("BEFORE TRYING TO FIND PATH");
-			ErrorHandling.printInfo("Trying to convert " + this.type.getTypeName() + " to " + newType.getTypeName());
-		}
-
-		double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, newType));
-		
-		// if there is no path between the types. It means the conversion is not possible
-		if (conversionFactor == Double.POSITIVE_INFINITY) {
-			return false;
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo("AFTER TRYING TO FIND PATH");
-			ErrorHandling.printInfo(typesGraph.toString());
-		}
-		
-		// calculate new value using conversion factor
-		Double val = (Double) value;
-		val *= conversionFactor;
-		value = val;
-
-		// convert code to type code
-		this.type = newType;
-
-		if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - converted");}	
-
-		return true;
+		// this varType is not NUMERIC -> conversion not possible
+		return false;
 
 	}
 	

@@ -8,10 +8,10 @@ package potatoesGrammar.utils;
  */
 public class DictTuple {
 	
-	private Object key;
-	private Object value;
+	private Variable key;
+	private Variable value;
 	
-	public DictTuple(Object key, Object value) {
+	public DictTuple(Variable key, Variable value) {
 		this.key = key;
 		this.value = value;
 	}
@@ -19,14 +19,14 @@ public class DictTuple {
 	/**
 	 * @return the key
 	 */
-	public Object getKey() {
+	public Variable getKey() {
 		return key;
 	}
 
 	/**
 	 * @return the value
 	 */
-	public Object getValue() {
+	public Variable getValue() {
 		return value;
 	}
 	
