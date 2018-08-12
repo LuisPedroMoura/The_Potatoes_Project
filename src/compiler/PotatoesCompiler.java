@@ -12,6 +12,7 @@ import org.stringtemplate.v4.*;
 import potatoesGrammar.grammar.PotatoesBaseVisitor;
 import potatoesGrammar.grammar.PotatoesParser.*;
 import potatoesGrammar.utils.Variable;
+import potatoesGrammar.utils.varType;
 import typesGrammar.grammar.TypesFileInfo;
 import typesGrammar.utils.Code;
 import typesGrammar.utils.Type;
@@ -53,7 +54,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	    return classContent;
 	}
 	
-	
 	@Override
 	public ST visitUsing(UsingContext ctx) {
 		String str = ctx.STRING().getText();
@@ -62,14 +62,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		typesTable = typesFileInfo.getTypesTable();
 		return visitChildren(ctx);
 	}
-
 	
 	@Override
 	public ST visitCode_Declaration(Code_DeclarationContext ctx) {
 		ST varDeclaration = visit(ctx.varDeclaration());
 		return createEOL(varDeclaration);
 	}
-	
 	
 	@Override
 	public ST visitCode_Assignment(Code_AssignmentContext ctx) {
@@ -91,7 +89,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return scopeContent;
 	}
 	
-	
 	// --------------------------------------------------------------------------------------------------------------------	
 	// CLASS - STATEMENTS--------------------------------------------------------------------------------------------------	
 	// --------------------------------------------------------------------------------------------------------------------	
@@ -100,13 +97,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST varDeclaration = visit(ctx.varDeclaration());
 		return createEOL(varDeclaration);
 	}
-
 	
 	@Override
 	public ST visitStatement_Assignment(Statement_AssignmentContext ctx) {
 		return visit(ctx.assignment());
 	}
-
 	
 	@Override
 	public ST visitStatement_Control_Flow_Statement(Statement_Control_Flow_StatementContext ctx) {
@@ -131,7 +126,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// --------------------------------------------------------------------------------------------------------------------
 	// CLASS - ASSIGNMENTS-----------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
-	
 	
 	@Override
 	public ST visitAssignment_Var_Declaration_Not_Boolean(Assignment_Var_Declaration_Not_BooleanContext ctx) {
@@ -162,7 +156,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitAssignment_Var_Declaration_Value(Assignment_Var_Declaration_ValueContext ctx) {
@@ -212,7 +205,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return assignment;
 	}
 	
-	
 	@Override
 	public ST visitAssignment_Var_Declaration_Comparison(Assignment_Var_Declaration_ComparisonContext ctx) {
 			
@@ -245,7 +237,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitAssignment_Var_Declaration_Operation(Assignment_Var_Declaration_OperationContext ctx) {
@@ -301,7 +292,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// TODO Auto-generated method stub
 		return visitChildren(ctx);
 	}
-
 	
 	@Override
 	public ST visitAssignment_Var_Not_Boolean(Assignment_Var_Not_BooleanContext ctx) {
@@ -333,7 +323,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-	
 	
 	@Override
 	public ST visitAssignment_Var_Value(Assignment_Var_ValueContext ctx) {
@@ -388,7 +377,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitAssignment_Var_Comparison(Assignment_Var_ComparisonContext ctx) {
@@ -421,7 +409,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitAssignment_Var_Operation(Assignment_Var_OperationContext ctx) {
@@ -635,7 +622,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return condition;
 	}
 
-
 	@Override
 	public ST visitCondition_withElse(Condition_withElseContext ctx) {
 		/* parser rule -> ifCondition elseIfCondition* elseCondition */
@@ -705,18 +691,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return elseCondition;
 	}
 
-	
 	// --------------------------------------------------------------------------------------------------------------------
 	// LOGICAL OPERATIONS--------------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------
-	
 	
 	@Override
 	public ST visitLogicalOperation_Parenthesis(LogicalOperation_ParenthesisContext ctx) {
 		/* parser rule -> logicalOperation : '(' logicalOperation ')' */
 		return visit(ctx.logicalOperation());
 	}
-
 	
 	@Override
 	public ST visitLogicalOperation_Operation(LogicalOperation_OperationContext ctx) {
@@ -747,21 +730,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assign;
 	}
-
 	
 	@Override
 	public ST visitLogicalOperation_logicalOperand(LogicalOperation_logicalOperandContext ctx) {
 		/* parser rule -> logicalOperation : logicalOperand */
 		return visit(ctx.logicalOperand());
 	}
-
 	
 	@Override
 	public ST visitLogicalOperand_Comparison(LogicalOperand_ComparisonContext ctx) {
 		/* parser rule -> logicalOperand : comparison */
 		return visit(ctx.comparison());
 	}
-
 	
 	@Override
 	public ST visitLogicalOperand_Not_Comparison(LogicalOperand_Not_ComparisonContext ctx) {
@@ -781,7 +761,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitLogicalOperand_Var(LogicalOperand_VarContext ctx) {
@@ -800,7 +779,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitLogicalOperand_Not_Var(LogicalOperand_Not_VarContext ctx) {
@@ -819,7 +797,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitLogicalOperand_Value(LogicalOperand_ValueContext ctx) {
@@ -837,7 +814,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitLogicalOperand_Not_Value(LogicalOperand_Not_ValueContext ctx) {
@@ -855,7 +831,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return assignment;
 	}
-
 	
 	@Override
 	public ST visitComparison(ComparisonContext ctx) {
@@ -958,7 +933,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// --------------------------------------------------------------------------------------------------------------------
 	// OPERATIONS----------------------------------------------------------------------------------------------------------	
 	// --------------------------------------------------------------------------------------------------------------------
-	
 
 	@Override
 	public ST visitOperation_Cast(Operation_CastContext ctx) {
@@ -1000,12 +974,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return newVariable;
 	}		
 	
-	
 	@Override
 	public ST visitOperation_Parenthesis(Operation_ParenthesisContext ctx) {
 		return visit(ctx.operation());
-	}
-                                                                    
+	}                                                               
 	
 	@Override
 	public ST visitOperation_Mult_Div_Mod(Operation_Mult_Div_ModContext ctx) {
@@ -1084,7 +1056,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return newVariable;
 	}
-
 	
 	@Override
 	public ST visitOperation_Simetric(Operation_SimetricContext ctx) {
@@ -1118,7 +1089,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return newVariable;
 	}
-	
 	
 	@Override
 	public ST visitOperation_Add_Sub(Operation_Add_SubContext ctx) {
@@ -1169,7 +1139,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 	}
 
-
 	@Override
 	public ST visitOperation_Power(Operation_PowerContext ctx) {
 		
@@ -1206,7 +1175,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return newVariable;		
 	}
-	
 	
 	@Override
 	public ST visitOperation_Var(Operation_VarContext ctx) {
@@ -1261,7 +1229,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visitChildren(ctx);
 	}
 	
-	
 	@Override
 	public ST visitOperation_NUMBER(Operation_NUMBERContext ctx) {
 		// get NUMBER info
@@ -1291,7 +1258,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		return newVariable;
 	}
-
 	
 	// FIXME this is repeated code, must be joined in one function
 	@Override
@@ -1543,6 +1509,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		statements.add("stat", stat);
 		return statements;		
 	}
+	
 	protected static ST varAssignmentST(String previousStatements, String type, String var, String operation) {
 		ST newVariable = stg.getInstanceOf("varAssignment");
 		
@@ -1573,10 +1540,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return newVariable;
 	} 
 	
-	
 	protected static Variable createNumberVariable(String d) {
 		Double number = Double.parseDouble(d);
-		Variable a = new Variable(typesTable.get("number"), number);
+		Variable a = new Variable(typesTable.get("number"), varType.NUMERIC, number);
 		
 		if(debug) {
 			ErrorHandling.printInfo("");
@@ -1592,14 +1558,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	protected static Variable createVariable(String destType, String doubleValue) {
 		Type type = typesTable.get(destType);
 		Double value = Double.parseDouble(doubleValue);
-		return new Variable(new Type(typesTable.get(type.getTypeName())), value);
+		return new Variable(new Type(typesTable.get(type.getTypeName())), varType.NUMERIC, value);
 	}
 	
 	protected static Variable createVariable(Type type, String doubleValue) {
 		Double value = Double.parseDouble(doubleValue);
-		return new Variable(type, value);
-	}
-		
+		return new Variable(type,varType.NUMERIC, value);
+	}	
 	
 	protected static void updateSymbolTables(String originalName,String newName, Object value) {
 		symbolTableName.put(originalName, newName);
@@ -1617,7 +1582,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		return	obj;		
 	}
-	
 	
 	public static Boolean getBooleanResult(Object objOp0, Object objOp1, String op) {
 		
@@ -1644,7 +1608,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return false;
 	}
 	
-	
 	public static Boolean getLogicOperationResult(Boolean booleanOp0, Boolean booleanOp1, String op) {
 		switch(op) {
 			case "&&" : return booleanOp0 && booleanOp1; 
@@ -1653,14 +1616,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return false;
 	}
 	
-	
 	public static String getNewVarName() {
 		String newName = "var"+varCounter;
 		varCounter++;
 		return newName;
 		
 	}
-	
 
 	public static String getcCorrespondingType(String type) {
 		switch(type) {
@@ -1670,17 +1631,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		default : return "Double";
 		}
 	}
-	
-	/* (non-Javadoc)
-	 * @see potatoesGrammar.PotatoesBaseVisitor#visitFunction_ID(potatoesGrammar.PotatoesParser.Function_IDContext)
-	 */
-	@Override
-	public ST visitFunction_ID(Function_IDContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitFunction_ID(ctx);
-	}
-
-	
-	
+		
 }
 

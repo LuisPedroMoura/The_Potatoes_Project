@@ -44,7 +44,7 @@ assignment			: varDeclaration '=' expression					#assignment_Var_Declaration_Exp
 // Functions
 
 function			: FUN MAIN scope									#function_Main
-					| FUN ID '(' type ID (',' type ID)* ')' scope=scope		#function_ID
+					| FUN ID ID '(' type ID (',' type ID)* ')' scope	#function_ID
 					;
 
 functionReturn		: RETURN expression

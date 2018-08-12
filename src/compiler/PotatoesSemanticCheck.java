@@ -14,10 +14,8 @@ package compiler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -65,7 +63,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	protected static List<HashMap<String, Variable>>	symbolTable 	= new ArrayList<>();
 	
 	protected static boolean visitedMain = false;
-	protected static Variable currentReturn = null;
+	protected static String currentReturn = null;
 	
  	public PotatoesSemanticCheck(String PotatoesFilePath){
 		functions = new PotatoesFunctionNames(PotatoesFilePath);
@@ -290,8 +288,25 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable var = mapCtxVar.get(ctx.expression());
 		
-		if(var.typeIsCompatible(currentReturn)) {
-			mapCtxVar.put(ctx, mapCtxVar.get(ctx.expression()));
+		if (var.isNumeric()) {
+			
+			if (typesTable.containsKey(currentReturn)) {
+				
+				var = new Variable(var); // deep copy
+				
+				if (var.convertTypeTo(typesTable.get(currentReturn))) {
+					mapCtxVar.put(ctx, var);
+					return true;
+				}
+			}
+		}
+		
+		if(	var.isString() && currentReturn.equals("string") ||
+			var.isBoolean() && currentReturn.equals("boolean") ||
+			var.isList() && currentReturn.equals("list") ||
+			var.isDict() && currentReturn.equals("dict")) {
+			
+			mapCtxVar.put(ctx, var);
 			return true;
 		}
 		
@@ -313,6 +328,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Function_IDContext functionToVisit = functionNames.get(ctx.ID().getText());
 		List<String> argsToUse	= functionArgs.get(ctx.ID().getText());
 		
+		// update currentReturn
+		currentReturn = argsToUse.get(0);
+		String cr = currentReturn;
+		if (!typesTable.containsKey(cr) && !cr.equals("string") && !cr.equals("boolean") && !cr.equals("list") && !cr.equals("dict")) {
+			ErrorHandling.printError(ctx, "Function return type is not a valid type");
+			return false;
+		}
+		
 		// get list of arguments given in function call
 		List<Variable> functionCallArgs = new ArrayList<>();
 		for (ExpressionContext expr : ctx.expression()) {
@@ -327,9 +350,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// verify that all arguments types match function arguments
-		for (int i = 0; i < argsToUse.size(); i++) {
+		for (int i = 0; i < functionCallArgs.size(); i++) {
 			
-			String toUseArg = argsToUse.get(i);
+			String toUseArg = argsToUse.get(i+1);
 			Variable callArg = functionCallArgs.get(i);
 			
 			if (toUseArg.equals("string") && callArg.isString()) {
@@ -628,7 +651,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		ErrorHandling.printError(ctx, "Bad operand types for operator 'sort'");
 		return false;
 	}
-	
 	
 	@Override
 	public Boolean visitExpression_KEYS(Expression_KEYSContext ctx) {
@@ -1578,7 +1600,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		mapCtxVar.put(ctx, mapCtxVar.get(ctx.functionCall()));
 		return true;
 	}
-
 	
 	// --------------------------------------------------------------------------
 	// Prints
@@ -1652,7 +1673,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable type = mapCtxVar.get(ctx.type());
 		String listParamName = ctx.ID(0).getText();
-		varType listParam = varType.valueOf(listParamName.toUpperCase(Locale.ENGLISH));
+		varType listParam = newVarType(listParamName);
 		String newVarName = ctx.ID(1).getText();
 		
 		// new variable is already declared -> error
@@ -1699,8 +1720,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable type = mapCtxVar.get(ctx.type());
 		String keyTypeName = ctx.ID(0).getText();
 		String valueTypeName = ctx.ID(1).getText();
-		varType keyType = varType.valueOf(keyTypeName.toUpperCase(Locale.ENGLISH));
-		varType valueType = varType.valueOf(valueTypeName.toUpperCase(Locale.ENGLISH));
+		varType keyType = newVarType(keyTypeName);
+		varType valueType = newVarType(valueTypeName);
 		String newVarName = ctx.ID(1).getText();
 		
 		// new variable is already declared -> error
@@ -1769,13 +1790,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
-
-//	@Override 
-//	public Boolean visitType_Void_Type(Type_Void_TypeContext ctx) {
-//		Variable var = new Variable (typesTable.get("number"), varType.NUMERIC, null);
-//		mapCtxVar.put(ctx, var);
-//		return true;
-//	}
 	
 	@Override
 	public Boolean visitType_List_Type(Type_List_TypeContext ctx) {
@@ -1845,6 +1859,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		ErrorHandling.printError(ctx, "Invalid cast Type. Type '" + castName + "' does not exist");
 		return false;
 	}
+	
 
 	// -------------------------------------------------------------------------
 	// Auxiliar Fucntion
@@ -1874,21 +1889,39 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		symbolTable.add(newScope);
 	}
 	
+	/**
+	 * closes current scope exposing previous scope
+	 */
 	private static void closeScope() {
 		int lastIndex = symbolTable.size();
 		symbolTable.remove(lastIndex);
 	}
 	
+	/**
+	 * Interface to update a new pair of key value to symbolTable in the correct scope
+	 * @param key
+	 * @param value
+	 */
 	private static void updateSymbolTable(String key, Variable value) {
 		int lastIndex = symbolTable.size();
 		symbolTable.get(lastIndex).put(key, value);
 	}
 	
+	/**
+	 * Interface to get value from symbolTable in the correct scope
+	 * @param key
+	 * @return
+	 */
 	private static Variable symbolTableGet(String key) {
 		int lastIndex = symbolTable.size();
 		return symbolTable.get(lastIndex).get(key);
 	}
 	
+	/**
+	 * Interface to get key using value from symbolTable in the correct scope
+	 * @param var
+	 * @return
+	 */
 	private static String symbolTableGetKeyByValue(Variable var) {
 		int lastIndex = symbolTable.size();
 		Set<Entry<String, Variable>> entries = symbolTable.get(lastIndex).entrySet();
@@ -1900,11 +1933,22 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return "";
 	}
 	
+	/**
+	 * Interface to verify if symbolTable contains value in the correct scope
+	 * @param key
+	 * @return
+	 */
 	private static boolean symbolTableContains(String key) {
 		int lastIndex = symbolTable.size();
 		return symbolTable.get(lastIndex).containsKey(key);
 	}
-
+	
+	/**
+	 * Used in variable declarations to verify that the new name is a Valid new name
+	 * @param varName
+	 * @param ctx
+	 * @return
+	 */
 	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
 		if (symbolTableContains(varName)) {
@@ -1920,11 +1964,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 	
+	/**
+	 * trims de quotes of a lexer string
+	 * @param str
+	 * @return
+	 */
 	private static String getStringText(String str) {
 		str = str.substring(1, str.length() -1);
 		return str;
 	}
 	
+	/**
+	 * Creates new varType Enum using the equivalent types names from Potatoes Language
+	 * @param str
+	 * @return
+	 */
 	private static varType newVarType(String str) {
 		switch (str) {
 			case "boolean"	:	return varType.valueOf(varType.class, "BOOLEAN");

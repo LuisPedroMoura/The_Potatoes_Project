@@ -39,7 +39,5 @@ public enum varType {
 			return true;
 		return false;
 	}
-
-	}
 	
 }
