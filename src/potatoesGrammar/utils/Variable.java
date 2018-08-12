@@ -249,34 +249,31 @@ public class Variable {
 	 * @return true if type is compatible with this.type
 	 */
 	public boolean typeIsCompatible(Variable a){
-		// if varType is equal -> verify
-		if (this.varType == a.getvarType()) {
-			
-			// if varType is NUMERIC -> verify
-			if (this.isNumeric()) {
-				
-				// if types are equals -> compatible
-				if(this.getType().equals(a.getType())) {
-					return true;
-				}
 		
-				// if one of the types in not in graph -> not compatible
-				if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(type)) {
-					return false;
-				}
-				
-				// if there is no path between the types. It means the conversion is not possible -> not compatible
-				double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, type));
-				if (conversionFactor == Double.POSITIVE_INFINITY) {
-					return false;
-				}
+		if (this.isNumeric() && a.isNumeric()) {
+			
+			// if types are equals -> compatible
+			if(this.getType().equals(a.getType())) {
+				return true;
 			}
 			
-			// varTypes are equals and not NUMERIC -> compatible
+			// if one of the types in not in graph -> not compatible
+			if(!typesGraph.containsVertex(this.type) || !typesGraph.containsVertex(type)) {
+				return false;
+			}
+			
+			// if there is no path between the types. It means the conversion is not possible -> not compatible
+			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, type));
+			if (!(conversionFactor == Double.POSITIVE_INFINITY)) {
+				return true;
+			}
+			
+		}
+		
+		else if (this.varType == a.getVarType()) {
 			return true;
 		}
 		
-		// varTypes are not equal -> not compatible
 		return false;
 	}
 

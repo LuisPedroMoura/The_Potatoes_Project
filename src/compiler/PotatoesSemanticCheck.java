@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -63,7 +65,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	protected static List<HashMap<String, Variable>>	symbolTable 	= new ArrayList<>();
 	
 	protected static boolean visitedMain = false;
-	protected static Object currentReturn = null;
+	protected static Variable currentReturn = null;
 	
  	public PotatoesSemanticCheck(String PotatoesFilePath){
 		functions = new PotatoesFunctionNames(PotatoesFilePath);
@@ -75,7 +77,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	// --------------------------------------------------------------------------
 	// Getters
-	public static ParseTreeProperty<Object> getmapCtxVar(){
+	public static ParseTreeProperty<Variable> getmapCtxVar(){
 		return mapCtxVar;
 	}
 
@@ -176,61 +178,41 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (!visit(ctx.varDeclaration()) || !visit(ctx.expression())) {
 			return false;
 		};
-
-		String typeName = (String) mapCtxVar.get(ctx.varDeclaration().type());
-		String varName = ctx.varDeclaration().ID().getText();
-		Object obj = mapCtxVar.get(ctx.expression());
+		
+		Variable var = mapCtxVar.get(ctx.varDeclaration());
+		Variable expr = mapCtxVar.get(ctx.expression());
+		String varName = symbolTableGetKeyByValue(var);
 
 		// verify that variable to be created has valid name
 		if(!isValidNewVariableName(varName, ctx)) return false;
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[ASSIGN_VARDEC_EXPR] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + typeName);
+			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with type " + var.getType());
 		}
-
-		// assign Variable to string is not possible
-		if(typeName.equals("string")) {
-			if (obj instanceof String) {
-				updateSymbolTable(ctx.varDeclaration().ID().getText(), "str");
-				mapCtxVar.put(ctx, "str");
-				return true;
-			}
-			ErrorHandling.printError(ctx, "expression result is not compatible with string Type");
+		
+		// Types are not compatible -> error
+		else if (var.getVarType() != expr.getVarType()) {
+			ErrorHandling.printError(ctx, "Types in assignment are not compatible");
 			return false;
 		}
-
-		// assign Variable to boolean is not possible
-		if (typeName.equals("boolean")) {
-			if (obj instanceof Boolean) {
-				updateSymbolTable(ctx.varDeclaration().ID().getText(), true);
-				mapCtxVar.put(ctx, true);
-				return true;
+		
+		// types are numeric, may or may not be compatible -> verify
+		if (var.isNumeric() && expr.isNumeric()) {
+			
+			expr = new Variable (expr); // deep copy
+			
+			// types are not compatible -> error
+			if (!expr.convertTypeTo(var.getType())) {
+				ErrorHandling.printError(ctx, "Types in assignment are not compatible");
+				return false;
 			}
-			ErrorHandling.printError(ctx, "expression result is not compatible with boolean Type");
-			return false;
 		}
-
-		// assign Variable to Variable
-		Variable temp = (Variable) mapCtxVar.get(ctx.expression());
-		Variable a = new Variable(temp); // deep copy
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);
-			ErrorHandling.printInfo(ctx, "type to assign to is: " + typesTable.get(typeName));
-		}
-
-		if (a.convertTypeTo(typesTable.get(typeName))) {
-			updateSymbolTable(ctx.varDeclaration().ID().getText(), a);
-			mapCtxVar.put(ctx, a);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-					"val=" + a.getValue() + " to " + ctx.varDeclaration().ID().getText());}
-			return true;
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"!");
-		return false;
+		
+		// types are compatible -> ok
+		mapCtxVar.put(ctx, expr);
+		updateSymbolTable(varName, expr);
+		return true;
 	}
 
 	@Override
@@ -239,55 +221,36 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		};
 		
-		Object varObj = mapCtxVar.get(ctx.var());
-		Object exprResObj = mapCtxVar.get(ctx.expression());
+		Variable var = mapCtxVar.get(ctx.var());
+		Variable expr = mapCtxVar.get(ctx.expression());
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + checkSymbolTable().get(ctx.var().ID().getText()));
+			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with type " + var.getType());
 		}
-
-		if(varObj instanceof String) {
-			if (exprResObj instanceof String) {
-				updateSymbolTable(ctx.var().ID().getText(), "str");
-				mapCtxVar.put(ctx, "str");
-				return true;
-			}
-			ErrorHandling.printError(ctx, "expression result is not compatible with string Type");
+		
+		// Types are not compatible -> error
+		else if (var.getVarType() != expr.getVarType()) {
+			ErrorHandling.printError(ctx, "Types in assignment are not compatible");
 			return false;
 		}
-
-		if(varObj instanceof Boolean) {
-			if (exprResObj instanceof Boolean) {
-				updateSymbolTable(ctx.var().ID().getText(), true);
-				mapCtxVar.put(ctx, true);
-				return true;
+		
+		// types are numeric, may or may not be compatible -> verify
+		if (var.isNumeric() && expr.isNumeric()) {
+			
+			expr = new Variable (expr); // deep copy
+			
+			// types are not compatible -> error
+			if (!expr.convertTypeTo(var.getType())) {
+				ErrorHandling.printError(ctx, "Types in assignment are not compatible");
+				return false;
 			}
-			ErrorHandling.printError(ctx, "expression result is not compatible with boolean Type");
-			return false;
 		}
-
-		Variable aux = (Variable) varObj;
-		Variable var = new Variable(aux);
-		String typeName = var.getType().getTypeName();
-
-		aux = (Variable) exprResObj;
-		Variable a = new Variable(aux);
-
-		if (debug) {ErrorHandling.printInfo(ctx, "--- Variable to assign is " + a);}
-
-		// If type of variable a can be converted to the destination type (ie are compatible)
-		if (a.convertTypeTo(typesTable.get(typeName))) {
-			updateSymbolTable(ctx.var().ID().getText(), a);
-			mapCtxVar.put(ctx, a);
-			if(debug) {ErrorHandling.printInfo(ctx, "assigned Variable var=" + a.getType().getTypeName() + ", " +
-					"val=" + a.getValue() + " to " + ctx.var().ID().getText());}
-			return true;
-		}
-
-		// Types are not compatible
-		ErrorHandling.printError(ctx, "Type \"" + typeName + "\" is not compatible with \"" + a.getType().getTypeName() + "\"");
-		return false;
+		
+		// types are compatible -> ok
+		mapCtxVar.put(ctx, expr);
+		updateSymbolTable(ctx.var().ID().getText(), expr);
+		return true;
 	}
 	
 	// --------------------------------------------------------------------------
@@ -310,27 +273,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitFunction_ID(Function_IDContext ctx) {
-		boolean valid = true;
-		for (TypeContext type : ctx.type()) {
-			valid = valid && visit(type);
-		}
-		if (!valid) {
+		if (!visit(ctx.scope())) {
 			return false;
 		}
+
+		mapCtxVar.put(ctx, mapCtxVar.get(ctx.scope()));
 		
-		// get args list from function call
-		@SuppressWarnings("unchecked")
-		List<Object> args = (List<Object>) mapCtxVar.get(ctx.getParent());
-		
-		// open new scope
-		openFunctionScope();
-		
-		// store new variables with function call value and function signature name
-		for (int i = 0; i < args.size(); i++) {
-			updateSymbolTable((String) mapCtxVar.get(ctx.type(i)), args.get(i));
-		}
-		
-		return valid && visit(ctx.scope());
+		return true;
 	}
 
 	@Override
@@ -339,20 +288,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Object obj = mapCtxVar.get(ctx.expression());
+		Variable var = mapCtxVar.get(ctx.expression());
 		
-		if ((currentReturn instanceof String && obj instanceof String) || (currentReturn instanceof Boolean && obj instanceof Boolean)) {
+		if(var.typeIsCompatible(currentReturn)) {
 			mapCtxVar.put(ctx, mapCtxVar.get(ctx.expression()));
 			return true;
-		}
-		
-		if (currentReturn instanceof Variable && obj instanceof Variable) {
-			Variable a = (Variable) obj;
-			Variable b = (Variable) currentReturn;
-			if(a.typeIsCompatible(b)) {
-				mapCtxVar.put(ctx, mapCtxVar.get(ctx.expression()));
-				return true;
-			}
 		}
 		
 		ErrorHandling.printError(ctx, "return is not compatible with function signature");
@@ -374,7 +314,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		List<String> argsToUse	= functionArgs.get(ctx.ID().getText());
 		
 		// get list of arguments given in function call
-		List<Object> functionCallArgs = new ArrayList<>();
+		List<Variable> functionCallArgs = new ArrayList<>();
 		for (ExpressionContext expr : ctx.expression()) {
 			visit(expr);
 			functionCallArgs.add(mapCtxVar.get(expr));
@@ -388,33 +328,47 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// verify that all arguments types match function arguments
 		for (int i = 0; i < argsToUse.size(); i++) {
-			if (argsToUse.get(i).equals("string") && functionCallArgs.get(i) instanceof String) {
+			
+			String toUseArg = argsToUse.get(i);
+			Variable callArg = functionCallArgs.get(i);
+			
+			if (toUseArg.equals("string") && callArg.isString()) {
 				continue;
 			}
-			else if (argsToUse.get(i).equals("boolean") && functionCallArgs.get(i) instanceof Boolean) {
+			else if (toUseArg.equals("boolean") && callArg.isBoolean()) {
 				continue;
 			}
-			else if (argsToUse.get(i).equals("string") || functionCallArgs.get(i) instanceof String) {
-				ErrorHandling.printError(ctx, "function call arguments are no compatible with function signature");
-				return false;
+			else if (toUseArg.equals("list") && callArg.isList()) {
+				continue;
 			}
-			else if (argsToUse.get(i).equals("boolean") || functionCallArgs.get(i) instanceof Boolean) {
-				ErrorHandling.printError(ctx, "function call arguments are no compatible with function signature");
-				return false;
+			else if (toUseArg.equals("dict") && callArg.isDict()) {
+				continue;
 			}
-			else {
-				Variable arg = (Variable) functionCallArgs.get(i);
-				String argTypeName = arg.getType().getTypeName();
-				if (argsToUse.get(i).equals(argTypeName)) {
+			else if (callArg.isNumeric()) {
+				String callArgTypeName = callArg.getType().getTypeName();
+				if (toUseArg.equals(callArgTypeName)) {
 					continue;
 				}
+			}
+			else {
 				ErrorHandling.printError(ctx, "function call arguments are no compatible with function signature");
 				return false;
 			}
 		}
 		
-		mapCtxVar.put(ctx, functionCallArgs);
+		// open new scope
+		openFunctionScope();
+		
+		// store new variables with function call value and function signature name
+		for (int i = 0; i < functionCallArgs.size(); i++) {
+			updateSymbolTable(argsToUse.get(i), functionCallArgs.get(i));
+		}
+		
+		// visit the function with correct scope and arguments
 		visit(functionToVisit);
+		
+		// update tables and visit function
+		mapCtxVar.put(ctx, new Variable(null, varType.LIST, mapCtxVar.get(functionToVisit)));
 		return true;
 	}
 
@@ -510,8 +464,18 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			valid = valid && res;
 		}
 		
-		closeScope();
+		if (ctx.functionReturn() != null) {
+			valid = valid && visit(ctx.functionReturn());
+			if (!valid) {
+				return false;
+			}
+			mapCtxVar.put(ctx, mapCtxVar.get(ctx.functionReturn()));
+			closeScope();
+			return true;
+		}
 		
+		mapCtxVar.put(ctx, null);
+		closeScope();
 		return valid;
 	}
 
@@ -529,8 +493,37 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_LISTINDEX(Expression_LISTINDEXContext ctx) {
-		// TODO Auto-generated method stub
-		return super.visitExpression_LISTINDEX(ctx);
+		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
+			return false;
+		}
+		
+		Variable var0 = mapCtxVar.get(ctx.expression(0));
+		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		
+		// expression types are list and numeric ('number') -> ok
+		if (var0.isList() && var1.isNumeric()) {
+			
+			if (var1.getType().equals(typesTable.get("number"))){
+				
+				ListVar listVar = (ListVar) var0.getValue();
+				int index = ((Double) var1.getValue()).intValue();
+				
+				try {
+					Variable get = listVar.getList().get(index);
+					mapCtxVar.put(ctx, get);
+					return true;
+				}
+				catch (IndexOutOfBoundsException e) {
+					ErrorHandling.printError(ctx, "Index out of bounds");
+					return false;
+				}
+			}
+		}
+		
+		// other expression combinations -> error
+		ErrorHandling.printError(ctx, "Bad operands for operator '[ ]'");
+		return false;
+			
 	}
 	
 	@Override
@@ -616,10 +609,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (var.isList()) {
 			
 			ListVar listVar = (ListVar) var.getValue();
-			
-			// FIXME vai dar asneira... preciso fazer o sort por values da variable
-			listVar.getList().sort();
-			
 			mapCtxVar.put(ctx, new Variable(null, varType.LIST, listVar));
 			return true;
 		}
@@ -639,6 +628,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		ErrorHandling.printError(ctx, "Bad operand types for operator 'sort'");
 		return false;
 	}
+	
 	
 	@Override
 	public Boolean visitExpression_KEYS(Expression_KEYSContext ctx) {
@@ -1634,7 +1624,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable type = mapCtxVar.get(ctx.type());
 		String newVarName = ctx.ID().getText();
-		Variable newVar = new Variable(type); // deep copy .. type already contains information necessary to create variable
 		
 		// new variable is already declared -> error
 		if(symbolTableContains(newVarName)) {
@@ -1647,10 +1636,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, "Incorrect number of arguments for type '" + type + "'");
 			return false;
 		}
-		
-		// update tables
-		mapCtxVar.put(ctx, newVar);
-		updateSymbolTable(newVarName, newVar);
+				
+		// update tables -> type already contains information necessary to create variable
+		mapCtxVar.put(ctx, type);
+		updateSymbolTable(newVarName, type);
 		
 		return true;
 	}
@@ -1762,21 +1751,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override 
 	public Boolean visitType_Number_Type(Type_Number_TypeContext ctx) {
-		Variable var = new Variable (typesTable.get("number"), varType.NUMERIC, null);
+		Variable var = new Variable (typesTable.get("number"), varType.NUMERIC, 0.0);
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
 
 	@Override 
 	public Boolean visitType_Boolean_Type(Type_Boolean_TypeContext ctx) {
-		Variable var = new Variable (null, varType.BOOLEAN, null);
+		Variable var = new Variable (null, varType.BOOLEAN, false);
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
 
 	@Override 
 	public Boolean visitType_String_Type(Type_String_TypeContext ctx) {
-		Variable var = new Variable (null, varType.STRING, null);
+		Variable var = new Variable (null, varType.STRING, "");
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
@@ -1807,7 +1796,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String typeName = ctx.ID().getText();
 		// type exists -> ok
 		if (typesTable.containsKey(typeName)) {
-			Variable var = new Variable (typesTable.get(typeName), varType.NUMERIC, null);
+			Variable var = new Variable (typesTable.get(typeName), varType.NUMERIC, 0.0);
 			mapCtxVar.put(ctx, var);
 			return true;
 		}
@@ -1898,6 +1887,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	private static Variable symbolTableGet(String key) {
 		int lastIndex = symbolTable.size();
 		return symbolTable.get(lastIndex).get(key);
+	}
+	
+	private static String symbolTableGetKeyByValue(Variable var) {
+		int lastIndex = symbolTable.size();
+		Set<Entry<String, Variable>> entries = symbolTable.get(lastIndex).entrySet();
+		for (Entry<String, Variable> en : entries) {
+			if (en.getValue().equals(var)) {
+				return en.getKey();
+			}
+		}
+		return "";
 	}
 	
 	private static boolean symbolTableContains(String key) {
