@@ -1127,13 +1127,25 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitExpression_REM(Expression_REMContext ctx) {
 		
-		// create new template
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST("boolean", newName);
-		
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
+		String expr0Type = (String) expr1.getAttribute("type");
+		String valueType = "";
+		
+		// expr0 is a list
+		if (((String)expr0.getAttribute("type")).contains("list")) {
+			valueType = getListValueType(expr0Type);
+		}
+		
+		// expr0 is a dict
+		if (((String)expr0.getAttribute("type")).contains("list")) {
+			valueType = getListValueType(expr0Type);
+		}
+		
+		// create new template
+		String newName = getNewVarName();
+		ST newVariable = varAssignmentST("boolean", newName);
 		
 		// add previous statements
 		newVariable.add("previousStatements", expr0.render());
@@ -1152,13 +1164,25 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitExpression_GET(Expression_GETContext ctx) {
 		
-		// create new template
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST("", newName);
-		
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
+		String expr0Type = (String) expr1.getAttribute("type");
+		String valueType = "";
+		
+		// expr0 is a list
+		if (((String)expr0.getAttribute("type")).contains("list")) {
+			valueType = getListValueType(expr0Type);
+		}
+		
+		// expr0 is a dict
+		if (((String)expr0.getAttribute("type")).contains("list")) {
+			valueType = getListValueType(expr0Type);
+		}
+		
+		// create new template
+		String newName = getNewVarName();
+		ST newVariable = varAssignmentST(valueType, newName);
 		
 		// add previous statements
 		newVariable.add("previousStatements", expr0.render());
@@ -1167,8 +1191,17 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get var names to complete operation and add it
 		String expr0Name = (String) expr0.getAttribute("var");
 		String expr1Name = (String) expr1.getAttribute("var");
-		newVariable.add("operation", expr0Name + ".get(" + expr1Name + ")");
+		//-------------------
+		// FIXME entao e a conversao de valors quando esta 'e possivel???
+		//------------------
+		if (((String)expr0.getAttribute("type")).contains("list")) {
+			newVariable.add("operation", expr0Name + ".get(" + expr1Name + ".intValue())");
+		}
 		
+		// expr0 is a dict
+		if (((String)expr0.getAttribute("type")).contains("list")) {
+			newVariable.add("operation", expr0Name + ".get(" + expr1Name + ")");
+		}
 		//symbolTableValue.put(newName, value);
 		
 		return newVariable;
@@ -1177,13 +1210,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitExpression_CONTAINS(Expression_CONTAINSContext ctx) {
 		
-		// create new template
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST("boolean", newName);
-		
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
+		
+		// create new template
+		String newName = getNewVarName();
+		ST newVariable = varAssignmentST("boolean", newName);
 		
 		// add previous statements
 		newVariable.add("previousStatements", expr0.render());
@@ -1202,14 +1235,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitExpression_CONTAINSKEY(Expression_CONTAINSKEYContext ctx) {
 		
-		// create new template
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST("boolean", newName);
-		
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
 		
+		// create new template
+		String newName = getNewVarName();
+		ST newVariable = varAssignmentST("boolean", newName);
+
 		// add previous statements
 		newVariable.add("previousStatements", expr0.render());
 		newVariable.add("previousStatements", expr1.render());
@@ -1226,15 +1259,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	@Override
 	public ST visitExpression_CONTAINSVALUE(Expression_CONTAINSVALUEContext ctx) {
-		
-		// create new template
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST("boolean", newName);
-		
+
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
 		
+		// create new template
+		String newName = getNewVarName();
+		ST newVariable = varAssignmentST("boolean", newName);
+
 		// add previous statements
 		newVariable.add("previousStatements", expr0.render());
 		newVariable.add("previousStatements", expr1.render());
@@ -1252,13 +1285,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	@Override
 	public ST visitExpression_INDEXOF(Expression_INDEXOFContext ctx) {
 		
-		// create new template
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST("Double", newName);
-		
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
+		
+		// create new template
+		String newName = getNewVarName();
+		ST newVariable = varAssignmentST("Double", newName);
 		
 		// add previous statements
 		newVariable.add("previousStatements", expr0.render());
@@ -1269,7 +1302,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String expr1Name = (String) expr1.getAttribute("var");
 		newVariable.add("operation", expr0Name + ".indeOf(" + expr1Name + ")");
 		
-		symbolTableValue.put(newName, value);
+		//symbolTableValue.put(newName, value);
 		
 		return newVariable;
 		
@@ -1765,6 +1798,27 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		else keyType = "Double";
 		
 		return "Map<" + keyType + ", " + valueType + ">";
+	}
+	
+	private static String getListValueType(String decl) {
+		String type = decl.substring(5, decl.length()-1);
+		if (type.equals("string")) return "String";
+		else if (type.equals("boolean")) return "Boolean";
+		else return "Double";
+	}
+	
+	private static String getDictKeyType(String decl) {
+		String type = decl.split(",")[0].substring(5, decl.length());
+		if (type.equals("string")) return "String";
+		else if (type.equals("boolean")) return "Boolean";
+		else return "Double";
+	}
+	
+	private static String getDictValueType(String decl) {
+		String type = decl.split(",")[1].substring(1, decl.length()-1);
+		if (type.equals("string")) return "String";
+		else if (type.equals("boolean")) return "Boolean";
+		else return "Double";
 	}
 	
 	/**
