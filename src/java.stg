@@ -4,13 +4,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typeValue ::= [
-   "number"	:"double",
-   "string"	:"String",
-   "boolean":"boolean",
-   "void"	:"void",
-   "id"		:"double",
-   ""		:"",
-   default	:"null"
+   "numeric"		: "double",
+   "string"			: "String",
+   "boolean"		: "boolean",
+   "void"			: "void",
+   "list[numeric]"	: "List\<Double\>"
+   "list[string]"	: "List\<String\>"
+   "list[boolean]"	: "List\<Boolean\>"
+   "dict[numeric]"	: "Map\<Double\>"
+   "dict[string]"	: "Map\<String\>"
+   "dict[boolean]"	: "Map\<Boolean\>"
+   "id"				: "double",
+   ""				: "",
+   default			: "null"
 ]
 
 printType ::= [
@@ -35,6 +41,9 @@ stats(stat) ::= <<
 
 
 class(name,stat) ::= <<
+import.java.util.*;
+import.java.io.*;
+
 public class <name> {
 	<stats(stat)>
 }
@@ -51,13 +60,13 @@ scope(stat) ::= <<
 >>
 
 //-------------------------------------------------------------------------------
-//CLASS - ASSIGNMENTS------------------------------------------------------------
+//ASSIGNMENTS------------------------------------------------------------
 //-------------------------------------------------------------------------------
 
 
 varAssignment(type, var, operation, previousStatements ) ::= <<
 <stats(previousStatements)>
-<if(type)><varDeclaration(type, var)><else><var><endif> = <operation>;
+<if(type)><varDeclaration(typeValue.(type), var)><else><var><endif> = <operation>;
 >>
 
 
@@ -100,22 +109,41 @@ while(<logicalOperation>) <stats(scope)>
 //-------------------------------------------------------------------------------
 //PRINTS-------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-print(type, valueOrVarList, stat) ::= <<
-<stats(stat)>
-<printType.(type)>(<values(valueOrVarList)>);
+
+print(type, expression, previousStatements) ::= <<
+<stats(previousStatements)>
+<printType.(type)>(<expression>);
+>>
+
+printWriterDeclaration(expression, path, var, previousStatements) ::= <<
+<stats(previousStatements)>
+String fileName = <path>;
+PrintWriter <var> = new Printwriter(fileName);
+>>
+
+printWriter(var, expression, previousStatements) ::= <<
+stats<previousStatements>
+<var>.print(<expression>);
 >>
 
 //-------------------------------------------------------------------------------
-// VARS AND TYPES--------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+// VARS AND TYPES----------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
+listDeclaration(value) ::= <<
+ArrayList \< <value> \>
+>>
+
+dictDeclaration(key, value) ::= <<
+HashMap \< <key>, <value> \>
+>>
 
 varDeclaration(type, var) ::= <<
 <type> <var>
 >>
 
 type(type) ::= <<
-<typeValue.(type)>
+<type>
 >>
 
 values(value) ::=<<

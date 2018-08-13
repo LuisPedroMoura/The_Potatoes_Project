@@ -40,4 +40,16 @@ public enum varType {
 		return false;
 	}
 	
+	@Override
+	public String toString() {
+		switch (this) {
+		case BOOLEAN	:	return "boolean";
+		case STRING		:	return "string";
+		case LIST		:	return "list";
+		case DICT		:	return "dict";
+		case TUPLE		:	return "tuple";
+		default			:	return "numeric";
+		}
+	}
+	
 }

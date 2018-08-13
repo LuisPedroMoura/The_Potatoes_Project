@@ -1651,12 +1651,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ErrorHandling.printError(ctx, "Variable '" + newVarName + "' is already declared");
 			return false;
 		}
-		
-		// type is data structure -> error
-		if (type.isList() || type.isDict()) {
-			ErrorHandling.printError(ctx, "Incorrect number of arguments for type '" + type + "'");
-			return false;
-		}
 				
 		// update tables -> type already contains information necessary to create variable
 		mapCtxVar.put(ctx, type);
@@ -1667,11 +1661,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitVarDeclaration_list(VarDeclaration_listContext ctx) {
-		if(!visit(ctx.type())) {
-			return false;
-		}
 		
-		Variable type = mapCtxVar.get(ctx.type());
 		String listParamName = ctx.ID(0).getText();
 		varType listParam = newVarType(listParamName);
 		String newVarName = ctx.ID(1).getText();
@@ -1682,42 +1672,31 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		// type is list -> ok
-		else if (type.isList()){
-			
-			// list parameterized type is string || boolean || numeric -> ok
-			if (listParam.isString() || listParam.isBoolean() || listParam.isNumeric()) {
-				// verify if list type is blocked or accepts compatible types
-				boolean blockedType = false;
-				if (ctx.block == null) {
-					blockedType = true;
-				}
-				ListVar listVar = new ListVar(listParamName, blockedType);
-				Variable list = new Variable(null, varType.LIST, listVar);
-				
-				// update tables
-				mapCtxVar.put(ctx, list);
-				updateSymbolTable(newVarName, list);
-				return true;
+
+		// list parameterized type is string || boolean || numeric -> ok
+		if (listParam.isString() || listParam.isBoolean() || (listParam.isNumeric() && typesTable.containsKey(listParamName))) {
+			// verify if list type is blocked or accepts compatible types
+			boolean blockedType = false;
+			if (ctx.block == null) {
+				blockedType = true;
 			}
+			ListVar listVar = new ListVar(listParamName, blockedType);
+			Variable list = new Variable(null, varType.LIST, listVar);
 			
-			// other list types -> error
-			ErrorHandling.printError(ctx, "Incorrect argument for list type");
-			return false;
+			// update tables
+			mapCtxVar.put(ctx, list);
+			updateSymbolTable(newVarName, list);
+			return true;
 		}
 		
-		// type is not list -> error
-		ErrorHandling.printError(ctx, "Incorrect number of arguments for type '" + type + "'");
+		// other list types -> error
+		ErrorHandling.printError(ctx, "Incorrect argument for list parameter");
 		return false;
 	}
 
 	@Override
 	public Boolean visitVarDeclaration_dict(VarDeclaration_dictContext ctx) {
-		if(!visit(ctx.type())) {
-			return false;
-		}
-		
-		Variable type = mapCtxVar.get(ctx.type());
+
 		String keyTypeName = ctx.ID(0).getText();
 		String valueTypeName = ctx.ID(1).getText();
 		varType keyType = newVarType(keyTypeName);
@@ -1730,41 +1709,34 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		// type is dict -> ok
-		else if (type.isDict()){
-			
-			// dict key type and value type are string || boolean || numeric -> ok
-			if (keyType.isString() || keyType.isBoolean() || keyType.isNumeric()) {
-				if (valueType.isString() || valueType.isBoolean() || valueType.isNumeric()) {
-					
-					// verify if dict key type and value type are blocked or accept compatible types
-					boolean blockKeyType = false;
-					if (ctx.block0 == null) {
-						blockKeyType = true;
-					}
-					boolean blockValType = false;
-					if (ctx.block0 == null) {
-						blockValType = true;
-					}
-					
-					DictVar dictVar = new DictVar(keyTypeName, blockKeyType, valueTypeName, blockValType);
-					Variable dict = new Variable(null, varType.DICT, dictVar);
-					
-					// update tables
-					mapCtxVar.put(ctx, dict);
-					updateSymbolTable(newVarName, dict);
-					return true;
+		// dict key type and value type are string || boolean || numeric -> ok
+		if (keyType.isString() || keyType.isBoolean() || (keyType.isNumeric() && typesTable.containsKey(keyTypeName))) {
+			if (valueType.isString() || valueType.isBoolean() || (valueType.isNumeric() && typesTable.containsKey(valueTypeName))) {
+				
+				// verify if dict key type and value type are blocked or accept compatible types
+				boolean blockKeyType = false;
+				if (ctx.block0 == null) {
+					blockKeyType = true;
 				}
+				boolean blockValType = false;
+				if (ctx.block0 == null) {
+					blockValType = true;
+				}
+				
+				DictVar dictVar = new DictVar(keyTypeName, blockKeyType, valueTypeName, blockValType);
+				Variable dict = new Variable(null, varType.DICT, dictVar);
+				
+				// update tables
+				mapCtxVar.put(ctx, dict);
+				updateSymbolTable(newVarName, dict);
+				return true;
 			}
-			
-			// other dict types -> error
-			ErrorHandling.printError(ctx, "Incorrect arguments for dict type");
-			return false;
 		}
 		
-		// type is not dict -> error
-		ErrorHandling.printError(ctx, "Incorrect number of arguments for type '" + type + "'");
+		// other dict types -> error
+		ErrorHandling.printError(ctx, "Incorrect arguments for dict type");
 		return false;
+
 	}
 	
 	// --------------------------------------------------------------------------
@@ -1787,20 +1759,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override 
 	public Boolean visitType_String_Type(Type_String_TypeContext ctx) {
 		Variable var = new Variable (null, varType.STRING, "");
-		mapCtxVar.put(ctx, var);
-		return true;
-	}
-	
-	@Override
-	public Boolean visitType_List_Type(Type_List_TypeContext ctx) {
-		Variable var = new Variable (null, varType.LIST, null);
-		mapCtxVar.put(ctx, var);
-		return true;
-	}
-
-	@Override
-	public Boolean visitType_Dict_Type(Type_Dict_TypeContext ctx) {
-		Variable var = new Variable (null, varType.DICT, null);
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
