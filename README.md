@@ -1,7 +1,13 @@
 # The Potatoes Project
 ## A Dimentional Analysis Language
 
-... WORK IN PROGRESS ...
+
+... READ ME WORK IN PROGRESS ...
+
+
+
+
+
 
 The Potatoes Project is actually two projects in one. First a powerful Domain Specific Language for creating all kinds of Units that offers an interface that guarantees checked operations between them. Second, the Potatoes, a General purpose Language that uses the previous plataform offering a statically typed sintax for operating with the defined units that can be very  easily  and intuitively used even by non programmers.
 
