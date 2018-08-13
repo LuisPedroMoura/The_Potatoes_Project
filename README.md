@@ -3,10 +3,27 @@
 
 ... WORK IN PROGRESS ...
 
-With it's starting point being a university project for the discipline of Formal Languages and Automata,
-the first objective was to create a simple dimentional analysis language that could define the arithmetics
-with diferente units. The objective grew to include the ability to accept the equivalence of units that could be accepted
-in calculations in diferente dimentions.
+The Potatoes Project is actually two projects in one. First a powerful Domain Specific Language for creating all kinds of Units that offers an interface that guarantees checked operations between them. Second, the Potatoes, a General purpose Language that uses the previous plataform offering a statically typed sintax for operating with the defined units that can be very  easily  and intuitively used even by non programmers.
+
+### The 'Double Trouble'
+Why isn't the type Double enough?
+When dealing with units or quantities of a specific dimension in a General Purpose programming language there is an obvious limitation. There is no way to distinguish two variables aside from their names. And when operating with units, adding or multiplying yields different results, one maintains the dimension the other does not. And what if teh SI units are not enough? And what if you need to create a new base unit and derived units from it? And what about prefix multipliers?
+The Double Touble DSL allows you to create and of this very easly. As an example the code bellow creates 12 prefixed types/units with 9 possibilities to calculate volume with equivalent (same dimension) units.
+```
+units {
+  meter "m";
+  yard "yd";
+  fathom "ftm";
+  volume "m^2" : meter * meter;
+  length [meter] : (1.09361) yard | (0.546807) fathom;
+}
+prefixes {
+  kilo "k" : 10^3;
+  pico "p" : 10^-12;
+}
+```
+### The 'Potatoes Language'
+...
 
 Potatoes Language Reference Manual:
 Potatoes Language Tutorial:
