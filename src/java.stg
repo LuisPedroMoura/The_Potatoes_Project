@@ -95,7 +95,7 @@ forLoop(outsideStatements, logicalOperation, content) ::= <<
 <stats(outsideStatements)>	
 while(true){
 	if(<logicalOperation>) break;
-	else <stats(scope)>
+	else <stats(content)>
 }
 >>
 

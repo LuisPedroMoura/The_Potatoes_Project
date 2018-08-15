@@ -61,7 +61,7 @@ controlFlowStatement: condition
  					| whileLoop
  					;	
 
-forLoop				: FOR '(' assignment? EOL expression EOL assignment ')' scope 
+forLoop				: FOR '(' assignment* EOL expression EOL assignment ')' scope 
  					;
  			
 whileLoop			: WHILE '(' expression ')' scope

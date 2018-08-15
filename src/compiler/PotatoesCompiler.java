@@ -91,15 +91,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return visit(ctx.function());
 	}
 	
-	@Override
-	public ST visitScope(ScopeContext ctx) {
-		// Visit all statement rules
-		ST scopeContent = stg.getInstanceOf("scope");
-		for (StatementContext stat : ctx.statement()) {
-			scopeContent.add("stat", visit(stat));
-		}
-		return scopeContent;
-	}
+
 	
 	// --------------------------------------------------------------------------------------------------------------------	
 	// CLASS - STATEMENTS--------------------------------------------------------------------------------------------------	
@@ -166,21 +158,23 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitAssignment_Var_Expression(Assignment_Var_ExpressionContext ctx) {
 		
 		// get var and expression info
+		String id = ctx.var().ID().getText();
 		ST var = visit(ctx.var());
 		ST expr = visit(ctx.expression());
-		
-		// get names
 		String varName = (String) var.getAttribute("var");
 		String exprName = (String) var.getAttribute("var");
 		
 		// create template
-		ST newVariable = stg.getInstanceOf("varAssignment");
-		newVariable.add("previousStatements", var);
+		String newName = getNewVarName();
+		ST newVariable = stg.getInstanceOf("var");
 		newVariable.add("previousStatements", expr);
-		newVariable.add("var", varName);
+		newVariable.add("var", newName);
 		newVariable.add("operation", exprName);
-		
-		symbolTableValue.put(varName, symbolTableValue.get(exprName));
+	
+		// update tables
+		symbolTableNames.put(ctx.var().ID().getText(), newName);
+		symbolTableValue.put(newName, mapCtxVar.get(ctx.expression()));
+		mapCtxVar.put(ctx, mapCtxVar.get(ctx.expression()));
 		
 		return newVariable;
 	}
@@ -230,46 +224,35 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitForLoop(ForLoopContext ctx) {
 		/* parser rule -> forLoop : FOR '(' assignment? EOL logicalOperation EOL assignment ')' scope */
 		
-		// get first assignment info
-		ST firstAssignment = null;
-		int size = ctx.assignment().size();
-		if(size!=1){// FOR '('assignment EOL logicalOperation EOL assignment ')'
-			firstAssignment = visit(ctx.assignment(0));
-		}
-		
-		// get logical operation info
-		ST logicalOperation = visit(ctx.logicalOperation());
-		//forLoop.add("outsideStatements", "//"+ctx.logicalOperation().getText());
-		String booleanVarName = (String) logicalOperation.getAttribute("var");
-		
-		// get scope info
-		ST scope = visit(ctx.scope());
-		
-		// update scope with assignment updates and finalAssignments
-		scope.add("stat", "\n//finalAssignment actualization");
-		ST lastAssignment = null;
-		if(size==1) {// FOR '(' EOL logicalOperation EOL assignment ')'
-			lastAssignment = visit(ctx.assignment(0));
-			scope.add("stat",lastAssignment.render() );
-		}
-		else {// FOR '('assignment EOL logicalOperation EOL assignment ')'
-			lastAssignment = visit(ctx.assignment(1));
-			scope.add("stat", lastAssignment.render());
-		}
-		
-		ST logicalOperation1 = visit(ctx.logicalOperation()); // have to visit again
-		//scope.add("stat", "//"+ctx.logicalOperation().getText());
-		scope.add("stat", logicalOperation1.render());
-		String booleanVarName1 = (String) logicalOperation1.getAttribute("var");
-		String reAssignment = booleanVarName + "=" + booleanVarName1 + ";";
-		scope.add("stat", reAssignment);
-		
-		//create ST
+		// create template
 		ST forLoop = stg.getInstanceOf("forLoop");
-		if(size!=1) forLoop.add("outsideStatements", firstAssignment.render());
-		forLoop.add("outsideStatements", logicalOperation.render());
-		forLoop.add("logicalOperation", "!"+booleanVarName);
-		forLoop.add("scope", scope);
+		
+		// get first assignments  and add to forLoop
+		for (int i = 1; i < ctx.assignment().size(); i++) {
+			forLoop.add("outsideStatements", visit(ctx.assignment(i-1)));
+		}
+		
+		// get logical operation and add to forLoop outsideStatements
+		ST expr = visit(ctx.expression());
+		forLoop.add("outsideStatements", expr.render());
+		
+		// add logical Operation result to internal if
+		String exprRes = (String) expr.getAttribute("var");
+		forLoop.add("logicalOperation", "!" + exprRes);
+		
+		// get scope and add to stats
+		forLoop.add("content", visit(ctx.scope()));
+		
+		// add last assignment to for loop content
+		forLoop.add("content", visit(ctx.assignment(ctx.assignment().size()-1)));
+		
+		// add logical operation to for loop content
+		expr = visit(ctx.expression());
+		String lastAssignVarName = (String) expr.getAttribute("var");
+		forLoop.add("content", expr.render());
+		
+		// force logical espression result into last varName
+		forLoop.add("content", exprRes + " = " + lastAssignVarName);
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,"");
@@ -288,91 +271,59 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitWhileLoop(WhileLoopContext ctx) {
 		/* parser rule -> whileLoop : WHILE '(' logicalOperation ')' scope */
 		
-		// get logical operation info
-		ST logicalOperation = visit(ctx.logicalOperation());
-		String booleanVarName = (String) logicalOperation.getAttribute("var");
+		// ST
 		
-		// get scope info and create scope ST
-		ST scope = visit(ctx.scope());
+		// get expression info
+		ST expr = visit(ctx.expression());
+		String logicalOperation = (String) expr.getAttribute("var");
 		
-		// add update of logical operation to scope
-		ST logicalOperation1 = visit(ctx.logicalOperation()); // have to visit again
-		//scope.add("content", "//"+ctx.logicalOperation().getText());
-		scope.add("content", logicalOperation1);
-		String booleanVarName1 = (String) logicalOperation1.getAttribute("var");
-		String reAssignment = booleanVarName + "=" + booleanVarName1 + ";";
-		scope.add("content", reAssignment);
-		
-		// create ST
+		// create template
 		ST whileLoop = stg.getInstanceOf("whileLoop");
-		whileLoop.add("previousStatements", logicalOperation);
-		whileLoop.add("logicalOperation", booleanVarName);
-		whileLoop.add("scope", scope);
-
+		whileLoop.add("previousStatements", expr.render());
+		whileLoop.add("logicalOperation", logicalOperation);
+		whileLoop.add("scope", visit(ctx.scope()));
+		
 		return whileLoop;
 	}
 	
+	
 	@Override
-	public ST visitCondition_withoutElse(Condition_withoutElseContext ctx) {
-		/* parser rule -> ifCondition elseIfCondition* */
+	public ST visitCondition(ConditionContext ctx) {
 		
-		// get condition info
-		ST ifCondition = visit(ctx.ifCondition());
-		ST elseIfCondition = stg.getInstanceOf("stats");
+		// create template
+		ST stats = stg.getInstanceOf("stats");
 		
-		for(ElseIfConditionContext context : ctx.elseIfCondition()) {
-			ST temp = visit(context);
-			String previousStatements = (String) temp.getAttribute("previousStatements");
-			ifCondition.add("previousStatements", previousStatements);
-			elseIfCondition.add("stat", temp.render().substring(previousStatements.length()));
+		// add if condition
+		ST ifCond = visit(ctx.ifCondition());
+		stats.add("stat", ifCond);
+		
+		// add else if conditions
+		for (ElseIfConditionContext elseif : ctx.elseIfCondition()) {
+			stats.add("stat", visit(elseif));
 		}
 		
-		// create ST
-		ST condition = stg.getInstanceOf("stats");
-		condition.add("stat", ifCondition.render());
-		condition.add("stat", elseIfCondition.render());
-		
-		return condition;
-	}
-
-	@Override
-	public ST visitCondition_withElse(Condition_withElseContext ctx) {
-		/* parser rule -> ifCondition elseIfCondition* elseCondition */
-		
-		// get conditions info
-		ST ifCondition = visit(ctx.ifCondition());
-		ST elseIfCondition = stg.getInstanceOf("stats"); // have to move previous statements to ifCondition
-		ST elseCondition = visit(ctx.elseCondition());
-		
-		for(ElseIfConditionContext context : ctx.elseIfCondition()) {
-			ST temp = visit(context);
-			String previousStatements = (String) temp.getAttribute("previousStatements");
-			ifCondition.add("previousStatements", previousStatements);
-			elseIfCondition.add("stat", temp.render().substring(previousStatements.length()));
+		// add else condition
+		if (ctx.elseCondition() != null) {
+			stats.add("stat", visit(ctx.elseCondition()));
 		}
-			
-		// create ST
-		ST condition = stg.getInstanceOf("stats");
-		condition.add("stat", ifCondition.render());
-		condition.add("stat", elseIfCondition.render());
-		condition.add("stat", elseCondition.render());
 		
-		return condition;
-	}
+		return stats;
 
+	}
+	
 	@Override 
 	public ST visitIfCondition(IfConditionContext ctx) { 
 		/* parser rule -> ifCondition : IF '(' logicalOperation ')' scope */
 
-		// get logicalOperation info
-		ST logicalOperation = visit(ctx.logicalOperation());
+		// get expression info
+		ST expr = visit(ctx.expression());
+		String logicalOperation = (String) expr.getAttribute("var");
 		
-		// create ST
+		// create template
 		ST ifCondition = stg.getInstanceOf("ifCondition");
-		ifCondition.add("previousStatements", logicalOperation.render());
-		ifCondition.add("logicalOperation", logicalOperation.getAttribute("operation"));
+		ifCondition.add("previousStatements", expr.render());
+		ifCondition.add("logicalOperation", logicalOperation);
 		ifCondition.add("scope", visit(ctx.scope()));
-		// FIXME visit(ctx.scope()).render() ??????
 				
 		return ifCondition;
 	}
@@ -381,15 +332,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitElseIfCondition(ElseIfConditionContext ctx) {
 		/* parser rule -> elseIfCondition : ELSE IF '(' logicalOperation ')' scope */
 		
-		// get logicalOperation info
-		ST logicalOperation = visit(ctx.logicalOperation());
+		// get expression info
+		ST expr = visit(ctx.expression());
+		String logicalOperation = (String) expr.getAttribute("var");
 		
-		// create ST
-		ST elseIfCondition = stg.getInstanceOf("elseIfCondition");
-		elseIfCondition.add("previousStatements", logicalOperation.render());
-		elseIfCondition.add("logicalOperation", logicalOperation.getAttribute("operation"));
+		// create template
+		ST elseIfCondition = stg.getInstanceOf("ifCondition");
+		elseIfCondition.add("previousStatements", expr.render());
+		elseIfCondition.add("logicalOperation", logicalOperation);
 		elseIfCondition.add("scope", visit(ctx.scope()));
-		
+				
 		return elseIfCondition;
 	}
 
@@ -397,11 +349,22 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	public ST visitElseCondition(ElseConditionContext ctx) {
 		/* parser rule -> elseCondition : ELSE scope */
 		
-		// create ST
+		// create template
 		ST elseCondition = stg.getInstanceOf("elseCondition");
 		elseCondition.add("scope", visit(ctx.scope()));
 		
 		return elseCondition;
+	}
+	
+	@Override
+	public ST visitScope(ScopeContext ctx) {
+		
+		// Visit all statement rules
+		ST scopeContent = stg.getInstanceOf("scope");
+		for (StatementContext stat : ctx.statement()) {
+			scopeContent.add("stat", visit(stat));
+		}
+		return scopeContent;
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------
@@ -1478,6 +1441,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create Variable and save ctx
 		var = new Variable(var); // deep copy
 		symbolTableValue.put(newName, var);
+		symbolTableNames.put(id, newName);
 		mapCtxVar.put(ctx, var);
 		
 		return newVariable;

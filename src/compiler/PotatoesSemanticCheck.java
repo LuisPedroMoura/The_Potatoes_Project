@@ -430,6 +430,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
+		
+		// condition is boolean -> ok
+		Variable var = mapCtxVar.get(ctx.expression());
+		if (!var.isBoolean()) {
+			ErrorHandling.printError(ctx, "If condition must be boolean");
+			return false;
+		}
 
 		// visit all scope
 		valid = valid && visit(ctx.scope());
@@ -447,6 +454,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
+		
+		// condition is boolean -> ok
+		Variable var = mapCtxVar.get(ctx.expression());
+		if (!var.isBoolean()) {
+			ErrorHandling.printError(ctx, "If condition must be boolean");
+			return false;
+		}
 
 		// visit all scope
 		valid = valid && visit(ctx.scope());
@@ -459,6 +473,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
+		
+		// condition is boolean -> ok
+		Variable var = mapCtxVar.get(ctx.expression());
+		if (!var.isBoolean()) {
+			ErrorHandling.printError(ctx, "If condition must be boolean");
+			return false;
+		}
 
 		// visit all scope
 		valid = valid && visit(ctx.scope());
