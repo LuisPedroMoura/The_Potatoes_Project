@@ -717,32 +717,20 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable var= mapCtxVar.get(ctx.expression());
 		String castName = ctx.cast().ID().getText();
 		
-		// casting to string (parse) -> verify
-		if (castName.equals("string")) {
-			
-			if (var.isString() || var.isBoolean()) {
-				mapCtxVar.put(ctx, new Variable(null, varType.STRING, "" + var.getValue()));
-			}
-			
-			if (var.isNumeric()) {
-				mapCtxVar.put(ctx,  new Variable(null, varType.STRING, "" + var.getValue() + var.getType().getTypeName()));
-			}
-			
-			return true;
-		}
-		
 		// verify if cast is valid numeric type
 		if (!typesTable.keySet().contains(castName)) {
 			ErrorHandling.printError(ctx, "'" + castName + "' is not a valid Type");
 			return false;
 		}
 		
-		
+		// verify that variable to be casted is numeric
 		if (var.isNumeric()) {
 			
 			var = new Variable(var); // deep copy
-			
-			if (!var.convertTypeTo(typesTable.get(castName))) {
+			try {
+				var.convertTypeTo(typesTable.get(castName));
+			}
+			catch (IllegalArgumentException e) {
 				ErrorHandling.printError(ctx, "Types are not compatible, cast is not possible");
 				return false;
 			}
@@ -1026,7 +1014,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 		}
 		
-		if (var0.getVarType() == var1.getVarType()) {
+		if (var0.isString() && var1.isString()) {
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
 			return true;
 		}
@@ -1543,7 +1531,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var1 = new Variable(var1); // deep copy
 			
 				// dict value type and expression type are not compatible -> error
-				if (!var1.convertTypeTo(typesTable.get(listType))) {
+				try {
+					var1.convertTypeTo(typesTable.get(listType));
+				}
+				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Bad operand. List has parameterized type '" + listType +
 							"' (accepts compatible? -> " + listVar.isBlocked() + ")");
 					return false;

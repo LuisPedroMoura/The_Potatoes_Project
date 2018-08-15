@@ -282,7 +282,7 @@ public class Variable {
 	 * @return	true if this.type is converted to newType
 	 * 		 	false if the conversion is not possible (there's no path that connects the Vertices in the Graph)
 	 */
-	public boolean convertTypeTo(Type newType) {
+	public Double convertTypeTo(Type newType) {
 		
 		// if type is numeric, attempting conversion is possible -> verify
 		if (this.isNumeric()) {
@@ -290,19 +290,19 @@ public class Variable {
 			// variable type is already the one we're trying to convert to -> conversion not needed
 			if (newType.equals(this.type)){
 				if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - same type no convertion needed");}
-				return true;
+				return 1.0;
 			}
 			
 			// if one of the types is number, conversion is straightfoward. type number is not on the graph. 
 			if (this.getType().getTypeName().equals("number") || newType.getTypeName().equals("number")) {
 				this.type = newType;
-				return true;
+				return 1.0;
 			}
 			
 			// if one of the types is not in the Graph -> conversion not possible
 			if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.type)) {
 				if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");}			
-				return false;
+				throw new IllegalArgumentException();
 			}
 	
 			if (debug) {
@@ -313,7 +313,7 @@ public class Variable {
 			// if there is no path between the types -> conversion not possible
 			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, newType));
 			if (conversionFactor == Double.POSITIVE_INFINITY) {
-				return false;
+				throw new IllegalArgumentException();
 			}
 	
 			if (debug) {
@@ -322,18 +322,18 @@ public class Variable {
 			}
 			
 			// at this point, conversion is possible -> do necessary calculations
-			Double val = (Double) value;
+			Double val = (Double) this.value;
 			val *= conversionFactor;
 			value = val;
 			this.type = newType;
 	
 			if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - converted");}	
 	
-			return true;
+			return conversionFactor;
 		}
 		
 		// this varType is not NUMERIC -> conversion not possible
-		return false;
+		throw new IllegalArgumentException();
 
 	}
 	
