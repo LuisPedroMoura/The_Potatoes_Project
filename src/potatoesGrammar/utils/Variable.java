@@ -85,15 +85,7 @@ public class Variable {
 	 * @return type
 	 */
 	public Object getValue() {
-		String typeName = type.getTypeName();
-		switch (typeName) {
-			case "boolean"	:	return (Boolean) value;
-			case "string"	:	return (String) value;
-			case "list"		:	return (ListVar) value;
-			case "tuple"	:	return (DictTuple) value;
-			case "dict"		:	return (DictVar) value;
-			default			:	return (Double) value;
-		}
+		return value;
 	}
 	
 	public varType getVarType() {

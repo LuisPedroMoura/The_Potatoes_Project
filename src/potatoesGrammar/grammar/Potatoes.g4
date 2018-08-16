@@ -33,7 +33,7 @@ statement			: varDeclaration EOL							#statement_Declaration
 					| controlFlowStatement							#statement_Control_Flow_Statement
 					| functionCall EOL								#statement_FunctionCall
 					| functionReturn EOL							#statement_Function_Return
-					| print	EOL										#statement_Print
+					| inputOutput EOL								#statement_InputOutput
 					;
 
 assignment			: varDeclaration '=' expression					#assignment_Var_Declaration_Expression
@@ -61,7 +61,7 @@ controlFlowStatement: condition
  					| whileLoop
  					;	
 
-forLoop				: FOR '(' assignment* EOL expression EOL assignment ')' scope 
+forLoop				: FOR '(' (assignment EOL)* expression EOL assignment ')' scope 
  					;
  			
 whileLoop			: WHILE '(' expression ')' scope
@@ -115,6 +115,11 @@ expression			: '(' expression ')' 							#expression_Parenthesis
 		
 // ----------------------------------------------	
 // Prints
+
+inputOutput			: print
+					| save
+					| input
+					;
 
 print				: printType=(PRINT | PRINTLN)  '(' expression ')'
 					;

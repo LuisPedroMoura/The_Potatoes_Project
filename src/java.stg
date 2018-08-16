@@ -35,6 +35,10 @@ stats(stat) ::= <<
 <if(stat)><stat; separator="\n"><endif>
 >>
 
+statsWithoutSeparator(stat) ::= <<
+<if(stat)><stat; separator="; "><endif>
+>>
+
 //-------------------------------------------------------------------------------
 //CLASS--------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
@@ -50,7 +54,13 @@ public class <name> {
 >>
 
 main(scope) ::= <<
-public static void main(String[] args) <stats(scope)>
+public static void main(String[] args)
+<stats(scope)>
+>>
+
+function() ::= <<
+public static <returnType> <functionName>(<statsWithoutSeparator(args)>)
+<stats(scope)>
 >>
 
 scope(stat) ::= <<
@@ -78,15 +88,18 @@ varAssignment(type, var, operation, previousStatements ) ::= <<
 // CONDITION----------------------------------------------------------------------
 ifCondition(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-if(<logicalOperation>) <stats(scope)>
+if(<logicalOperation>)
+<stats(scope)>
 >>
 
 elseIfCondition(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-else if(<logicalOperation>) <stats(scope)>
+else if(<logicalOperation>)
+<stats(scope)>
 >>
 elseCondition(scope) ::= <<
-else <stats(scope)>
+else
+<stats(scope)>
 >>
 
 
@@ -103,7 +116,8 @@ while(true){
 // WHILE LOOP---------------------------------------------------------------------
 whileLoop(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-while(<logicalOperation>) <stats(scope)>
+while(<logicalOperation>)
+<stats(scope)>
 >>
 
 //-------------------------------------------------------------------------------
@@ -124,6 +138,15 @@ PrintWriter <var> = new Printwriter(fileName);
 printWriter(var, expression, previousStatements) ::= <<
 stats<previousStatements>
 <var>.print(<expression>);
+>>
+
+//-------------------------------------------------------------------------------
+// FUNCTIONS --------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+
+functionCall(previousStatements, functionName, args) ::= <<
+stats<previousStatements>
+<functionName>(<statsWithoutSeparator(args)>)
 >>
 
 //-------------------------------------------------------------------------------

@@ -164,8 +164,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	@Override 
-	public Boolean visitStatement_Print(Statement_PrintContext ctx) {
-		return visit(ctx.print());
+	public Boolean visitStatement_InputOutput(Statement_InputOutputContext ctx) {
+		return visit(ctx.inputOutput());
 	}
 
 	// --------------------------------------------------------------------------
@@ -179,10 +179,19 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable var = mapCtxVar.get(ctx.varDeclaration());
 		Variable expr = mapCtxVar.get(ctx.expression());
-		String varName = symbolTableGetKeyByValue(var);
-
-		// verify that variable to be created has valid name
-		if(!isValidNewVariableName(varName, ctx)) return false;
+		String varName = "";
+		if (ctx.varDeclaration() instanceof VarDeclaration_VariableContext) {
+			VarDeclaration_VariableContext decl = (VarDeclaration_VariableContext) ctx.varDeclaration();
+			varName = decl.ID().getText();
+		}
+		if (ctx.varDeclaration() instanceof VarDeclaration_listContext) {
+			VarDeclaration_listContext decl = (VarDeclaration_listContext) ctx.varDeclaration();
+			varName = decl.ID(1).getText();
+		}
+		if (ctx.varDeclaration() instanceof VarDeclaration_dictContext) {
+			VarDeclaration_dictContext decl = (VarDeclaration_dictContext) ctx.varDeclaration();
+			varName = decl.ID(2).getText();
+		}
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "[ASSIGN_VARDEC_EXPR] Visited visitAssignment_Var_Declaration_Expression");
@@ -201,7 +210,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			expr = new Variable (expr); // deep copy
 			
 			// types are not compatible -> error
-			if (!expr.convertTypeTo(var.getType())) {
+			try {
+				expr.convertTypeTo(var.getType());
+			}
+			catch (IllegalArgumentException e) {
 				ErrorHandling.printError(ctx, "Types in assignment are not compatible");
 				return false;
 			}
@@ -239,7 +251,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			expr = new Variable (expr); // deep copy
 			
 			// types are not compatible -> error
-			if (!expr.convertTypeTo(var.getType())) {
+			try {
+				expr.convertTypeTo(var.getType());
+			}
+			catch (IllegalArgumentException e) {
 				ErrorHandling.printError(ctx, "Types in assignment are not compatible");
 				return false;
 			}
@@ -293,10 +308,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if (typesTable.containsKey(currentReturn)) {
 				
 				var = new Variable(var); // deep copy
-				
-				if (var.convertTypeTo(typesTable.get(currentReturn))) {
+				try {
+					var.convertTypeTo(typesTable.get(currentReturn));
 					mapCtxVar.put(ctx, var);
 					return true;
+				}
+				catch (IllegalArgumentException e) {
+					ErrorHandling.printError(ctx, "Retturn type is not compatible with fucntion signature");
+					return false;
 				}
 			}
 		}
@@ -984,20 +1003,24 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				// variables are string || boolean || numeric, concatenation is possible -> ok
 				if ((var0.isString() || var0.isBoolean() || var0.isNumeric()) && (var1.isString() || var1.isBoolean() || var1.isNumeric())) {
 	
-					if (var0.isString() || var0.isBoolean()) {
+					if (var0.isString()) {
 						str0 = (String) var0.getValue();
 					}
+					if (var0.isBoolean()) {
+						str0 = ((Boolean) var0.getValue())+""; 
+					}
+					if (var0.isNumeric()) {
+						str0 = var0.getValue().toString() + var0.getType().getPrintName();
+					}
 					
-					if (var1.isString() || var1.isBoolean()) {
+					if (var1.isString()) {
 						str1 = (String) var1.getValue();
 					}
-					
-					if (var0.isNumeric()) {
-						str0 = ((String) var0.getValue()) + var0.getType().getPrintName();
+					if (var1.isBoolean()) {
+						str1 = ((Boolean) var1.getValue())+""; 
 					}
-					
 					if (var1.isNumeric()) {
-						str1 = ((String) var1.getValue()) + var1.getType().getPrintName();
+						str1 = var1.getValue().toString() + var1.getType().getPrintName();
 					}
 					
 					String finalStr = str0 + str1;
@@ -1029,9 +1052,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			var0 = new Variable(var0); // deep copy
 			
-			if(var0.convertTypeTo(var1.getType())){
+			try {
+				var0.convertTypeTo(var1.getType());
 				mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
 				return true;
+			}
+			catch (IllegalArgumentException e) {
+				// do nothing
 			}
 		}
 		
@@ -1066,13 +1093,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			var0 = new Variable(var0); // deep copy
 			
-			if(var0.convertTypeTo(var1.getType())){
+			try {
+				var0.convertTypeTo(var1.getType());
 				mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
 				return true;
 			}
+			catch (IllegalArgumentException e) {
+				// do nothing
+			}
 		}
 		
-		if (var0.getVarType() == var1.getVarType()) {
+		else if (var0.getVarType() == var1.getVarType()) {
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
 			return true;
 		}
@@ -1144,7 +1175,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var1 = new Variable(var1); // deep copy
 				
 				// list value type and expression type are not compatible -> error
-				if (!var1.convertTypeTo(typesTable.get(valueType))) {
+				try {
+					var1.convertTypeTo(typesTable.get(valueType));
+				}
+				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Bad operand. Type '" + valueType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
 					return false;
 				}
@@ -1175,7 +1209,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					tupleKey = new Variable(tupleKey); // deep copy
 					
 					// dict key type and expression type are not compatible -> error
-					if (!tupleKey.convertTypeTo(typesTable.get(keyType))) {
+					try {
+						tupleKey.convertTypeTo(typesTable.get(keyType));
+					}
+					catch (IllegalArgumentException e){
 						ErrorHandling.printError(ctx, "Bad operand. Key type is not compatible with dictionary parameterized key type");
 						return false;
 					}
@@ -1186,7 +1223,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					tupleValue = new Variable(tupleValue); // deep copy
 					
 					// dict key type and expression type are not compatible -> error
-					if (!tupleValue.convertTypeTo(typesTable.get(valueType))) {
+					try {
+						tupleValue.convertTypeTo(typesTable.get(valueType));
+					}
+					catch (IllegalArgumentException e){
 						ErrorHandling.printError(ctx, "Bad operand. Value type is not compatible with dictionary parameterized value type");
 						return false;
 					}
@@ -1282,7 +1322,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var1 = new Variable(var1); // deep copy
 				
 				// dict key type and expression type are not compatible -> error
-				if (!var1.convertTypeTo(typesTable.get(keyType))) {	
+				try {
+					var1.convertTypeTo(typesTable.get(keyType));
+				}
+				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
 					return false;
 				}
@@ -1370,7 +1413,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var1 = new Variable(var1); // deep copy
 				
 				// dict key type and expression type are not compatible -> error
-				if (!var1.convertTypeTo(typesTable.get(keyType))) {	
+				try {
+					var1.convertTypeTo(typesTable.get(keyType));
+				}
+				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
 					return false;
 				}
@@ -1415,10 +1461,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var1 = new Variable(var1); // deep copy
 				
 				// list value type and expression type are not compatible -> error
-				if (!var1.convertTypeTo(typesTable.get(valueType))) {
+				try {
+					var1.convertTypeTo(typesTable.get(valueType));
+				}
+				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Bad operand. Type '" + valueType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
 					return false;
-					
 				}
 				// list value type and expression type are compatible -> ok (jumps to next code
 			}
@@ -1473,7 +1521,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var1 = new Variable(var1); // deep copy
 				
 				// dict key type and expression type are not compatible -> error
-				if (!var1.convertTypeTo(typesTable.get(keyType))) {
+				try {
+					var1.convertTypeTo(typesTable.get(keyType));
+				}
+				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Bad operand. Type '" + keyType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
 					return false;
 				}
@@ -1512,7 +1563,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var1 = new Variable(var1); // deep copy
 				
 				// dict value type and expression type are not compatible -> error
-				if (!var1.convertTypeTo(typesTable.get(valueType))) {
+				try {
+					var1.convertTypeTo(typesTable.get(valueType));
+				}
+				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Bad operand. Type '" + valueType + "' is not compatible with '" + var1.getType().getTypeName() + "'");
 					return false;
 				}
@@ -1617,10 +1671,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// Prints
 	
 	@Override
+	public Boolean visitInputOutput(InputOutputContext ctx) {
+		return visitChildren(ctx);
+	}
+	
+	@Override
 	public Boolean visitPrint(PrintContext ctx) {
 		return visit(ctx.expression());
 	}
 	
+
 	@Override
 	public Boolean visitSave(SaveContext ctx) {
 		return visit(ctx.expression());
@@ -1658,11 +1718,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable type = mapCtxVar.get(ctx.type());
 		String newVarName = ctx.ID().getText();
 		
-		// new variable is already declared -> error
-		if(symbolTableContains(newVarName)) {
-			ErrorHandling.printError(ctx, "Variable '" + newVarName + "' is already declared");
-			return false;
-		}
+		// variable to be created is already declared or is reserved word -> error
+		if(!isValidNewVariableName(newVarName, ctx)) return false;
 				
 		// update tables -> type already contains information necessary to create variable
 		mapCtxVar.put(ctx, type);
@@ -1775,6 +1832,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return true;
 	}
 	
+	@Override
+	public Boolean visitType_Void_Type(Type_Void_TypeContext ctx) {
+		Variable var = new Variable (null, varType.VOID, "");
+		mapCtxVar.put(ctx, var);
+		return true;
+	}
+
 	@Override 
 	public Boolean visitType_ID_Type(Type_ID_TypeContext ctx) {
 		String typeName = ctx.ID().getText();
@@ -1792,7 +1856,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	@Override
 	public Boolean visitValue_Number(Value_NumberContext ctx) {
 		try {
-			Variable var = new Variable(typesTable.get("number"), varType.NUMERIC, Double.parseDouble(getStringText(ctx.NUMBER().getText())));
+			Variable var = new Variable(typesTable.get("number"), varType.NUMERIC, Double.parseDouble(ctx.NUMBER().getText()));
 			mapCtxVar.put(ctx, var);
 			return true;
 		}
@@ -1804,7 +1868,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitValue_Boolean(Value_BooleanContext ctx) {
-		Variable var = new Variable(null, varType.BOOLEAN, Boolean.parseBoolean(getStringText(ctx.BOOLEAN().getText())));
+		Variable var = new Variable(null, varType.BOOLEAN, Boolean.parseBoolean(ctx.BOOLEAN().getText()));
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
@@ -1863,7 +1927,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 * closes current scope exposing previous scope
 	 */
 	private static void closeScope() {
-		int lastIndex = symbolTable.size();
+		int lastIndex = symbolTable.size()-1;
 		symbolTable.remove(lastIndex);
 	}
 	
@@ -1873,7 +1937,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 * @param value
 	 */
 	private static void updateSymbolTable(String key, Variable value) {
-		int lastIndex = symbolTable.size();
+		int lastIndex = symbolTable.size()-1;
 		symbolTable.get(lastIndex).put(key, value);
 	}
 	
@@ -1883,7 +1947,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 * @return
 	 */
 	private static Variable symbolTableGet(String key) {
-		int lastIndex = symbolTable.size();
+		int lastIndex = symbolTable.size()-1;
 		return symbolTable.get(lastIndex).get(key);
 	}
 	
@@ -1893,7 +1957,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 * @return
 	 */
 	private static String symbolTableGetKeyByValue(Variable var) {
-		int lastIndex = symbolTable.size();
+		int lastIndex = symbolTable.size()-1;
 		Set<Entry<String, Variable>> entries = symbolTable.get(lastIndex).entrySet();
 		for (Entry<String, Variable> en : entries) {
 			if (en.getValue().equals(var)) {
@@ -1909,7 +1973,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 * @return
 	 */
 	private static boolean symbolTableContains(String key) {
-		int lastIndex = symbolTable.size();
+		int lastIndex = symbolTable.size()-1;
 		return symbolTable.get(lastIndex).containsKey(key);
 	}
 	
@@ -1922,7 +1986,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
 		if (symbolTableContains(varName)) {
-			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" already declared");
+			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" is already declared VALID");
 			return false;
 		}
 		
@@ -1941,6 +2005,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 */
 	private static String getStringText(String str) {
 		str = str.substring(1, str.length() -1);
+		if (debug) ErrorHandling.printError("removed quotes from string - " + str);
 		return str;
 	}
 	

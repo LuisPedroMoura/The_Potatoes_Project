@@ -9,6 +9,9 @@ boolean b4 = !b1;
 println("print booleans: " + b1 + " " + b2 + " " + b3 + " " + b4);
 println("");
 
+}
+
+/*
 string s1 = "s1";
 string s2 = "s2";
 string s3 = "s3";
@@ -211,4 +214,4 @@ println("");
 
 }
 	
- 
+ */

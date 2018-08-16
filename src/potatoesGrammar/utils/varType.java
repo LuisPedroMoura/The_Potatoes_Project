@@ -2,7 +2,7 @@ package potatoesGrammar.utils;
 
 public enum varType {
 	
-	BOOLEAN, STRING, LIST, TUPLE, DICT, NUMERIC;
+	BOOLEAN, STRING, LIST, TUPLE, DICT, NUMERIC, VOID;
 	
 	public boolean isBoolean() {
 		if (this.ordinal() == 0)
@@ -40,6 +40,12 @@ public enum varType {
 		return false;
 	}
 	
+	public boolean isVoid() {
+		if (this.ordinal() == 6)
+			return true;
+		return false;
+	}
+	
 	@Override
 	public String toString() {
 		switch (this) {
@@ -48,6 +54,7 @@ public enum varType {
 		case LIST		:	return "list";
 		case DICT		:	return "dict";
 		case TUPLE		:	return "tuple";
+		case VOID		:	return "void";
 		default			:	return "numeric";
 		}
 	}
