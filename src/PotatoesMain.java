@@ -40,7 +40,9 @@ public class PotatoesMain {
 		CharStream input = null;
 
 		//System.out.println("inputed file: "+ args[0]);
-		String name = args[0].substring(0, args[0].length()-4);
+		File aux = new File(args[0]);
+		String name = aux.getName();
+		name = name.substring(0, name.length()-4);
 		//System.out.print("name " + name);
 
 		try {

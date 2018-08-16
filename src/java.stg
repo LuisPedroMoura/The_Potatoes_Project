@@ -45,8 +45,8 @@ statsWithoutSeparator(stat) ::= <<
 
 
 class(name,stat) ::= <<
-import.java.util.*;
-import.java.io.*;
+import java.util.*;
+import java.io.*;
 
 public class <name> {
 	<stats(stat)>
@@ -65,7 +65,7 @@ public static <returnType> <functionName>(<statsWithoutSeparator(args)>)
 
 scope(stat) ::= <<
 {
-	<stats(stat)>
+	<if(stat)><stat; separator="\n"><endif>
 }
 >>
 
@@ -76,7 +76,7 @@ scope(stat) ::= <<
 
 varAssignment(type, var, operation, previousStatements ) ::= <<
 <stats(previousStatements)>
-<if(type)><varDeclaration(typeValue.(type), var)><else><var><endif> = <operation>;
+<if(type)><type> <var><else><var><endif> = <operation>;
 >>
 
 
@@ -162,7 +162,7 @@ HashMap \< <key>, <value> \>
 >>
 
 varDeclaration(type, var) ::= <<
-<type> <var>
+<if(type)><type> <var><else><var><endif>;
 >>
 
 type(type) ::= <<

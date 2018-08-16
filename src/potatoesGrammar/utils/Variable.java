@@ -66,9 +66,22 @@ public class Variable {
 	 * @throws NullPointerException if a is null (ie new Variable (null)) 
 	 */ 
 	public Variable(Variable a) { 
-		this.type = new Type(a.type);
+		
+		if (a.getType() == null){
+			this.type = null;
+		}
+		else {
+			this.type = new Type(a.getType());
+		}
+		
 		this.varType = a.getVarType();
-		this.value  = a.value; 
+		
+		if (a.getValue() == null) {
+			this.value = null;
+		}
+		else {
+			this.value  = a.getValue();
+		}
 	}
 
 	// --------------------------------------------------------------------------
