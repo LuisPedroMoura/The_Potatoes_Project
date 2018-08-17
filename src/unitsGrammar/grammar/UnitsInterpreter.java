@@ -3,7 +3,7 @@
 *	Code version: 2.0
 *	Author: Luis Moura (https://github.com/LuisPedroMoura)
 *	Author of version 1.0: Pedro Teixeira (https://pedrovt.github.io),
-*	Date: July-2018
+*	Date: August-2018
 *	Availability: https://github.com/LuisPedroMoura/PotatoesProject
 *
 ***************************************************************************************/
@@ -104,6 +104,14 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	 */
 	protected List<String> getReservedWords(){
 		return reservedWords;
+	}
+	
+	protected Map<String, Unit> getAllUnits() {
+		Map<String, Unit> allUnits = new HashMap<>();
+		allUnits.putAll(unitsTable);
+		allUnits.putAll(classesTable);
+		allUnits.putAll(prefixedUnitsTable);
+		return allUnits;
 	}
 	
 	// --------------------------------------------------------------------------

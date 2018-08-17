@@ -1,8 +1,9 @@
 /***************************************************************************************
-*	Title: PotatoesProject - UnitsFileInfo Source Code
-*	Code version: 1.0
-*	Author: Pedro Teixeira (https://pedrovt.github.io)
-*	Date: June-2018
+*	Title: PotatoesProject - Units Source Code
+*	Code version: 2.0
+*	Author: Luis Moura (https://github.com/LuisPedroMoura)
+*	Author of version 1.0: Pedro Teixeira (https://pedrovt.github.io),
+*	Date: August-2018
 *	Availability: https://github.com/LuisPedroMoura/PotatoesProject
 *
 ***************************************************************************************/
@@ -10,6 +11,8 @@
 package unitsGrammar.grammar;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +21,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import unitsGrammar.utils.Code;
 import unitsGrammar.utils.Graph;
 import unitsGrammar.utils.GraphInfo;
 import unitsGrammar.utils.Unit;
@@ -27,12 +31,9 @@ import utils.errorHandling.ErrorHandlingListener;
 public class Units {
 
 	// Instance Fields
-	private final Map<String, Unit>		unitsTable;
-	private final Map<String, Unit>		prefixedunitsTable;
-	private final Map<String, Unit>		classesTable;
-	private final Graph					UnitsGraph;
-	private final List<String>			reservedWords;
-	private final GraphInfo				graphInfo;
+	private static Map<String, Unit>	unitsTable		= new HashMap<>();
+	private static Graph				unitsGraph		= new Graph();
+	private static List<String>			reservedWords	= new ArrayList<>();
 	
 	// --------------------------------------------------------------------------
 	// CTOR
@@ -88,125 +89,162 @@ public class Units {
 			}
 
 			// Information to be transmitted to the Potatoes Semantic Checker
-			this.unitsTable			= visitor0.getUnitsTable();
-			this.prefixedunitsTable = visitor0.getPrefixedUnitsTable();
-			this.classesTable		= visitor0.getClassesTable();
-			this.UnitsGraph			= visitor0.getUnitsGraph();
-			this.reservedWords		= visitor0.getReservedWords();
-			this.graphInfo			= new GraphInfo(UnitsGraph);
+			Units.unitsTable		= visitor0.getAllUnits();
+			Units.unitsGraph			= (new GraphInfo(visitor0.getUnitsGraph())).getStraightfowardPathsCostsGraph();
+			Units.reservedWords		= visitor0.getReservedWords();
 		}
 		else {
-			// this code should be unreachable but is needed 
-			// since the fields are final
-			this.unitsTable			= null;
-			this.prefixedunitsTable = null;
-			this.classesTable		= null;
-			this.UnitsGraph			= null;
-			this.reservedWords		= null;
-			this.graphInfo			= null;
 			System.exit(3);
 		}
 	}
 
 	// --------------------------------------------------------------------------
 	// Getters
+	
 	/**
-	 * Returns the table of Units defined in the file. 
-	 * Can be an empty table (if no Units were declared in the file).
-	 * @return unitsTable
+	 * @return	unitsTable, the table of Units defined in the file.
+	 * 			Can be an empty table (if no Units were declared in the file).
 	 */
-	public Map<String, Unit> getunitsTable() {
+	private static Map<String, Unit> getUnitsTable() {
 		return unitsTable;
 	}
 	
 	/**
-	 * Returns the table of prefixes defined in the file. 
-	 * Can be an empty table (if no prefixes were declared in the file).
-	 * @return prefixesTable
+	 * @return reservedWords, the list of all Unit names, prefixed names, symbols, and Class of Units names
 	 */
-	public Map<String,Unit> getPrefixesTable() {
-		return prefixedunitsTable;
-	}
-
-	/**
-	 * @return the classesTable
-	 */
-	public Map<String, Unit> getClassesTable() {
-		return classesTable;
-	}
-
-	
-	
-	public List<String> getReservedWords(){
+	public static List<String> getReservedWords(){
 		return reservedWords;
 	}
-
+	
+	// --------------------------------------------------------------------------
+	// Static Methods
+	
 	/**
-	 * @return the graphInfo
+	 * @param a String that is the name or symbol of the Unit
+	 * @return an instance of Unit Class
 	 */
-	public GraphInfo getGraphInfo() {
-		return graphInfo;
+	public static Unit instanceOf(String name) {
+		if (unitsTable.containsKey(name)) {
+			return getUnitsTable().get(name);
+		}
+		else if (reservedWords.contains(name)){
+			for (String key : unitsTable.keySet()) {
+				if (unitsTable.get(key).getSymbol().equals(name)) {
+					return unitsTable.get(key);
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
+	 */
+	public static Unit multiply(Unit a, Unit b) {
+		// FIXME add verifications, try to come up with idea to give correct unit Name
+		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.multiply(a.getCode(), b.getCode())));
+	}
+	
+	/**
+	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
+	 */
+	public static Unit multiplySimplifyCode(Unit a, Unit b) {
+		// FIXME add verifications, try to come up with idea to give correct unit Name
+		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.multiply(a.getCode(), b.getCode())));
+	}
+	
+	/**
+	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
+	 */
+	public static Unit multiplySimplifyCodeUsingGraph(Unit a, Unit b) {
+		// FIXME add verifications, try to come up with idea to give correct unit Name
+		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.multiply(a.getCode(), b.getCode())));
 	}
 
+	/**
+	 * @return new Unit with correspondent code resulting of the division of two Units.
+	 */
+	public static Unit divide(Unit a, Unit b) {
+		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.divide(a.getCode(), b.getCode())));
+	}
+	
+	/**
+	 * @return new Unit with correspondent code resulting of the power of the Unit.
+	 */
+	public static Unit power(Unit a, int exponent) {
+		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.power(a.getCode(), exponent)));
+	}
+	
+	// --------------------------------------------------------------------------
+	// Private Methods
+	
+	// TODO is this function necessary, and is calling it for every operation a good idea?? Its not efficient
+	private static Unit tryToFindUnitNameAndSymbolWithoutCodeConversions(Unit unit) {
+		Code code = unit.getCode();
+		for (String key : unitsTable.keySet()) {
+			Unit value = unitsTable.get(key);
+			if (value.getCode().equals(code)) {
+				return value;
+			}
+		}
+		return unit;
+	}
+	
+	
 	// --------------------------------------------------------------------------
 	// Other Methods
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UnitsMain [");
+		if (unitsTable != null) {
+			builder.append("\n################################################################\nUnits Table: ");
+			builder.append(unitsTable);
+		}
+		if (unitsGraph != null) {
+			builder.append("\n################################################################\nUnits Graph: ");
+			builder.append(unitsGraph);
+		}
+		builder.append("]");
+		return builder.toString();
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((prefixedunitsTable == null) ? 0 : prefixedunitsTable.hashCode());
+		result = prime * result + ((reservedWords == null) ? 0 : reservedWords.hashCode());
+		result = prime * result + ((unitsGraph == null) ? 0 : unitsGraph.hashCode());
 		result = prime * result + ((unitsTable == null) ? 0 : unitsTable.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		Units other = (Units) obj;
-		if (prefixedunitsTable == null) {
-			if (other.prefixedunitsTable != null) {
+		if (reservedWords == null) {
+			if (other.reservedWords != null)
 				return false;
-			}
-		} else if (!prefixedunitsTable.equals(other.prefixedunitsTable)) {
+		} else if (!reservedWords.equals(other.reservedWords))
 			return false;
-		}
+		if (unitsGraph == null) {
+			if (other.unitsGraph != null)
+				return false;
+		} else if (!unitsGraph.equals(other.unitsGraph))
+			return false;
 		if (unitsTable == null) {
-			if (other.unitsTable != null) {
+			if (other.unitsTable != null)
 				return false;
-			}
-		} else if (!unitsTable.equals(other.unitsTable)) {
+		} else if (!unitsTable.equals(other.unitsTable))
 			return false;
-		}
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("UnitsMain [");
-		if (prefixedunitsTable != null) {
-			builder.append("\n################################################################\nPrefixes Table: ");
-			builder.append(prefixedunitsTable);
-			builder.append(", ");
-		}
-		if (unitsTable != null) {
-			builder.append("\n################################################################\nUnits Table: ");
-			builder.append(unitsTable);
-		}
-		if (UnitsGraph != null) {
-			builder.append("\n################################################################\nUnits Graph: ");
-			builder.append(UnitsGraph);
-		}
-		builder.append("]");
-		return builder.toString();
 	}
 
 }

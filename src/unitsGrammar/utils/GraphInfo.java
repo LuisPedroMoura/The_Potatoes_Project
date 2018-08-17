@@ -29,9 +29,9 @@ public class GraphInfo{
 	Graph graph;
 	List<ArrayList<Unit>> allShortestPaths;
 	List<ArrayList<Unit>> allStraightFowardPaths;
-	Graph shortestPathsGraph;
-	Graph straightfowardPathsGraph;
-	Graph straightfowardPathsCostsGraph;
+	Graph shortestPathsGraph = new Graph();
+	Graph straightfowardPathsGraph = new Graph();;
+	Graph straightfowardPathsCostsGraph = new Graph();
 	
 	public GraphInfo(Graph graph) {
 		this.graph = graph;
@@ -42,7 +42,7 @@ public class GraphInfo{
 			out.println("---");
 		}
 		
-		// have to use deep copy of graph or functions in HerarchyDiGraph Class will create concurrent modification exception
+		// have to use deep copy of graph or functions in Graph Class will create concurrent modification exception
 		allShortestPaths = getAllShortestPaths(new Graph(graph));
 		allStraightFowardPaths = getAllStraightfowardPaths(new Graph(graph));
 		createShortestPathsGraph();
