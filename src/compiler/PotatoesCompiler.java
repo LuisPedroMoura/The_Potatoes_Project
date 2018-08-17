@@ -15,8 +15,8 @@ import potatoesGrammar.utils.DictVar;
 import potatoesGrammar.utils.ListVar;
 import potatoesGrammar.utils.Variable;
 import potatoesGrammar.utils.varType;
-import typesGrammar.grammar.TypesFileInfo;
-import typesGrammar.utils.Type;
+import unitsGrammar.grammar.TypesFileInfo;
+import unitsGrammar.utils.Type;
 
 
 /**
@@ -42,7 +42,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	private static int varCounter = 0;
 	
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 	
 	// --------------------------------------------------------------------------------------------------------------------
 	// MAIN RULES----------------------------------------------------------------------------------------------------------
@@ -55,6 +55,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->PROGRAM\n");
 		
 		stg = new STGroupFile("java.stg");
+		
+		visit(ctx.using());
+		
 	    ST classContent = stg.getInstanceOf("class");
 	    for(GlobalStatementContext statement : ctx.globalStatement()) {
 	    	classContent.add("stat", visit(statement));
@@ -125,7 +128,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->STATEMENT - DECLARATION\n");
 		
 		ST statement = visit(ctx.varDeclaration());
-		System.out.println("statement declaration--------------" + statement.render());
+		
 		if(debug) ci();
 		
 		return createEOL(statement);
@@ -137,7 +140,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->STATEMENT - ASSIGNMENT\n");
 		
 		ST statement = visit(ctx.assignment());
-		System.out.println("statement assignmenet--------------" + statement.render());
+
 		if(debug) ci();
 		
 		return statement;
@@ -247,13 +250,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String id = ctx.var().ID().getText();
 		ST var = visit(ctx.var());
 		ST expr = visit(ctx.expression());
-		String exprName = (String) var.getAttribute("var");
+		String exprName = (String) expr.getAttribute("var");
 		
 		// create template
 		String newName = getNewVarName();
-		ST newVariable = stg.getInstanceOf("var");
+		ST newVariable = stg.getInstanceOf("varAssignment");
 		newVariable.add("previousStatements", var);
 		newVariable.add("previousStatements", expr);
+		newVariable.add("type", expr.getAttribute("type"));
 		newVariable.add("var", newName);
 		newVariable.add("operation", exprName);
 	
@@ -1770,11 +1774,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create Variable and save ctx
 		var = new Variable(var); // deep copy
-		symbolTableValue.put(newName, var);
 		symbolTableNames.put(id, newName);
+		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx, var);
 		
 		if(debug) {
+			ErrorHandling.printInfo(ctx,indent + "-> original/last/new name = " + id + ", " + lastName + ", " + newName);
 			ErrorHandling.printError(ctx, indent + "-> var value = " + var.getValue().toString());
 			ci();
 		}
@@ -1809,15 +1814,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		varDeclaration.add("var", newName);
 		varDeclaration.add("operation", operation);
 		
-		// update variable names table
-		symbolTableNames.put(originalName, newName);
-
-		// create Variable and save ctx
+		// create Variable and save ctx and update tables
 		Variable var = mapCtxVar.get(ctx.type()); // type already contains information necessary to create variable
+		symbolTableNames.put(originalName, newName);
+		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
-			ErrorHandling.printInfo(ctx,indent + "-> decl type = " + type.toString() + "\n");
+			ErrorHandling.printInfo(ctx,indent + "-> original/new name = " + originalName + ", " + newName);
+			ErrorHandling.printInfo(ctx,indent + "-> decl type = " + type.render() + "\n");
 			ci();
 		}
 		
@@ -1884,7 +1889,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST type = stg.getInstanceOf("type");
-		type.add("type", "number");
+		type.add("type", "Double");
 		
 		//create Variable and save ctx
 		Variable var = new Variable (typesTable.get("number"), varType.NUMERIC, 0.0);

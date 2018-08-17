@@ -23,6 +23,22 @@ public class DictVar {
 		this.blockedKeyType = blockedKey;
 		this.blockedValueType = blockedValue;
 	}
+	
+	/**
+	 * Copy Constructor
+	 * @param dictVar
+	 */
+	public DictVar(DictVar dictVar) {
+		this.keyType = dictVar.getKeyType();
+		this.valueType = dictVar.getValueType();
+		this.blockedKeyType = dictVar.isBlockedKey();
+		this.blockedValueType = dictVar.isBlockedValue();
+		this.dict = new HashMap<>();
+		Map<Variable, Variable> tempMap = dictVar.getDict();
+		for (Variable key : tempMap.keySet()) {
+			this.dict.put(new Variable(key), new Variable(tempMap.get(key)));
+		}
+	}
 
 	/**
 	 * @return the dict

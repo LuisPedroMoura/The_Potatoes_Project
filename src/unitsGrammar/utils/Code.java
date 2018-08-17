@@ -10,7 +10,7 @@
 *
 ***************************************************************************************/
 
-package typesGrammar.utils;
+package unitsGrammar.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Code {
 	private List<Integer> denCodes = new ArrayList<>();;		// denominator codes
 	
 	/**
-	 * Constructor of empty Code, to use in types operations
+	 * Constructor of empty Code, to use in Units operations
 	 */
 	public Code () {}
 	
@@ -43,6 +43,7 @@ public class Code {
 	/**
 	 * Copy Constructor
 	 * @param code
+	 * @throws NullPointerException if <b>code<b> is null.
 	 */
 	public Code (Code code) {
 		this.numCodes = new ArrayList<>();
@@ -56,24 +57,23 @@ public class Code {
 	}
 	
 	/**
-	 * @return
+	 * @return numCodes
 	 */
 	public List<Integer> getNumCodes() {
 		return numCodes;
 	}
 	
-	/*
-	 * 
+	/**
+	 * @return denCodes
 	 */
 	public List<Integer> getDenCodes() {
 		return denCodes;
 	}
 	
 	/**
-	 * 
 	 * @param a
 	 * @param b
-	 * @return
+	 * @return a new Code resulting of the multiplication of the two Codes
 	 */
 	public static Code multiply(Code a, Code b) {
 		Code newCode = new Code();
@@ -81,11 +81,6 @@ public class Code {
 		newCode.multiplyCode(b);		
 		return newCode;
 	}
-	
-	/**
-	 * 
-	 * @param code
-	 */
 	private void multiplyCode(Code code) {
 		for (int numCode : code.getNumCodes()) {
 			this.numCodes.add(numCode);
@@ -95,11 +90,10 @@ public class Code {
 		}
 	}
 	
-	/**
-	 * 
+	/** 
 	 * @param a
 	 * @param b
-	 * @return
+	 * @return a new Code resulting of the division of the two Codes
 	 */
 	public static Code divide(Code a, Code b) {
 		Code newCode = new Code();
@@ -107,11 +101,6 @@ public class Code {
 		newCode.divideCode(b);		
 		return newCode;
 	}
-	
-	/**
-	 * 
-	 * @param code
-	 */
 	private void divideCode(Code code) {
 		for (int numCode : code.getNumCodes()) {
 			this.denCodes.add(numCode);
@@ -122,10 +111,9 @@ public class Code {
 	}
 	
 	/**
-	 * 
 	 * @param a
 	 * @param exponent
-	 * @return
+	 * @return a new Code resulting of the power of the Code
 	 */
 	public static Code power(Code a, int exponent) {
 		Code newCode = new Code();
@@ -136,7 +124,7 @@ public class Code {
 	}
 	
 	/**
-	 * 
+	 * simplifies Code by removing duplicate codes in numCodes and denCodes
 	 */
 	public void simplifyCode() {
 		for (Integer numCode : numCodes) {
@@ -148,9 +136,14 @@ public class Code {
 	}
 	
 	/**
-	 * @return
+	 * To simplify a Code using conversion from the give Graph of Units some conversions might be necessary, ie:
+	 * m^2/yd -> m^2/m, to obtain m.
+	 * @param typesGraph
+	 * @return 	the conversion factor obtained from the Code simplification.
+	 * 			So when Unit containing this Code is used in with an associated quantity,
+	 * 			this conversion factor must be applied to the quantity value.
 	 */
-	public double simplifyCodeWithConvertions(HierarchyDiGraph<Type, Double> typesGraph) {
+	public double simplifyCodeWithConvertions(Graph typesGraph) {
 		Double factor = 1.0;
 		Double conversionFactor = 1.0;
 		while (conversionFactor != null) {
@@ -159,14 +152,14 @@ public class Code {
 		}
 		return factor;
 	}
-	// TODO not very efficient
-	private Double simplifyCodeWithConvertionsPrivate(HierarchyDiGraph<Type, Double> typesGraph) {
-		Map<Integer, Type> basicTypesCodesTable = Type.getBasicTypesCodesTable();
+	// TODO not very efficient (think of what structure to use)
+	private Double simplifyCodeWithConvertionsPrivate(Graph typesGraph) {
+		Map<Integer, Unit> basicTypesCodesTable = Unit.getBasicUnitsCodesTable();
 		for (int numCode : this.numCodes) {
+			Unit numType = basicTypesCodesTable.get(numCode);
 			for (int denCode : this.denCodes) {
-				Type numType = basicTypesCodesTable.get(numCode);
-				Type denType = basicTypesCodesTable.get(denCode);
-				double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(numType, denType));
+				Unit denType = basicTypesCodesTable.get(denCode);
+				double conversionFactor = typesGraph.getEdge(numType, denType);
 				if (conversionFactor != Double.POSITIVE_INFINITY){
 					numCodes.remove(numCode);
 					denCodes.remove(denCode);
@@ -176,7 +169,8 @@ public class Code {
 		}
 		return null;
 	}
-
+	
+	
 	
 	@Override
 	public String toString() {

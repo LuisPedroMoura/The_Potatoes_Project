@@ -16,6 +16,20 @@ public class ListVar {
 		this.type = type;
 		this.blocked = blocked;
 	}
+	
+	/**
+	 * 
+	 * Copy Constructor
+	 * @param listVar
+	 */
+	public ListVar(ListVar listVar) {
+		this.type = listVar.getType();
+		this.blocked = listVar.isBlocked();
+		this.list = new ArrayList<>();
+		for (Variable var : listVar.getList()) {
+			this.list.add(new Variable(var));
+		}
+	}
 
 	/**
 	 * @return the list

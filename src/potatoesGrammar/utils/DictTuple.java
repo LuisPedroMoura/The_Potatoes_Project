@@ -15,6 +15,15 @@ public class DictTuple {
 		this.key = key;
 		this.value = value;
 	}
+	
+	/**
+	 * Copy Constructor
+	 * @param tuple
+	 */
+	public DictTuple(DictTuple tuple) {
+		this.key = new Variable(tuple.getKey());
+		this.value = new Variable(tuple.getValue());
+	}
 
 	/**
 	 * @return the key

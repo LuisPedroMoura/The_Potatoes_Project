@@ -7,7 +7,7 @@
 *	Availability: https://github.com/LuisPedroMoura/PotatoesProject
 *
 ***************************************************************************************/
-package typesGrammar.utils;
+package unitsGrammar.utils;
 
 import static java.lang.System.*;
 import java.util.ArrayList;
@@ -17,19 +17,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.lang.Number;
 
 /**
  * 
  * <b>Graph</b><p>
- * Implementation based on adjcencies lists.<p>
+ * Implementation based on adjacencies lists.<p>
  *
  * @author Luis Moura (https://github.com/LuisPedroMoura)
  * @version July 2018
  */
-public class HierarchyDiGraph <V,E> {
+public class Graph {
 
 	// Static Constant (Debug Only)
 	private static final boolean debug = false;
@@ -46,12 +43,11 @@ public class HierarchyDiGraph <V,E> {
 	 * @author Luis Moura (https://github.com/LuisPedroMoura)
 	 * @version July 2018
 	 */
-	@SuppressWarnings("hiding")
-	public class Node<V,E> {
+	public class Node {
 		
 		// attributes
-		private V vertex;
-		private E edge;		// incoming edge (cost to get to this.vertex)
+		private Unit vertex;
+		private Double edge;		// incoming edge (cost to get to this.vertex)
 		private boolean isParent = false;
 		
 		/**
@@ -60,22 +56,27 @@ public class HierarchyDiGraph <V,E> {
 		 * @param vertex
 		 * @param edge
 		 */
-		protected Node(V vertex, E edge) {
+		protected Node(Unit vertex, Double edge) {
 			this.vertex = vertex;
 			this.edge = edge;
+		}
+		
+		protected Node(Node n) {
+			this.vertex = new Unit(n.getVertex());
+			this.edge = n.getEdge();
 		}
 		
 		/**
 		 * @return the vertex of this Node
 		 */
-		protected V getVertex() {
+		protected Unit getVertex() {
 			return vertex;
 		}
 		
 		/**
 		 * @return the edge of this Node
 		 */
-		protected E getEdge() {
+		protected Double getEdge() {
 			return edge;
 		}
 		
@@ -101,72 +102,36 @@ public class HierarchyDiGraph <V,E> {
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
-	protected Function<? super E, ? extends Number> edgeCostFunction;
-	private Map<V,ArrayList<Node<V,E>>> adjList = new HashMap<>();
+	private Map<Unit,List<Node>> adjList = new HashMap<>();
 	private int size;
 
 	// --------------------------------------------------------------------------
 	/**
-	 * <b>Constructor</b><p> creates the graph. Assumes the Type E (the Edge) is or extends Class Number
+	 * <b>Constructor</b><p> creates the graph. Assumes the Unit E (the Edge) is or extends Class Number
 	 */
-	public HierarchyDiGraph() {
-		// TODO verify what else can be done to prevent errors and avoid System.exit
-		// TODO and verify if this actually works
-		this.edgeCostFunction = new Function<E, Number>() {
-			
-			public Number apply(E edge) {
-				Number number = null;
-				try {
-					number = (Number) edge;
-				}
-				catch (Exception e) {
-					System.out.println("ERROR: default constructor of Graph<V,E> must have Type E that extends Number");
-					System.out.println("Use constructor: Graph(Function<E, ? extends Number>) with a function that returns\n"
-										+ "the Double value of the Edge cost");
-					System.exit(1);
-				}
-				return number.doubleValue();
-			}
-		};
-	}
+	public Graph() {}
 	
-	/**
-	 * <b>Constructor</b> - creates the graph and the specified method of extracting cost from edges 
-	 * @param edgeCostFunction the specified method of extracting cost from edges
-	 */
-	public HierarchyDiGraph(Function<E, ? extends Number> edgeCostFunction) {
-		this.edgeCostFunction = edgeCostFunction;
-	}
-	
-	// FIXME complete or delete
-	public HierarchyDiGraph(HierarchyDiGraph<V,E> graph) {
-		this.edgeCostFunction = graph.getEdgeCostFunction();
-		Map<V, ArrayList<Node<V,E>>> newAdjList = new HashMap<>();
-		Set<V> keys = graph.getAdjList().keySet();
-		for (V key : keys) {
-			ArrayList<Node<V,E>> newList = new ArrayList<>();
-			for (Node<V,E> n : graph.getAdjList().get(key)) {
-				newList.add(n);
-			}
-			newAdjList.put(key, newList);
-		}
+	public Graph(Graph graph) {
 		this.size = graph.getSize();
+		Set<Unit> keys = graph.getAdjList().keySet();
+		for (Unit key : keys) {
+			List<Node> newList = new ArrayList<>();
+			List<Node> list = graph.getAdjList().get(key);
+			for (Node n : list) {
+				newList.add(new Node(n));
+			}
+			this.adjList.put(new Unit(key), newList);
+		}
 	}
 	
 	// --------------------------------------------------------------------------
-	// Getters, Setters and Reseters
+	// Getters, Setters and Resetters
 	
-	/**
-	 * @return edgeCostFunction
-	 */
-	public Function<? super E, ? extends Number> getEdgeCostFunction(){
-		return edgeCostFunction;
-	}
-	
+
 	/**
 	 * @return adjList
 	 */
-	public Map<V,ArrayList<Node<V,E>>> getAdjList() {
+	public Map<Unit, List<Node>> getAdjList() {
 		return adjList;
 	}
 	
@@ -175,22 +140,7 @@ public class HierarchyDiGraph <V,E> {
 	 */
 	public int getSize() {
 		return size;
-	}
-	
-
-	/**
-	 * 
-	 * @param edge
-	 * @return
-	 */
-	public double getEdgeCost(E edge) {
-		if (edge instanceof Number) {
-			return ((Number) edge).doubleValue();
-		}
-		return edgeCostFunction.apply(edge).doubleValue();
-	}
-	
-	
+	}	
 	
 	// --------------------------------------------------------------------------
 	// Public Methods
@@ -199,7 +149,7 @@ public class HierarchyDiGraph <V,E> {
 	 * @param vertex to be added to the Graph
 	 * @return true if vertex is added, false if it already exists
 	 */
-	public boolean addVertex(V vertex) {
+	public boolean addVertex(Unit vertex) {
 		if (!adjList.containsKey(vertex)) {
 			adjList.put(vertex, new ArrayList<>());
 			
@@ -222,7 +172,7 @@ public class HierarchyDiGraph <V,E> {
 	 * @throws NullPointerException if any param is null
 	 * @return true if Edge is added, false if edge already exists
 	 */
-	public boolean addEdge(E edge, V startVertex, V endVertex) {
+	public boolean addEdge(Double edge, Unit startVertex, Unit endVertex) {
 		
 		this.size++;
 		
@@ -235,17 +185,17 @@ public class HierarchyDiGraph <V,E> {
 		addVertex(endVertex);
 		
 		// A new Edge between existing connected vertices is not allowed
-		for (Node<V,E> node : adjList.get(startVertex)) {	
+		for (Node node : adjList.get(startVertex)) {	
 			if (node.getVertex().equals(endVertex)){
 				return false;
 			}
 		}
 		
 		// Edge does not exist, so its linked to vertices
-		//adjList.get(startVertex).add(new Node<V,E>(endVertex, edge));
+		//adjList.get(startVertex).add(new Node(endVertex, edge));
 		
 		// create end Node and add to startVertex adjacency list
-		Node<V,E> endNode = new Node<V,E>(endVertex, edge);
+		Node endNode = new Node(endVertex, edge);
 		adjList.get(startVertex).add(endNode);
 		
 		if (debug) {
@@ -262,7 +212,7 @@ public class HierarchyDiGraph <V,E> {
 	 * @param vertex
 	 * @return true if vertex is in the Graph
 	 */
-	public boolean containsVertex(V vertex) {
+	public boolean containsVertex(Unit vertex) {
 		if(adjList.containsKey(vertex)) {
 			return true;
 		}
@@ -276,9 +226,9 @@ public class HierarchyDiGraph <V,E> {
 	 * @param endVertex
 	 * @return
 	 */
-	public boolean containsEdge(E edge, V startVertex, V endVertex) {
+	public boolean containsEdge(Double edge, Unit startVertex, Unit endVertex) {
 		if (adjList.containsKey(startVertex)) {
-			for (Node<V,E> node : adjList.get(startVertex)) {
+			for (Node node : adjList.get(startVertex)) {
 				if (node.getEdge().equals(edge) && node.getVertex().equals(endVertex)){
 					return true;
 				}
@@ -287,9 +237,9 @@ public class HierarchyDiGraph <V,E> {
 		return false;
 	}
 	
-	public boolean containsEdge(V startVertex, V endVertex) {
+	public boolean containsEdge(Unit startVertex, Unit endVertex) {
 		if (adjList.containsKey(startVertex)) {
-			for (Node<V,E> node : adjList.get(startVertex)) {
+			for (Node node : adjList.get(startVertex)) {
 				if (node.getVertex().equals(endVertex)){
 					return true;
 				}
@@ -298,9 +248,9 @@ public class HierarchyDiGraph <V,E> {
 		return false;
 	}
 	
-	public boolean containsEdge(E edge) {
-		for (V key : adjList.keySet()) {
-			for (Node<V,E> node : adjList.get(key)) {
+	public boolean containsEdge(Double edge) {
+		for (Unit key : adjList.keySet()) {
+			for (Node node : adjList.get(key)) {
 				if (node.getEdge().equals(edge)) {
 					return true;
 				}
@@ -309,9 +259,9 @@ public class HierarchyDiGraph <V,E> {
 		return false;
 	}
 	
-	public E getEdge(V startVertex, V endVertex) {
+	public Double getEdge(Unit startVertex, Unit endVertex) {
 		if (adjList.containsKey(startVertex)) {
-			for (Node<V,E> node : adjList.get(startVertex)) {
+			for (Node node : adjList.get(startVertex)) {
 				if (node.getVertex().equals(endVertex)){
 					return node.getEdge();
 				}
@@ -324,9 +274,9 @@ public class HierarchyDiGraph <V,E> {
 	 * @param vertex
 	 * @return List<E> of outgoing Edges for vertex
 	 */
-	public List<E> getVertexOutgoingEdges(V vertex){
-		List<E> newList = new ArrayList<>();
-		for (Node<V,E> node : adjList.get(vertex)) {
+	public List<Double> getVertexOutgoingEdges(Unit vertex){
+		List<Double> newList = new ArrayList<>();
+		for (Node node : adjList.get(vertex)) {
 			newList.add(node.getEdge());	
 		}
 		return newList;
@@ -336,11 +286,11 @@ public class HierarchyDiGraph <V,E> {
 	 * @param vertex
 	 * @return List<E> of incoming Edges for vertex
 	 */
-	public List<E> getVertexIncomingEdges(V vertex){
-		List<E> newList = new ArrayList<>();
-		for (V key : adjList.keySet()) {
-			ArrayList<Node<V,E>> list = adjList.get(key);
-			for (Node<V,E> node : list) {
+	public List<Double> getVertexIncomingEdges(Unit vertex){
+		List<Double> newList = new ArrayList<>();
+		for (Unit key : adjList.keySet()) {
+			List<Node> list = adjList.get(key);
+			for (Node node : list) {
 				if (node.getVertex().equals(vertex)) {
 					newList.add(node.getEdge());
 				}
@@ -354,8 +304,8 @@ public class HierarchyDiGraph <V,E> {
 	 * @param vertex
 	 * @return
 	 */
-	public List<V> getVertexOutgoingNeighbors(V vertex){
-		List<V> newList = new ArrayList<>();
+	public List<Unit> getVertexOutgoingNeighbors(Unit vertex){
+		List<Unit> newList = new ArrayList<>();
 		
 		if (debug) {
 			out.println("---");
@@ -364,7 +314,7 @@ public class HierarchyDiGraph <V,E> {
 			out.print("---");
 		}
 		
-		for (Node<V,E> node : adjList.get(vertex)) {
+		for (Node node : adjList.get(vertex)) {
 			newList.add(node.getVertex());	
 		}
 		return newList;
@@ -375,10 +325,10 @@ public class HierarchyDiGraph <V,E> {
 	 * @param vertex
 	 * @return
 	 */
-	public List<V> getVertexIncomingNeighbors(V vertex){
-		List<V> newList = new ArrayList<>();
-		for (V key : adjList.keySet()) {
-			for (Node<V,E> node : adjList.get(key)) {
+	public List<Unit> getVertexIncomingNeighbors(Unit vertex){
+		List<Unit> newList = new ArrayList<>();
+		for (Unit key : adjList.keySet()) {
+			for (Node node : adjList.get(key)) {
 				if (node.getVertex().equals(vertex)) {
 					newList.add(key);
 				}
@@ -392,8 +342,8 @@ public class HierarchyDiGraph <V,E> {
 	 * @param f
 	 * @return destination vertex of edge starting in startVertex, null if destination does not exist
 	 */
-	public V getDest(V startVertex, E edge){
-		for (Node<V,E> node : adjList.get(startVertex)) {
+	public Unit getDest(Unit startVertex, Double edge){
+		for (Node node : adjList.get(startVertex)) {
 			if (node.getEdge().equals(edge)) {
 				return node.getVertex();
 			}
@@ -406,19 +356,19 @@ public class HierarchyDiGraph <V,E> {
 	 * @param startVertex
 	 * @return
 	 */
-	public List<ArrayList<V>> dijkstraShortestPaths(V startVertex) {
+	public List<ArrayList<Unit>> dijkstraShortestPaths(Unit startVertex) {
 		
-		Map<V, Double> totalCosts = new HashMap<>(); 	// stores the minimum cost from startVertex to all other vertices
-		Map<V,V> prevVertex = new HashMap<>();			// stores the connections that build the minimum Cost Tree
-		Map<V, Double> minPath = new HashMap<>();		// improvised Priority Queue, easier to use
-		Set<V> visited = new HashSet<>();				// keeps track of visited vertices
+		Map<Unit, Double> totalCosts = new HashMap<>(); 	// stores the minimum cost from startVertex to all other vertices
+		Map<Unit,Unit> prevVertex = new HashMap<>();			// stores the connections that build the minimum Cost Tree
+		Map<Unit, Double> minPath = new HashMap<>();		// improvised Priority Queue, easier to use
+		Set<Unit> visited = new HashSet<>();				// keeps track of visited vertices
 		
 		// initialize with startVertex
 		totalCosts.put(startVertex, 0.0);
 		minPath.put(startVertex, 0.0);
 		
 		// initialize the cost to all vertices as infinity
-		for (V vertex : getAdjList().keySet()) {
+		for (Unit vertex : getAdjList().keySet()) {
 			if (vertex != startVertex) {
 				totalCosts.put(vertex, Double.POSITIVE_INFINITY);
 			}
@@ -428,10 +378,10 @@ public class HierarchyDiGraph <V,E> {
 		while (!minPath.isEmpty()) {
 			
 			// Find the next Vertex to be analyzed by finding the minimum Path so far
-			V newSmallest = (V) minPath.keySet().toArray()[0];
+			Unit newSmallest = (Unit) minPath.keySet().toArray()[0];
 			double minPathsmallestValue = minPath.get(newSmallest);
 			
-			for (V vertex : minPath.keySet()) {
+			for (Unit vertex : minPath.keySet()) {
 				if(minPath.get(vertex) <= minPathsmallestValue) {
 					newSmallest = vertex;
 				}
@@ -441,12 +391,12 @@ public class HierarchyDiGraph <V,E> {
 			visited.add(newSmallest);
 			
 			// search for neighbors and update paths costs
-			List<V> neighbors = getVertexOutgoingNeighbors(newSmallest);
-			for (V neighbor : neighbors) {
+			List<Unit> neighbors = getVertexOutgoingNeighbors(newSmallest);
+			for (Unit neighbor : neighbors) {
 				// if already visited, no update necessary
 				if (!visited.contains(neighbor)) {
 					// calculate path cost
-					double altPathCost = totalCosts.get(newSmallest) + getEdgeCost(getEdge(newSmallest, neighbor));
+					double altPathCost = totalCosts.get(newSmallest) + getEdge(newSmallest, neighbor);
 					// if calculated path cost is cheaper than previous calculation, replace and store information
 					if (altPathCost < totalCosts.get(neighbor)) {
 						// update total cost to get to this vertex (now is cheaper)
@@ -463,17 +413,17 @@ public class HierarchyDiGraph <V,E> {
 		// shortest paths are calculated but not organized, connection between vertices that form the minimum Cost Tree
 		// are calculated but not ordered. The following steps stores a List of Lists of all the minimum cost paths
 		// starting in startVertex to all other vertices.
-		List<ArrayList<V>> shortestPaths = new ArrayList<>();
+		List<ArrayList<Unit>> shortestPaths = new ArrayList<>();
 		
-		Set<V> vertexSet = getAdjList().keySet();
+		Set<Unit> vertexSet = getAdjList().keySet();
 		vertexSet.remove(startVertex);
 		
 		// creates paths in reverse other (starting with endVertex to startVertex)
-		for (V vertex : vertexSet) {
-			ArrayList<V> path = new ArrayList<>();
+		for (Unit vertex : vertexSet) {
+			ArrayList<Unit> path = new ArrayList<>();
 			path.add(vertex);
 			while(vertex != startVertex) {
-				V next = prevVertex.get(vertex);
+				Unit next = prevVertex.get(vertex);
 				path.add(next);
 				vertex = next;
 			}
@@ -489,19 +439,19 @@ public class HierarchyDiGraph <V,E> {
 	 * @param startVertex
 	 * @return
 	 */
-	public List<ArrayList<V>> dijkstraStraightFowardPaths(V startVertex) {
+	public List<ArrayList<Unit>> dijkstraStraightFowardPaths(Unit startVertex) {
 		
-		Map<V, Double> totalCosts = new HashMap<>(); 	// stores the minimum cost from startVertex to all other vertices
-		Map<V,V> prevVertex = new HashMap<>();			// stores the connections that build the minimum Cost Tree
-		Map<V, Double> minPath = new HashMap<>();		// improvised Priority Queue, easier to use
-		Set<V> visited = new HashSet<>();				// keeps track of visited vertices
+		Map<Unit, Double> totalCosts = new HashMap<>(); 	// stores the minimum cost from startVertex to all other vertices
+		Map<Unit,Unit> prevVertex = new HashMap<>();			// stores the connections that build the minimum Cost Tree
+		Map<Unit, Double> minPath = new HashMap<>();		// improvised Priority Queue, easier to use
+		Set<Unit> visited = new HashSet<>();				// keeps track of visited vertices
 		
 		// initialize with startVertex
 		totalCosts.put(startVertex, 0.0);
 		minPath.put(startVertex, 0.0);
 		
 		// initialize the cost to all vertices as infinity
-		for (V vertex : getAdjList().keySet()) {
+		for (Unit vertex : getAdjList().keySet()) {
 			if (vertex != startVertex) {
 				totalCosts.put(vertex, Double.POSITIVE_INFINITY);
 			}
@@ -511,9 +461,10 @@ public class HierarchyDiGraph <V,E> {
 		while (!minPath.isEmpty()) {
 			
 			// Find the next Vertex to be analyzed by finding the minimum Path so far
-			double minPathsmallestValue = minPath.get(0);
-			V newSmallest = null;
-			for (V vertex : minPath.keySet()) {
+			Unit newSmallest = (Unit) minPath.keySet().toArray()[0];
+			double minPathsmallestValue = minPath.get(newSmallest);
+
+			for (Unit vertex : minPath.keySet()) {
 				if(minPath.get(vertex) <= minPathsmallestValue) {
 					newSmallest = vertex;
 				}
@@ -523,8 +474,8 @@ public class HierarchyDiGraph <V,E> {
 			visited.add(newSmallest);
 			
 			// search for neighbors and update paths costs
-			List<V> neighbors = getVertexOutgoingNeighbors(newSmallest);
-			for (V neighbor : neighbors) {
+			List<Unit> neighbors = getVertexOutgoingNeighbors(newSmallest);
+			for (Unit neighbor : neighbors) {
 				// if already visited, no update necessary
 				if (!visited.contains(neighbor)) {
 					// calculate path cost
@@ -545,17 +496,17 @@ public class HierarchyDiGraph <V,E> {
 		// shortest paths are calculated but not organized, connection between vertices that form the minimum Cost Tree
 		// are calculated but not ordered. The following steps stores a List of Lists of all the minimum cost paths
 		// starting in startVertex to all other vertices.
-		List<ArrayList<V>> shortestPaths = new ArrayList<>();
+		List<ArrayList<Unit>> shortestPaths = new ArrayList<>();
 		
-		Set<V> vertexSet = getAdjList().keySet();
+		Set<Unit> vertexSet = getAdjList().keySet();
 		vertexSet.remove(startVertex);
 		
 		// creates paths in reverse other (starting with endVertex to startVertex)
-		for (V vertex : vertexSet) {
-			ArrayList<V> path = new ArrayList<>();
+		for (Unit vertex : vertexSet) {
+			ArrayList<Unit> path = new ArrayList<>();
 			path.add(vertex);
 			while(vertex != startVertex) {
-				V next = prevVertex.get(vertex);
+				Unit next = prevVertex.get(vertex);
 				path.add(next);
 				vertex = next;
 			}
@@ -577,9 +528,9 @@ public class HierarchyDiGraph <V,E> {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		for (V key : adjList.keySet()) {
+		for (Unit key : adjList.keySet()) {
 			str.append(key + " ->");
-			for (Node<V,E> node : adjList.get(key)) {
+			for (Node node : adjList.get(key)) {
 				str.append("\n\t" + node.getVertex() + " " + node.getEdge() + "  |  ");
 			}
 			str.append("\n");

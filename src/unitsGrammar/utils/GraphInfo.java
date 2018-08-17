@@ -7,12 +7,11 @@
 *
 ***************************************************************************************/
 
-package typesGrammar.utils;
+package unitsGrammar.utils;
 
 import static java.lang.System.out;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -22,19 +21,19 @@ import java.util.Set;
  * @author Luis Moura (https://github.com/LuisPedroMoura)
  * @version July 2018
  */
-public class GraphInfo<V,E>{
+public class GraphInfo{
 	
 	// Static Field (Debug Only)
 	private static final boolean debug = false; 
 	
-	HierarchyDiGraph<V,E> graph;
-	List<ArrayList<V>> allShortestPaths;
-	List<ArrayList<V>> allStraightFowardPaths;
-	HierarchyDiGraph<V,Double> shortestPathsGraph;
-	HierarchyDiGraph<V,Double> straightfowardPathsGraph;
-	HierarchyDiGraph<V,Double> straightfowardPathsCostsGraph;
+	Graph graph;
+	List<ArrayList<Unit>> allShortestPaths;
+	List<ArrayList<Unit>> allStraightFowardPaths;
+	Graph shortestPathsGraph;
+	Graph straightfowardPathsGraph;
+	Graph straightfowardPathsCostsGraph;
 	
-	public GraphInfo(HierarchyDiGraph<V,E> graph) {
+	public GraphInfo(Graph graph) {
 		this.graph = graph;
 		
 		if (debug) {
@@ -44,8 +43,8 @@ public class GraphInfo<V,E>{
 		}
 		
 		// have to use deep copy of graph or functions in HerarchyDiGraph Class will create concurrent modification exception
-		allShortestPaths = getAllShortestPaths(new HierarchyDiGraph<V,E>(graph));
-		allStraightFowardPaths = getAllStraightfowardPaths(new HierarchyDiGraph<V,E>(graph));
+		allShortestPaths = getAllShortestPaths(new Graph(graph));
+		allStraightFowardPaths = getAllStraightfowardPaths(new Graph(graph));
 		createShortestPathsGraph();
 		createStraightfowardPathsGraph();
 		createStraightfowardPathsCostsGraph();
@@ -56,7 +55,7 @@ public class GraphInfo<V,E>{
 	/**
 	 * @return the graph
 	 */
-	public HierarchyDiGraph<V, E> getGraph() {
+	public Graph getGraph() {
 		return graph;
 	}
 
@@ -65,7 +64,7 @@ public class GraphInfo<V,E>{
 	/**
 	 * @return the allShortestPaths
 	 */
-	public List<ArrayList<V>> getAllShortestPaths() {
+	public List<ArrayList<Unit>> getAllShortestPaths() {
 		return allShortestPaths;
 	}
 
@@ -74,7 +73,7 @@ public class GraphInfo<V,E>{
 	/**
 	 * @return the allStraightFowardPaths
 	 */
-	public List<ArrayList<V>> getAllStraightFowardPaths() {
+	public List<ArrayList<Unit>> getAllStraightFowardPaths() {
 		return allStraightFowardPaths;
 	}
 
@@ -83,7 +82,7 @@ public class GraphInfo<V,E>{
 	/**
 	 * @return the shortestPathsGraph
 	 */
-	public HierarchyDiGraph<V, Double> getShortestPathsGraph() {
+	public Graph getShortestPathsGraph() {
 		return shortestPathsGraph;
 	}
 
@@ -92,7 +91,7 @@ public class GraphInfo<V,E>{
 	/**
 	 * @return the straightfowardPathsGraph
 	 */
-	public HierarchyDiGraph<V, Double> getStraightfowardPathsGraph() {
+	public Graph getStraightfowardPathsGraph() {
 		return straightfowardPathsGraph;
 	}
 
@@ -101,7 +100,7 @@ public class GraphInfo<V,E>{
 	/**
 	 * @return the straightfowardPathsCostsGraph
 	 */
-	public HierarchyDiGraph<V, Double> getStraightfowardPathsCostsGraph() {
+	public Graph getStraightfowardPathsCostsGraph() {
 		return straightfowardPathsCostsGraph;
 	}
 
@@ -112,11 +111,11 @@ public class GraphInfo<V,E>{
 	 * @param graph
 	 * @return
 	 */
-	private List<ArrayList<V>> getAllStraightfowardPaths(HierarchyDiGraph<V,E> graph) {
-		List<ArrayList<V>> allPaths = new ArrayList<>();
-		Set<V> vertices = graph.getAdjList().keySet();
-		for (V vertex : vertices) {
-			List<ArrayList<V>> paths = graph.dijkstraStraightFowardPaths(vertex);
+	private List<ArrayList<Unit>> getAllStraightfowardPaths(Graph graph) {
+		List<ArrayList<Unit>> allPaths = new ArrayList<>();
+		Set<Unit> vertices = graph.getAdjList().keySet();
+		for (Unit vertex : vertices) {
+			List<ArrayList<Unit>> paths = graph.dijkstraStraightFowardPaths(vertex);
 			allPaths.addAll(paths);
 		}
 		return allPaths;
@@ -127,11 +126,11 @@ public class GraphInfo<V,E>{
 	 * @param graph
 	 * @return
 	 */
-	private List<ArrayList<V>> getAllShortestPaths(HierarchyDiGraph<V,E> graph) {
-		List<ArrayList<V>> allPaths = new ArrayList<>();
-		Set<V> vertices = graph.getAdjList().keySet();
-		for (V vertex : vertices) {
-			List<ArrayList<V>> paths = graph.dijkstraShortestPaths(vertex);
+	private List<ArrayList<Unit>> getAllShortestPaths(Graph graph) {
+		List<ArrayList<Unit>> allPaths = new ArrayList<>();
+		Set<Unit> vertices = graph.getAdjList().keySet();
+		for (Unit vertex : vertices) {
+			List<ArrayList<Unit>> paths = graph.dijkstraShortestPaths(vertex);
 			allPaths.addAll(paths);
 		}
 		return allPaths;
@@ -140,9 +139,9 @@ public class GraphInfo<V,E>{
 	
 	private void createShortestPathsGraph(){
 		double pathCost = 0.0;
-		for (List<V> list : allShortestPaths) {
+		for (List<Unit> list : allShortestPaths) {
 			for (int i = 0; i < list.size()-1; i++) {
-				pathCost *= graph.getEdgeCost(graph.getEdge(list.get(i), list.get(i+1)));
+				pathCost *= graph.getEdge(list.get(i), list.get(i+1));
 			}
 			shortestPathsGraph.addEdge(pathCost, list.get(0), list.get(list.size()-1));
 			shortestPathsGraph.addEdge(pathCost, list.get(list.size()-1), list.get(0));
@@ -152,7 +151,7 @@ public class GraphInfo<V,E>{
 	
 	private void createStraightfowardPathsGraph(){
 		double pathCost = 0.0;
-		for (List<V> list : allStraightFowardPaths) {
+		for (List<Unit> list : allStraightFowardPaths) {
 			for (int i = 0; i < list.size()-1; i++) {
 				pathCost += 1;
 			}
@@ -165,9 +164,9 @@ public class GraphInfo<V,E>{
 	
 	private void createStraightfowardPathsCostsGraph(){
 		double pathCost = 0.0;
-		for (List<V> list : allStraightFowardPaths) {
+		for (List<Unit> list : allStraightFowardPaths) {
 			for (int i = 0; i < list.size()-1; i++) {
-				pathCost *= graph.getEdgeCost(graph.getEdge(list.get(i), list.get(i+1)));
+				pathCost *= graph.getEdge(list.get(i), list.get(i+1));
 			}
 			straightfowardPathsCostsGraph.addEdge(pathCost, list.get(0), list.get(list.size()-1));
 			straightfowardPathsCostsGraph.addEdge(pathCost, list.get(list.size()-1), list.get(0));

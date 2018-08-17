@@ -31,8 +31,8 @@ import potatoesGrammar.utils.DictVar;
 import potatoesGrammar.utils.ListVar;
 import potatoesGrammar.utils.Variable;
 import potatoesGrammar.utils.varType;
-import typesGrammar.grammar.TypesFileInfo;
-import typesGrammar.utils.Type;
+import unitsGrammar.grammar.TypesFileInfo;
+import unitsGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 
 /**
@@ -106,6 +106,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		typesFileInfo = new TypesFileInfo(TypesFilePath);
 		reservedWords = typesFileInfo.getReservedWords();
 		typesTable = typesFileInfo.getTypesTable();
+		
+		System.out.println("### SEMANTIC CHECK ### -> \n" + typesFileInfo.getGraphInfo().getShortestPathsGraph());
 
 		// Debug
 		if (debug) {
@@ -1010,7 +1012,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						str0 = ((Boolean) var0.getValue())+""; 
 					}
 					if (var0.isNumeric()) {
-						str0 = var0.getValue().toString() + var0.getType().getPrintName();
+						str0 = ((Double) var0.getValue()) + var0.getType().getPrintName();
 					}
 					
 					if (var1.isString()) {
@@ -1020,7 +1022,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						str1 = ((Boolean) var1.getValue())+""; 
 					}
 					if (var1.isNumeric()) {
-						str1 = var1.getValue().toString() + var1.getType().getPrintName();
+						str1 = ((Double) var1.getValue()) + var1.getType().getPrintName();
 					}
 					
 					String finalStr = str0 + str1;
@@ -1719,7 +1721,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String newVarName = ctx.ID().getText();
 		
 		// variable to be created is already declared or is reserved word -> error
-		if(!isValidNewVariableName(newVarName, ctx)) return false;
+		if(!isValidNewVariableName(newVarName, ctx)) {return false;}
 				
 		// update tables -> type already contains information necessary to create variable
 		mapCtxVar.put(ctx, type);

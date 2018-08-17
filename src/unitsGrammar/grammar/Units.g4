@@ -1,5 +1,5 @@
 /***************************************************************************************
-*	Title: PotatoesProject - Types Grammar Source Code
+*	Title: PotatoesProject - Units Grammar Source Code
 *	Code version: 2.0
 *	Author: Luis Moura (https://github.com/LuisPedroMoura)
 *	Author of version 1.0: Pedro Teixeira (https://pedrovt.github.io),
@@ -8,42 +8,42 @@
 *
 ***************************************************************************************/
 
-grammar Types;
+grammar Units;
 
 @header{
-package typesGrammar.grammar;
+package unitsGrammar.grammar;
 }
 
 // -----------------------------------------------------------------------------
 // Parser
-typesFile	: declaration* EOF 
+unitsFile	: declaration* EOF 
 			;
 			
-declaration : typesDeclaration
+declaration : unitsDeclaration
 			| structureDeclaration
 			| prefixDeclaration
 			;
 	  			
 // -----------------------------------------------------------------------------
-// Types
-typesDeclaration	: 'types' '{' (type EOL)* '}' 
+// Units
+unitsDeclaration	: 'units' '{' (unit EOL)* '}' 
 					;
 					
-type	: ID STRING 				 			#Type_Basic
-		| ID STRING ':' typesDerivation			#Type_Derived
-		| ID STRING? ':' typesEquivalence 		#Type_Equivalent
-		| ID '[' ID ']' ':' typesEquivalence	#Type_Class
+unit	: ID STRING 				 			#Unit_Basic
+		| ID STRING 	':' unitsDerivation		#Unit_Derived
+		| ID 			':' unitsEquivalence 	#Unit_Equivalent
+		| ID '[' ID ']' ':' unitsEquivalence	#Unit_Class
 	  	;
 	  		
-typesEquivalence	: equivalentType ('|' equivalentType)*							
+unitsEquivalence	: equivalentUnit ('|' equivalentUnit)*							
 					;
-
-equivalentType : '(' value ')' ID;
+					
+equivalentUnit		: '(' value ')' ID;
 	
-typesDerivation	: '(' typesDerivation ')'								#Type_Op_Parenthesis
-					| typesDerivation op=('*' | '/') typesDerivation	#Type_Op_MultDiv
-					| <assoc=right> ID '^' NUMBER						#Type_Op_Power
-					| ID												#Type_Op_ID
+unitsDerivation		: '(' unitsDerivation ')'							#Unit_Op_Parenthesis
+					| unitsDerivation op=('*' | '/') unitsDerivation	#Unit_Op_MultDiv
+					| <assoc=right> unitsDerivation '^' NUMBER			#Unit_Op_Power
+					| ID												#Unit_Op_ID
 					;
 
 // -----------------------------------------------------------------------------
@@ -52,10 +52,10 @@ typesDerivation	: '(' typesDerivation ')'								#Type_Op_Parenthesis
 structureDeclaration	: 'structures' '{' (structure EOL)* '}'
 						;
 
-structure 	: ID STRING ':' typesAssociation
+structure 	: ID STRING ':' unitsAssociation
 			;
 			
-typesAssociation	: equivalentType ('&' equivalentType)*
+unitsAssociation	: equivalentUnit ('&' equivalentUnit)*
 					;
 
 // -----------------------------------------------------------------------------

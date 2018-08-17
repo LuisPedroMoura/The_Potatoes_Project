@@ -14,8 +14,8 @@
 package potatoesGrammar.utils;
 
 import compiler.PotatoesSemanticCheck;
-import typesGrammar.utils.HierarchyDiGraph;
-import typesGrammar.utils.Type;
+import unitsGrammar.utils.Graph;
+import unitsGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 
 /**
@@ -36,9 +36,7 @@ public class Variable {
 	// --------------------------------------------------------------------------
 	// Static Fields
 	// FIXME colocar aqui o Grafo que já vem tratado no GraphInfo. Verificar onde tem de se ir buscar.
-	private static HierarchyDiGraph<Type,Double> typesGraph =  PotatoesSemanticCheck.getTypesFileInfo()
-																					.getGraphInfo()
-																					.getShortestPathsGraph();
+	private static Graph typesGraph =  PotatoesSemanticCheck.getTypesFileInfo().getGraphInfo().getStraightfowardPathsCostsGraph();
 	
 	// --------------------------------------------------------------------------
 	// Instance Fields
@@ -67,6 +65,7 @@ public class Variable {
 	 */ 
 	public Variable(Variable a) { 
 		
+		// deep copy Type
 		if (a.getType() == null){
 			this.type = null;
 		}
@@ -74,13 +73,30 @@ public class Variable {
 			this.type = new Type(a.getType());
 		}
 		
+		// deep copy varType Enum (immutable)
 		this.varType = a.getVarType();
 		
+		// deep copy value object
 		if (a.getValue() == null) {
 			this.value = null;
 		}
-		else {
-			this.value  = a.getValue();
+		if (value instanceof Double) {
+			this.value = a.getValue();
+		}
+		if (value instanceof String) {
+			this.value = a.getValue();
+		}
+		if (value instanceof Boolean) {
+			this.value = a.getValue();
+		}
+		if (value instanceof DictVar) {
+			this.value = new DictVar((DictVar) a.getValue());
+		}
+		if (value instanceof ListVar) {
+			this.value = new ListVar((ListVar) a.getValue());
+		}
+		if (value instanceof DictTuple) {
+			this.value = new DictTuple((DictTuple) a.getValue());
 		}
 	}
 
@@ -193,7 +209,7 @@ public class Variable {
 	public static Variable add(Variable a, Variable b) {
 		if (a.isNumeric() && b.isNumeric()) {
 			if (!a.getType().equals(b.getType())) {
-				double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+				double conversionFactor = typesGraph.getEdge(a.getType(), b.getType());
 				if (conversionFactor == Double.POSITIVE_INFINITY) {
 					throw new IllegalArgumentException();
 				}
@@ -212,7 +228,7 @@ public class Variable {
 	public static Variable subtract(Variable a, Variable b) {
 		if (a.isNumeric() && b.isNumeric()) {
 			if (!a.getType().equals(b.getType())) {
-				double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+				double conversionFactor = typesGraph.getEdge(a.getType(), b.getType());
 				if (conversionFactor == Double.POSITIVE_INFINITY) {
 					throw new IllegalArgumentException();
 				}
@@ -268,7 +284,7 @@ public class Variable {
 			}
 			
 			// if there is no path between the types. It means the conversion is not possible -> not compatible
-			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, type));
+			double conversionFactor = typesGraph.getEdge(this.type, type);
 			if (!(conversionFactor == Double.POSITIVE_INFINITY)) {
 				return true;
 			}
@@ -305,6 +321,11 @@ public class Variable {
 			}
 			
 			// if one of the types is not in the Graph -> conversion not possible
+			System.out.println("\n" + typesGraph + "\n");
+			System.out.println(this.type + "\n");
+			System.out.println(newType + "\n");
+			System.out.println(typesGraph.containsVertex(newType));
+			System.out.println(typesGraph.containsVertex(this.type));
 			if (!typesGraph.containsVertex(newType) || !typesGraph.containsVertex(this.type)) {
 				if(debug) {ErrorHandling.printInfo("CONVERT_TYPE_TO - not contained in graph");}			
 				throw new IllegalArgumentException();
@@ -316,7 +337,7 @@ public class Variable {
 			}
 			
 			// if there is no path between the types -> conversion not possible
-			double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(this.type, newType));
+			double conversionFactor = typesGraph.getEdge(this.type, newType);
 			if (conversionFactor == Double.POSITIVE_INFINITY) {
 				throw new IllegalArgumentException();
 			}
@@ -348,7 +369,7 @@ public class Variable {
 	 * @return the convertion factor between a type and b type if compatible
 	 */
 	public static double pathCost(Variable a, Variable b) {
-		double conversionFactor = typesGraph.getEdgeCost(typesGraph.getEdge(a.getType(), b.getType()));
+		double conversionFactor = typesGraph.getEdge(a.getType(), b.getType());
 		if (conversionFactor == Double.POSITIVE_INFINITY) {
 			throw new IllegalArgumentException();
 		}
