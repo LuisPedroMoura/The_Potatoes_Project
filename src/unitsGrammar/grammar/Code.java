@@ -10,11 +10,12 @@
 *
 ***************************************************************************************/
 
-package unitsGrammar.utils;
+package unitsGrammar.grammar;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <b>Code</b><p>
@@ -33,7 +34,7 @@ public class Code {
 	public Code () {}
 	
 	/**
-	 * Constructor for Code of basic Types
+	 * Constructor for Code of basic Units
 	 * @param primeNumber
 	 */
 	public Code (Integer number) {
@@ -70,6 +71,71 @@ public class Code {
 		return denCodes;
 	}
 	
+	private void addNumCode(Integer code) {
+		this.numCodes.add(code);
+	}
+	
+	private void addDenCode(Integer code) {
+		this.numCodes.add(code);
+	}
+	
+	private void remNumCode(Integer code) {
+		this.numCodes.add(code);
+	}
+	
+	private void remDenCode(Integer code) {
+		this.numCodes.add(code);
+	}
+	
+	
+	/**
+	 * @param a
+	 * @param b
+	 * @return a new Code resulting of the multiplication of the two Codes
+	 */
+	public static Code add(Code a, Code b) {
+		
+		// codes are equal -> can be added directly
+		if (a.equals(b)) {
+			return a;
+		}
+		
+		// codes are not equal -> may be equivalent -> verify
+		
+		Code newCode = new Code();
+		newCode.simplifyCode();
+		return newCode;
+	}
+	private void multiplyCode(Code code) {
+		for (int numCode : code.getNumCodes()) {
+			this.numCodes.add(numCode);
+		}
+		for (int denCode : code.getDenCodes()) {
+			this.denCodes.add(denCode);
+		}
+	}
+	
+	/**
+	 * @param a
+	 * @param b
+	 * @return a new Code resulting of the multiplication of the two Codes
+	 */
+	public static Code subtract(Code a, Code b) {
+		Code newCode = new Code();
+		newCode.multiplyCode(a);
+		newCode.multiplyCode(b);
+		newCode.simplifyCode();
+		return newCode;
+	}
+	private void multiplyCode(Code code) {
+		for (int numCode : code.getNumCodes()) {
+			this.numCodes.add(numCode);
+		}
+		for (int denCode : code.getDenCodes()) {
+			this.denCodes.add(denCode);
+		}
+	}
+	
 	/**
 	 * @param a
 	 * @param b
@@ -78,7 +144,8 @@ public class Code {
 	public static Code multiply(Code a, Code b) {
 		Code newCode = new Code();
 		newCode.multiplyCode(a);
-		newCode.multiplyCode(b);		
+		newCode.multiplyCode(b);
+		newCode.simplifyCode();
 		return newCode;
 	}
 	private void multiplyCode(Code code) {
@@ -98,7 +165,8 @@ public class Code {
 	public static Code divide(Code a, Code b) {
 		Code newCode = new Code();
 		newCode.multiplyCode(a);
-		newCode.divideCode(b);		
+		newCode.divideCode(b);
+		newCode.simplifyCode();
 		return newCode;
 	}
 	private void divideCode(Code code) {
@@ -119,6 +187,7 @@ public class Code {
 		Code newCode = new Code();
 		for (int i = 0; i < exponent; i++) {
 			newCode.multiplyCode(a);
+			newCode.simplifyCode();
 		}
 		return newCode;
 	}
@@ -126,7 +195,7 @@ public class Code {
 	/**
 	 * simplifies Code by removing duplicate codes in numCodes and denCodes
 	 */
-	public void simplifyCode() {
+	private void simplifyCode() {
 		for (Integer numCode : numCodes) {
 			if (denCodes.contains(numCode)) {
 				numCodes.remove(numCode);
@@ -138,28 +207,28 @@ public class Code {
 	/**
 	 * To simplify a Code using conversion from the give Graph of Units some conversions might be necessary, ie:
 	 * m^2/yd -> m^2/m, to obtain m.
-	 * @param typesGraph
+	 * @param unitsGraph
 	 * @return 	the conversion factor obtained from the Code simplification.
 	 * 			So when Unit containing this Code is used in with an associated quantity,
 	 * 			this conversion factor must be applied to the quantity value.
 	 */
-	public double simplifyCodeWithConvertions(Graph typesGraph) {
+	protected double simplifyCodeWithConvertions(Graph unitsGraph, Map<Integer, Unit> basicUnitsCodesTable) {
 		Double factor = 1.0;
 		Double conversionFactor = 1.0;
 		while (conversionFactor != null) {
 			factor *= conversionFactor;
-			conversionFactor = simplifyCodeWithConvertionsPrivate(typesGraph);
+			conversionFactor = simplifyCodeWithConvertionsPrivate(unitsGraph, basicUnitsCodesTable);
 		}
 		return factor;
 	}
 	// TODO not very efficient (think of what structure to use)
-	private Double simplifyCodeWithConvertionsPrivate(Graph typesGraph) {
-		Map<Integer, Unit> basicTypesCodesTable = Unit.getBasicUnitsCodesTable();
+	private double simplifyCodeWithConvertionsPrivate(Graph unitsGraph, Map<Integer, Unit> basicUnitsCodesTable) {
+
 		for (int numCode : this.numCodes) {
-			Unit numType = basicTypesCodesTable.get(numCode);
+			Unit numUnit = basicUnitsCodesTable.get(numCode);
 			for (int denCode : this.denCodes) {
-				Unit denType = basicTypesCodesTable.get(denCode);
-				double conversionFactor = typesGraph.getEdge(numType, denType);
+				Unit denUnit = basicUnitsCodesTable.get(denCode);
+				double conversionFactor = unitsGraph.getEdge(numUnit, denUnit);
 				if (conversionFactor != Double.POSITIVE_INFINITY){
 					numCodes.remove(numCode);
 					denCodes.remove(denCode);
@@ -167,7 +236,96 @@ public class Code {
 				}
 			}
 		}
-		return null;
+		return 1.0;
+	}
+	
+	/**
+	 * Convertes Code <b>a<b> to Code <b>b<b> and returns the conversion factor for the associated quantity
+	 * MANDATORY: Codes <b>a<b> and <b>b<b> must simplified first with simplifyCode();
+	 * Example: m*yd -> m^2
+	 * @param a
+	 * @param b
+	 * @param unitsGraph
+	 * @param codesTable
+	 * @return
+	 */
+	protected double matchCodes(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) {
+		
+		// Codes are equal, no matching is needed. Quantity conversion factor is neutral.
+		if (this.equals(a)) {
+			return 1.0;
+		}
+		
+		// Codes size does not match -> Codes are not equivalent
+		if (this.numCodes.size() != a.getNumCodes().size() || this.denCodes.size() != a.getDenCodes().size()) {
+			throw new IllegalArgumentException();
+		}
+		
+		a = new Code(a); // deep copy
+		b = new Code(b); // deep copy
+		int codeSize = this.numCodes.size() + this.denCodes.size();
+		Code newCode = new Code();
+		Double conversionFactor = 1.0;
+		Double localFactor = 1.0;
+		
+		// First simplify codes
+		a.simplifyCode();
+		b.simplifyCode();
+		
+		List<Integer> AnumCodes = a.getNumCodes();
+		List<Integer> BnumCodes = b.getNumCodes();
+		List<Integer> AdenCodes = a.getDenCodes();
+		List<Integer> BdenCodes = b.getDenCodes();
+		
+		// remove all numB from A
+		for (Integer numB : BnumCodes) {
+			AnumCodes.remove(numB);
+		}
+		// remove all numA from B
+		for (Integer numA : AnumCodes) {
+			BnumCodes.remove(numA);
+		}
+		
+		// remove all denB from A
+		for (Integer denB : BdenCodes) {
+			AdenCodes.remove(denB);
+		}
+		// remove all denA from B
+		for (Integer denA : AdenCodes) {
+			BdenCodes.remove(denA);
+		}
+		
+		
+		// Now, if Codes are simplified if they are equivalent only codes that need conversion remain
+		// Code b (on the right) is always converted to Code a (on the left)
+		for (Integer numB : b.getNumCodes()) {
+			for (Integer numA : a.getNumCodes()) {
+				localFactor = conversionTable.get(codesTable.get(numB)).get(codesTable.get(numA));
+				if (localFactor != null) {
+					conversionFactor *= localFactor;
+					codeSize--;
+					break;
+				}
+			}
+		}
+		
+		for (Integer denB : b.getDenCodes()) {
+			for (Integer denA : a.getDenCodes()) {
+				localFactor = conversionTable.get(codesTable.get(denB)).get(codesTable.get(denA));
+				if (localFactor != Double.POSITIVE_INFINITY) {
+					conversionFactor /= localFactor;
+					codeSize--;
+					break;
+				}
+			}
+		}
+		
+		// conversions where made but not all codes where matched -> Codes are not equivalent
+		if (codeSize != 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		return conversionFactor;
 	}
 	
 	

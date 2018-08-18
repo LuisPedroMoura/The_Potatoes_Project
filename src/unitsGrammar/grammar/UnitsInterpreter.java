@@ -19,7 +19,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import unitsGrammar.grammar.UnitsParser.*;
-import unitsGrammar.utils.*;
+import unitsGrammar.grammar.Units;
 import utils.errorHandling.ErrorHandling;
 
 /* HOW TO
@@ -51,6 +51,7 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	// --------------------------------------------------------------------------
 	// Instance Fields	
 	private Map<String, Unit>	basicUnitsTable			= new HashMap<>();
+	private Map<Integer, Unit>	basicUnitsCodesTable	= new HashMap<>();
 	private Map<String, Unit>	unitsTable    			= new HashMap<>();
 	private Map<String, Unit>	prefixedUnitsTable		= new HashMap<>();
 	private Map<String, Unit>	classesTable			= new HashMap<>();
@@ -71,6 +72,13 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		return basicUnitsTable;
 	}
 	
+	/**
+	 * @return the basicUnitsCodesTable
+	 */
+	protected Map<Integer, Unit> getBasicUnitsCodesTable() {
+		return basicUnitsCodesTable;
+	}
+
 	/**
 	 * @return unitsTable
 	 */
@@ -167,6 +175,7 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		Unit u = new Unit(name, symbol);
 		unitsTable.put(name, u);
 		basicUnitsTable.put(name, u);
+		basicUnitsCodesTable.put(u.getCode().getNumCodes().get(0), u);
 		reservedWords.add(name);
 		reservedWords.add(symbol);
 		unitsGraph.addVertex(u);
@@ -343,9 +352,9 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 
 		Unit res;
 		if (ctx.op.getText().equals("*"))
-			res = Unit.multiply(a, b);
+			res = Units.multiply(a, b);
 		else
-			res = Unit.divide(a, b);
+			res = Units.divide(a, b);
 
 		unitsCtx.put(ctx, res);
 
@@ -379,7 +388,7 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		}
 		
 		// calculate the powered unit
-		Unit res = Unit.power(u, power);
+		Unit res = Units.power(u, power);
 		
 		unitsCtx.put(ctx, res);
 		return true;

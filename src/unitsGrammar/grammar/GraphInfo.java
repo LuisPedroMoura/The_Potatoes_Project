@@ -7,12 +7,14 @@
 *
 ***************************************************************************************/
 
-package unitsGrammar.utils;
+package unitsGrammar.grammar;
 
 import static java.lang.System.out;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,8 +34,9 @@ public class GraphInfo{
 	Graph shortestPathsGraph = new Graph();
 	Graph straightfowardPathsGraph = new Graph();;
 	Graph straightfowardPathsCostsGraph = new Graph();
+	Map<Unit, Map<Unit, Double>> pathsTable = new HashMap<>();
 	
-	public GraphInfo(Graph graph) {
+	protected GraphInfo(Graph graph) {
 		this.graph = graph;
 		
 		if (debug) {
@@ -48,6 +51,7 @@ public class GraphInfo{
 		createShortestPathsGraph();
 		createStraightfowardPathsGraph();
 		createStraightfowardPathsCostsGraph();
+		createPathsTable();
 	}
 	
 	
@@ -55,7 +59,7 @@ public class GraphInfo{
 	/**
 	 * @return the graph
 	 */
-	public Graph getGraph() {
+	protected Graph getGraph() {
 		return graph;
 	}
 
@@ -64,7 +68,7 @@ public class GraphInfo{
 	/**
 	 * @return the allShortestPaths
 	 */
-	public List<ArrayList<Unit>> getAllShortestPaths() {
+	protected List<ArrayList<Unit>> getAllShortestPaths() {
 		return allShortestPaths;
 	}
 
@@ -73,7 +77,7 @@ public class GraphInfo{
 	/**
 	 * @return the allStraightFowardPaths
 	 */
-	public List<ArrayList<Unit>> getAllStraightFowardPaths() {
+	protected List<ArrayList<Unit>> getAllStraightFowardPaths() {
 		return allStraightFowardPaths;
 	}
 
@@ -82,7 +86,7 @@ public class GraphInfo{
 	/**
 	 * @return the shortestPathsGraph
 	 */
-	public Graph getShortestPathsGraph() {
+	protected Graph getShortestPathsGraph() {
 		return shortestPathsGraph;
 	}
 
@@ -91,7 +95,7 @@ public class GraphInfo{
 	/**
 	 * @return the straightfowardPathsGraph
 	 */
-	public Graph getStraightfowardPathsGraph() {
+	protected Graph getStraightfowardPathsGraph() {
 		return straightfowardPathsGraph;
 	}
 
@@ -100,8 +104,17 @@ public class GraphInfo{
 	/**
 	 * @return the straightfowardPathsCostsGraph
 	 */
-	public Graph getStraightfowardPathsCostsGraph() {
+	protected Graph getStraightfowardPathsCostsGraph() {
 		return straightfowardPathsCostsGraph;
+	}
+
+	
+
+	/**
+	 * @return the pathsTable
+	 */
+	protected Map<Unit, Map<Unit, Double>> getPathsTable() {
+		return pathsTable;
 	}
 
 
@@ -170,6 +183,31 @@ public class GraphInfo{
 			}
 			straightfowardPathsCostsGraph.addEdge(pathCost, list.get(0), list.get(list.size()-1));
 			straightfowardPathsCostsGraph.addEdge(pathCost, list.get(list.size()-1), list.get(0));
+			pathCost = 0.0;
+		}
+	}
+	
+	
+	private void createPathsTable(){
+		double pathCost = 0.0;
+
+		for (int i = 0; i < allStraightFowardPaths.size(); i++) {
+			
+			List<Unit> list = allStraightFowardPaths.get(i);
+			if (pathsTable.get(list.get(0)) == null){
+				pathsTable.put(list.get(0), new HashMap<Unit, Double>());
+			}
+			if (pathsTable.get(list.get(list.size()-1)) == null){
+				pathsTable.put(list.get(list.size()-1), new HashMap<Unit, Double>());
+			}
+			
+			for (int j = 0; j < list.size()-1; j++) {
+				pathCost *= graph.getEdge(list.get(j), list.get(j+1));
+			}
+			
+			pathsTable.get(list.get(0)).put(list.get(list.size()-1), pathCost);
+			pathsTable.get(list.get(list.size()-1)).put(list.get(0), 1/pathCost);
+			
 			pathCost = 0.0;
 		}
 	}

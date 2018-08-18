@@ -21,19 +21,16 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import unitsGrammar.utils.Code;
-import unitsGrammar.utils.Graph;
-import unitsGrammar.utils.GraphInfo;
-import unitsGrammar.utils.Unit;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
 public class Units {
 
 	// Instance Fields
-	private static Map<String, Unit>	unitsTable		= new HashMap<>();
-	private static Graph				unitsGraph		= new Graph();
-	private static List<String>			reservedWords	= new ArrayList<>();
+	private static Map<Integer, Unit>	basicUnitsCodesTable	= new HashMap<>();
+	private static Map<String, Unit>	unitsTable				= new HashMap<>();
+	private static Map<Unit, Map<Unit, Double>>	conversionTable	= new HashMap<>();
+	private static List<String>			reservedWords			= new ArrayList<>();
 	
 	// --------------------------------------------------------------------------
 	// CTOR
@@ -89,9 +86,10 @@ public class Units {
 			}
 
 			// Information to be transmitted to the Potatoes Semantic Checker
-			Units.unitsTable		= visitor0.getAllUnits();
-			Units.unitsGraph			= (new GraphInfo(visitor0.getUnitsGraph())).getStraightfowardPathsCostsGraph();
-			Units.reservedWords		= visitor0.getReservedWords();
+			Units.basicUnitsCodesTable	= visitor0.getBasicUnitsCodesTable();
+			Units.unitsTable			= visitor0.getAllUnits();
+			Units.conversionTable		= (new GraphInfo(visitor0.getUnitsGraph())).getPathsTable();
+			Units.reservedWords			= visitor0.getReservedWords();
 		}
 		else {
 			System.exit(3);
@@ -105,10 +103,24 @@ public class Units {
 	 * @return	unitsTable, the table of Units defined in the file.
 	 * 			Can be an empty table (if no Units were declared in the file).
 	 */
-	private static Map<String, Unit> getUnitsTable() {
+	protected static Map<String, Unit> getUnitsTable() {
 		return unitsTable;
 	}
 	
+	/**
+	 * @return the basicUnitsCodesTable
+	 */
+	protected  static Map<Integer, Unit> getBasicUnitsCodesTable() {
+		return basicUnitsCodesTable;
+	}
+
+	/**
+	 * @return the conversionTable
+	 */
+	protected static Map<Unit, Map<Unit, Double>> getConversionTable() {
+		return conversionTable;
+	}
+
 	/**
 	 * @return reservedWords, the list of all Unit names, prefixed names, symbols, and Class of Units names
 	 */
@@ -140,56 +152,55 @@ public class Units {
 	/**
 	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
 	 */
+	public static Unit add(Unit a, Unit b) {
+		// FIXME add verifications, try to come up with idea to give correct unit Name
+		return new Unit(Code.add(a.getCode(), b.getCode(), unitsGraph, basicUnitsCodesTable));
+	}
+
+	/**
+	 * @return new Unit with correspondent code resulting of the division of two Units.
+	 */
+	public static Unit subtract(Unit a, Unit b) {
+		return new Unit(Code.divide(a.getCode(), b.getCode()));
+	}
+	
+	/**
+	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
+	 */
 	public static Unit multiply(Unit a, Unit b) {
 		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.multiply(a.getCode(), b.getCode())));
-	}
-	
-	/**
-	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
-	 */
-	public static Unit multiplySimplifyCode(Unit a, Unit b) {
-		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.multiply(a.getCode(), b.getCode())));
-	}
-	
-	/**
-	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
-	 */
-	public static Unit multiplySimplifyCodeUsingGraph(Unit a, Unit b) {
-		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.multiply(a.getCode(), b.getCode())));
+		return new Unit(Code.multiply(a.getCode(), b.getCode()));
 	}
 
 	/**
 	 * @return new Unit with correspondent code resulting of the division of two Units.
 	 */
 	public static Unit divide(Unit a, Unit b) {
-		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.divide(a.getCode(), b.getCode())));
+		return new Unit(Code.divide(a.getCode(), b.getCode()));
 	}
 	
 	/**
 	 * @return new Unit with correspondent code resulting of the power of the Unit.
 	 */
 	public static Unit power(Unit a, int exponent) {
-		return tryToFindUnitNameAndSymbolWithoutCodeConversions(new Unit(Code.power(a.getCode(), exponent)));
+		return new Unit(Code.power(a.getCode(), exponent));
 	}
 	
 	// --------------------------------------------------------------------------
 	// Private Methods
 	
-	// TODO is this function necessary, and is calling it for every operation a good idea?? Its not efficient
-	private static Unit tryToFindUnitNameAndSymbolWithoutCodeConversions(Unit unit) {
-		Code code = unit.getCode();
-		for (String key : unitsTable.keySet()) {
-			Unit value = unitsTable.get(key);
-			if (value.getCode().equals(code)) {
-				return value;
-			}
-		}
-		return unit;
+	/**
+	 * USed to try to find correct <b>name<b> and <b>symbol<b> of a Unit after performing operations
+	 * If a Unit is the result of an operation it's <b>name<b> and <b>symbol<b> will be random.
+	 * Also, to get known units, some conversion might be needed, ie:
+	 * meter * yard -> meter * meter, to obtain m^2.
+	 * @param unit
+	 * @return	the unit with same Code from unitsTable if found.
+	 * 			The given unit with no alterations if a matching code is not found
+	 */
+	private static boolean adjustToKnowUnit(Unit unit) {
+		unit.adjustToKnownUnit();
 	}
-	
 	
 	// --------------------------------------------------------------------------
 	// Other Methods

@@ -11,7 +11,7 @@
 *
 ***************************************************************************************/
 
-package unitsGrammar.utils;
+package unitsGrammar.grammar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,6 @@ public class Unit {
 
 	// Static Fields
 	private static int newCode = 1;
-	private static Map<Integer, Unit> basicUnitsCodesTable = new HashMap<>();
 
 	// --------------------------------------------------------------------------
 	// Instance Fields
@@ -46,10 +45,8 @@ public class Unit {
 	 * @param name		for example 'meter'
 	 * @param symbol	for example 'm'
 	 */
-	public Unit(String name, String symbol) {
+	protected Unit(String name, String symbol) {
 		this(name, symbol, new Code(++newCode)); // ++ operator before variable ensures that code 1 is never used and can be saved for dimensionless unit 'number'
-		// TODO does this even work?? because this is not created yet, is it???
-		basicUnitsCodesTable.put(newCode, this);
 	}
 
 	/**
@@ -59,7 +56,7 @@ public class Unit {
 	 * @param symbol	for example 'm'
 	 * @param code usually obtained in a Unit operation
 	 */
-	public Unit(String name, String symbol, Code code) {
+	protected Unit(String name, String symbol, Code code) {
 		this(name, symbol, code, false, false);
 	}
 	
@@ -73,7 +70,7 @@ public class Unit {
 	 * @param isClass
 	 * @param isStructure
 	 */
-	public Unit(String name, String symbol, Code code, boolean isClass, boolean isStructure) {
+	protected Unit(String name, String symbol, Code code, boolean isClass, boolean isStructure) {
 		this.name = name;
 		this.symbol = symbol;
 		this.code = code;
@@ -87,7 +84,7 @@ public class Unit {
 	 * Create a new unit based on another unit 
 	 * @param code a unique prime number, or the result of operating with other codes
 	 */
-	public Unit(Code calculatedCode) {
+	protected Unit(Code calculatedCode) {
 		this.name  = "temp";
 		this.symbol = "";
 		this.code = new Code(calculatedCode);
@@ -98,7 +95,7 @@ public class Unit {
 	 * @param unit 
 	 * @throws NullPointerException if unit is null
 	 */ 
-	public Unit(Unit unit) { 
+	protected Unit(Unit unit) { 
 		this.name  = unit.name; 
 		this.symbol = unit.symbol;
 		this.code = new Code(unit.getCode());
@@ -106,13 +103,6 @@ public class Unit {
 
 	// --------------------------------------------------------------------------
 	// Getters 
-	
-	/**
-	 * @return 
-	 */
-	public static Map<Integer, Unit> getBasicUnitsCodesTable() {
-		return basicUnitsCodesTable;
-	}
 	
 	/**
 	 * @return name, the name of this Unit.
@@ -131,7 +121,7 @@ public class Unit {
 	/**
 	 * @return the Code of this Unit.
 	 */
-	public Code getCode() {
+	protected Code getCode() {
 		return code;
 	}
 	
@@ -145,7 +135,7 @@ public class Unit {
 	/**
 	 * sets this Unit as a Class of Units ("dimension") (this is not reversible).
 	 */
-	public void setAsClass() {
+	protected void setAsClass() {
 		this.isClass = true;
 	}
 	
@@ -159,50 +149,43 @@ public class Unit {
 	/**
 	 * sets this Unit as Structure (this is not reversible).
 	 */
-	public void setAsStructure() {
+	protected void setAsStructure() {
 		this.isStructure = true;
 	}
 
 	// --------------------------------------------------------------------------
-	// Operations with Units (Multiplication and Division)
-
-	/**
-	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
-	 */
-	public static Unit multiply(Unit a, Unit b) {
-		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return new Unit(Code.multiply(a.getCode(), b.getCode()));
-	}
-
-	/**
-	 * @return new Unit with correspondent code resulting of the division of two Units.
-	 */
-	public static Unit divide(Unit a, Unit b) {
-		return new Unit(Code.divide(a.getCode(), b.getCode()));
-	}
-	
-	/**
-	 * @return new Unit with correspondent code resulting of the power of the Unit.
-	 */
-	public static Unit power(Unit a, int exponent) {
-		return new Unit(Code.power(a.getCode(), exponent));
-	}
-	
-	/**
-	 * If a Unit is the result of an operation it's <b>name<b> and <b>symbol<b> will be random.
-	 * Also, to get know types, some conversion might be needed, ie:
-	 * meter * yard -> meter * meter, to obtain m^2.
-	 * @param 	unitsGraph a Graph containing all the defined Units.
-	 * @return 	the conversion factor obtained from the Unit conversion.
-	 * 			So when Unit is used in with an associated quantity,
-	 * 			this conversion factor must be applied to the quantity value.
-	 */
-	public double adjustUnitOperationResultToKnowUnit(Graph unitsGraph) {
-		return this.code.simplifyCodeWithConvertions(unitsGraph);
-	}
-
-	// --------------------------------------------------------------------------
 	// Other Methods
+	
+	public double adjustToKnownUnit() {
+		
+		Graph unitsGraph = Units.getUnitsGraph();
+		Map<String, Unit> unitsTable = Units.getUnitsTable();
+		Map<Integer, Unit> basicUnitsCodesTable = Units.getBasicUnitsCodesTable();
+		
+		// first tries to simplify this Unit code using conversions ('m^2/yd' -> 'm')
+		// if simplification occurs, a conversion factor is given for quantity adjustment
+		double conversionFactor = this.code.simplifyCodeWithConvertions(unitsGraph, basicUnitsCodesTable);
+		
+		// search for Unit with same Code in unitsTable
+		// if serach fails, conversions might still be needed
+		for (String key : unitsTable.keySet()) {
+			Unit value = unitsTable.get(key);
+			if (value.getCode().equals(code)) {
+				this.name = value.getName();
+				this.symbol = value.getSymbol();
+				return conversionFactor;
+			}
+		}
+		
+		// reaching this code means a matching Unit was not found
+		// The case might yet be: 'yd/s' that can be matched to 'm/s'
+		
+		// TODO complete, first create function to adjust pair of Units
+		
+		//return conversionFactor;
+	}
+	
+	
 
 	@Override
 	public String toString() {

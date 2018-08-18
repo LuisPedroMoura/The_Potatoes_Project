@@ -7,7 +7,7 @@
 *	Availability: https://github.com/LuisPedroMoura/PotatoesProject
 *
 ***************************************************************************************/
-package unitsGrammar.utils;
+package unitsGrammar.grammar;
 
 import static java.lang.System.*;
 import java.util.ArrayList;

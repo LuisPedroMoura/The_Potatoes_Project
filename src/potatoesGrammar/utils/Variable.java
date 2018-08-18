@@ -14,7 +14,7 @@
 package potatoesGrammar.utils;
 
 import compiler.PotatoesSemanticCheck;
-import unitsGrammar.utils.Graph;
+import unitsGrammar.grammar.Graph;
 import unitsGrammar.utils.Type;
 import utils.errorHandling.ErrorHandling;
 
