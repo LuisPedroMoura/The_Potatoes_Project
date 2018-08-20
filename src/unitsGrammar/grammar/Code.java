@@ -15,7 +15,6 @@ package unitsGrammar.grammar;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <b>Code</b><p>
@@ -94,9 +93,10 @@ public class Code {
 	 * @return if the two codes are equivalent returns the Code of <b>a<b>
 	 * @throws IllegalArgumentException if the Codes are not equivalent
 	 */
-	public static Code add(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) throws IllegalArgumentException {
-		
-		b.matchCodes(a, conversionTable, codesTable);
+	public static Code add(Code a, Code b) throws IllegalArgumentException {
+		if (!a.equals(b)) {
+			throw new IllegalArgumentException();
+		}
 		return a;
 	}
 	
@@ -105,9 +105,10 @@ public class Code {
 	 * @param b
 	 * @return a new Code resulting of the multiplication of the two Codes
 	 */
-	public static Code subtract(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) throws IllegalArgumentException {
-		
-		b.matchCodes(a, conversionTable, codesTable);
+	public static Code subtract(Code a, Code b) throws IllegalArgumentException {
+		if (!a.equals(b)) {
+			throw new IllegalArgumentException();
+		}
 		return a;
 	}
 	
@@ -121,6 +122,7 @@ public class Code {
 		newCode.multiplyCode(a);
 		newCode.multiplyCode(b);
 		newCode.simplifyCode();
+		newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	private void multiplyCode(Code code) {
@@ -141,7 +143,7 @@ public class Code {
 		Code newCode = new Code();
 		newCode.multiplyCode(a);
 		newCode.divideCode(b);
-		newCode.simplifyCode();
+		newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	private void divideCode(Code code) {
@@ -162,13 +164,14 @@ public class Code {
 		Code newCode = new Code();
 		for (int i = 0; i < exponent; i++) {
 			newCode.multiplyCode(a);
-			newCode.simplifyCode();
 		}
+		newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	
 	/**
-	 * simplifies Code by removing duplicate codes in numCodes and denCodes
+	 * After operating with Units, because every Unit's Code is added to the Code structure, the generated code needs to be simplified. 
+	 * This method does a simple simplification by removing duplicate codes in the Code numerator and denominator.
 	 */
 	private void simplifyCode() {
 		for (Integer numCode : numCodes) {
@@ -180,30 +183,31 @@ public class Code {
 	}
 	
 	/**
-	 * To simplify a Code using conversion from the give Graph of Units some conversions might be necessary, ie:
-	 * m^2/yd -> m^2/m, to obtain m.
-	 * @param unitsGraph
-	 * @return 	the conversion factor obtained from the Code simplification.
-	 * 			So when Unit containing this Code is used in with an associated quantity,
-	 * 			this conversion factor must be applied to the quantity value.
+	 * After operating with Units, because every Unit's Code is added to the Code structure, the generated code needs to be simplified.
+	 * This method uses a table with conversion factors between equivalent units in order to simplify 'this' Code completely.
+	 * Example: m^2/yd -> m^2/m, to obtain m.
+	 * @param conversionTable, a Table with all the possible conversions
+	 * @param basicUnitsCodesTable, a Table with all the basic codes that compose a derivated Code
+	 * @return the conversion factor obtained from the Code simplification. To be used if a Quantity is associated with the Unit.
 	 */
-	protected double simplifyCodeWithConvertions(Graph unitsGraph, Map<Integer, Unit> basicUnitsCodesTable) {
+	protected double simplifyCodeWithConvertions(Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> basicUnitsCodesTable) {
 		Double factor = 1.0;
 		Double conversionFactor = 1.0;
+		this.simplifyCode();
 		while (conversionFactor != null) {
 			factor *= conversionFactor;
-			conversionFactor = simplifyCodeWithConvertionsPrivate(unitsGraph, basicUnitsCodesTable);
+			conversionFactor = simplifyCodeWithConvertionsPrivate(conversionTable, basicUnitsCodesTable);
 		}
 		return factor;
 	}
 	// TODO not very efficient (think of what structure to use)
-	private double simplifyCodeWithConvertionsPrivate(Graph unitsGraph, Map<Integer, Unit> basicUnitsCodesTable) {
+	private double simplifyCodeWithConvertionsPrivate(Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> basicUnitsCodesTable) {
 
 		for (int numCode : this.numCodes) {
 			Unit numUnit = basicUnitsCodesTable.get(numCode);
 			for (int denCode : this.denCodes) {
 				Unit denUnit = basicUnitsCodesTable.get(denCode);
-				double conversionFactor = unitsGraph.getEdge(numUnit, denUnit);
+				double conversionFactor = conversionTable.get(numUnit).get(denUnit);
 				if (conversionFactor != Double.POSITIVE_INFINITY){
 					numCodes.remove(numCode);
 					denCodes.remove(denCode);
@@ -215,14 +219,13 @@ public class Code {
 	}
 	
 	/**
-	 * Convertes Code <b>a<b> to Code <b>b<b> and returns the conversion factor for the associated quantity
-	 * MANDATORY: Codes <b>a<b> and <b>b<b> must simplified first with simplifyCode();
+	 * When adding, subtracting, assigning or casting Units, some conversions might be necessary. The Code is the main identity of the Unit.
+	 * This method tries to convert 'this' to the Code of another Unit.
 	 * Example: m*yd -> m^2
-	 * @param a
-	 * @param b
-	 * @param unitsGraph
-	 * @param codesTable
-	 * @return
+	 * @param a, the destination Code of 'this' conversion
+	 * @param conversionTable, a Table with all the possible conversions
+	 * @param basicUnitsCodesTable, a Table with all the basic codes that compose a derivated Code
+	 * @return the conversion factor obtained from the Code conversion. To be used if a Quantity is associated with the Unit.
 	 */
 	protected double matchCodes(Code a, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) {
 		

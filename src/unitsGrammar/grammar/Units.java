@@ -150,18 +150,24 @@ public class Units {
 	}
 	
 	/**
-	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
+	 * Addition of units implies that the two units are <b>equal<b> (equivalence is not enough)
+	 * This method only guarantees that the two units are equal.
+	 * @return new Unit equal to both arguments if they are equal.
+	 * @throws IllegalArgumentException if the two Unit are not compatible
 	 */
 	public static Unit add(Unit a, Unit b) {
 		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return new Unit(Code.add(a.getCode(), b.getCode(), conversionTable, basicUnitsCodesTable));
+		return new Unit(Code.add(a.getCode(), b.getCode()));
 	}
 
 	/**
-	 * @return new Unit with correspondent code resulting of the division of two Units.
+	 * Subtraction of units implies that the two units are <b>equal<b> (equivalence is not enough)
+	 * This method only guarantees that the two units are equal.
+	 * @return new Unit equal to both arguments if they are equal.
+	 * @throws IllegalArgumentException if the two Unit are not compatible
 	 */
 	public static Unit subtract(Unit a, Unit b) {
-		return new Unit(Code.divide(a.getCode(), b.getCode()));
+		return new Unit(Code.subtract(a.getCode(), b.getCode()));
 	}
 	
 	/**
@@ -189,73 +195,7 @@ public class Units {
 	// --------------------------------------------------------------------------
 	// Private Methods
 	
-	/**
-	 * USed to try to find correct <b>name<b> and <b>symbol<b> of a Unit after performing operations
-	 * If a Unit is the result of an operation it's <b>name<b> and <b>symbol<b> will be random.
-	 * Also, to get known units, some conversion might be needed, ie:
-	 * meter * yard -> meter * meter, to obtain m^2.
-	 * @param unit
-	 * @return	the unit with same Code from unitsTable if found.
-	 * 			The given unit with no alterations if a matching code is not found
-	 */
-	private static boolean adjustToKnowUnit(Unit unit) {
-		unit.adjustToKnownUnit();
-	}
 	
-	// --------------------------------------------------------------------------
-	// Other Methods
-	
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("UnitsMain [");
-		if (unitsTable != null) {
-			builder.append("\n################################################################\nUnits Table: ");
-			builder.append(unitsTable);
-		}
-		if (unitsGraph != null) {
-			builder.append("\n################################################################\nUnits Graph: ");
-			builder.append(unitsGraph);
-		}
-		builder.append("]");
-		return builder.toString();
-	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((reservedWords == null) ? 0 : reservedWords.hashCode());
-		result = prime * result + ((unitsGraph == null) ? 0 : unitsGraph.hashCode());
-		result = prime * result + ((unitsTable == null) ? 0 : unitsTable.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Units other = (Units) obj;
-		if (reservedWords == null) {
-			if (other.reservedWords != null)
-				return false;
-		} else if (!reservedWords.equals(other.reservedWords))
-			return false;
-		if (unitsGraph == null) {
-			if (other.unitsGraph != null)
-				return false;
-		} else if (!unitsGraph.equals(other.unitsGraph))
-			return false;
-		if (unitsTable == null) {
-			if (other.unitsTable != null)
-				return false;
-		} else if (!unitsTable.equals(other.unitsTable))
-			return false;
-		return true;
-	}
 
 }
