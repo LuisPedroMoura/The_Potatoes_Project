@@ -154,7 +154,7 @@ public class Units {
 	 */
 	public static Unit add(Unit a, Unit b) {
 		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return new Unit(Code.add(a.getCode(), b.getCode(), unitsGraph, basicUnitsCodesTable));
+		return new Unit(Code.add(a.getCode(), b.getCode(), conversionTable, basicUnitsCodesTable));
 	}
 
 	/**

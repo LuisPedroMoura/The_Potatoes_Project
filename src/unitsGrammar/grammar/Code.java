@@ -91,28 +91,13 @@ public class Code {
 	/**
 	 * @param a
 	 * @param b
-	 * @return a new Code resulting of the multiplication of the two Codes
+	 * @return if the two codes are equivalent returns the Code of <b>a<b>
+	 * @throws IllegalArgumentException if the Codes are not equivalent
 	 */
-	public static Code add(Code a, Code b) {
+	public static Code add(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) throws IllegalArgumentException {
 		
-		// codes are equal -> can be added directly
-		if (a.equals(b)) {
-			return a;
-		}
-		
-		// codes are not equal -> may be equivalent -> verify
-		
-		Code newCode = new Code();
-		newCode.simplifyCode();
-		return newCode;
-	}
-	private void multiplyCode(Code code) {
-		for (int numCode : code.getNumCodes()) {
-			this.numCodes.add(numCode);
-		}
-		for (int denCode : code.getDenCodes()) {
-			this.denCodes.add(denCode);
-		}
+		b.matchCodes(a, conversionTable, codesTable);
+		return a;
 	}
 	
 	/**
@@ -120,20 +105,10 @@ public class Code {
 	 * @param b
 	 * @return a new Code resulting of the multiplication of the two Codes
 	 */
-	public static Code subtract(Code a, Code b) {
-		Code newCode = new Code();
-		newCode.multiplyCode(a);
-		newCode.multiplyCode(b);
-		newCode.simplifyCode();
-		return newCode;
-	}
-	private void multiplyCode(Code code) {
-		for (int numCode : code.getNumCodes()) {
-			this.numCodes.add(numCode);
-		}
-		for (int denCode : code.getDenCodes()) {
-			this.denCodes.add(denCode);
-		}
+	public static Code subtract(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) throws IllegalArgumentException {
+		
+		b.matchCodes(a, conversionTable, codesTable);
+		return a;
 	}
 	
 	/**
@@ -249,7 +224,7 @@ public class Code {
 	 * @param codesTable
 	 * @return
 	 */
-	protected double matchCodes(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) {
+	protected double matchCodes(Code a, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) {
 		
 		// Codes are equal, no matching is needed. Quantity conversion factor is neutral.
 		if (this.equals(a)) {
@@ -262,9 +237,9 @@ public class Code {
 		}
 		
 		a = new Code(a); // deep copy
-		b = new Code(b); // deep copy
+		Code b = new Code(this); // deep copy
 		int codeSize = this.numCodes.size() + this.denCodes.size();
-		Code newCode = new Code();
+
 		Double conversionFactor = 1.0;
 		Double localFactor = 1.0;
 		
@@ -297,7 +272,7 @@ public class Code {
 		
 		
 		// Now, if Codes are simplified if they are equivalent only codes that need conversion remain
-		// Code b (on the right) is always converted to Code a (on the left)
+		// Code this (on the right) is always converted to Code a (on the left)
 		for (Integer numB : b.getNumCodes()) {
 			for (Integer numA : a.getNumCodes()) {
 				localFactor = conversionTable.get(codesTable.get(numB)).get(codesTable.get(numA));
