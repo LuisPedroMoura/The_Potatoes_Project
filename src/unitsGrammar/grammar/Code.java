@@ -201,10 +201,10 @@ public class Code {
 		
 		for (int i = 0; i < numCodes.size(); i++) {
 			Unit numUnit = basicUnitsCodesTable.get(numCodes.get(i));
-			//System.out.println("############# numUnit = " + numUnit);
+			System.out.println("############# numUnit = " + numUnit);
 			for (int j = 0; j < denCodes.size(); j++) {
 				Unit denUnit = basicUnitsCodesTable.get(numCodes.get(j));
-				//System.out.println("############# denUnit = " + denUnit);
+				System.out.println("############# denUnit = " + denUnit);
 				double conversionFactor = conversionTable.get(numUnit).get(denUnit);
 				if (conversionFactor != Double.POSITIVE_INFINITY){
 					numCodes.remove(i);

@@ -88,14 +88,21 @@ public class Units {
 			// Information to be transmitted to the Potatoes Semantic Checker
 			Units.basicUnitsCodesTable	= visitor0.getBasicUnitsCodesTable();
 			Units.unitsTable			= visitor0.getAllUnits();
-			Graph unitsGraph 			= visitor0.getUnitsGraph();
-			System.out.println("--------------------------- UNITS before creating graphInfo ------------------");
-			GraphInfo graphInfo			= new GraphInfo(unitsGraph);
-			System.out.println("--------------------------- UNITS after creating graphInfo ------------------");
-			System.out.println("--------------------------- UNITS before creating conversionTable ------------------");
-			Units.conversionTable		= graphInfo.getPathsTable();
-			System.out.println("--------------------------- UNITS after creating conversionTable ------------------");
 			Units.reservedWords			= visitor0.getReservedWords();
+			Graph unitsGraph 			= visitor0.getUnitsGraph();
+			GraphInfo graphInfo			= new GraphInfo(unitsGraph);
+			Units.conversionTable		= graphInfo.getPathsTable();
+			
+			Map<Unit, Double> map = new HashMap<>();
+			Unit number = new Unit("number", "", new Code(1));
+			for (String key : unitsTable.keySet()) {
+				map.put(unitsTable.get(key), 1.0);
+				if (conversionTable.containsKey(unitsTable.get(key))) {
+					conversionTable.get(unitsTable.get(key)).put(number, 1.0);
+				}
+			}
+			conversionTable.put(number, map);
+			
 		}
 		else {
 			System.exit(3);
@@ -109,7 +116,7 @@ public class Units {
 	 * @return	unitsTable, the table of Units defined in the file.
 	 * 			Can be an empty table (if no Units were declared in the file).
 	 */
-	public static Map<String, Unit> getUnitsTable() {
+	protected static Map<String, Unit> getUnitsTable() {
 		return unitsTable;
 	}
 	
@@ -130,7 +137,7 @@ public class Units {
 	/**
 	 * @return reservedWords, the list of all Unit names, prefixed names, symbols, and Class of Units names
 	 */
-	public static List<String> getReservedWords(){
+	protected static List<String> getReservedWords(){
 		return reservedWords;
 	}
 	
@@ -143,16 +150,38 @@ public class Units {
 	 */
 	public static Unit instanceOf(String name) {
 		if (unitsTable.containsKey(name)) {
-			return getUnitsTable().get(name);
+			return new Unit(getUnitsTable().get(name));
 		}
 		else if (reservedWords.contains(name)){
 			for (String key : unitsTable.keySet()) {
 				if (unitsTable.get(key).getSymbol().equals(name)) {
-					return unitsTable.get(key);
+					return new Unit(unitsTable.get(key));
 				}
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * @param a String that is the name or symbol of the Unit
+	 * @return an instance of Unit Class
+	 */
+	public static boolean exists(String name) {
+		if (unitsTable.containsKey(name)) {
+			return true;
+		}
+		else if (reservedWords.contains(name)){
+			for (String key : unitsTable.keySet()) {
+				if (unitsTable.get(key).getSymbol().equals(name)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static boolean isReservedWord(String name) {
+		return reservedWords.contains(name);
 	}
 	
 	/**

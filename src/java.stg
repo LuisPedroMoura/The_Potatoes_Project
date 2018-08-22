@@ -126,7 +126,7 @@ while(<logicalOperation>)
 
 print(type, expression, previousStatements) ::= <<
 <stats(previousStatements)>
-<printType.(type)>(<expression>);
+<printType.(type)>(<expression>)
 >>
 
 printWriterDeclaration(expression, path, var, previousStatements) ::= <<

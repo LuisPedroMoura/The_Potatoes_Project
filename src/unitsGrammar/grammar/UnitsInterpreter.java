@@ -129,7 +129,9 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	public Boolean visitUnitsFile(UnitsFileContext ctx) {
 		
 		// add dimensionless Unit number
-		unitsTable.put("number", new Unit("number", "", new Code(1)));
+		Unit number = new Unit("number", "", new Code(1));
+		unitsTable.put("number", number);
+		basicUnitsCodesTable.put(1, number);
 		
 		Boolean valid = true;
 		for (DeclarationContext dec : ctx.declaration()) {

@@ -32,7 +32,7 @@ public class GraphInfo{
 	List<ArrayList<Unit>> allShortestPaths;
 	List<ArrayList<Unit>> allStraightFowardPaths;
 	Graph shortestPathsGraph = new Graph();
-	Graph straightfowardPathsGraph = new Graph();;
+	Graph straightfowardPathsGraph = new Graph();
 	Graph straightfowardPathsCostsGraph = new Graph();
 	Map<Unit, Map<Unit, Double>> pathsTable = new HashMap<>();
 	
@@ -135,6 +135,7 @@ public class GraphInfo{
 			List<ArrayList<Unit>> paths = graph.dijkstraStraightFowardPaths(vertex);
 			allPaths.addAll(paths);
 		}
+		
 		return allPaths;
 	}
 	

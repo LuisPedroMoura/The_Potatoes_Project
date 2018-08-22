@@ -96,7 +96,7 @@ public class Unit {
 	 * @param unit 
 	 * @throws NullPointerException if unit is null
 	 */ 
-	protected Unit(Unit unit) { 
+	public Unit(Unit unit) { 
 		this.name  = unit.name; 
 		this.symbol = unit.symbol;
 		this.code = new Code(unit.getCode());
@@ -170,11 +170,11 @@ public class Unit {
 		Map<Unit, Map<Unit, Double>> conversionTable = Units.getConversionTable();
 		Map<String, Unit> unitsTable = Units.getUnitsTable();
 		Map<Integer, Unit> codesTable = Units.getBasicUnitsCodesTable();
-		
+		System.out.println("BEFORE SIMPLIFY");
 		// first tries to simplify this Unit code using conversions ('m^2/yd' -> 'm')
 		// if simplification occurs, a conversion factor is given for quantity adjustment
 		double conversionFactor = this.code.simplifyCodeWithConvertions(conversionTable, codesTable);
-		
+		System.out.println("AFTER SIMPLIFY");
 		// search for Unit with same Code in unitsTable
 		// if search fails, conversions might still be needed
 		double auxConvFactor = 0.0;
@@ -190,7 +190,7 @@ public class Unit {
 				continue;
 			}
 		}
-		
+
 		// a conversion was not possible, there is no defined Unit that matches this.
 		if (auxConvFactor == 0.0) {
 			this.name = "";

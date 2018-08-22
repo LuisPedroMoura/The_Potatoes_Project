@@ -72,25 +72,26 @@ public class Variable {
 		this.varType = a.getVarType();
 		
 		// deep copy value object
-		if (a.getValue() == null) {
+		Object value = a.getValue();
+		if (value == null) {
 			this.value = null;
 		}
-		if (value instanceof Double) {
+		else if (value instanceof Double) {
 			this.value = a.getValue();
 		}
-		if (value instanceof String) {
+		else if (value instanceof String) {
 			this.value = a.getValue();
 		}
-		if (value instanceof Boolean) {
+		else if (value instanceof Boolean) {
 			this.value = a.getValue();
 		}
-		if (value instanceof DictVar) {
+		else if (value instanceof DictVar) {
 			this.value = new DictVar((DictVar) a.getValue());
 		}
-		if (value instanceof ListVar) {
+		else if (value instanceof ListVar) {
 			this.value = new ListVar((ListVar) a.getValue());
 		}
-		if (value instanceof DictTuple) {
+		else if (value instanceof DictTuple) {
 			this.value = new DictTuple((DictTuple) a.getValue());
 		}
 	}
@@ -223,9 +224,10 @@ public class Variable {
 			double factor = res.getFactor();
 			double newValue = (double) a.getValue() + (double) b.getValue() * factor;
 			
+			System.out.println("BEFORE ADJUST");
 			factor = newUnit.adjustToKnownUnit();
 			newValue *= factor;
-			
+			System.out.println("AFTER ADJUST");
 			return new Variable(newUnit, potatoesGrammar.utils.varType.NUMERIC, newValue);
 		}
 		throw new IllegalArgumentException();
@@ -328,7 +330,7 @@ public class Variable {
 
 	@Override
 	public String toString() {
-		return "value " + value + ", unit " + unit;
+		return "value =" + value + ", unit =" + unit;
 	}
 
 	/* (non-Javadoc)
