@@ -122,7 +122,7 @@ public class Code {
 		newCode.multiplyCode(a);
 		newCode.multiplyCode(b);
 		newCode.simplifyCode();
-		newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
+		//newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	private void multiplyCode(Code code) {
@@ -143,7 +143,8 @@ public class Code {
 		Code newCode = new Code();
 		newCode.multiplyCode(a);
 		newCode.divideCode(b);
-		newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
+		newCode.simplifyCode();
+		//newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	private void divideCode(Code code) {

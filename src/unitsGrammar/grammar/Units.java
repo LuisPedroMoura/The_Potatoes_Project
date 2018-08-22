@@ -103,7 +103,7 @@ public class Units {
 	 * @return	unitsTable, the table of Units defined in the file.
 	 * 			Can be an empty table (if no Units were declared in the file).
 	 */
-	protected static Map<String, Unit> getUnitsTable() {
+	public static Map<String, Unit> getUnitsTable() {
 		return unitsTable;
 	}
 	
