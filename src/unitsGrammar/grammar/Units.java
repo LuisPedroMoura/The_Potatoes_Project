@@ -88,7 +88,13 @@ public class Units {
 			// Information to be transmitted to the Potatoes Semantic Checker
 			Units.basicUnitsCodesTable	= visitor0.getBasicUnitsCodesTable();
 			Units.unitsTable			= visitor0.getAllUnits();
-			Units.conversionTable		= (new GraphInfo(visitor0.getUnitsGraph())).getPathsTable();
+			Graph unitsGraph 			= visitor0.getUnitsGraph();
+			System.out.println("--------------------------- UNITS before creating graphInfo ------------------");
+			GraphInfo graphInfo			= new GraphInfo(unitsGraph);
+			System.out.println("--------------------------- UNITS after creating graphInfo ------------------");
+			System.out.println("--------------------------- UNITS before creating conversionTable ------------------");
+			Units.conversionTable		= graphInfo.getPathsTable();
+			System.out.println("--------------------------- UNITS after creating conversionTable ------------------");
 			Units.reservedWords			= visitor0.getReservedWords();
 		}
 		else {

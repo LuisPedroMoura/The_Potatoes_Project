@@ -126,7 +126,11 @@ public class GraphInfo{
 	 */
 	private List<ArrayList<Unit>> getAllStraightfowardPaths(Graph graph) {
 		List<ArrayList<Unit>> allPaths = new ArrayList<>();
-		Set<Unit> vertices = graph.getAdjList().keySet();
+		List<Unit> vertices = new ArrayList<>();
+		for (Unit vertex : graph.getAdjList().keySet()) {
+			vertices.add(new Unit(vertex));
+		}
+		
 		for (Unit vertex : vertices) {
 			List<ArrayList<Unit>> paths = graph.dijkstraStraightFowardPaths(vertex);
 			allPaths.addAll(paths);
@@ -140,12 +144,18 @@ public class GraphInfo{
 	 * @return
 	 */
 	private List<ArrayList<Unit>> getAllShortestPaths(Graph graph) {
+
 		List<ArrayList<Unit>> allPaths = new ArrayList<>();
-		Set<Unit> vertices = graph.getAdjList().keySet();
+		List<Unit> vertices = new ArrayList<>();
+		for (Unit vertex : graph.getAdjList().keySet()) {
+			vertices.add(new Unit(vertex));
+		}
+		
 		for (Unit vertex : vertices) {
 			List<ArrayList<Unit>> paths = graph.dijkstraShortestPaths(vertex);
 			allPaths.addAll(paths);
 		}
+
 		return allPaths;
 	}
 	

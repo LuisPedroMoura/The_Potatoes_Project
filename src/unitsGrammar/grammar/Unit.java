@@ -86,7 +86,7 @@ public class Unit {
 	 * @param code a unique prime number, or the result of operating with other codes
 	 */
 	protected Unit(Code calculatedCode) {
-		this.name  = "temp";
+		this.name  = "";
 		this.symbol = "";
 		this.code = new Code(calculatedCode);
 	}

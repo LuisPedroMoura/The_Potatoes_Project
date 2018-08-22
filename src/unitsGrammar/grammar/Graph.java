@@ -359,7 +359,7 @@ public class Graph {
 	public List<ArrayList<Unit>> dijkstraShortestPaths(Unit startVertex) {
 		
 		Map<Unit, Double> totalCosts = new HashMap<>(); 	// stores the minimum cost from startVertex to all other vertices
-		Map<Unit,Unit> prevVertex = new HashMap<>();			// stores the connections that build the minimum Cost Tree
+		Map<Unit,Unit> prevVertex = new HashMap<>();		// stores the connections that build the minimum Cost Tree
 		Map<Unit, Double> minPath = new HashMap<>();		// improvised Priority Queue, easier to use
 		Set<Unit> visited = new HashSet<>();				// keeps track of visited vertices
 		
@@ -369,7 +369,7 @@ public class Graph {
 		
 		// initialize the cost to all vertices as infinity
 		for (Unit vertex : getAdjList().keySet()) {
-			if (vertex != startVertex) {
+			if (!vertex.equals(startVertex)) {
 				totalCosts.put(vertex, Double.POSITIVE_INFINITY);
 			}
 		}
@@ -398,7 +398,8 @@ public class Graph {
 					// calculate path cost
 					double altPathCost = totalCosts.get(newSmallest) + getEdge(newSmallest, neighbor);
 					// if calculated path cost is cheaper than previous calculation, replace and store information
-					if (altPathCost < totalCosts.get(neighbor)) {
+					
+					if (neighbor != null && altPathCost < totalCosts.get(neighbor)) {
 						// update total cost to get to this vertex (now is cheaper)
 						totalCosts.put(neighbor, altPathCost);
 						// update the previous vertex to this one that made the path cheaper
@@ -416,19 +417,23 @@ public class Graph {
 		List<ArrayList<Unit>> shortestPaths = new ArrayList<>();
 		
 		Set<Unit> vertexSet = getAdjList().keySet();
-		vertexSet.remove(startVertex);
 		
 		// creates paths in reverse other (starting with endVertex to startVertex)
 		for (Unit vertex : vertexSet) {
-			ArrayList<Unit> path = new ArrayList<>();
-			path.add(vertex);
-			while(vertex != startVertex) {
-				Unit next = prevVertex.get(vertex);
-				path.add(next);
-				vertex = next;
+			if (!vertex.equals(startVertex)) {
+				ArrayList<Unit> path = new ArrayList<>();
+				path.add(vertex);
+				while(!vertex.equals(startVertex) && vertex != null) {
+					Unit next = prevVertex.get(vertex);
+					if (next == null) {
+						break;
+					}
+					path.add(next);
+					vertex = next;
+				}
+				Collections.reverse(path);
+				shortestPaths.add(path);
 			}
-			Collections.reverse(path);
-			shortestPaths.add(path);
 		}
 
 		return shortestPaths;
@@ -452,7 +457,7 @@ public class Graph {
 		
 		// initialize the cost to all vertices as infinity
 		for (Unit vertex : getAdjList().keySet()) {
-			if (vertex != startVertex) {
+			if (!vertex.equals(startVertex)) {
 				totalCosts.put(vertex, Double.POSITIVE_INFINITY);
 			}
 		}
@@ -463,7 +468,7 @@ public class Graph {
 			// Find the next Vertex to be analyzed by finding the minimum Path so far
 			Unit newSmallest = (Unit) minPath.keySet().toArray()[0];
 			double minPathsmallestValue = minPath.get(newSmallest);
-
+			
 			for (Unit vertex : minPath.keySet()) {
 				if(minPath.get(vertex) <= minPathsmallestValue) {
 					newSmallest = vertex;
@@ -472,7 +477,7 @@ public class Graph {
 			// once found, removes path that will be processed and adds vertex as visited
 			minPath.remove(newSmallest);
 			visited.add(newSmallest);
-			
+
 			// search for neighbors and update paths costs
 			List<Unit> neighbors = getVertexOutgoingNeighbors(newSmallest);
 			for (Unit neighbor : neighbors) {
@@ -499,19 +504,23 @@ public class Graph {
 		List<ArrayList<Unit>> shortestPaths = new ArrayList<>();
 		
 		Set<Unit> vertexSet = getAdjList().keySet();
-		vertexSet.remove(startVertex);
 		
 		// creates paths in reverse other (starting with endVertex to startVertex)
 		for (Unit vertex : vertexSet) {
-			ArrayList<Unit> path = new ArrayList<>();
-			path.add(vertex);
-			while(vertex != startVertex) {
-				Unit next = prevVertex.get(vertex);
-				path.add(next);
-				vertex = next;
+			if (!vertex.equals(startVertex)) {
+				ArrayList<Unit> path = new ArrayList<>();
+				path.add(vertex);
+				while(!vertex.equals(startVertex) && vertex != null) {
+					Unit next = prevVertex.get(vertex);
+					if (next == null) {
+						break;
+					}
+					path.add(next);
+					vertex = next;
+				}
+				Collections.reverse(path);
+				shortestPaths.add(path);
 			}
-			Collections.reverse(path);
-			shortestPaths.add(path);
 		}
 
 		return shortestPaths;

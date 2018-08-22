@@ -118,7 +118,6 @@ public class Code {
 		newCode.multiplyCode(a);
 		newCode.multiplyCode(b);
 		newCode.simplifyCode();
-		//newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	private void multiplyCode(Code code) {
@@ -140,7 +139,6 @@ public class Code {
 		newCode.multiplyCode(a);
 		newCode.divideCode(b);
 		newCode.simplifyCode();
-		//newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	private void divideCode(Code code) {
@@ -200,19 +198,35 @@ public class Code {
 	}
 	// TODO not very efficient (think of what structure to use)
 	private double simplifyCodeWithConvertionsPrivate(Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> basicUnitsCodesTable) {
-
-		for (int numCode : this.numCodes) {
-			Unit numUnit = basicUnitsCodesTable.get(numCode);
-			for (int denCode : this.denCodes) {
-				Unit denUnit = basicUnitsCodesTable.get(denCode);
+		
+		for (int i = 0; i < numCodes.size(); i++) {
+			Unit numUnit = basicUnitsCodesTable.get(numCodes.get(i));
+			//System.out.println("############# numUnit = " + numUnit);
+			for (int j = 0; j < denCodes.size(); j++) {
+				Unit denUnit = basicUnitsCodesTable.get(numCodes.get(j));
+				//System.out.println("############# denUnit = " + denUnit);
 				double conversionFactor = conversionTable.get(numUnit).get(denUnit);
 				if (conversionFactor != Double.POSITIVE_INFINITY){
-					numCodes.remove(numCode);
-					denCodes.remove(denCode);
+					numCodes.remove(i);
+					denCodes.remove(j);
 					return conversionFactor;
 				}
 			}
 		}
+
+		
+//		for (int numCode : this.numCodes) {
+//			Unit numUnit = basicUnitsCodesTable.get(numCode);
+//			for (int denCode : this.denCodes) {
+//				Unit denUnit = basicUnitsCodesTable.get(denCode);
+//				double conversionFactor = conversionTable.get(numUnit).get(denUnit);
+//				if (conversionFactor != Double.POSITIVE_INFINITY){
+//					numCodes.remove(numCode);
+//					denCodes.remove(denCode);
+//					return conversionFactor;
+//				}
+//			}
+//		}
 		return 1.0;
 	}
 	

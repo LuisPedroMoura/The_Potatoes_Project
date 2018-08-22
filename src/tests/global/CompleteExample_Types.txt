@@ -6,7 +6,7 @@ units {
 	
 	bar "b";
     
-	distance "d"	: (1)meter | (1/2)doubleMeter | (1/2.5)bar;
+	distance [meter]	: (1/2)doubleMeter | (1/2.5)bar;
     
 	area "m^2"		: meter*meter;
 	volume "m^3"	: area*meter;
@@ -15,6 +15,6 @@ units {
 	kilo		"kg";
 	doubleKilo	"dkg";
     
-	weight "w"		: (1)kilo | (1/2)doubleKilo | (1/5)bar;
+	weight [kilo]		: (1)kilo | (1/2)doubleKilo;
 	
 }
