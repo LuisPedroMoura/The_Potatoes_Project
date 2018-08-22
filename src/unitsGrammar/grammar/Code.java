@@ -93,11 +93,9 @@ public class Code {
 	 * @return if the two codes are equivalent returns the Code of <b>a<b>
 	 * @throws IllegalArgumentException if the Codes are not equivalent
 	 */
-	public static Code add(Code a, Code b) throws IllegalArgumentException {
-		if (!a.equals(b)) {
-			throw new IllegalArgumentException();
-		}
-		return a;
+	protected static double add(Code a, Code b) throws IllegalArgumentException {
+		double factor = matchCodes(a, b, Units.getConversionTable(), Units.getBasicUnitsCodesTable()); // matches 'b' to ´a´
+		return factor;
 	}
 	
 	/**
@@ -105,11 +103,9 @@ public class Code {
 	 * @param b
 	 * @return a new Code resulting of the multiplication of the two Codes
 	 */
-	public static Code subtract(Code a, Code b) throws IllegalArgumentException {
-		if (!a.equals(b)) {
-			throw new IllegalArgumentException();
-		}
-		return a;
+	protected static double subtract(Code a, Code b) throws IllegalArgumentException {
+		double factor = matchCodes(a, b, Units.getConversionTable(), Units.getBasicUnitsCodesTable()); // matches 'b' to ´a´
+		return factor;
 	}
 	
 	/**
@@ -117,7 +113,7 @@ public class Code {
 	 * @param b
 	 * @return a new Code resulting of the multiplication of the two Codes
 	 */
-	public static Code multiply(Code a, Code b) {
+	protected static Code multiply(Code a, Code b) {
 		Code newCode = new Code();
 		newCode.multiplyCode(a);
 		newCode.multiplyCode(b);
@@ -161,12 +157,13 @@ public class Code {
 	 * @param exponent
 	 * @return a new Code resulting of the power of the Code
 	 */
-	public static Code power(Code a, int exponent) {
+	protected static Code power(Code a, int exponent) {
 		Code newCode = new Code();
 		for (int i = 0; i < exponent; i++) {
 			newCode.multiplyCode(a);
 		}
-		newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
+		newCode.simplifyCode();
+		//newCode.simplifyCodeWithConvertions(Units.getConversionTable(), Units.getBasicUnitsCodesTable());
 		return newCode;
 	}
 	
@@ -228,21 +225,21 @@ public class Code {
 	 * @param basicUnitsCodesTable, a Table with all the basic codes that compose a derivated Code
 	 * @return the conversion factor obtained from the Code conversion. To be used if a Quantity is associated with the Unit.
 	 */
-	protected double matchCodes(Code a, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) {
+	protected static double matchCodes(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) {
 		
 		// Codes are equal, no matching is needed. Quantity conversion factor is neutral.
-		if (this.equals(a)) {
+		if (b.equals(a)) {
 			return 1.0;
 		}
 		
 		// Codes size does not match -> Codes are not equivalent
-		if (this.numCodes.size() != a.getNumCodes().size() || this.denCodes.size() != a.getDenCodes().size()) {
+		if (b.numCodes.size() != a.getNumCodes().size() || b.denCodes.size() != a.getDenCodes().size()) {
 			throw new IllegalArgumentException();
 		}
 		
 		a = new Code(a); // deep copy
-		Code b = new Code(this); // deep copy
-		int codeSize = this.numCodes.size() + this.denCodes.size();
+		b = new Code(b); // deep copy
+		int codeSize = b.numCodes.size() + b.denCodes.size();
 
 		Double conversionFactor = 1.0;
 		Double localFactor = 1.0;

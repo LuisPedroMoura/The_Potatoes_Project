@@ -350,13 +350,13 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		Unit a = unitsCtx.get(ctx.unitsDerivation(0));
 		Unit b = unitsCtx.get(ctx.unitsDerivation(1));
 
-		Unit res;
+		Tuple res;
 		if (ctx.op.getText().equals("*"))
 			res = Units.multiply(a, b);
 		else
 			res = Units.divide(a, b);
 
-		unitsCtx.put(ctx, res);
+		unitsCtx.put(ctx, res.getUnit());
 
 		return true;
 	}
@@ -388,9 +388,9 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		}
 		
 		// calculate the powered unit
-		Unit res = Units.power(u, power);
+		Tuple res = Units.power(u, power);
 		
-		unitsCtx.put(ctx, res);
+		unitsCtx.put(ctx, res.getUnit());
 		return true;
 
 	}

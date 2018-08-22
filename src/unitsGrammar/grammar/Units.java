@@ -155,9 +155,9 @@ public class Units {
 	 * @return new Unit equal to both arguments if they are equal.
 	 * @throws IllegalArgumentException if the two Unit are not compatible
 	 */
-	public static Unit add(Unit a, Unit b) {
-		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return new Unit(Code.add(a.getCode(), b.getCode()));
+	public static Tuple add(Unit a, Unit b) throws IllegalArgumentException {
+		double factor = Code.add(a.getCode(), b.getCode());
+		return new Tuple(new Unit(a.getCode()), factor);
 	}
 
 	/**
@@ -166,30 +166,36 @@ public class Units {
 	 * @return new Unit equal to both arguments if they are equal.
 	 * @throws IllegalArgumentException if the two Unit are not compatible
 	 */
-	public static Unit subtract(Unit a, Unit b) {
-		return new Unit(Code.subtract(a.getCode(), b.getCode()));
+	public static Tuple subtract(Unit a, Unit b) {
+		double factor = Code.subtract(a.getCode(), b.getCode());
+		return new Tuple(new Unit(a.getCode()), factor);
 	}
 	
 	/**
 	 * @return new Unit with correspondent code resulting of the multiplication of two Units.
 	 */
-	public static Unit multiply(Unit a, Unit b) {
-		// FIXME add verifications, try to come up with idea to give correct unit Name
-		return new Unit(Code.multiply(a.getCode(), b.getCode()));
+	public static Tuple multiply(Unit a, Unit b) {
+		Code mult = Code.multiply(a.getCode(), b.getCode());
+		double factor = mult.simplifyCodeWithConvertions(conversionTable, basicUnitsCodesTable);
+		return new Tuple(new Unit(mult), factor);
 	}
 
 	/**
 	 * @return new Unit with correspondent code resulting of the division of two Units.
 	 */
-	public static Unit divide(Unit a, Unit b) {
-		return new Unit(Code.divide(a.getCode(), b.getCode()));
+	public static Tuple divide(Unit a, Unit b) {
+		Code div = Code.divide(a.getCode(), b.getCode());
+		double factor = div.simplifyCodeWithConvertions(conversionTable, basicUnitsCodesTable);
+		return new Tuple(new Unit(div), factor);
 	}
 	
 	/**
 	 * @return new Unit with correspondent code resulting of the power of the Unit.
 	 */
-	public static Unit power(Unit a, int exponent) {
-		return new Unit(Code.power(a.getCode(), exponent));
+	public static Tuple power(Unit a, int exponent) {
+		Code pow = Code.power(a.getCode(), exponent);
+		double factor = pow.simplifyCodeWithConvertions(conversionTable, basicUnitsCodesTable);
+		return new Tuple(new Unit(pow), factor);
 	}
 	
 	// --------------------------------------------------------------------------

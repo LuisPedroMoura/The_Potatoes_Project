@@ -13,6 +13,8 @@
 
 package unitsGrammar.grammar;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -178,17 +180,25 @@ public class Unit {
 		double auxConvFactor = 0.0;
 		for (String key : unitsTable.keySet()) {
 			try {
-				auxConvFactor *= this.code.matchCodes(unitsTable.get(key).getCode(), conversionTable, codesTable);
+				auxConvFactor *= Code.matchCodes(unitsTable.get(key).getCode(), this.getCode(), conversionTable, codesTable); // throws IllegalArgumentException
+				Unit unit = unitsTable.get(key);
+				this.code = unit.getCode();
+				this.name = unit.getName();
+				this.symbol = unit.getSymbol();
 			}
 			catch (IllegalArgumentException e) {
-				break;
+				continue;
 			}
 		}
 		
+		// a conversion was not possible, there is no defined Unit that matches this.
 		if (auxConvFactor == 0.0) {
-			throw new IllegalArgumentException();
+			this.name = "";
+			this.symbol = generateMathematicalSymbol();
+			return conversionFactor;
 		}
 		
+		// conversion was possible
 		conversionFactor *= auxConvFactor;
 		return conversionFactor;
 	}
@@ -207,7 +217,7 @@ public class Unit {
 		Map<Unit, Map<Unit, Double>> conversionTable = Units.getConversionTable();
 		Map<Integer, Unit> codesTable = Units.getBasicUnitsCodesTable();
 		
-		double conversionFactor = this.code.matchCodes(a.getCode(), conversionTable, codesTable);
+		double conversionFactor = Code.matchCodes(a.getCode(), this.getCode(), conversionTable, codesTable); // throws IllegalArgumentException
 		
 		this.code = a.getCode();
 		this.name = a.getName();
@@ -216,6 +226,61 @@ public class Unit {
 		return conversionFactor;
 	}
 	
+	public boolean isCompatible(Unit a) {
+		
+		Map<Unit, Map<Unit, Double>> conversionTable = Units.getConversionTable();
+		Map<Integer, Unit> codesTable = Units.getBasicUnitsCodesTable();
+		
+		try {
+			Code.matchCodes(a.getCode(), this.getCode(), conversionTable, codesTable); // throws IllegalArgumentException
+		}
+		catch (IllegalArgumentException e) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * After operating with units, the result might be an unknown or not defined Unit. it might still be useful for other operations,
+	 * and it may be necessary to print its value. In that case, although the Unit will not have a name, because it wasn't
+	 * defined, a mathematical symbol can be generated from its code.
+	 * @return a String with the mathematical symbol that represents this Unit.
+	 */
+	private String generateMathematicalSymbol() {
+		
+		String symbol = "";
+		
+		List<Integer> used = new ArrayList<>();
+		List<Integer> numCodes = this.getCode().getNumCodes();
+		List<Integer> denCodes = this.getCode().getDenCodes();
+		
+		for (Integer code : numCodes) {
+			if(!used.contains(code)) {
+				int count = (int) numCodes.stream().filter(c -> c == code).count();
+				used.add(code);
+				symbol += Units.getBasicUnitsCodesTable().get(code).getSymbol();
+				if (count > 1) {
+					symbol += "^" + count;
+				}
+				symbol += " ";
+			}
+		}
+		
+		for (Integer code : denCodes) {
+			if(!used.contains(code)) {
+				int count = (int) numCodes.stream().filter(c -> c == code).count();
+				used.add(code);
+				symbol += Units.getBasicUnitsCodesTable().get(code).getSymbol();
+				if (count > 1) {
+					symbol += "^" + count;
+				}
+				symbol += " ";
+			}
+		}
+		
+		return symbol.substring(0, symbol.length()-1);
+	}
 	
 
 	@Override

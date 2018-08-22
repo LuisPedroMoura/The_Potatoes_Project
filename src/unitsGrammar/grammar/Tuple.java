@@ -1,33 +1,28 @@
 package unitsGrammar.grammar;
 
 
-public class Tuple<T,V> extends Pair<T,V>{
-	
+public class Tuple extends Pair<Unit,Double>{
 	
 
-	/**
-	 * Constructor
-	 * @param first
-	 * @param second
-	 */
-	public Tuple(T first, V second) {
-		super(first, second);
+	public Tuple(Unit unit, Double factor) {
+		super(unit, factor);
 	}
 	
 	
-	public T getName() {
+	public Unit getUnit() {
 		return getFirst();
 	}
 	
-	public V getFactor() {
+	public Double getFactor() {
 		return getSecond();
 	}
 
-
 	@Override
 	public String toString() {
-		return "Tuple []";
+		return "Tuple [first=" + getFirst() + ", second=" + getSecond() + "]";
 	}
+
+	
 	
 	
 

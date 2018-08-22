@@ -198,7 +198,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// Units are not compatible -> error
-		else if (var.getVarUnit() != expr.getVarUnit()) {
+		else if (var.getVarType() != expr.getVarType()) {
 			ErrorHandling.printError(ctx, "Units in assignment are not compatible");
 			return false;
 		}
@@ -239,7 +239,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// Units are not compatible -> error
-		else if (var.getVarUnit() != expr.getVarUnit()) {
+		else if (var.getVarType() != expr.getVarType()) {
 			ErrorHandling.printError(ctx, "Units in assignment are not compatible");
 			return false;
 		}
@@ -386,7 +386,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				continue;
 			}
 			else if (callArg.isNumeric()) {
-				String callArgUnitName = callArg.getUnit().getUnitName();
+				String callArgUnitName = callArg.getUnit().getName();
 				if (toUseArg.equals(callArgUnitName)) {
 					continue;
 				}
@@ -704,7 +704,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			DictVar dictVar = (DictVar) var.getValue();
 			Object[] arr= dictVar.getDict().keySet().toArray();
 			
-			ListVar listVar = new ListVar(dictVar.getKeyUnit(), dictVar.isBlockedKey());
+			ListVar listVar = new ListVar(dictVar.getKeyType(), dictVar.isBlockedKey());
 			
 			List<Variable> list = listVar.getList();
 			for (Object obj : arr) {
@@ -732,7 +732,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			DictVar dictVar = (DictVar) var.getValue();
 			Object[] arr= dictVar.getDict().values().toArray();
 			
-			ListVar listVar = new ListVar(dictVar.getValueUnit(), dictVar.isBlockedValue());
+			ListVar listVar = new ListVar(dictVar.getValueType(), dictVar.isBlockedValue());
 			
 			List<Variable> list = listVar.getList();
 			for (Object obj : arr) {
@@ -1009,7 +1009,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						str0 = ((Boolean) var0.getValue())+""; 
 					}
 					if (var0.isNumeric()) {
-						str0 = ((Double) var0.getValue()) + var0.getUnit().getPrintName();
+						str0 = ((Double) var0.getValue()) + var0.getUnit().getSymbol();
 					}
 					
 					if (var1.isString()) {
@@ -1019,7 +1019,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						str1 = ((Boolean) var1.getValue())+""; 
 					}
 					if (var1.isNumeric()) {
-						str1 = ((Double) var1.getValue()) + var1.getUnit().getPrintName();
+						str1 = ((Double) var1.getValue()) + var1.getUnit().getSymbol();
 					}
 					
 					String finalStr = str0 + str1;
@@ -1102,7 +1102,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 		}
 		
-		else if (var0.getVarUnit() == var1.getVarUnit()) {
+		else if (var0.getVarType() == var1.getVarType()) {
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
 			return true;
 		}
@@ -1166,7 +1166,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (var0.isList()) {
 			
 			ListVar listVar = (ListVar) var0.getValue();
-			String valueUnit = listVar.getUnit();
+			String valueUnit = listVar.getType();
 			
 			// list accepts compatible value units -> verify
 			if (!listVar.isBlocked()) {
@@ -1178,7 +1178,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					var1.convertUnitTo(unitsTable.get(valueUnit));
 				}
 				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getUnit().getUnitName() + "'");
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
 				// list value unit and expression unit are compatible -> ok (jumps to next code)
@@ -1194,8 +1194,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		else if (var0.isDict()) {
 			
 			DictVar dictVar = (DictVar) var0.getValue();
-			String keyUnit = dictVar.getKeyUnit();
-			String valueUnit = dictVar.getValueUnit();
+			String keyUnit = dictVar.getKeyType();
+			String valueUnit = dictVar.getValueType();
 			
 			Variable tupleKey = ((DictTuple) var1.getValue()).getKey();
 			Variable tupleValue = ((DictTuple) var1.getValue()).getValue();
@@ -1255,11 +1255,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				}
 				
 				if (var0.isNumeric()) {
-					str0 = ((String) var0.getValue()) + var0.getUnit().getPrintName();
+					str0 = ((String) var0.getValue()) + var0.getUnit().getSymbol();
 				}
 				
 				if (var1.isNumeric()) {
-					str1 = ((String) var1.getValue()) + var1.getUnit().getPrintName();
+					str1 = ((String) var1.getValue()) + var1.getUnit().getSymbol();
 				}
 				
 				String finalStr = str0 + str1;
@@ -1313,7 +1313,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		else if (var0.isDict()) {
 			
 			DictVar dictVar = (DictVar) var1.getValue() ;
-			String keyUnit = dictVar.getKeyUnit();
+			String keyUnit = dictVar.getKeyType();
 			
 			// dict accepts compatible key units -> verify
 			if (!dictVar.isBlockedKey()) {
@@ -1325,7 +1325,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					var1.convertUnitTo(unitsTable.get(keyUnit));
 				}
 				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with '" + var1.getUnit().getUnitName() + "'");
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
 				// dict key unit and expression unit are compatible -> ok (jumps to next code
@@ -1404,7 +1404,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		else if (var0.isDict()) {
 			
 			DictVar dictVar = (DictVar) var1.getValue();
-			String keyUnit = dictVar.getKeyUnit();
+			String keyUnit = dictVar.getKeyType();
 			
 			// dict accepts compatible key units -> verify
 			if (!dictVar.isBlockedKey()) {
@@ -1416,7 +1416,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					var1.convertUnitTo(unitsTable.get(keyUnit));
 				}
 				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with '" + var1.getUnit().getUnitName() + "'");
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
 				// dict key unit and expression unit are compatible -> ok (jumps to next code)
@@ -1452,7 +1452,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (var0.isList()) {
 			
 			ListVar listVar = (ListVar) var0.getValue();
-			String valueUnit = listVar.getUnit();
+			String valueUnit = listVar.getType();
 			
 			// list accepts compatible value units -> verify
 			if (!listVar.isBlocked()) {
@@ -1464,7 +1464,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					var1.convertUnitTo(unitsTable.get(valueUnit));
 				}
 				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getUnit().getUnitName() + "'");
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
 				// list value unit and expression unit are compatible -> ok (jumps to next code
@@ -1512,7 +1512,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (var0.isDict()) {
 			
 			DictVar dictVar = (DictVar) var0.getValue();
-			String keyUnit = dictVar.getValueUnit();
+			String keyUnit = dictVar.getValueType();
 			
 			// dict accepts compatible key units -> verify
 			if (!dictVar.isBlockedValue()) {
@@ -1524,7 +1524,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					var1.convertUnitTo(unitsTable.get(keyUnit));
 				}
 				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with '" + var1.getUnit().getUnitName() + "'");
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
 				// dict key unit and expression unit are compatible -> ok (jumps to next code)
@@ -1554,7 +1554,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (var0.isDict()) {
 			
 			DictVar dict = (DictVar) var0.getValue();
-			String valueUnit = dict.getValueUnit();
+			String valueUnit = dict.getValueType();
 			
 			// dict accepts compatible value units -> verify
 			if (!dict.isBlockedValue()) {
@@ -1566,7 +1566,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					var1.convertUnitTo(unitsTable.get(valueUnit));
 				}
 				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getUnit().getUnitName() + "'");
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
 				// dict value unit and expression unit are compatible -> ok (jumps to next code
@@ -1596,7 +1596,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (var0.isList()) {
 			
 			ListVar listVar = (ListVar) var0.getValue();
-			String listUnit = listVar.getUnit();
+			String listUnit = listVar.getType();
 			int index;
 			
 			// dict accepts compatible value units -> verify
@@ -1710,11 +1710,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitVarDeclaration_Variable(VarDeclaration_VariableContext ctx) {
-		if(!visit(ctx.unit())) {
+		if(!visit(ctx.type())) {
 			return false;
 		}
 		
-		Variable unit = mapCtxVar.get(ctx.unit());
+		Variable unit = mapCtxVar.get(ctx.type());
 		String newVarName = ctx.ID().getText();
 		
 		// variable to be created is already declared or is reserved word -> error
@@ -1811,35 +1811,35 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// Units
 
 	@Override 
-	public Boolean visitUnit_Number_Unit(Unit_Number_UnitContext ctx) {
+	public Boolean visitType_Number_Type(Type_Number_TypeContext ctx) {
 		Variable var = new Variable (unitsTable.get("number"), varType.NUMERIC, 0.0);
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
 
 	@Override 
-	public Boolean visitUnit_Boolean_Unit(Unit_Boolean_UnitContext ctx) {
+	public Boolean visitType_Boolean_Type(Type_Boolean_TypeContext ctx) {
 		Variable var = new Variable (null, varType.BOOLEAN, false);
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
 
 	@Override 
-	public Boolean visitUnit_String_Unit(Unit_String_UnitContext ctx) {
+	public Boolean visitType_String_Type(Type_String_TypeContext ctx) {
 		Variable var = new Variable (null, varType.STRING, "");
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
 	
 	@Override
-	public Boolean visitUnit_Void_Unit(Unit_Void_UnitContext ctx) {
+	public Boolean visitType_Void_Type(Type_Void_TypeContext ctx) {
 		Variable var = new Variable (null, varType.VOID, "");
 		mapCtxVar.put(ctx, var);
 		return true;
 	}
 
 	@Override 
-	public Boolean visitUnit_ID_Unit(Unit_ID_UnitContext ctx) {
+	public Boolean visitType_ID_Type(Type_ID_TypeContext ctx) {
 		String unitName = ctx.ID().getText();
 		// unit exists -> ok
 		if (unitsTable.containsKey(unitName)) {
@@ -1998,7 +1998,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 	
 	/**
-	 * trims de quotes of a lexer string
+	 * trims the quotes of a lexer string
 	 * @param str
 	 * @return
 	 */
@@ -2009,7 +2009,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 	
 	/**
-	 * Creates new varType Enum using the equivalent units names from Potatoes Language
+	 * Creates new varType enum using the equivalent units names from Potatoes Language
 	 * @param str
 	 * @return
 	 */
