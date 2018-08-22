@@ -1679,7 +1679,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return visit(ctx.expression());
 	}
 	
-
 	@Override
 	public Boolean visitSave(SaveContext ctx) {
 		return visit(ctx.expression());

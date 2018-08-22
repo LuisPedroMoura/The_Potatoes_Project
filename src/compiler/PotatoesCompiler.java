@@ -10,13 +10,8 @@ import org.stringtemplate.v4.*;
 
 import potatoesGrammar.grammar.PotatoesBaseVisitor;
 import potatoesGrammar.grammar.PotatoesParser.*;
-import potatoesGrammar.utils.DictTuple;
-import potatoesGrammar.utils.DictVar;
-import potatoesGrammar.utils.ListVar;
-import potatoesGrammar.utils.Variable;
-import potatoesGrammar.utils.varType;
-import unitsGrammar.grammar.TypesFileInfo;
-import unitsGrammar.utils.Type;
+import potatoesGrammar.utils.*;
+import unitsGrammar.grammar.*;
 
 
 /**
@@ -37,8 +32,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	protected static Map<String, Variable>			symbolTableValue	= new HashMap<>(); // stores the updated value of variables
 	protected static ParseTreeProperty<Variable> 	mapCtxVar			= new ParseTreeProperty<>();
 	
-	private static TypesFileInfo typesFileInfo;
-	private static Map<String, Type> typesTable;
+	private static Units unitsFile;
+	private static Map<String, Unit> unitsTable;
 	
 	private static int varCounter = 0;
 	
@@ -74,8 +69,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->USING");
 		
 		String TypesFilePath = getStringText(ctx.STRING().getText());
-		typesFileInfo = new TypesFileInfo(TypesFilePath);
-		typesTable = typesFileInfo.getTypesTable();
+		unitsFile = new Units(TypesFilePath);
+		unitsTable = Units.getUnitsTable();
 		
 		if(debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> path = "+TypesFilePath+"\n");
@@ -598,7 +593,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable var = new Variable(null, vType, null);
 		// variable is numeric
 		if (vType.isNumeric()) {
-			var = new Variable(exprVar.getType(), vType, null);
+			var = new Variable(exprVar.getUnit(), vType, null);
 		}
 		
 		// update table
@@ -829,7 +824,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable exprVar = mapCtxVar.get(ctx.expression());
 		exprVar = new Variable(exprVar); // deep copy
 		
-		double factor = exprVar.convertTypeTo(typesTable.get(castType));
+		double factor = exprVar.convertUnitTo(unitsTable.get(castType));
 		
 		operation = exprName + " * " + factor;
 		
@@ -840,7 +835,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("operation", operation);
 		
 		// create Variable and save ctx
-		Variable var = new Variable(exprVar.getType(), varType.NUMERIC, null);
+		Variable var = new Variable(exprVar.getUnit(), varType.NUMERIC, null);
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
@@ -952,7 +947,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				double codeSimplificationFactor = (double) res.getValue() / simpleMult;
 				operation = expr0Name + " " + op + " " + expr1Name + " " + op + " " + codeSimplificationFactor;
 				
-				var = new Variable(res.getType(), varType.NUMERIC, null);
+				var = new Variable(res.getUnit(), varType.NUMERIC, null);
 			}
 			
 			else if (op.equals("/")) {
@@ -962,13 +957,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				double codeSimplificationFactor = (double) res.getValue() / simpleDiv;
 				operation = expr0Name + " " + op + " " + expr1Name + " " + " * " + " " + codeSimplificationFactor;
 				
-				var = new Variable(res.getType(), varType.NUMERIC, null);
+				var = new Variable(res.getUnit(), varType.NUMERIC, null);
 			}
 			
 			else if (op.equals("%")) {
 				
 				operation = expr0Name + " " + op + " " + expr1Name;
-				var = new Variable(expr0Var.getType(), varType.NUMERIC, null);
+				var = new Variable(expr0Var.getUnit(), varType.NUMERIC, null);
 			}
 		}
 		
@@ -1042,11 +1037,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsDouble(expr0) && typeIsDouble(expr1)) {
 			
 			type = "Double";
-			String factor = " * " + expr0Var.convertTypeTo(expr1Var.getType());
+			String factor = " * " + expr0Var.convertUnitTo(expr1Var.getUnit());
 			operation = expr0Name + factor + " " + op + " " + expr1Name;
 			
 			// create Variable
-			var = new Variable(expr1Var.getType(), varType.NUMERIC, null);
+			var = new Variable(expr1Var.getUnit(), varType.NUMERIC, null);
 		}
 		
 		// one of the expressions is string -> concatenation
@@ -1058,12 +1053,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// expr0 is numeric -> get symbol for printing
 			if (typeIsDouble(expr0)) {
-				expr0Symbol = " " + mapCtxVar.get(ctx.expression(0)).getType().getPrintName();
+				expr0Symbol = " " + mapCtxVar.get(ctx.expression(0)).getUnit().getSymbol();
 			}
 			
 			// expr1 is numeric -> get symbol for printing
 			if (typeIsDouble(expr1)) {
-				expr1Symbol = " " + mapCtxVar.get(ctx.expression(1)).getType().getPrintName();
+				expr1Symbol = " " + mapCtxVar.get(ctx.expression(1)).getUnit().getSymbol();
 			}
 			
 			operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
@@ -1111,7 +1106,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsDouble(expr0)) {
 			Variable expr1Var = mapCtxVar.get(ctx.expression(1));
 			expr1Var = new Variable(expr1Var); // deep copy
-			String factor = " * " + expr1Var.convertTypeTo(mapCtxVar.get(ctx.expression(0)).getType()).toString();
+			String factor = " * " + expr1Var.convertUnitTo(mapCtxVar.get(ctx.expression(0)).getUnit()).toString();
 			operation = expr0Name + " " + op + " " + "(" + expr1Name + factor + ")";
 		}
 		
@@ -1158,7 +1153,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsDouble(expr0)) {
 			Variable expr1Var = mapCtxVar.get(ctx.expression(1));
 			expr1Var = new Variable(expr1Var); // deep copy
-			String factor = " * " + expr1Var.convertTypeTo(mapCtxVar.get(ctx.expression(0)).getType()).toString();
+			String factor = " * " + expr1Var.convertUnitTo(mapCtxVar.get(ctx.expression(0)).getUnit()).toString();
 			operation = expr0Name + op + "(" + expr1Name + factor + ")";
 		}
 		
@@ -1298,7 +1293,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// if expr1 is Numeric conversion may be needed
 			if (expr0Var.isNumeric()) {
-				double factor = expr0Var.convertTypeTo(typesTable.get(valueType));
+				double factor = expr0Var.convertUnitTo(unitsTable.get(valueType));
 				operation = expr0Name + ".add(" + expr1Name + " * " + factor + ")";
 			}
 		}
@@ -1321,12 +1316,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// key is numeric -> get conversion factor
 			if (key.isNumeric()) {
-				keyFactor = " * " + key.convertTypeTo(typesTable.get(keyType)).toString();
+				keyFactor = " * " + key.convertUnitTo(unitsTable.get(keyType)).toString();
 			}
 			
 			// value is numeric -> get convertion factor
 			if (value.isNumeric()) {
-				valueFactor = " * " + value.convertTypeTo(typesTable.get(keyType)).toString();
+				valueFactor = " * " + value.convertUnitTo(unitsTable.get(keyType)).toString();
 			}
 			
 			operation = expr0Name + ".put(" + expr1Name + ".getKey()" + keyFactor + ", " + expr1Name + ".getValue()" + valueFactor + ")";
@@ -1341,12 +1336,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// expr0 is numeric -> get symbol for printing
 			if (typeIsDouble(expr0)) {
-				expr0Symbol = " " + mapCtxVar.get(ctx.expression(0)).getType().getPrintName();
+				expr0Symbol = " " + mapCtxVar.get(ctx.expression(0)).getUnit().getSymbol();
 			}
 			
 			// expr1 is numeric -> get symbol for printing
 			if (typeIsDouble(expr1)) {
-				expr1Symbol = " " + mapCtxVar.get(ctx.expression(1)).getType().getPrintName();
+				expr1Symbol = " " + mapCtxVar.get(ctx.expression(1)).getUnit().getSymbol();
 			}
 			
 			operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
@@ -1419,7 +1414,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// key is numeric -> get conversion factor
 			if (key.isNumeric()) {
-				factor = " * " + key.convertTypeTo(typesTable.get(keyType)).toString();
+				factor = " * " + key.convertUnitTo(unitsTable.get(keyType)).toString();
 			}
 			
 			operation = expr0Name + ".get(" + expr1Name + factor + ")";
@@ -1439,12 +1434,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("operation", operation);
 		
 		// create Variable and save ctx
-		Type type = null;
+		Unit type = null;
 		varType vType = varType.STRING;
 		if (!paramType.equals("string")) {
 			vType = varType.BOOLEAN;
 			if(!paramType.equals("boolean")) {
-				type = typesTable.get(paramType);
+				type = unitsTable.get(paramType);
 				vType = varType.NUMERIC;
 			}
 		}
@@ -1495,7 +1490,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// key is numeric -> get conversion factor
 			if (key.isNumeric()) {
-				factor = " * " + key.convertTypeTo(typesTable.get(keyType)).toString();
+				factor = " * " + key.convertUnitTo(unitsTable.get(keyType)).toString();
 			}
 			
 			operation = expr0Name + ".get(" + expr1Name + factor + ")";
@@ -1509,7 +1504,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("operation", operation);
 		
 		// create Variable and save ctx
-		Variable var = new Variable(typesTable.get("number"), varType.NUMERIC, 1.0);
+		Variable var = new Variable(unitsTable.get("number"), varType.NUMERIC, 1.0);
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
@@ -1637,7 +1632,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("operation", expr0Name + ".indeOf(" + expr1Name + ")");
 		
 		// create Variable and save ctx
-		Variable var = new Variable (typesTable.get("number"), varType.NUMERIC, 1.0); // the value '1.0' is not relevant for compilation
+		Variable var = new Variable (unitsTable.get("number"), varType.NUMERIC, 1.0); // the value '1.0' is not relevant for compilation
 		mapCtxVar.put(ctx, var);
 		
 		if(debug) ci();
@@ -1892,7 +1887,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		type.add("type", "Double");
 		
 		//create Variable and save ctx
-		Variable var = new Variable (typesTable.get("number"), varType.NUMERIC, 0.0);
+		Variable var = new Variable (unitsTable.get("number"), varType.NUMERIC, 0.0);
 		mapCtxVar.put(ctx, var);
 		
 		if(debug) ci();
@@ -1964,7 +1959,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		type.add("type", "id");
 		
 		// create Variable and save ctx
-		Variable var = new Variable (typesTable.get(ctx.ID().getText()), varType.NUMERIC, 0.0);
+		Variable var = new Variable (unitsTable.get(ctx.ID().getText()), varType.NUMERIC, 0.0);
 		mapCtxVar.put(ctx, var);
 		
 		if(debug) ci();
@@ -1985,7 +1980,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = varAssignmentST("double", newName, number); 
 		
 		// create Variable and save ctx
-		Variable var = new Variable(typesTable.get("number"), varType.NUMERIC, Double.parseDouble(number));
+		Variable var = new Variable(unitsTable.get("number"), varType.NUMERIC, Double.parseDouble(number));
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
