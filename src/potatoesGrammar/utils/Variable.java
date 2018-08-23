@@ -13,12 +13,9 @@
 
 package potatoesGrammar.utils;
 
-import compiler.PotatoesSemanticCheck;
-import unitsGrammar.grammar.Graph;
 import unitsGrammar.grammar.Tuple;
 import unitsGrammar.grammar.Unit;
 import unitsGrammar.grammar.Units;
-import utils.errorHandling.ErrorHandling;
 
 
 public class Variable {
@@ -65,7 +62,7 @@ public class Variable {
 			this.unit = null;
 		}
 		else {
-			this.unit = Units.instanceOf(a.getUnit().getName());
+			this.unit = new Unit(a.getUnit());
 		}
 		
 		// deep copy varType Enum (immutable)
@@ -159,7 +156,7 @@ public class Variable {
 	/**
 	 * @return new Variable with new code and value
 	 */
-	public static Variable multiply(Variable a, Variable b) {
+	public static Variable multiply(Variable a, Variable b) throws IllegalArgumentException{
 		if (a.isNumeric() && b.isNumeric()) {
 			
 			Tuple res = Units.multiply(a.getUnit(), b.getUnit());
@@ -224,10 +221,9 @@ public class Variable {
 			double factor = res.getFactor();
 			double newValue = (double) a.getValue() + (double) b.getValue() * factor;
 			
-			System.out.println("BEFORE ADJUST");
 			factor = newUnit.adjustToKnownUnit();
 			newValue *= factor;
-			System.out.println("AFTER ADJUST");
+
 			return new Variable(newUnit, potatoesGrammar.utils.varType.NUMERIC, newValue);
 		}
 		throw new IllegalArgumentException();
@@ -330,7 +326,7 @@ public class Variable {
 
 	@Override
 	public String toString() {
-		return "value =" + value + ", unit =" + unit;
+		return "value =" + value + ", type =" + varType + ", unit =" + unit;
 	}
 
 	/* (non-Javadoc)

@@ -15,6 +15,7 @@ package unitsGrammar.grammar;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <b>Code</b><p>
@@ -170,12 +171,27 @@ public class Code {
 	 * This method does a simple simplification by removing duplicate codes in the Code numerator and denominator.
 	 */
 	private void simplifyCode() {
+		
+		if (numCodes.size() == 1 && numCodes.get(0) == 1 && denCodes.size() == 0) {
+			return;
+		}
+		
+		numCodes.removeIf(c -> c == 1);
+		denCodes.removeIf(c -> c == 1);
+		
+		List<Integer> aux = new ArrayList<>();
 		for (Integer numCode : numCodes) {
 			if (denCodes.contains(numCode)) {
-				numCodes.remove(numCode);
-				denCodes.remove(numCode);
+				aux.add(numCode);
 			}
 		}
+		numCodes.removeAll(aux);
+		denCodes.removeAll(aux);
+		
+		if (numCodes.size() == 0 && denCodes.size() == 0) {
+			numCodes.add(1);
+		}
+		
 	}
 	
 	/**
@@ -197,37 +213,21 @@ public class Code {
 		return factor;
 	}
 	// TODO not very efficient (think of what structure to use)
-	private double simplifyCodeWithConvertionsPrivate(Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> basicUnitsCodesTable) {
+	private Double simplifyCodeWithConvertionsPrivate(Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> basicUnitsCodesTable) {
 		
-		for (int i = 0; i < numCodes.size(); i++) {
-			Unit numUnit = basicUnitsCodesTable.get(numCodes.get(i));
-			System.out.println("############# numUnit = " + numUnit);
-			for (int j = 0; j < denCodes.size(); j++) {
-				Unit denUnit = basicUnitsCodesTable.get(numCodes.get(j));
-				System.out.println("############# denUnit = " + denUnit);
-				double conversionFactor = conversionTable.get(numUnit).get(denUnit);
-				if (conversionFactor != Double.POSITIVE_INFINITY){
-					numCodes.remove(i);
-					denCodes.remove(j);
+		for (int numCode : this.numCodes) {
+			Unit numUnit = basicUnitsCodesTable.get(numCode);
+			for (int denCode : this.denCodes) {
+				Unit denUnit = basicUnitsCodesTable.get(denCode);
+				Double conversionFactor = conversionTable.get(numUnit).get(denUnit);
+				if (conversionFactor != null && conversionFactor != Double.POSITIVE_INFINITY){
+					numCodes.remove(numCodes.indexOf(numCode));
+					denCodes.remove(denCodes.indexOf(denCode));
 					return conversionFactor;
 				}
 			}
 		}
-
-		
-//		for (int numCode : this.numCodes) {
-//			Unit numUnit = basicUnitsCodesTable.get(numCode);
-//			for (int denCode : this.denCodes) {
-//				Unit denUnit = basicUnitsCodesTable.get(denCode);
-//				double conversionFactor = conversionTable.get(numUnit).get(denUnit);
-//				if (conversionFactor != Double.POSITIVE_INFINITY){
-//					numCodes.remove(numCode);
-//					denCodes.remove(denCode);
-//					return conversionFactor;
-//				}
-//			}
-//		}
-		return 1.0;
+		return null;
 	}
 	
 	/**
@@ -240,6 +240,10 @@ public class Code {
 	 * @return the conversion factor obtained from the Code conversion. To be used if a Quantity is associated with the Unit.
 	 */
 	protected static double matchCodes(Code a, Code b, Map<Unit, Map<Unit, Double>> conversionTable, Map<Integer, Unit> codesTable) {
+		
+		// First simplify codes
+		a.simplifyCode();
+		b.simplifyCode();
 		
 		// Codes are equal, no matching is needed. Quantity conversion factor is neutral.
 		if (b.equals(a)) {
@@ -257,10 +261,6 @@ public class Code {
 
 		Double conversionFactor = 1.0;
 		Double localFactor = 1.0;
-		
-		// First simplify codes
-		a.simplifyCode();
-		b.simplifyCode();
 		
 		List<Integer> AnumCodes = a.getNumCodes();
 		List<Integer> BnumCodes = b.getNumCodes();
@@ -291,6 +291,7 @@ public class Code {
 		for (Integer numB : b.getNumCodes()) {
 			for (Integer numA : a.getNumCodes()) {
 				localFactor = conversionTable.get(codesTable.get(numB)).get(codesTable.get(numA));
+				System.out.println("#$%^%$#$%^&^%$#$%^&^%$#$%^%$         factor from " + numB + ", to " + numA + ", is " + localFactor);
 				if (localFactor != null) {
 					conversionFactor *= localFactor;
 					codeSize--;

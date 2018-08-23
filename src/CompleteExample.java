@@ -108,12 +108,12 @@ public class CompleteExample {
 		Double var75 = var74;
 
 		Double var76 = 0.0;
-		Double var77 = 2.0;
+		Double var77 = 1.0;
 		Double var78 = var77 * 1.0;
 		Double var79 = var78;
 
 		Double var80 = 0.0;
-		Double var81 = 3.0;
+		Double var81 = 1.0;
 		Double var82 = var81 * 1.0;
 		Double var83 = var82;
 		String var84 = "print variables: ";
@@ -192,5 +192,61 @@ public class CompleteExample {
 		System.out.println(var148);
 		String var149 = "";
 		System.out.println(var149);
+
+		Double var150 = 0.0;
+		Double var151 = 2.0;
+		Double var152 = var151 * 1.0;
+		Double var153 = var152;
+
+		Double var154 = 0.0;
+		Double var155 = 1.0;
+		Double var156 = 1.0;
+		Double var157 = var155 * 1.0 + var156;
+		Double var158 = var157;
+
+		Double var159 = 0.0;
+		Double var160 = var123;
+		Double var161 = var160;
+		Double var162 = var160 * 1.0 + var161;
+		Double var163 = var162;
+
+		Double var164 = 0.0;
+		Double var165 = var161;
+		Double var166 = 1.0;
+		Double var167 = var166 * 1.0;
+		Double var168 = var165 * 1.0 + var167;
+		Double var169 = var168;
+
+		Double var170 = 0.0;
+		Double var171 = 1.0;
+		Double var172 = var171 * 1.0;
+		Double var173 = 1.0;
+		Double var174 = var173 * 1.0;
+		Double var175 = var172 * 1.0 + var174;
+		Double var176 = var175;
+
+		Double var177 = 0.0;
+		Double var178 = var165;
+		Double var179 = var113;
+		Double var180 = var178 * 1.0 + var179;
+		Double var181 = var180;
+		Double var182 = var158;
+		String var183 = ", ";
+		String var184 = var182 + " " + var183;
+		Double var185 = var163;
+		String var186 = var184 + var185 + " m";
+		String var187 = ", ";
+		String var188 = var186 + var187;
+		Double var189 = var169;
+		String var190 = var188 + var189 + " m";
+		String var191 = ", ";
+		String var192 = var190 + var191;
+		Double var193 = var176;
+		String var194 = var192 + var193 + " m";
+		String var195 = ", ";
+		String var196 = var194 + var195;
+		Double var197 = var181;
+		String var198 = var196 + var197 + " m";
+		System.out.println(var198);
 	}
 }

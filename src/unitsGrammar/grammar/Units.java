@@ -103,6 +103,17 @@ public class Units {
 			}
 			conversionTable.put(number, map);
 			
+			System.out.println(unitsGraph);
+			
+			System.out.println("##################\n###################\n##################\n####################\n");
+			
+			for (Unit key : conversionTable.keySet()) {
+				System.out.println("\n" + key + "->->->");
+				for (Unit key2 : conversionTable.get(key).keySet()) {
+					System.out.println("\t" + key2 + "->->" + conversionTable.get(key).get(key2));
+				}
+			}
+			
 		}
 		else {
 			System.exit(3);

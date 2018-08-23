@@ -1,5 +1,7 @@
 package compiler;
 
+import static java.lang.System.*;
+
 import utils.errorHandling.ErrorHandling;
 
 import java.util.HashMap;
@@ -34,7 +36,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	private static int varCounter = 0;
 	
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 	
 	// --------------------------------------------------------------------------------------------------------------------
 	// MAIN RULES----------------------------------------------------------------------------------------------------------
@@ -826,7 +828,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("operation", operation);
 		
 		// create Variable and save ctx
-		Variable var = new Variable(exprVar.getUnit(), varType.NUMERIC, null);
+		Variable var = new Variable(exprVar.getUnit(), varType.NUMERIC, exprVar.getValue());
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
@@ -938,23 +940,30 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				double codeSimplificationFactor = (double) res.getValue() / simpleMult;
 				operation = expr0Name + " " + op + " " + expr1Name + " " + op + " " + codeSimplificationFactor;
 				
-				var = new Variable(res.getUnit(), varType.NUMERIC, null);
+				var = new Variable(res.getUnit(), varType.NUMERIC, res.getValue());
 			}
 			
 			else if (op.equals("/")) {
+				
 				Double simpleDiv = (double) expr0Var.getValue() * (double) expr0Var.getValue();
-				Variable res = Variable.multiply(expr0Var, expr1Var);
+				Variable res = Variable.divide(expr0Var, expr1Var);
 				
 				double codeSimplificationFactor = (double) res.getValue() / simpleDiv;
 				operation = expr0Name + " " + op + " " + expr1Name + " " + " * " + " " + codeSimplificationFactor;
 				
-				var = new Variable(res.getUnit(), varType.NUMERIC, null);
+				var = new Variable(res.getUnit(), varType.NUMERIC, res.getValue());
+				
+				out.println("simpleDiv: " + simpleDiv);
+				out.println("res: " + res);
+				out.println("codeSimplificationFactor: " + codeSimplificationFactor);
+				out.println("operation: " + operation);
+				out.println("var: " + var);
 			}
 			
 			else if (op.equals("%")) {
 				
 				operation = expr0Name + " " + op + " " + expr1Name;
-				var = new Variable(expr0Var.getUnit(), varType.NUMERIC, null);
+				var = new Variable(expr0Var.getUnit(), varType.NUMERIC, expr0Var.getValue());
 			}
 		}
 		
@@ -1032,7 +1041,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			operation = expr0Name + factor + " " + op + " " + expr1Name;
 			
 			// create Variable
-			var = new Variable(expr1Var.getUnit(), varType.NUMERIC, null);
+			Variable res = Variable.add(expr0Var, expr1Var);
+			var = new Variable(expr1Var.getUnit(), varType.NUMERIC, res.getValue());
 		}
 		
 		// one of the expressions is string -> concatenation

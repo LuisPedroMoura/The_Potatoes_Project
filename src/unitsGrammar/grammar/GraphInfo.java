@@ -48,6 +48,16 @@ public class GraphInfo{
 		// have to use deep copy of graph or functions in Graph Class will create concurrent modification exception
 		allShortestPaths = getAllShortestPaths(new Graph(graph));
 		allStraightFowardPaths = getAllStraightfowardPaths(new Graph(graph));
+		
+		System.out.println("ALL STRAIGHTFOWARD PATHS\n");
+		for (ArrayList<Unit> arr : allStraightFowardPaths) {
+			for (Unit unit : arr) {
+				System.out.println(unit);
+			}
+			System.out.println();
+		}
+		System.out.println("##################\n###################\n##################\n####################\n");
+		
 		createShortestPathsGraph();
 		createStraightfowardPathsGraph();
 		createStraightfowardPathsCostsGraph();

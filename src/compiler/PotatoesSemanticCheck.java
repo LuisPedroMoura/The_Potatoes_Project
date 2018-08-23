@@ -12,6 +12,8 @@
 
 package compiler;
 
+import static java.lang.System.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -84,6 +86,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// Main Rules 
 	@Override 
 	public Boolean visitProgram(ProgramContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->PROGRAM\n");
+		
 		Boolean valid = visit(ctx.using());
 		List<GlobalStatementContext> globalStatementsInstructions = ctx.globalStatement();
 
@@ -92,40 +97,65 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			Boolean res = visit(c);
 			valid = valid && res;
 		}
+		
+		if(debug) ci();
+		
 		return valid;
 	}
 
 	@Override 
 	public Boolean visitUsing(UsingContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->USING");
+
 		// Get information from the units file
 		UnitsFilePath = getStringText(ctx.STRING().getText());
 		if (debug) ErrorHandling.printInfo(ctx, UnitsFilePath);
 		unitsFile = new Units(UnitsFilePath);
 
-		// Debug
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Units File path is: " + UnitsFilePath);
-			ErrorHandling.printInfo(ctx, unitsFile.toString());
+			//ErrorHandling.printInfo(ctx, unitsFile.toString());
+			ci();
 		}
-
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitGlobalStatement_Declaration(GlobalStatement_DeclarationContext ctx) {
-		return visit(ctx.varDeclaration());
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->GLOBAL STATEMENT - DECLARATION");
+		
+		boolean valid = visit(ctx.varDeclaration()); 
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	@Override 
 	public Boolean visitGlobalStatement_Assignment(GlobalStatement_AssignmentContext ctx) {
-		Boolean result =  visit(ctx.assignment());
-		if(debug) {ErrorHandling.printInfo("Visited " + ctx.assignment().getText() + " : " + result);}
-		return result;
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->GLOBAL STATEMENT - ASSIGNMENT");
+		
+		boolean valid =  visit(ctx.assignment());
+		
+		if(debug) ci();
+		
+		return valid;
 	}
 
 	@Override
 	public Boolean visitGlobalStatement_Function(GlobalStatement_FunctionContext ctx) {
-		return visitChildren(ctx);
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->GLOBAL STATEMENT - FUNCTION");
+		
+		boolean valid = visitChildren(ctx);
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	// --------------------------------------------------------------------------
@@ -133,34 +163,74 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override 
 	public Boolean visitStatement_Declaration(Statement_DeclarationContext ctx) {
-		return visit(ctx.varDeclaration());
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - DECLARATION");
+		
+		boolean valid = visit(ctx.varDeclaration());
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	@Override 
 	public Boolean visitStatement_Assignment(Statement_AssignmentContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - ASSIGNMENT");
+		
 		boolean valid =  visit(ctx.assignment());
-		if(debug) {ErrorHandling.printInfo(ctx, "Visited " + ctx.assignment().getText() + " : " + valid);}
+		
+		if(debug) ci();
+		
 		return valid;
 	}
 
 	@Override 
 	public Boolean visitStatement_Control_Flow_Statement(Statement_Control_Flow_StatementContext ctx) {
-		return visitChildren(ctx);
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - CONTROL FLOW STATEMENT");
+		
+		boolean valid = visitChildren(ctx);
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	@Override 
 	public Boolean visitStatement_FunctionCall(Statement_FunctionCallContext ctx) {
-		return visit(ctx.functionCall());
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - FUNCTION CALL");
+		
+		boolean valid =  visit(ctx.functionCall());
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	@Override 
 	public Boolean visitStatement_Function_Return(Statement_Function_ReturnContext ctx) {
-		return visitChildren(ctx);
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - FUNCTION RETURN");
+		
+		boolean valid = visitChildren(ctx);
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	@Override 
 	public Boolean visitStatement_InputOutput(Statement_InputOutputContext ctx) {
-		return visit(ctx.inputOutput());
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - INPUT OUTPUT");
+		
+		boolean valid = visit(ctx.inputOutput());
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	// --------------------------------------------------------------------------
@@ -168,6 +238,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitAssignment_Var_Declaration_Expression(Assignment_Var_Declaration_ExpressionContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ASSIGNMENT - VAR DECLARATION - EXPRESSION");
+		
 		if (!visit(ctx.varDeclaration()) || !visit(ctx.expression())) {
 			return false;
 		};
@@ -186,11 +259,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (ctx.varDeclaration() instanceof VarDeclaration_dictContext) {
 			VarDeclaration_dictContext decl = (VarDeclaration_dictContext) ctx.varDeclaration();
 			varName = decl.ID(2).getText();
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[ASSIGN_VARDEC_EXPR] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + varName + " with unit " + var.getUnit());
 		}
 		
 		// Units are not compatible -> error
@@ -217,11 +285,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// units are compatible -> ok
 		mapCtxVar.put(ctx, expr);
 		updateSymbolTable(varName, expr);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx,indent + "-> varDeclaration : varName = " + varName + ", var = " + var);
+			ErrorHandling.printInfo(ctx,indent + "-> expression = " + expr);
+			ci();
+		}
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitAssignment_Var_Expression(Assignment_Var_ExpressionContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ASSIGNMENT - VAR - EXPRESSION");
+		
 		if (!visit(ctx.var()) || !visit(ctx.expression())) {
 			return false;
 		};
@@ -258,6 +336,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// units are compatible -> ok
 		mapCtxVar.put(ctx, expr);
 		updateSymbolTable(ctx.var().ID().getText(), expr);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx,indent + "-> varDeclaration : varName = " + ctx.var().getText() + ", var = " + var);
+			ErrorHandling.printInfo(ctx,indent + "-> expression = " + expr);
+			ci();
+		}
+		
 		return true;
 	}
 	
@@ -266,6 +351,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitFunction_Main(Function_MainContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->FUNCTION MAIN");
+		
 		if (visitedMain == true) {
 			ErrorHandling.printError(ctx, "Only one main function is allowed");
 			return false;
@@ -276,22 +364,32 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		openFunctionScope();
 		visit(ctx.scope());
 		
+		if (debug) ci();
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitFunction_ID(Function_IDContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ASSIGNMENT - FUNCTION ID");
+		
 		if (!visit(ctx.scope())) {
 			return false;
 		}
 
 		mapCtxVar.put(ctx, mapCtxVar.get(ctx.scope()));
 		
+		if (debug) ci();
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitFunctionReturn(FunctionReturnContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->FUNCTION RETURN");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
@@ -305,8 +403,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				var = new Variable(var); // deep copy
 				try {
 					var.convertUnitTo(Units.instanceOf(currentReturn));
-					mapCtxVar.put(ctx, var);
-					return true;
+					// jumps to the end
 				}
 				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Retturn unit is not compatible with fucntion signature");
@@ -315,21 +412,31 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 		}
 		
-		if(	var.isString() && currentReturn.equals("string") ||
-			var.isBoolean() && currentReturn.equals("boolean") ||
-			var.isList() && currentReturn.equals("list") ||
-			var.isDict() && currentReturn.equals("dict")) {
+		else if(!(var.isString() && currentReturn.equals("string")) &&
+			!(var.isBoolean() && currentReturn.equals("boolean")) &&
+			!(var.isList() && currentReturn.equals("list")) &&
+			!(var.isDict() && currentReturn.equals("dict"))) {
 			
-			mapCtxVar.put(ctx, var);
-			return true;
+			ErrorHandling.printError(ctx, "return is not compatible with function signature");
+			return false;
 		}
 		
-		ErrorHandling.printError(ctx, "return is not compatible with function signature");
-		return false;
+		mapCtxVar.put(ctx, var);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx,indent + "-> expressionn : return var = " + var);
+			ci();
+		}
+		
+		return true;
+		
 	}
 	
 	@Override
 	public Boolean visitFunctionCall(FunctionCallContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->FUNCTION CALL");
+		
 		Boolean valid = true;
 		for (ExpressionContext expr : ctx.expression()) {
 			valid = valid && visit(expr);
@@ -406,6 +513,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// update tables and visit function
 		mapCtxVar.put(ctx, new Variable(null, varType.LIST, mapCtxVar.get(functionToVisit)));
+		
+		if (debug) ci();
+		
 		return true;
 	}
 
@@ -415,12 +525,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override 
 	public Boolean visitControlFlowStatement(ControlFlowStatementContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->CONTROL FLOW STATEMENT");
+		
 		extendScope();
-		return visitChildren(ctx);
+		
+		boolean valid = visitChildren(ctx);
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 
 	@Override 
 	public Boolean visitForLoop(ForLoopContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->FOR LOOP");
+		
 		Boolean valid = true;
 		Boolean res   = true;
 
@@ -435,12 +556,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// visit scope
 		valid = valid && visit(ctx.scope());
+		
+		if (debug) ci();
 
 		return valid;
 	}
 
 	@Override 
 	public Boolean visitWhileLoop(WhileLoopContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->WHILE LOOP");
+		
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
@@ -455,16 +581,28 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// visit all scope
 		valid = valid && visit(ctx.scope());
 
+		if (debug) ci();
+		
 		return valid;
 	}
 
 	@Override
 	public Boolean visitCondition(ConditionContext ctx) {
-		return visitChildren(ctx);
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->CONDITION");
+		
+		boolean valid = visitChildren(ctx);
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 	
 	@Override 
 	public Boolean visitIfCondition(IfConditionContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->IF CONDITION");
+		
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
@@ -478,12 +616,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// visit all scope
 		valid = valid && visit(ctx.scope());
+		
+		if (debug) ci();
 		
 		return valid;
 	}
 
 	@Override 
 	public Boolean visitElseIfCondition(ElseIfConditionContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ELSE IF CONDITION");
+		
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
@@ -498,21 +641,31 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// visit all scope
 		valid = valid && visit(ctx.scope());
 		
+		if (debug) ci();
+		
 		return valid;
 	}
 
 	@Override 
 	public Boolean visitElseCondition(ElseConditionContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ELSE CONDITION");
+		
 		Boolean valid = true;
 
 		// visit all scope
 		valid = valid && visit(ctx.scope());
+		
+		if (debug) ci();
 				
 		return valid;
 	}
 
 	@Override
 	public Boolean visitScope(ScopeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->SCOPE");
+		
 		Boolean valid = true;
 		List<StatementContext> statements = ctx.statement();
 
@@ -534,6 +687,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		mapCtxVar.put(ctx, null);
 		closeScope();
+		
+		if (debug) ci();
+		
 		return valid;
 	}
 
@@ -542,15 +698,27 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override 
 	public Boolean visitExpression_Parenthesis(Expression_ParenthesisContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION PARENTHESIS");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
 		mapCtxVar.put(ctx, mapCtxVar.get(ctx.expression()));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, "Expression in Parenthesis is: " + mapCtxVar.get(ctx.expression()));
+			ci();
+		}
+		
 		return true;
 	}
 	
 	@Override
 	public Boolean visitExpression_LISTINDEX(Expression_LISTINDEXContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION LISTINDEX");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -569,6 +737,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				try {
 					Variable get = listVar.getList().get(index);
 					mapCtxVar.put(ctx, get);
+					if (debug) {
+						ErrorHandling.printInfo(ctx, indent+" -> expression 0 : " + var0);
+						ErrorHandling.printInfo(ctx, indent+" -> expression 1 : " + var1);
+						ErrorHandling.printInfo(ctx, indent+" -> get result : " + get);
+						ci();
+					}
+					
 					return true;
 				}
 				catch (IndexOutOfBoundsException e) {
@@ -580,34 +755,36 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// other expression combinations -> error
 		ErrorHandling.printError(ctx, "Bad operands for operator '[ ]'");
-		return false;
-			
+		return false;	
 	}
 	
 	@Override
 	public Boolean visitExpression_ISEMPTY(Expression_ISEMPTYContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION ISEMPTY");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
 		
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable exprVar = mapCtxVar.get(ctx.expression());
 		boolean isEmpty;
 		
-		if (var.isList()) {
+		if (exprVar.isList()) {
 			
-			ListVar listVar = (ListVar) var.getValue();
+			ListVar listVar = (ListVar) exprVar.getValue();
 			isEmpty = listVar.getList().isEmpty();
 		}
 		
-		else if (var.isDict()) {
+		else if (exprVar.isDict()) {
 			
-			DictVar dictVar = (DictVar) var.getValue();
+			DictVar dictVar = (DictVar) exprVar.getValue();
 			isEmpty = dictVar.getDict().isEmpty();
 		}
 		
-		else if (var.isString()) {
+		else if (exprVar.isString()) {
 			
-			String str = (String) var.getValue();
+			String str = (String) exprVar.getValue();
 			isEmpty = str.isEmpty();
 		}
 		
@@ -616,34 +793,45 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		mapCtxVar.put(ctx, new Variable(null , varType.BOOLEAN, isEmpty));
+		Variable var = new Variable(null , varType.BOOLEAN, isEmpty);
+		mapCtxVar.put(ctx, var);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression : " + exprVar);
+			ErrorHandling.printInfo(ctx, indent+" -> isEMpty? : " + var);
+			ci();
+		}
+		
 		return true;
 	}
 	
 	@Override
 	public Boolean visitExpression_SIZE(Expression_SIZEContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION SIZE");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
 		
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable exprVar = mapCtxVar.get(ctx.expression());
 		int size = 0;
 		
-		if (var.isList()) {
+		if (exprVar.isList()) {
 			
-			ListVar listVar = (ListVar) var.getValue();
+			ListVar listVar = (ListVar) exprVar.getValue();
 			size = listVar.getList().size();
 		}
 		
-		else if (var.isDict()) {
+		else if (exprVar.isDict()) {
 			
-			DictVar dictVar = (DictVar) var.getValue();
+			DictVar dictVar = (DictVar) exprVar.getValue();
 			size = dictVar.getDict().size();
 		}
 		
-		else if (var.isString()) {
+		else if (exprVar.isString()) {
 			
-			String str = (String) var.getValue();
+			String str = (String) exprVar.getValue();
 			size = str.length();
 		}
 		
@@ -652,12 +840,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		mapCtxVar.put(ctx, new Variable(Units.instanceOf("number") , varType.NUMERIC, size));
+		Variable var = new Variable(Units.instanceOf("number") , varType.NUMERIC, size);
+		mapCtxVar.put(ctx, var);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression : " + exprVar);
+			ErrorHandling.printInfo(ctx, indent+" -> isEMpty? : " + var);
+			ci();
+		}
+		
 		return true;
 	}
 	
 	@Override
 	public Boolean visitExpression_SORT(Expression_SORTContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION SORT");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
@@ -683,12 +882,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return true;
 		}
 		
+		if (debug) ci();
+		
 		ErrorHandling.printError(ctx, "Bad operand units for operator 'sort'");
 		return false;
 	}
 	
 	@Override
 	public Boolean visitExpression_KEYS(Expression_KEYSContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION KEYS");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
@@ -708,6 +912,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			
 			mapCtxVar.put(ctx, new Variable(null, varType.LIST, listVar));
+			
+			if (debug) ci();
+			
 			return true;
 		}
 		
@@ -717,6 +924,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_VALUES(Expression_VALUESContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION VALUES");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
@@ -736,6 +946,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			
 			mapCtxVar.put(ctx, new Variable(null, varType.LIST, listVar));
+			
+			if (debug) ci();
+			
 			return true;
 		}
 		
@@ -745,6 +958,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_Cast(Expression_CastContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION CAST");
+		
 		if(!visitChildren(ctx)) {
 			return false;
 		}
@@ -771,6 +987,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			
 			mapCtxVar.put(ctx, var);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression : " + var);
+				ErrorHandling.printInfo(ctx, indent+" -> cast Name : " + castName);
+				ci();
+			}
+			
 			return true;
 		}
 		
@@ -780,6 +1003,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_UnaryOperators(Expression_UnaryOperatorsContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION UNARY OPERATORS");
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
@@ -787,23 +1013,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Variable var = mapCtxVar.get(ctx.expression());
 		String op = ctx.op.getText();
 		
-		if (op.equals("-")) {
+		if ((op.equals("-") && var.isNumeric()) || (op.equals("!") && var.isBoolean())) {
+				
+			mapCtxVar.put(ctx, var); // don't need to calculate symmetric or negated value to guarantee semantic correctness in future calculations
 			
-			if (var.isNumeric()) {
-				if(debug) ErrorHandling.printInfo(ctx, "[OP_OP_SIMETRIC]");
-				mapCtxVar.put(ctx, var); // don't need to calculate symmetric value to guarantee semantic correctness in future calculations
-				return true;
-			}
-		}
-		
-		else if (op.equals("!")) {
+			if (debug) ci();
 			
-			if (var.isBoolean()) {
-				if (debug) ErrorHandling.printInfo(ctx, "[OP_LOGIC_OPERAND_NOT_VAR]");
-				mapCtxVar.put(ctx, var); // don't need to calculate negated value to guarantee semantic correctness in future calculations
-				return true;
-			}
+			return true;
 		}
+
 		
 		// other variable combinations
 		ErrorHandling.printError(ctx, "Bad operand units for operator + '" + op + "'");
@@ -812,6 +1030,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override 
 	public Boolean visitExpression_Power(Expression_PowerContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION POWER");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -830,9 +1051,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				mapCtxVar.put(ctx, res);
 				
 				if (debug) {
-					ErrorHandling.printInfo(ctx, "[OP_POWER] Visited Expression Power");
-					ErrorHandling.printInfo(ctx, "--- Powering Variable " + base + "with power " + pow + "and result is " + res);
+					ErrorHandling.printInfo(ctx, indent+ " -> base: " + base);
+					ErrorHandling.printInfo(ctx, indent+ " -> power: " + pow);
+					ErrorHandling.printInfo(ctx, indent+ " -> result: " + res);
+					ci();
 				}
+				
 				return true;
 			}
 		}
@@ -844,6 +1068,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override 
 	public Boolean visitExpression_Mult_Div_Mod(Expression_Mult_Div_ModContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION MULT DIV MOD");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -862,7 +1089,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if (op.equals("%")) {
 				try {
 					res = Variable.mod(var0, var1);
-					return true;
 				}
 				catch (IllegalArgumentException e) {
 					ErrorHandling.printError(ctx, "Right side of mod expression has to be of Unit Number!");
@@ -871,18 +1097,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			
 			// Multiplication
-			if (op.equals("*")) {
-				res = Variable.multiply(var0, var1); 
-				if (debug) { ErrorHandling.printInfo(ctx, "result of multiplication is Variable " + res);}
-				return true;
+			else if (op.equals("*")) {
+				res = Variable.multiply(var0, var1);
 			}
 			
 			// Division expression
-			if (op.equals("/")) {
+			else if (op.equals("/")) {
 				try {
-					res = Variable.divide(var0, var1); 
-					if (debug) { ErrorHandling.printInfo(ctx, "result of division is Variable " + res);}
-					return true;
+					res = Variable.divide(var0, var1);
 				}
 				catch (ArithmeticException e) {
 					ErrorHandling.printError(ctx, "Cannot divide by zero");
@@ -891,6 +1113,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// update tables
 			mapCtxVar.put(ctx, res);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> Numerical Operation!");
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> result of op " + op + ": " + res);
+				ci();
+			}
+			
+			return true;
 		}
 		
 		// one operand is string and the other is numeric (unit number) -> ok (string expanded concatenation)
@@ -932,19 +1164,26 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					
 					// update tables
 					mapCtxVar.put(ctx, new Variable (null, varType.STRING, finalStr));
+					
+					if (debug) {
+						ErrorHandling.printInfo(ctx, indent+" -> String Operation!");
+						ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+						ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+						ErrorHandling.printInfo(ctx, indent+" -> result of op " + op + ": " + finalStr);
+						ci();
+					}
+					
 					return true;
 				}
 			}
 		}
-			
+		
 		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] Visiting Expression Mult_Div_Mod");
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op0: " + ctx.expression(0).getText());
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op1: " + ctx.expression(1).getText());
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable a " + var0);
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] variable b " + var1);
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] op		 " + op + "\n");
-			ErrorHandling.printInfo(ctx, "[OP_MULTDIVMOD] temp: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> Bad operands Error");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ErrorHandling.printInfo(ctx, indent+" -> op: " + op);
+			ci();
 		}
 		
 		// other variable combinations
@@ -954,6 +1193,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override 
 	public Boolean visitExpression_Add_Sub(Expression_Add_SubContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION ADD SUB");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -968,18 +1210,24 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			var0 = new Variable(var0); // deep copy
 			var1 = new Variable(var1); // deep copy
 	
-			if (debug) {
-				ErrorHandling.printInfo(ctx, "[OP_ADDSUB] Visiting Expression Add_Sub");
-				ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable a " + var1);
-				ErrorHandling.printInfo(ctx, "[OP_ADDSUB] variable b " + var1 + "\n");
-			}
-	
 			try {
-				System.out.println("BEFORE VARIABLE.ADD");
-				Variable res = Variable.add(var0, var1);
-				System.out.println("AFTER VARIABLE.ADD");
-				if (debug) { ErrorHandling.printInfo(ctx, "result of sum is Variable " + res);}
+				Variable res = null;
+				if (op.equals("+")) {
+					res = Variable.add(var0, var1);
+				}
+				else {
+					res = Variable.subtract(var0,  var1);
+				}
 				mapCtxVar.put(ctx, res);
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, indent+" -> Numeric Operation!");
+					ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+					ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+					ErrorHandling.printInfo(ctx, indent+" -> result of op " + op + ": " + res);
+					ci();
+				}
+				
 				return true;
 			}
 			catch (IllegalArgumentException e) {
@@ -1022,9 +1270,25 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					
 					String finalStr = str0 + str1;
 					mapCtxVar.put(ctx, new Variable (null, varType.STRING, finalStr));
+					
+					if (debug) {
+						ErrorHandling.printInfo(ctx, indent+" -> String Operation!");
+						ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+						ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+						ErrorHandling.printInfo(ctx, indent+" -> result of op " + op + ": " + finalStr);
+						ci();
+					}
+					
 					return true;
 				}
 			}
+		}
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bas Operands Error!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
 		}
 		
 		// other variable combinations
@@ -1034,16 +1298,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_RelationalQuantityOperators(Expression_RelationalQuantityOperatorsContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION RELATIONAL QUANTITY OPERATORS");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_COMPARISON]");
 		}
 		
 		Variable var0 = mapCtxVar.get(ctx.expression(0));
 		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
+		}
 		
 		if (var0.isNumeric() && var1.isNumeric()) {
 			
@@ -1051,7 +1320,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			try {
 				var0.convertUnitTo(var1.getUnit());
-				mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
+				mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));	
 				return true;
 			}
 			catch (IllegalArgumentException e) {
@@ -1059,32 +1328,32 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 		}
 		
-		if (var0.isString() && var1.isString()) {
+		else if (var0.isString() && var1.isString()) {
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
 			return true;
 		}
 
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "THIS IS A : " + var0);
-			ErrorHandling.printInfo(ctx, "THIS IS B : " + var1);
-		}
-			
 		ErrorHandling.printError(ctx, "Units to be compared are not compatible");
 		return false;
 	}
 
 	@Override
 	public Boolean visitExpression_RelationalEquality(Expression_RelationalEqualityContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION RELATIONAL EQUALITY");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_COMPARISON]");
 		}
 		
 		Variable var0 = mapCtxVar.get(ctx.expression(0));
 		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
+		}
 		
 		if (var0.isNumeric() && var1.isNumeric()) {
 			
@@ -1104,11 +1373,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
 			return true;
 		}
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "THIS IS A : " + var0);
-			ErrorHandling.printInfo(ctx, "THIS IS B : " + var1);
-		}
 			
 		ErrorHandling.printError(ctx, "Units to be compared are not compatible");
 		return false;
@@ -1116,16 +1380,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_logicalOperation(Expression_logicalOperationContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION LOGICAL OPERATION");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
-		}
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_COMPARISON]");
 		}
 		
 		Variable var0 = mapCtxVar.get(ctx.expression(0));
 		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
+		}
 		
 		if (var0.isBoolean() && var1.isBoolean()) {
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
@@ -1138,6 +1407,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_tuple(Expression_tupleContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION TUPLE");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1148,11 +1420,22 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		DictTuple tuple = new DictTuple(var0, var1);
 		
 		mapCtxVar.put(ctx, new Variable(null, varType.TUPLE, tuple));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ErrorHandling.printInfo(ctx, indent+" -> tuple: " + tuple);
+			ci();
+		}
+		
 		return true;
 	}
 	
 	@Override
 	public Boolean visitExpression_ADD(Expression_ADDContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION ADD");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1185,6 +1468,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// list value unit is blocked to specific unit -> verify
 			boolean added = listVar.getList().add(var1);
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, added));
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (list) type: " + ((ListVar) var0.getValue()).getType());
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> added?: " + added);
+				ci();
+			}
+			
 			return true;
 		}
 		
@@ -1231,48 +1523,36 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				
 				Variable previous = dictVar.getDict().put(tupleKey, tupleValue); // previous can be null, but I think the code will not allow it anywhere
 				mapCtxVar.put(ctx, previous);
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+					ErrorHandling.printInfo(ctx, indent+" -> expression 0 (dict) types: " + ((DictVar) var0.getValue()).getKeyType() + ", " + ((DictVar) var0.getValue()).getValueType());
+					ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+					ErrorHandling.printInfo(ctx, indent+" -> previous: " + previous);
+					ci();
+				}
+				
 				return true;
 			}
 		}
 		
-		// expression to add have string printing capacity -> verify
-		else if (var0.isString() || var1.isString()) {
-			
-			String str0 = "";
-			String str1 = "";
-			
-			// variables are string || boolean || numeric, concatenation is possible -> ok
-			if ((var0.isString() || var0.isBoolean() || var0.isNumeric()) && (var1.isString() || var1.isBoolean() || var1.isNumeric())) {
-
-				if (var0.isString() || var0.isBoolean()) {
-					str0 = (String) var0.getValue();
-				}
-				
-				if (var1.isString() || var1.isBoolean()) {
-					str1 = (String) var1.getValue();
-				}
-				
-				if (var0.isNumeric()) {
-					str0 = ((String) var0.getValue()) + var0.getUnit().getSymbol();
-				}
-				
-				if (var1.isNumeric()) {
-					str1 = ((String) var1.getValue()) + var1.getUnit().getSymbol();
-				}
-				
-				String finalStr = str0 + str1;
-				mapCtxVar.put(ctx, new Variable (null, varType.STRING, finalStr));
-				return true;
-			}
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bad operands!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
 		}
 		
-		// variable to be added is not tuple -> error
+		// Bad operands: var0 is not list || dict or var1 is not compatible with given list || dict
 		ErrorHandling.printError(ctx, "Bad operand units for operator 'add'");
 		return false;
 	}
 	
 	@Override
 	public Boolean visitExpression_REM(Expression_REMContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION REM");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1293,6 +1573,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						int index = (int) var1.getValue();
 						Variable rem = listVar.getList().remove(index);
 						mapCtxVar.put(ctx, rem);
+						
+						if (debug) {
+							ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+							ErrorHandling.printInfo(ctx, indent+" -> expression 0 (list) type: " + ((ListVar) var0.getValue()).getType());
+							ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+							ErrorHandling.printInfo(ctx, indent+" -> removed: " + rem);
+							ci();
+						}
+						
 						return true;
 					}
 					catch (IndexOutOfBoundsException e) {
@@ -1339,6 +1628,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			// update tables
 			mapCtxVar.put(ctx, rem);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (dict) types: " + ((DictVar) var0.getValue()).getKeyType() + ", " + ((DictVar) var0.getValue()).getValueType());
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> removed: " + rem);
+				ci();
+			}
+			
 			return true;
 		}
 		
@@ -1351,17 +1649,33 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				String subStr = (String) var1.getValue();
 				str = str.replace(subStr, "");
 				mapCtxVar.put(ctx, new Variable(null, varType.STRING, str));
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, indent+" -> String operation");
+					ci();
+				}
+				
 				return true;
 			}
 		}
 		
-		// left espression is not list || dict || string nor right expression is boolean || string || numeric -> error
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bad operands!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
+		}
+		
+		// left expression is not list || dict || string nor right expression is boolean || string || numeric -> error
 		ErrorHandling.printError(ctx, "Bad operand for operator 'rem'");
 		return false;
 	}
 	
 	@Override
 	public Boolean visitExpression_GET(Expression_GETContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION GET");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1384,6 +1698,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						int index = (int) var1.getValue();
 						Variable get = (Variable) listVar.getList().get(index);
 						mapCtxVar.put(ctx, get);
+						
+						if (debug) {
+							ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+							ErrorHandling.printInfo(ctx, indent+" -> expression 0 (list) type: " + ((ListVar) var0.getValue()).getType());
+							ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+							ErrorHandling.printInfo(ctx, indent+" -> get: " + get);
+							ci();
+						}
+						
 						return true;
 					}
 					catch (IndexOutOfBoundsException e) {
@@ -1429,7 +1752,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			// update tables 
 			mapCtxVar.put(ctx, get);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (dict) types: " + ((DictVar) var0.getValue()).getKeyType() + ", " + ((DictVar) var0.getValue()).getValueType());
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> get: " + get);
+				ci();
+			}
+			
 			return true;
+		}
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bad operands!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
 		}
 		
 		// left expression is not list || dict nor right expression is boolean || string || numeric -> error
@@ -1439,6 +1778,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_CONTAINS(Expression_CONTAINSContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION CONTAINS");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1471,6 +1813,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// list value unit is blocked to specific unit -> ok
 			boolean contains = listVar.getList().contains(var1);
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, contains));
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (list) type: " + ((ListVar) var0.getValue()).getType());
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> contains?: " + contains);
+				ci();
+			}
+			
 			return true;
 		}
 		
@@ -1483,12 +1834,27 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				String subStr = (String) var1.getValue();
 				boolean contains = str.contains(subStr);
 				mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, contains));
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+					ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+					ErrorHandling.printInfo(ctx, indent+" -> contains?: " + contains);
+					ci();
+				}
+				
 				return true;
 			}
 			
 			// expression to e searched is not string -> error
 			ErrorHandling.printError(ctx, "Operands are not compatible");
 			return false;
+		}
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bad Operands!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
 		}
 		
 		// left expression is not list || string nor right expression is not boolean || string || numeric -> error
@@ -1498,6 +1864,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_CONTAINSKEY(Expression_CONTAINSKEYContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION CONTAINSKEY");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1531,7 +1900,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// dict key unit is blocked to specific unit -> ok
 			boolean contains = dictVar.getDict().containsKey(var1);
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, contains));
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (dict) types: " + ((DictVar) var0.getValue()).getKeyType() + ", " + ((DictVar) var0.getValue()).getValueType());
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> contains?: " + contains);
+				ci();
+			}
+			
 			return true;
+		}
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bad Operands!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
 		}
 		
 		// either left expression is not dict or right expression is not boolean || string || numeric -> error
@@ -1541,6 +1926,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_CONTAINSVALUE(Expression_CONTAINSVALUEContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION CONTAINSVALUE");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1573,7 +1961,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// dict value unit is blocked to specific unit -> ok
 			boolean contains = dict.getDict().containsValue(var1);
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, contains));
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (dict) types: " + ((DictVar) var0.getValue()).getKeyType() + ", " + ((DictVar) var0.getValue()).getValueType());
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> contains?: " + contains);
+				ci();
+			}
+			
 			return true;
+		}
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bad Operands!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
 		}
 		
 		// either left expression is not dict or right expression is not boolean || string || numeric -> error
@@ -1583,6 +1987,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitExpression_INDEXOF(Expression_INDEXOFContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION INDEXOF");
+		
 		if(!visit(ctx.expression(0)) || !visit(ctx.expression(1))) {
 			return false;
 		}
@@ -1616,6 +2023,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			index = listVar.getList().indexOf(var1);
 			mapCtxVar.put(ctx, new Variable(Units.instanceOf("number"), varType.NUMERIC, (double) index));
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (list) type: " + ((ListVar) var0.getValue()).getType());
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> index: " + index);
+				ci();
+			}
+			
 			return true;
 		}
 		
@@ -1628,8 +2044,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				String subStr = (String) var1.getValue();
 				int index = str.indexOf(subStr);
 				mapCtxVar.put(ctx, new Variable(Units.instanceOf("number"), varType.NUMERIC, (double) index));
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+					ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+					ErrorHandling.printInfo(ctx, indent+" -> index: " + index);
+					ci();
+				}
+				
 				return true;
 			}	
+		}
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> Bad operands!");
+			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+			ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+			ci();
 		}
 		
 		// expression to search index on is not list or string -> error
@@ -1639,28 +2070,55 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override 
 	public Boolean visitExpression_Var(Expression_VarContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION VAR");
+		
 		if(!visit(ctx.var())) {
 			return false;
 		}
 		mapCtxVar.put(ctx, mapCtxVar.get(ctx.var()));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression: " + mapCtxVar.get(ctx.var()));
+			ci();
+		}
+		
 		return true;
 	}
 	
 	@Override
 	public Boolean visitExpression_Value(Expression_ValueContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION VALUE");
+		
 		if(!visit(ctx.value())) {
 			return false;
 		}
 		mapCtxVar.put(ctx, mapCtxVar.get(ctx.value()));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression: " + mapCtxVar.get(ctx.value()));
+			ci();
+		}
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitExpression_FunctionCall(Expression_FunctionCallContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION FUNCTION CALL");
+		
 		if(!visit(ctx.functionCall())) {
 			return false;
 		}
 		mapCtxVar.put(ctx, mapCtxVar.get(ctx.functionCall()));
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> expression: " + mapCtxVar.get(ctx.functionCall()));
+			ci();
+		}
+		
 		return true;
 	}
 	
@@ -1669,22 +2127,48 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitInputOutput(InputOutputContext ctx) {
-		return visitChildren(ctx);
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->INPUT OUTPUT");
+		
+		boolean valid = visitChildren(ctx);
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 	
 	@Override
 	public Boolean visitPrint(PrintContext ctx) {
-		return visit(ctx.expression());
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->PRINT");
+		
+		boolean valid = visit(ctx.expression());
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 	
 	@Override
 	public Boolean visitSave(SaveContext ctx) {
-		return visit(ctx.expression());
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->SAVE");
+		
+		boolean valid = visit(ctx.expression());
+		
+		if (debug) ci();
+		
+		return valid;
 	}
 	
 	// TODO its not useful if cannot be parsed from string to whatever
 	@Override
 	public Boolean visitInput(InputContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->INPUT");
+		
+		if (debug) ci();
+		
 		return true;
 	}
 
@@ -1693,10 +2177,20 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override 
 	public Boolean visitVar(VarContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VAR");
+		
 		String varName = ctx.ID().getText();
 		// variable is declared -> ok
 		if (symbolTableContains(varName)) {
 			mapCtxVar.put(ctx, symbolTableGet(varName));
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> var Name: " + varName);
+				ErrorHandling.printInfo(ctx, indent+" -> var symbolTable Value: " + symbolTableGet(varName));
+				ci();
+			}
+			
 			return true;
 		}
 		// variable is not declared -> error
@@ -1707,6 +2201,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitVarDeclaration_Variable(VarDeclaration_VariableContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION VARIABLE");
+		
 		if(!visit(ctx.type())) {
 			return false;
 		}
@@ -1721,11 +2218,19 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		mapCtxVar.put(ctx, unit);
 		updateSymbolTable(newVarName, unit);
 		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+" -> var Name: " + newVarName);
+			ErrorHandling.printInfo(ctx, indent+" -> var type: " + unit);
+			ci();
+		}
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitVarDeclaration_list(VarDeclaration_listContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION LIST");
 		
 		String listParamName = ctx.ID(0).getText();
 		varType listParam = newVarUnit(listParamName);
@@ -1751,6 +2256,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// update tables
 			mapCtxVar.put(ctx, list);
 			updateSymbolTable(newVarName, list);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> list Name: " + newVarName);
+				ErrorHandling.printInfo(ctx, indent+" -> list value type: " + listVar.getType());
+				ci();
+			}
+			
 			return true;
 		}
 		
@@ -1761,6 +2273,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitVarDeclaration_dict(VarDeclaration_dictContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION DICT");
 
 		String keyUnitName = ctx.ID(0).getText();
 		String valueUnitName = ctx.ID(1).getText();
@@ -1794,6 +2308,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				// update tables
 				mapCtxVar.put(ctx, dict);
 				updateSymbolTable(newVarName, dict);
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, indent+" -> dict Name: " + newVarName);
+					ErrorHandling.printInfo(ctx, indent+" -> dict key and value type: " + dictVar.getKeyType() + ", " + dictVar.getValueType());
+					ci();
+				}
+				
 				return true;
 			}
 		}
@@ -1809,39 +2330,72 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override 
 	public Boolean visitType_Number_Type(Type_Number_TypeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - NUMBER TYPE");
+		
 		Variable var = new Variable (Units.instanceOf("number"), varType.NUMERIC, 0.0);
 		mapCtxVar.put(ctx, var);
+		
+		if (debug) ci();
+		
 		return true;
 	}
 
 	@Override 
 	public Boolean visitType_Boolean_Type(Type_Boolean_TypeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - BOOLEAN TYPE");
+		
 		Variable var = new Variable (null, varType.BOOLEAN, false);
 		mapCtxVar.put(ctx, var);
+		
+		if (debug) ci();
+		
 		return true;
 	}
 
 	@Override 
 	public Boolean visitType_String_Type(Type_String_TypeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - STRING TYPE");
+		
 		Variable var = new Variable (null, varType.STRING, "");
 		mapCtxVar.put(ctx, var);
+		
+		if (debug) ci();
+		
 		return true;
 	}
 	
 	@Override
 	public Boolean visitType_Void_Type(Type_Void_TypeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - VOID TYPE");
+		
 		Variable var = new Variable (null, varType.VOID, "");
 		mapCtxVar.put(ctx, var);
+		
+		if (debug) ci();
+		
 		return true;
 	}
 
 	@Override 
 	public Boolean visitType_ID_Type(Type_ID_TypeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - ID TYPE");
+		
 		String unitName = ctx.ID().getText();
 		// unit exists -> ok
 		if (Units.exists(unitName)) {
 			Variable var = new Variable (Units.instanceOf(unitName), varType.NUMERIC, 0.0);
 			mapCtxVar.put(ctx, var);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+ " -> var: " + var);
+				ci();
+			}
+			
 			return true;
 		}
 		// unit is not declared in units file -> error
@@ -1851,9 +2405,18 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	
 	@Override
 	public Boolean visitValue_Number(Value_NumberContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VALUE - NUMBER");
+		
 		try {
 			Variable var = new Variable(Units.instanceOf("number"), varType.NUMERIC, Double.parseDouble(ctx.NUMBER().getText()));
 			mapCtxVar.put(ctx, var);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+ " -> var: " + var);
+				ci();
+			}
+			
 			return true;
 		}
 		catch (NumberFormatException e) {
@@ -1864,25 +2427,52 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 	@Override
 	public Boolean visitValue_Boolean(Value_BooleanContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VALUE - BOOLEAN");
+		
 		Variable var = new Variable(null, varType.BOOLEAN, Boolean.parseBoolean(ctx.BOOLEAN().getText()));
 		mapCtxVar.put(ctx, var);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+ " -> var: " + var);
+			ci();
+		}
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitValue_String(Value_StringContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VALUE - STRING");
+		
 		Variable var = new Variable(null, varType.STRING, getStringText(ctx.STRING().getText()));
 		mapCtxVar.put(ctx, var);
+		
+		if (debug) {
+			ErrorHandling.printInfo(ctx, indent+ " -> var: " + var);
+			ci();
+		}
+		
 		return true;
 	}
 
 	@Override
 	public Boolean visitCast(CastContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->CAST");
+		
 		String castName = ctx.ID().getText();
 		// cast unit exists -> ok
 		if (Units.exists(castName)){
 			Variable var = new Variable(Units.instanceOf(castName), null, null);
 			mapCtxVar.put(ctx, var);
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+ " -> var: " + var);
+				ci();
+			}
+			
 			return true;
 		}
 		// cast unit does not exist -> error
@@ -2019,5 +2609,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			case "dict"		:	return varType.valueOf(varType.class, "DICT");
 			default			:	return varType.valueOf(varType.class, "NUMERIC");
 		}
+	}
+	
+	private static String indent = "";
+	
+	private static String oi() {
+		indent = indent + "\t";
+		return indent;
+	}
+	
+	private static void ci() {
+		indent = indent.substring(0, indent.length()-1);
 	}
 }

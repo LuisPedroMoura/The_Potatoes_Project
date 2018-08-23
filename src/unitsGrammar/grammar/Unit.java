@@ -170,14 +170,24 @@ public class Unit {
 		Map<Unit, Map<Unit, Double>> conversionTable = Units.getConversionTable();
 		Map<String, Unit> unitsTable = Units.getUnitsTable();
 		Map<Integer, Unit> codesTable = Units.getBasicUnitsCodesTable();
-		System.out.println("BEFORE SIMPLIFY");
+
 		// first tries to simplify this Unit code using conversions ('m^2/yd' -> 'm')
 		// if simplification occurs, a conversion factor is given for quantity adjustment
 		double conversionFactor = this.code.simplifyCodeWithConvertions(conversionTable, codesTable);
-		System.out.println("AFTER SIMPLIFY");
+		double auxConvFactor = 0.0;
 		// search for Unit with same Code in unitsTable
 		// if search fails, conversions might still be needed
-		double auxConvFactor = 0.0;
+		
+		for (String key : unitsTable.keySet()) {
+			Unit unit = unitsTable.get(key);
+			if (this.code.equals(unit.getCode())) {
+				this.name = unit.getName();
+				this.symbol = unit.getSymbol();
+				return conversionFactor;
+			}
+		}
+		
+		
 		for (String key : unitsTable.keySet()) {
 			try {
 				auxConvFactor *= Code.matchCodes(unitsTable.get(key).getCode(), this.getCode(), conversionTable, codesTable); // throws IllegalArgumentException
@@ -267,14 +277,13 @@ public class Unit {
 			}
 		}
 		
+		used.clear();
 		for (Integer code : denCodes) {
 			if(!used.contains(code)) {
-				int count = (int) numCodes.stream().filter(c -> c == code).count();
+				int count = (int) denCodes.stream().filter(c -> c == code).count();
 				used.add(code);
 				symbol += Units.getBasicUnitsCodesTable().get(code).getSymbol();
-				if (count > 1) {
-					symbol += "^" + count;
-				}
+				symbol += "^-" + count;
 				symbol += " ";
 			}
 		}

@@ -76,7 +76,13 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	 * @return the basicUnitsCodesTable
 	 */
 	protected Map<Integer, Unit> getBasicUnitsCodesTable() {
-		return basicUnitsCodesTable;
+		Map<Integer, Unit> basicCodesTable = new HashMap<>();
+		basicCodesTable.putAll(basicUnitsCodesTable);
+		for (String key : classesTable.keySet()) {
+			Unit unit = new Unit(classesTable.get(key));
+			basicCodesTable.put(unit.getCode().getNumCodes().get(0), unit);
+		}
+		return basicCodesTable;
 	}
 
 	/**
@@ -182,6 +188,8 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		reservedWords.add(symbol);
 		unitsGraph.addVertex(u);
 		unitsCtx.put(ctx, u);
+		
+		unitsGraph.addEdge(1.0, u, u);
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Added Basic Unit " + u + "\n\tOriginal line: " + ctx.getText() + ")\n");
