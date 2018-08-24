@@ -114,10 +114,11 @@ print("print assign operations: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
 println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11);
 println("");
 
+number i = 30;
 number n = 0;
 boolean bol = false;
 
-for (number i = 0; i < 10; i = i+1){
+for (i = 0; i < 10; i = i+1){
 	n = i + 1;
 	bol = !bol;
 	println("for loop " + n + " of " + "10 " + bol);

@@ -193,7 +193,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->ASSIGNMENT - VAR DECLARATION - EXPRESSION\n");
 		
 		// get var and expression info
-		//ST var = visit(ctx.varDeclaration());
+		ST var = visit(ctx.varDeclaration());
 		ST expr = visit(ctx.expression());
 		String type = (String) expr.getAttribute("type");
 		String exprName = (String) expr.getAttribute("var");
@@ -218,13 +218,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			id = decl.ID(2).getText();
 		}
 		
+		String varName = symbolTableNames.get(id);
+		
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = stg.getInstanceOf("varAssignment");
-		//newVariable.add("previousStatements", var);
+		newVariable.add("previousStatements", var);
 		newVariable.add("previousStatements", expr);
-		newVariable.add("type", type);
-		newVariable.add("var", newName);
+		//newVariable.add("type", type);
+		newVariable.add("var", varName);
 		newVariable.add("operation", exprName + factor);
 		
 		// update tables
@@ -249,6 +251,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// get var and expression info
 		String id = ctx.var().ID().getText();
+		String varName = symbolTableNames.get(id);
 		//ST var = visit(ctx.var());
 		ST expr = visit(ctx.expression());
 		String exprName = (String) expr.getAttribute("var");
@@ -268,8 +271,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = stg.getInstanceOf("varAssignment");
 		//newVariable.add("previousStatements", var);
 		newVariable.add("previousStatements", expr);
-		newVariable.add("type", expr.getAttribute("type"));
-		newVariable.add("var", newName);
+		//newVariable.add("type", expr.getAttribute("type"));
+		newVariable.add("var", varName);
 		newVariable.add("operation", exprName + factor);
 	
 		// update tables
@@ -402,6 +405,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		ST forLoop = stg.getInstanceOf("forLoop");
 		
+		forLoop.add("outsideStatements", "\n//starting for template\n");
+		
 		// get first assignments and add to forLoop outsideStatements
 		List<String> assignVarNames = new ArrayList<>();
 		for (int i = 0; i < ctx.assignment().size()-1; i++) {
@@ -440,12 +445,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// force final assignment result into outsideStatements var name
 		forLoop.add("content", finalAssignOutsideName + " = " + finalAssignLastName+ ";");
-		
-		for (int i = 0; i < ctx.assignment().size()-1; i++) {
-			ST assign = visit(ctx.assignment(i));
-			forLoop.add("outsideStatements", assign);
-			assignVarNames.add((String) assign.getAttribute("var"));
-		}
 		
 		if(debug) ci();
 		
@@ -1822,7 +1821,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create Variable and save ctx
 		var = new Variable(var); // deep copy
-		symbolTableNames.put(id, newName);
+		//symbolTableNames.put(id, newName);
 		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx, var);
 		
