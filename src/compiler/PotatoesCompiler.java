@@ -193,9 +193,17 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String type = (String) expr.getAttribute("type");
 		String exprName = (String) expr.getAttribute("var");
 		String id = "";
+		String factor = "";
+		Variable exprVar = mapCtxVar.get(ctx.expression());
+		
 		if (ctx.varDeclaration() instanceof VarDeclaration_VariableContext) {
 			VarDeclaration_VariableContext decl = (VarDeclaration_VariableContext) ctx.varDeclaration();
 			id = decl.ID().getText();
+			exprVar = new Variable(exprVar); // deep copy
+			if (exprVar.isNumeric()) {
+				double conversionFactor = exprVar.convertUnitTo(Units.instanceOf(decl.type().getText()));
+				factor = " * " + conversionFactor;
+			}
 		}
 		if (ctx.varDeclaration() instanceof VarDeclaration_listContext) {
 			VarDeclaration_listContext decl = (VarDeclaration_listContext) ctx.varDeclaration();
@@ -213,16 +221,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("previousStatements", expr);
 		newVariable.add("type", type);
 		newVariable.add("var", newName);
-		newVariable.add("operation", exprName);
+		newVariable.add("operation", exprName + factor);
 		
 		// update tables
 		symbolTableNames.put(id,  newName);
 		symbolTableValue.put(newName, mapCtxVar.get(ctx.expression()));
-		mapCtxVar.put(ctx,  mapCtxVar.get(ctx.expression()));
+		mapCtxVar.put(ctx, exprVar);
+
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> varDeclaration = " + ctx.varDeclaration().getText());
-			ErrorHandling.printInfo(ctx,indent + "-> expression = " + ctx.expression().getText() + "\n");
+			ErrorHandling.printInfo(ctx,indent + "-> expression = " + ctx.expression().getText());
+			ErrorHandling.printInfo(ctx,indent + "-> assigned = " + exprVar + "\n");
 			ci();
 		}
 		
@@ -952,12 +962,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				operation = expr0Name + " " + op + " " + expr1Name + " " + " * " + " " + codeSimplificationFactor;
 				
 				var = new Variable(res.getUnit(), varType.NUMERIC, res.getValue());
-				
-				out.println("simpleDiv: " + simpleDiv);
-				out.println("res: " + res);
-				out.println("codeSimplificationFactor: " + codeSimplificationFactor);
-				out.println("operation: " + operation);
-				out.println("var: " + var);
 			}
 			
 			else if (op.equals("%")) {

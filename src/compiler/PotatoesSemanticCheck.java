@@ -362,11 +362,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visitedMain = true;
 		
 		openFunctionScope();
-		visit(ctx.scope());
+		boolean valid = visit(ctx.scope());
 		
 		if (debug) ci();
 		
-		return true;
+		return valid;
 	}
 
 	@Override
@@ -671,11 +671,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// Visit all statement rules
 		for (StatementContext stat : statements) {
-			Boolean res = visit(stat);
-			valid = valid && res;
+			valid = valid && visit(stat);
 		}
 		
-		if (ctx.functionReturn() != null) {
+		if (valid && ctx.functionReturn() != null) {
 			valid = valid && visit(ctx.functionReturn());
 			if (!valid) {
 				return false;
@@ -689,7 +688,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		closeScope();
 		
 		if (debug) ci();
-		
+
 		return valid;
 	}
 

@@ -76,17 +76,17 @@ public class CompleteExample {
 		Double var51 = 0.0;
 
 		Double var52 = 1.0;
-		Double var53 = var52;
+		Double var53 = var52 * 1.0;
 
 		Double var54 = 0.0;
 
 		Double var55 = 2.0;
-		Double var56 = var55;
+		Double var56 = var55 * 1.0;
 
 		Double var57 = 0.0;
 
 		Double var58 = 3.0;
-		Double var59 = var58;
+		Double var59 = var58 * 1.0;
 		String var60 = "print numbers: ";
 		Double var61 = var53;
 		String var62 = var60 + var61 + " ";
@@ -105,17 +105,17 @@ public class CompleteExample {
 		Double var72 = 0.0;
 		Double var73 = 1.0;
 		Double var74 = var73 * 1.0;
-		Double var75 = var74;
+		Double var75 = var74 * 1.0;
 
 		Double var76 = 0.0;
 		Double var77 = 1.0;
 		Double var78 = var77 * 1.0;
-		Double var79 = var78;
+		Double var79 = var78 * 0.5;
 
 		Double var80 = 0.0;
 		Double var81 = 1.0;
 		Double var82 = var81 * 1.0;
-		Double var83 = var82;
+		Double var83 = var82 * 1.0;
 		String var84 = "print variables: ";
 		Double var85 = var75;
 		String var86 = var84 + var85 + " m";
@@ -196,26 +196,26 @@ public class CompleteExample {
 		Double var150 = 0.0;
 		Double var151 = 2.0;
 		Double var152 = var151 * 1.0;
-		Double var153 = var152;
+		Double var153 = var152 * 1.0;
 
 		Double var154 = 0.0;
 		Double var155 = 1.0;
 		Double var156 = 1.0;
 		Double var157 = var155 * 1.0 + var156;
-		Double var158 = var157;
+		Double var158 = var157 * 1.0;
 
 		Double var159 = 0.0;
 		Double var160 = var123;
 		Double var161 = var160;
 		Double var162 = var160 * 1.0 + var161;
-		Double var163 = var162;
+		Double var163 = var162 * 1.0;
 
 		Double var164 = 0.0;
 		Double var165 = var161;
 		Double var166 = 1.0;
 		Double var167 = var166 * 1.0;
 		Double var168 = var165 * 1.0 + var167;
-		Double var169 = var168;
+		Double var169 = var168 * 1.0;
 
 		Double var170 = 0.0;
 		Double var171 = 1.0;
@@ -223,30 +223,68 @@ public class CompleteExample {
 		Double var173 = 1.0;
 		Double var174 = var173 * 1.0;
 		Double var175 = var172 * 1.0 + var174;
-		Double var176 = var175;
+		Double var176 = var175 * 1.0;
 
 		Double var177 = 0.0;
 		Double var178 = var165;
 		Double var179 = var113;
 		Double var180 = var178 * 1.0 + var179;
-		Double var181 = var180;
-		Double var182 = var158;
-		String var183 = ", ";
-		String var184 = var182 + " " + var183;
-		Double var185 = var163;
-		String var186 = var184 + var185 + " m";
-		String var187 = ", ";
-		String var188 = var186 + var187;
-		Double var189 = var169;
-		String var190 = var188 + var189 + " m";
-		String var191 = ", ";
-		String var192 = var190 + var191;
-		Double var193 = var176;
-		String var194 = var192 + var193 + " m";
-		String var195 = ", ";
-		String var196 = var194 + var195;
-		Double var197 = var181;
-		String var198 = var196 + var197 + " m";
-		System.out.println(var198);
+		Double var181 = var180 * 1.0;
+
+		Double var182 = 0.0;
+		Double var183 = var179;
+		Double var184 = var183;
+		Double var185 = var183 * 1.0 + var184;
+		Double var186 = var185 * 1.0;
+
+		Double var187 = 0.0;
+		Double var188 = 1.0;
+		Double var189 = var188 * 1.0;
+		Double var190 = var189 * 1.0;
+
+		Double var191 = 0.0;
+		Double var192 = var190;
+		Double var193 = var178;
+		Double var194 = var192 * 1.0 + var193;
+		Double var195 = var194 * 1.0;
+
+		Double var196 = 0.0;
+		Double var197 = var192;
+		Double var198 = var193;
+		Double var199 = 2.0;
+		Double var200 = var198 * var199 * 2.0;
+		Double var201 = var197 * 1.0 + var200;
+		Double var202 = var201 * 1.0;
+
+		Double var203 = 0.0;
+		Double var204 = var198;
+		Double var205 = var204;
+		Double var206 = var204 * var205 * 1.0;
+		Double var207 = var205;
+		Double var208 = var206 / var207  *  1.0;
+		Double var209 = var208 * 1.0;
+
+		Double var210 = 0.0;
+		Double var211 = var207;
+		Double var212 = var93;
+		Double var213 = var212;
+		Double var214 = var212 / var213  *  1.0;
+		Double var215 = var211;
+		Double var216 = var214 * var215 * 1.0;
+		Double var217 = var211 * 1.0 + var216;
+		Double var218 = var217 * 1.0;
+
+		Double var219 = 0.0;
+		Double var220 = var215;
+		Double var221 = var213;
+		Double var222 = var220 * var221 * 1.0;
+		Double var223 = var220;
+		Double var224 = var221;
+		Double var225 = var223 * var224 * 1.0;
+		Double var226 = var222 * 1.0 + var225;
+		Double var227 = var226;
+		Double var228 = var224;
+		Double var229 = var227 / var228  *  0.5;
+		Double var230 = var229 * 1.0;
 	}
 }

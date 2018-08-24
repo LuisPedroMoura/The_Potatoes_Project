@@ -291,7 +291,6 @@ public class Code {
 		for (Integer numB : b.getNumCodes()) {
 			for (Integer numA : a.getNumCodes()) {
 				localFactor = conversionTable.get(codesTable.get(numB)).get(codesTable.get(numA));
-				System.out.println("#$%^%$#$%^&^%$#$%^&^%$#$%^%$         factor from " + numB + ", to " + numA + ", is " + localFactor);
 				if (localFactor != null) {
 					conversionFactor *= localFactor;
 					codeSize--;

@@ -80,7 +80,7 @@ public class PotatoesMain {
 			// System.out.println(tree.toStringTree(parser));
 			PotatoesSemanticCheck visitor1 = new PotatoesSemanticCheck(args[0]);
 			if (visitor1.visit(tree)) {
-				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully!");
+				ErrorHandling.printInfo("Semantic Analyzis Completed Sucessfully! :)");
 
 				//System.out.print("Semantic Analyzis skiped! :P\n");
 				PotatoesCompiler visitor2 = new PotatoesCompiler();

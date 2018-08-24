@@ -25,6 +25,8 @@ import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
 public class Units {
+	
+	private static final boolean debug = false;
 
 	// Instance Fields
 	private static Map<Integer, Unit>	basicUnitsCodesTable	= new HashMap<>();
@@ -89,10 +91,12 @@ public class Units {
 			Units.basicUnitsCodesTable	= visitor0.getBasicUnitsCodesTable();
 			Units.unitsTable			= visitor0.getAllUnits();
 			Units.reservedWords			= visitor0.getReservedWords();
-			Graph unitsGraph 			= visitor0.getUnitsGraph();
+			Graph unitsGraph			= visitor0.getUnitsGraph();
 			GraphInfo graphInfo			= new GraphInfo(unitsGraph);
-			Units.conversionTable		= graphInfo.getPathsTable();
+			Units.conversionTable		= graphInfo.getAllMinJumpsPathCostsTable();
 			
+			// update conversion Table with Unit 'number which cannot be put in the graph
+			// (because it connects to everything and would allow conversion between all unrelated units)
 			Map<Unit, Double> map = new HashMap<>();
 			Unit number = new Unit("number", "", new Code(1));
 			for (String key : unitsTable.keySet()) {
@@ -103,17 +107,20 @@ public class Units {
 			}
 			conversionTable.put(number, map);
 			
-			System.out.println(unitsGraph);
-			
-			System.out.println("##################\n###################\n##################\n####################\n");
-			
-			for (Unit key : conversionTable.keySet()) {
-				System.out.println("\n" + key + "->->->");
-				for (Unit key2 : conversionTable.get(key).keySet()) {
-					System.out.println("\t" + key2 + "->->" + conversionTable.get(key).get(key2));
+			if (debug) {
+				System.out.println("####################################\n####################################\n");
+				System.out.println("UNITS GRAPH\n");
+				System.out.println(unitsGraph);
+				System.out.println("####################################\n####################################\n");
+				System.out.println("CONVERSION TABLE\n");
+				for (Unit key : conversionTable.keySet()) {
+					System.out.println("\n" + key + "->->->");
+					for (Unit key2 : conversionTable.get(key).keySet()) {
+						System.out.println("\t" + key2 + "->->" + conversionTable.get(key).get(key2));
+					}
 				}
+				System.out.println("####################################\n####################################\n");
 			}
-			
 		}
 		else {
 			System.exit(3);

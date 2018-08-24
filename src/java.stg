@@ -8,12 +8,6 @@ typeValue ::= [
    "string"			: "String",
    "boolean"		: "boolean",
    "void"			: "void",
-   "list[numeric]"	: "List\<Double\>"
-   "list[string]"	: "List\<String\>"
-   "list[boolean]"	: "List\<Boolean\>"
-   "dict[numeric]"	: "Map\<Double\>"
-   "dict[string]"	: "Map\<String\>"
-   "dict[boolean]"	: "Map\<Boolean\>"
    "id"				: "double",
    ""				: "",
    default			: "null"

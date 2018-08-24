@@ -23,13 +23,6 @@ public class Variable {
 	// Static Constant (Debug Only)
 	private static final boolean debug = false;
 	
-	
-
-	// --------------------------------------------------------------------------
-	// Static Fields
-	// FIXME colocar aqui o Grafo que já vem tratado no GraphInfo. Verificar onde tem de se ir buscar.
-	//private static Graph unitsGraph =  PotatoesSemanticCheck.getUnitsFileInfo().getGraphInfo().getStraightfowardPathsCostsGraph();
-	
 	// --------------------------------------------------------------------------
 	// Instance Fields
 	private Unit unit;
@@ -312,7 +305,12 @@ public class Variable {
 		if (this.isNumeric()) {
 			
 			// if conversion is possible returns conversion factor, else throws IllegalArgumentException
-			return this.unit.matchUnitTo(newUnit);
+			Double factor = this.unit.matchUnitTo(newUnit);
+			if (factor == Double.POSITIVE_INFINITY) {
+				throw new IllegalArgumentException();
+			}
+			this.value = (Double) value * factor;
+			return factor;
 		}
 		
 		// this varType is not NUMERIC -> conversion not possible
