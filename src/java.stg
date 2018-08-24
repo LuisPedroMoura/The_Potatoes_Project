@@ -30,7 +30,7 @@ stats(stat) ::= <<
 >>
 
 statsWithoutSeparator(stat) ::= <<
-<if(stat)><stat; separator="; "><endif>
+<if(stat)><stat; separator="FODA-SE "><endif>
 >>
 
 //-------------------------------------------------------------------------------
@@ -49,12 +49,12 @@ public class <name> {
 
 main(scope) ::= <<
 public static void main(String[] args)
-<stats(scope)>
+<scope(scope)>
 >>
 
 function() ::= <<
 public static <returnType> <functionName>(<statsWithoutSeparator(args)>)
-<stats(scope)>
+<scope(scope)>
 >>
 
 scope(stat) ::= <<
@@ -99,13 +99,12 @@ else
 
 // FOR LOOP-----------------------------------------------------------------------
 forLoop(outsideStatements, logicalOperation, content) ::= <<
-<stats(outsideStatements)>	
+<stats(outsideStatements)>
 while(true){
 	if(<logicalOperation>) break;
-	else <stats(content)>
+	<stats(content)>
 }
 >>
-
 
 // WHILE LOOP---------------------------------------------------------------------
 whileLoop(previousStatements, logicalOperation, scope) ::= <<

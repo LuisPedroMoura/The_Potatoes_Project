@@ -4,7 +4,9 @@ import static java.lang.System.*;
 
 import utils.errorHandling.ErrorHandling;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -191,7 +193,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->ASSIGNMENT - VAR DECLARATION - EXPRESSION\n");
 		
 		// get var and expression info
-		ST var = visit(ctx.varDeclaration());
+		//ST var = visit(ctx.varDeclaration());
 		ST expr = visit(ctx.expression());
 		String type = (String) expr.getAttribute("type");
 		String exprName = (String) expr.getAttribute("var");
@@ -219,7 +221,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = stg.getInstanceOf("varAssignment");
-		newVariable.add("previousStatements", var);
+		//newVariable.add("previousStatements", var);
 		newVariable.add("previousStatements", expr);
 		newVariable.add("type", type);
 		newVariable.add("var", newName);
@@ -247,12 +249,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// get var and expression info
 		String id = ctx.var().ID().getText();
-		ST var = visit(ctx.var());
+		//ST var = visit(ctx.var());
 		ST expr = visit(ctx.expression());
 		String exprName = (String) expr.getAttribute("var");
 		String factor = "";
 		
-		Variable varVar = new Variable(mapCtxVar.get(ctx.var()));
+		String lastName = symbolTableNames.get(ctx.var().ID().getText());
+		Variable varVar = new Variable(symbolTableValue.get(lastName));
 		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression())); // deep copy
 		
 		if (exprVar.isNumeric()) {
@@ -263,7 +266,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = stg.getInstanceOf("varAssignment");
-		newVariable.add("previousStatements", var);
+		//newVariable.add("previousStatements", var);
 		newVariable.add("previousStatements", expr);
 		newVariable.add("type", expr.getAttribute("type"));
 		newVariable.add("var", newName);
@@ -399,9 +402,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		ST forLoop = stg.getInstanceOf("forLoop");
 		
-		// get first assignments  and add to forLoop
-		for (int i = 1; i < ctx.assignment().size(); i++) {
-			forLoop.add("outsideStatements", visit(ctx.assignment(i-1)));
+		// get first assignments and add to forLoop outsideStatements
+		List<String> assignVarNames = new ArrayList<>();
+		for (int i = 0; i < ctx.assignment().size()-1; i++) {
+			ST assign = visit(ctx.assignment(i));
+			forLoop.add("outsideStatements", assign);
+			assignVarNames.add((String) assign.getAttribute("var"));
 		}
 		
 		// get logical operation and add to forLoop outsideStatements
@@ -412,19 +418,34 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String exprRes = (String) expr.getAttribute("var");
 		forLoop.add("logicalOperation", "!" + exprRes);
 		
+		// get the outside name of the variable in the final Assignment (loop increment)
+		String finalAssignID = ((Assignment_Var_ExpressionContext) ctx.assignment(ctx.assignment().size()-1)).var().ID().getText();
+		String finalAssignOutsideName = symbolTableNames.get(finalAssignID);
+		
 		// get scope and add to stats
 		forLoop.add("content", visit(ctx.scope()));
 		
 		// add last assignment to for loop content
-		forLoop.add("content", visit(ctx.assignment(ctx.assignment().size()-1)));
+		ST finalAssign = visit(ctx.assignment(ctx.assignment().size()-1));
+		String finalAssignLastName = (String) finalAssign.getAttribute("var");
+		forLoop.add("content", finalAssign);
 		
 		// add logical operation to for loop content
 		expr = visit(ctx.expression());
-		String lastAssignVarName = (String) expr.getAttribute("var");
+		String lastLogicalName = (String) expr.getAttribute("var");
 		forLoop.add("content", expr.render());
 		
-		// force logical espression result into last varName
-		forLoop.add("content", exprRes + " = " + lastAssignVarName);
+		// force logical expression result into last varName
+		forLoop.add("content", exprRes + " = " + lastLogicalName + ";");
+		
+		// force final assignment result into outsideStatements var name
+		forLoop.add("content", finalAssignOutsideName + " = " + finalAssignLastName+ ";");
+		
+		for (int i = 0; i < ctx.assignment().size()-1; i++) {
+			ST assign = visit(ctx.assignment(i));
+			forLoop.add("outsideStatements", assign);
+			assignVarNames.add((String) assign.getAttribute("var"));
+		}
 		
 		if(debug) ci();
 		
@@ -538,7 +559,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->SCOPE\n");
 		
 		// Visit all statement rules
-		ST scopeContent = stg.getInstanceOf("scope");
+		ST scopeContent = stg.getInstanceOf("stats");
 		for (StatementContext stat : ctx.statement()) {
 			scopeContent.add("stat", visit(stat));
 		}
@@ -1793,7 +1814,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get var info
 		String id = ctx.ID().getText();
 		String lastName = symbolTableNames.get(id);
-		Variable var = symbolTableValue.get(lastName);
+		Variable var = new Variable(symbolTableValue.get(lastName));
 		
 		// create template
 		String newName = getNewVarName();

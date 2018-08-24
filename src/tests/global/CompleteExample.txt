@@ -119,9 +119,11 @@ boolean bol = false;
 
 for (number i = 0; i < 10; i = i+1){
 	n = i + 1;
-	b = !b;
-	println("for loop " + n + " of " + "10" + bol);
+	bol = !bol;
+	println("for loop " + n + " of " + "10 " + bol);
 }
+
+}/*
 println("");
 
 
@@ -200,6 +202,7 @@ if (n == 5 && n > 4){
 		println("  }");
 	}	
 	println("}");
+
 }
 println("");
 println("");
@@ -215,4 +218,4 @@ m4 = (meter) 9 % 3;
 println("print mod and power: "+m1+", "+a1+", "+v1+", "+m3+", "+m4);
 println("");
 
-}
+}*/

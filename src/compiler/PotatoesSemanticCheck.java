@@ -2490,9 +2490,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// create copy of scope context
 		HashMap<String, Variable> newScope = new HashMap<>();
 		HashMap<String, Variable> oldScope = symbolTable.get(0);
+		HashMap<String, Variable> currentScope = symbolTable.get(symbolTable.size()-1);
+		
 		for (String key : oldScope.keySet()) {
 			newScope.put(key, oldScope.get(key));
 		}
+		
+		for (String key : currentScope.keySet()) {
+			newScope.put(key, currentScope.get(key));
+		}
+		
 		symbolTable.add(newScope);
 	}
 	
@@ -2502,6 +2509,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	private static void openFunctionScope() {
 		HashMap<String, Variable> newScope = new HashMap<>();
 		HashMap<String, Variable> globalScope = symbolTable.get(0);
+		
 		for (String key : globalScope.keySet()) {
 			newScope.put(key, globalScope.get(key));
 		}
