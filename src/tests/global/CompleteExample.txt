@@ -45,10 +45,10 @@ println("");
 
 
 bar barr = (bar)2;
-number n4 = 1+1;
-meter m2 = m1 + m1;
-meter m3 = m1 + (meter) 1;
-meter m4 = (meter) 1 + (meter) 1;
+number n4 = 1+1;					// 2.0
+meter m2 = m1 + m1;					// 2m
+meter m3 = m1 + (meter) 1;			// 2m
+meter m4 = (meter) 1 + (meter) 1;	// 2m
 meter m5 = m1 + dm1;				// 1m + 0.5dm -> 1m + 1m -> 2m
 meter m6 = dm1 + dm1;				// 0.5dm + 0.5dm -> 1m + 1m -> 2m
 distance d1 = (distance) 1;
@@ -57,9 +57,11 @@ meter m8 = d1 + m1*2;				// 1d + 1m * 2 -> 1m + 2m -> 3m
 meter m9 = m1*m1/m1;				// 1m * 1m / 1m -> 1m
 meter m10 = m1 + kg1/kg1*m1;		// 1m + 1kg / 1kg * 1m -> 1m + 1 * 1m -> 1m + 1m -> 2m
 meter m11 = (m1*kg1 + m1*kg1)/kg1;	// (1m * 1kg + 1m * 1kg) / 1kg -> (1 m kg + 1 m kg) / 1kg -> 2 m kg / 1 kg -> 2m
-meter m12 = m1*kg1/barr;			// 1m * 1kg / 2bar -> 1 m kg / 0.8m -> 1.25kg -> ERRO!!!
-}/*
-print(n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+m6+", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
+//meter m12 = m1*kg1/barr;			// 1m * 1kg / 2bar -> 1 m kg / 0.8m -> 1.25kg -> ERRO!!!
+
+print(n4+", "+m2+", "+m3+", "+m4+", ");
+print(m5);
+print(", "+m6+", "+m7+", "+m8+", "+m9+", "+m10+", "+m11);
 println("");
 
 b1 = true;
@@ -107,32 +109,31 @@ m8 = d1 + m1*2;
 m9 = m1*m1/m1;
 m10 = m1 + kg1/kg1*m1;
 m11 = (m1*kg1 + m1*kg1)/kg1;
-m12 = m1*kg1/barr;
 
 print("print assign operations: "+n4+", "+m2+", "+m3+", "+m4+", "+m5+", "+ m6);
-println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11+", "+ m12);
+println(", "+m7+", "+m8+", "+m9+", "+m10+", "+m11);
 println("");
 
 number n = 0;
-boolean b = false;
+boolean bol = false;
 
 for (number i = 0; i < 10; i = i+1){
 	n = i + 1;
 	b = !b;
-	println("for loop " + n + " of " + "10" + b);
+	println("for loop " + n + " of " + "10" + bol);
 }
 println("");
 
 
 n = 0;
-b = false;
+bol = false;
 
-while (b == false) {
+while (bol == false) {
 	if( n == 9){
-		b = !b;
+		bol = !bol;
 	}
 	n = n + 1;
-	println("while loop " + n + " of " + "10" + b);
+	println("while loop " + n + " of " + "10" + bol);
 }
 println("");
 println("");
@@ -215,5 +216,3 @@ println("print mod and power: "+m1+", "+a1+", "+v1+", "+m3+", "+m4);
 println("");
 
 }
-	
-*/

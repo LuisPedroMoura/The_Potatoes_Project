@@ -8,7 +8,7 @@ print variables: 1.0 m, 1.0 dm, 1.0 kg
 
 print assign comparison: true false true true true false
 
-2.0, 2.0 m, 2.0 m, 2.0 m, 3.0 m, 4.0 m, 2.0 m, 3.0 m, 1.0 m, 2.0 m, 1.0 m , _ m
+2.0, 2.0 m, 2.0 m, 2.0 m, 2.0 m, 2.0 m, 2.0 m, 3.0 m, 1.0 m, 2.0 m, 2.0 m
 
 print booleans: true false true false
 
@@ -20,7 +20,7 @@ print variables: 1.0 m, 1.0 dm, 1.0 kg
 
 print assign comparison: true false true true true false
 
-2, 2 m, 2 m, 2 m, 2 m, 4 m, 2 m, 3 m, 1 m, 2 m, 2 m , _ m
+2.0, 2.0 m, 2.0 m, 2.0 m, 2.0 m, 2.0 m, 2.0 m, 3.0 m, 1.0 m, 2.0 m, 2.0 m
 
 for loop 1 of 10 true
 for loop 2 of 10 false
