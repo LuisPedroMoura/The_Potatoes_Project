@@ -222,6 +222,8 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		unitsGraph.addVertex(u);
 		unitsCtx.put(ctx, u);
 		
+		unitsGraph.addEdge(1.0, u, u);
+		
 
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Added Derived Unit " + u + "\n\tOriginal line: " + ctx.getText() + ")\n");
@@ -297,6 +299,8 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		classesTable.put(className, u); 	// goes to own table so its not prefixed later
 		unitsCtx.put(ctx, u);				// goes to Units ParseTree because it is a Unit.
 		reservedWords.add(className);
+		
+		unitsGraph.addEdge(1.0, u, u);
 		
 		return true;
 	}

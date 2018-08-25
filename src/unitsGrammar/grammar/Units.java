@@ -26,7 +26,7 @@ import utils.errorHandling.ErrorHandlingListener;
 
 public class Units {
 	
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	// Instance Fields
 	private static Map<Integer, Unit>	basicUnitsCodesTable	= new HashMap<>();

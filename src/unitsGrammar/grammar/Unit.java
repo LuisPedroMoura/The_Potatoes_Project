@@ -227,24 +227,58 @@ public class Unit {
 		Map<Unit, Map<Unit, Double>> conversionTable = Units.getConversionTable();
 		Map<Integer, Unit> codesTable = Units.getBasicUnitsCodesTable();
 		
-		double conversionFactor = Code.matchCodes(a.getCode(), this.getCode(), conversionTable, codesTable); // throws IllegalArgumentException
+		Double factor = null;
+		
+		// if there is a conversion factor between the Units, then the conversion is direct
+		if (conversionTable.get(this) != null) {
+			factor = conversionTable.get(this).get(a);
+			
+			// if factor is infinity, there is no possible conversion to be made
+			if (factor == Double.POSITIVE_INFINITY) {
+				throw new IllegalArgumentException();
+			}
+		}
+		
+		// if no conversion factor exists, Units might need to be converted to get one
+		if (factor == null) {
+			factor = Code.matchCodes(a.getCode(), this.getCode(), conversionTable, codesTable); // throws IllegalArgumentException
+		}
 		
 		this.code = a.getCode();
 		this.name = a.getName();
 		this.symbol = a.getSymbol();
 		
-		return conversionFactor;
+		return factor;
 	}
 	
 	public boolean isCompatible(Unit a) {
 		
 		Map<Unit, Map<Unit, Double>> conversionTable = Units.getConversionTable();
 		Map<Integer, Unit> codesTable = Units.getBasicUnitsCodesTable();
+		Double factor = null;
 		
+		// if there is a conversion factor between the Units, then they are compatible
+		if (conversionTable.get(this) != null) {
+			factor = conversionTable.get(this).get(a);
+			
+			// if factor is infinity, Units are not compatible
+			if (factor == Double.POSITIVE_INFINITY) {
+				return false;
+			}
+		}
+		
+		// conversion factor is not null and not infinite, Units are compatible
+		if (factor != null) {
+			return true;
+		}
+		
+		// if no conversion factor exists, Units might need to be converted to get one
 		try {
+			// conversion is possible
 			Code.matchCodes(a.getCode(), this.getCode(), conversionTable, codesTable); // throws IllegalArgumentException
 		}
 		catch (IllegalArgumentException e) {
+			// conversion is not possible
 			return false;
 		}
 		

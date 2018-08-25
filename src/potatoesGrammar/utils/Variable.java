@@ -261,7 +261,7 @@ public class Variable {
 			
 			if (b.getUnit().getName().equals("number")){
 				
-				Tuple res = Units.power(a.getUnit(), (int) b.getValue());
+				Tuple res = Units.power(a.getUnit(), ((Double) b.getValue()).intValue());
 				Unit newUnit = res.getUnit();
 				double factor = res.getFactor();
 				Double newValue = Math.pow((double) a.getValue(), (double) b.getValue()) * factor;
@@ -299,7 +299,7 @@ public class Variable {
 	 * @return	the conversion factor obtained with the conversion
 	 * @throws	IllegalArgumentException if the conversion is not possible
 	 */
-	public Double convertUnitTo(Unit newUnit) {
+	public Double convertUnitTo(Unit newUnit) throws IllegalArgumentException{
 		
 		// if unit is numeric, attempting conversion is possible -> verify
 		if (this.isNumeric()) {

@@ -82,35 +82,39 @@ varAssignment(type, var, operation, previousStatements ) ::= <<
 // CONDITION----------------------------------------------------------------------
 ifCondition(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-if(<logicalOperation>)
-<stats(scope)>
+if(<logicalOperation>) {
+	<stats(scope)>
+}
 >>
 
 elseIfCondition(previousStatements, logicalOperation, scope) ::= <<
 <stats(previousStatements)>
-else if(<logicalOperation>)
-<stats(scope)>
+else if(<logicalOperation>) {
+	<stats(scope)>
+	}
 >>
 elseCondition(scope) ::= <<
-else
-<stats(scope)>
+else {
+	<stats(scope)>
+}
 >>
 
 
 // FOR LOOP-----------------------------------------------------------------------
 forLoop(outsideStatements, logicalOperation, content) ::= <<
 <stats(outsideStatements)>
-while(true){
+while(true) {
 	if(<logicalOperation>) break;
 	<stats(content)>
 }
 >>
 
 // WHILE LOOP---------------------------------------------------------------------
-whileLoop(previousStatements, logicalOperation, scope) ::= <<
+whileLoop(previousStatements, logicalOperation, content) ::= <<
 <stats(previousStatements)>
-while(<logicalOperation>)
-<stats(scope)>
+while(<logicalOperation>) {
+	<stats(content)>
+}
 >>
 
 //-------------------------------------------------------------------------------

@@ -360,7 +360,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		visitedMain = true;
-		
 		openFunctionScope();
 		boolean valid = visit(ctx.scope());
 		
@@ -528,8 +527,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->CONTROL FLOW STATEMENT");
 		
-		extendScope();
-		
 		boolean valid = visitChildren(ctx);
 		
 		if (debug) ci();
@@ -541,6 +538,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitForLoop(ForLoopContext ctx) {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->FOR LOOP");
+		
+		extendScope();
 		
 		Boolean valid = true;
 		Boolean res   = true;
@@ -566,6 +565,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitWhileLoop(WhileLoopContext ctx) {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->WHILE LOOP");
+		
+		extendScope();
 		
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
@@ -603,6 +604,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->IF CONDITION");
 		
+		extendScope();
+		
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
@@ -627,6 +630,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ELSE IF CONDITION");
 		
+		extendScope();
+		
 		Boolean valid = true;
 		Boolean res = visit(ctx.expression());
 		valid = valid && res;
@@ -650,6 +655,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitElseCondition(ElseConditionContext ctx) {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ELSE CONDITION");
+		
+		extendScope();
 		
 		Boolean valid = true;
 
@@ -964,8 +971,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var= mapCtxVar.get(ctx.expression());
+		Variable exprVar= new Variable(mapCtxVar.get(ctx.expression())); // deep copy
+		System.out.println("^^^^^^^^^^^^^^^^^^ exprVar: " + exprVar);
 		String castName = ctx.cast().ID().getText();
+		System.out.println("^^^^^^^^^^^^^^^^^^ castNam: " + castName);
 		
 		// verify if cast is valid numeric unit
 		if (!Units.exists(castName)) {
@@ -974,21 +983,21 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// verify that variable to be casted is numeric
-		if (var.isNumeric()) {
+		if (exprVar.isNumeric()) {
 			
-			var = new Variable(var); // deep copy
 			try {
-				var.convertUnitTo(Units.instanceOf(castName));
+				System.out.println("^^^^^^^^^^^^^^^^^^ instanceOf castName: " + Units.instanceOf(castName));
+				exprVar.convertUnitTo(Units.instanceOf(castName));
 			}
 			catch (IllegalArgumentException e) {
 				ErrorHandling.printError(ctx, "Units are not compatible, cast is not possible");
 				return false;
 			}
 			
-			mapCtxVar.put(ctx, var);
+			mapCtxVar.put(ctx, exprVar);
 			
 			if (debug) {
-				ErrorHandling.printInfo(ctx, indent+" -> expression : " + var);
+				ErrorHandling.printInfo(ctx, indent+" -> expression : " + exprVar);
 				ErrorHandling.printInfo(ctx, indent+" -> cast Name : " + castName);
 				ci();
 			}

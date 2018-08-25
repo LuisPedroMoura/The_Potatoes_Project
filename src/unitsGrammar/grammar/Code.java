@@ -347,6 +347,7 @@ public class Code {
 
 	@Override
 	public boolean equals(Object obj) {
+
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -354,17 +355,20 @@ public class Code {
 		if (getClass() != obj.getClass())
 			return false;
 		Code other = (Code) obj;
-		if (denCodes == null) {
+		if (denCodes == null)
 			if (other.denCodes != null)
 				return false;
-		} else if (!denCodes.equals(other.denCodes))
-			return false;
-		if (numCodes == null) {
+		if (numCodes == null)
 			if (other.numCodes != null)
 				return false;
-		} else if (!numCodes.equals(other.numCodes))
-			return false;
-		return true;
+		if (this.numCodes.size() == other.numCodes.size() && this.denCodes.size() == other.denCodes.size()) {
+			if (this.numCodes.containsAll(other.numCodes) && other.numCodes.containsAll(this.numCodes)) {
+				if (this.denCodes.containsAll(other.denCodes) && other.denCodes.containsAll(this.denCodes)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
-	
+
 }

@@ -195,15 +195,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get var and expression info
 		ST var = visit(ctx.varDeclaration());
 		ST expr = visit(ctx.expression());
-		String type = (String) expr.getAttribute("type");
+		//String type = (String) expr.getAttribute("type");
+		String varName = (String) var.getAttribute("var");
 		String exprName = (String) expr.getAttribute("var");
-		String id = "";
+		//String id = "";
 		String factor = "";
 		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression())); // deep copy
 		
 		if (ctx.varDeclaration() instanceof VarDeclaration_VariableContext) {
 			VarDeclaration_VariableContext decl = (VarDeclaration_VariableContext) ctx.varDeclaration();
-			id = decl.ID().getText();
+			//id = decl.ID().getText();
 			if (exprVar.isNumeric()) {
 				double conversionFactor = exprVar.convertUnitTo(Units.instanceOf(decl.type().getText()));
 				factor = " * " + conversionFactor;
@@ -211,17 +212,17 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		if (ctx.varDeclaration() instanceof VarDeclaration_listContext) {
 			VarDeclaration_listContext decl = (VarDeclaration_listContext) ctx.varDeclaration();
-			id = decl.ID(1).getText();
+			//id = decl.ID(1).getText();
 		}
 		if (ctx.varDeclaration() instanceof VarDeclaration_dictContext) {
 			VarDeclaration_dictContext decl = (VarDeclaration_dictContext) ctx.varDeclaration();
-			id = decl.ID(2).getText();
+			//id = decl.ID(2).getText();
 		}
 		
-		String varName = symbolTableNames.get(id);
+		//String varName = symbolTableNames.get(id);
 		
 		// create template
-		String newName = getNewVarName();
+		//String newName = getNewVarName();
 		ST newVariable = stg.getInstanceOf("varAssignment");
 		newVariable.add("previousStatements", var);
 		newVariable.add("previousStatements", expr);
@@ -230,8 +231,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("operation", exprName + factor);
 		
 		// update tables
-		symbolTableNames.put(id,  newName);
-		symbolTableValue.put(newName, exprVar);
+		//symbolTableNames.put(id,  newName);
+		//symbolTableValue.put(newName, exprVar);
+		symbolTableValue.put(varName, exprVar);
 		mapCtxVar.put(ctx, exprVar);
 
 		if (debug) {
@@ -257,8 +259,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String exprName = (String) expr.getAttribute("var");
 		String factor = "";
 		
-		String lastName = symbolTableNames.get(ctx.var().ID().getText());
-		Variable varVar = new Variable(symbolTableValue.get(lastName));
+		//String lastName = symbolTableNames.get(ctx.var().ID().getText());
+		Variable varVar = new Variable(symbolTableValue.get(varName));
 		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression())); // deep copy
 		
 		if (exprVar.isNumeric()) {
@@ -267,7 +269,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		
 		// create template
-		String newName = getNewVarName();
+		//String newName = getNewVarName();
 		ST newVariable = stg.getInstanceOf("varAssignment");
 		//newVariable.add("previousStatements", var);
 		newVariable.add("previousStatements", expr);
@@ -276,8 +278,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		newVariable.add("operation", exprName + factor);
 	
 		// update tables
-		symbolTableNames.put(id, newName);
-		symbolTableValue.put(newName, exprVar);
+		//symbolTableNames.put(id, newName);
+		//symbolTableValue.put(newName, exprVar);
+		symbolTableValue.put(varName, exprVar);
 		mapCtxVar.put(ctx, exprVar);
 		
 		if (debug) {
@@ -405,8 +408,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		ST forLoop = stg.getInstanceOf("forLoop");
 		
-		forLoop.add("outsideStatements", "\n//starting for template\n");
-		
 		// get first assignments and add to forLoop outsideStatements
 		List<String> assignVarNames = new ArrayList<>();
 		for (int i = 0; i < ctx.assignment().size()-1; i++) {
@@ -423,16 +424,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String exprRes = (String) expr.getAttribute("var");
 		forLoop.add("logicalOperation", "!" + exprRes);
 		
-		// get the outside name of the variable in the final Assignment (loop increment)
-		String finalAssignID = ((Assignment_Var_ExpressionContext) ctx.assignment(ctx.assignment().size()-1)).var().ID().getText();
-		String finalAssignOutsideName = symbolTableNames.get(finalAssignID);
-		
 		// get scope and add to stats
 		forLoop.add("content", visit(ctx.scope()));
 		
 		// add last assignment to for loop content
 		ST finalAssign = visit(ctx.assignment(ctx.assignment().size()-1));
-		String finalAssignLastName = (String) finalAssign.getAttribute("var");
 		forLoop.add("content", finalAssign);
 		
 		// add logical operation to for loop content
@@ -442,9 +438,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// force logical expression result into last varName
 		forLoop.add("content", exprRes + " = " + lastLogicalName + ";");
-		
-		// force final assignment result into outsideStatements var name
-		forLoop.add("content", finalAssignOutsideName + " = " + finalAssignLastName+ ";");
 		
 		if(debug) ci();
 		
@@ -462,9 +455,17 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST whileLoop = stg.getInstanceOf("whileLoop");
+		
+		whileLoop.add("previousStatements", "\n//starting while template\n");
+		
 		whileLoop.add("previousStatements", expr.render());
 		whileLoop.add("logicalOperation", logicalOperation);
-		whileLoop.add("scope", visit(ctx.scope()));
+		whileLoop.add("content", visit(ctx.scope()));
+		ST exprNewVisit = visit(ctx.expression());
+		String logicalOperationInside = (String) exprNewVisit.getAttribute("var");
+		whileLoop.add("content", exprNewVisit);
+		whileLoop.add("content", logicalOperation + " = " + logicalOperationInside + ";");
+
 		
 		if(debug) ci();
 				
@@ -937,7 +938,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable expr1Var = new Variable(mapCtxVar.get(ctx.expression(1)));
 		expr1Var = new Variable(expr1Var);
 		
-		Variable var = Variable.multiply(expr0Var, expr1Var);
+		Variable var = Variable.power(expr0Var, expr1Var);
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
@@ -1065,17 +1066,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		Variable expr1Var = new Variable(mapCtxVar.get(ctx.expression(1))); // deep copy
 		Variable var = null;
 		
-		System.out.println(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ assign original expr0Var = " + expr0Var);
-		System.out.println(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ assign original expr1Var = " + expr1Var);
-		
 		// both expressions are numeric
 		if (typeIsDouble(expr0) && typeIsDouble(expr1)) {
 			
 			type = "Double";
 			String factor = " * " + expr1Var.convertUnitTo(expr0Var.getUnit());
 			operation = expr0Name + " " + op + " " + expr1Name + factor;
-			
-			System.out.println(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ assign original conversion = " + factor);
 			
 			// create Variable
 			Variable res = Variable.add(expr0Var, expr1Var);
@@ -1899,6 +1895,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create Variable and save ctx
 		ListVar listVar = new ListVar(ctx.ID(0).getText(), true);
 		Variable var = new Variable(null, varType.LIST, listVar);
+		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx,  var);
 		
 		if(debug) ci();
@@ -1926,6 +1923,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create Variable and save ctx
 		DictVar dictVar = new DictVar(ctx.ID(0).getText(), true, ctx.ID(1).getText(), true); // boolean value is not relevante for compilation
 		Variable var = new Variable(null, varType.DICT, dictVar);
+		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx,  var);
 		
 		if(debug) ci();
