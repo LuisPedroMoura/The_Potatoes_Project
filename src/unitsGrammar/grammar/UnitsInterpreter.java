@@ -22,27 +22,7 @@ import unitsGrammar.grammar.UnitsParser.*;
 import unitsGrammar.grammar.Units;
 import utils.errorHandling.ErrorHandling;
 
-/* HOW TO
- * 
- * Unidades
- * Cada unidade é adicionada ao grafo com o respetivo caminho/ factor de conversao.
- * As dimensoes ou classes tambem sao adicionadas ao grafo como unidades que terao fator de conversao
- * 1 para a sua unidade base.
- * As estruturas tambem sao adicionadas ao grafo como unidades, mas terao de ter um tag que inidica
- * que nao podem servir para construir caminhos de conversao.
- * O caminho a ser considerado par aas conversoes tem de ser de custo 1 para garantir a conversao
- * mais direta entre as declaradas.
- * 
- * Prefixos
- * possibilidade 1 - criar automaticamente todos os tipos que sao a combinao cao dos prefixos com todas as unidades
- * depois e so correr a arvore e reconhecer os simbolos ja existentes. mais processamente inicial, simplifica depois.
- * possibilidade 2 - criar uma tabela de prefixos e  ir lendo e convertendo a medida do possivel.
- * 
- * 
- * NO final de tudo, é possivel criar um grafo completo ou uma tabela de maneira a acelerar a compilacao
- * de programas mais complexos e exigentes a nivel das conversoes, para evitar estar constantemente a correr
- * o algoritmo de dijkstra. seria mais puxado no inicio, mas apenas uma vez.
- */
+
 public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 
 	// Static Field (Debug Only)
@@ -57,6 +37,7 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	private Map<String, Unit>	classesTable			= new HashMap<>();
 	
 	private List<String> 		reservedWords 			= new ArrayList<>();
+	private List<String>		reservedPrefixes		= new ArrayList<>();
 	private Graph				unitsGraph				= new Graph();
 	
 	private ParseTreeProperty<Unit>		unitsCtx	= new ParseTreeProperty<>();
@@ -240,7 +221,28 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		
 		// get Unit info
 		String name = ctx.ID().getText();
+		String symbol = null;
+		if (ctx.STRING() != null) {
+			symbol = getStringText(ctx.STRING().getText());
+		}
 		Unit u = unitsTable.get(name);
+		
+		// if Unit does not exist, create it as Basic Unit
+		if (u == null && symbol != null) {
+			if(!isValidNewUnitNameAndSymbol(name, symbol, ctx)) return false;
+			
+			// Create basic unit with new auto Code
+			u = new Unit(name, symbol);
+			unitsTable.put(name, u);
+			basicUnitsTable.put(name, u);
+			basicUnitsCodesTable.put(u.getCode().getNumCodes().get(0), u);
+			reservedWords.add(name);
+			reservedWords.add(symbol);
+			unitsGraph.addVertex(u);
+			unitsCtx.put(ctx, u);
+			
+			unitsGraph.addEdge(1.0, u, u);
+		}
 		
 		// Unit must have been already created
 		if (!reservedWords.contains(name)) {
@@ -467,7 +469,7 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		String prefixSymbol = getStringText(ctx.STRING().getText());
 		double value = valuesCtx.get(ctx.value());
 		
-		if (!isValidNewUnitNameAndSymbol(prefixName, prefixSymbol,  ctx)) return false;
+		if (!isValidNewPrefixNameAndSymbol(prefixName, prefixSymbol,  ctx)) return false;
 		
 		if (value == Double.POSITIVE_INFINITY || value == Double.NEGATIVE_INFINITY || value == 0.0) {
 			ErrorHandling.printError(ctx, "Prefix \"" + prefixName +"\" value is not a valid value");
@@ -488,6 +490,7 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 			prefixedUnitsTable.put(prefixedName, prefix);
 			reservedWords.add(prefixedName);
 			reservedWords.add(prefixedSymbol);
+			reservedPrefixes.add(prefixSymbol);
 			
 			if (debug) {
 				ErrorHandling.printInfo(ctx, "Added " + prefix + "\n\tOriginal line: " + ctx.getText() + "\n");
@@ -628,21 +631,20 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		// Semantic Analysis : Units can't be redefined
 		
 		if (reservedWords.contains(name)) {
-			ErrorHandling.printError(ctx, "Unit '" + name +"' already defined");
+			ErrorHandling.printError(ctx, "Unit '" + name +"' is already defined");
 			return false;
 		}
 		
 		name = name.toLowerCase();
 		
-		if (name.equals("temp") || name.equals("number")) {
+		if (name.equals("number")) {
 			ErrorHandling.printError(ctx, "Unit name '" + name + "' is a reserved word and cannot be defined");
 			return false;
 		}
 		
-		
 		if (symbol != null) {
 			if (reservedWords.contains(symbol)) {
-				ErrorHandling.printError(ctx, "Symbol '" + symbol + "' already defined");
+				ErrorHandling.printError(ctx, "Unit symbol '" + symbol + "' is already defined");
 				return false;
 			}
 			
@@ -654,7 +656,45 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 			symbol = symbol.toLowerCase();
 			
 			if (symbol.equals("temp") || symbol.equals("number")) {
-				ErrorHandling.printError(ctx, "Symbol '" + symbol + "' is a reserved word and cannot be defined");
+				ErrorHandling.printError(ctx, "Unit symbol '" + symbol + "' is a reserved word and cannot be defined");
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	private boolean isValidNewPrefixNameAndSymbol(String name, String symbol, ParserRuleContext ctx) {
+		// Semantic Analysis : Units can't be redefined
+		
+		if (reservedWords.contains(name)) {
+			ErrorHandling.printError(ctx, "Prefix '" + name +"' is already defined");
+			return false;
+		}
+		
+		name = name.toLowerCase();
+		
+		if (name.equals("number")) {
+			ErrorHandling.printError(ctx, "Prefix name '" + name + "' is a reserved word and cannot be defined");
+			return false;
+		}
+		
+		
+		if (symbol != null) {
+			if (reservedPrefixes.contains(symbol)) {
+				ErrorHandling.printError(ctx, "Prefix symbol '" + symbol + "'  is already defined");
+				return false;
+			}
+			
+			if (symbol.equals("")) {
+				ErrorHandling.printError(ctx, "Prefix symbol cannot be empty");
+				return false;
+			}
+			
+			symbol = symbol.toLowerCase();
+			
+			if (symbol.equals("number")) {
+				ErrorHandling.printError(ctx, "Prefix symbol '" + symbol + "' is a reserved word and cannot be defined");
 				return false;
 			}
 		}

@@ -1,0 +1,119 @@
+units {
+	
+	// INTERNATIONAL SYSTEM UNITS
+	
+	// Base Units
+	meter		"m";
+	gram		"g";
+	second		"s";
+	ampere		"A";
+	kelvin		"K";
+	mole		"mol";
+	candela		"cd";
+	randian 	"rad";	// is know defined as dimensionless derived unit
+	steradian	"sr";	// is know defined as dimensionless derived unit
+	
+	// Derived Units
+	hertz	"Hz"	:	second^-1;
+	newton	"N"	:	(gram^3 * meter) / second^2;
+	pascal	"Pa"	:	newton / meter^2;
+	joule	"J"	:	newton * meter;
+	watt	"W"	:	joule / second;
+	coulomb	"C"	:	second * ampere;
+	volt	"V"	:	watt / ampere;
+	farad	"F"	:	coulomb / volt;
+	ohm	"Ω"	:	volt / ampere;
+	siemens	"S"	:	ohm^-1;
+	weber	"Wb"	:	volt * second;
+	tesla	"T"	:	weber / meter^2;
+	henry	"H"	:	weber / ampere;
+	Celsius	"°C"	:	(273.15)kelvin;		// Equivalent Unit
+	lumen	"lm"	:	candela * steradian;
+	lux	"lx"	:	lumen / meter^2;
+	katal	"kat"	:	mole / second
+	gray	"Gy"	:	joule / gram^3;
+	//becquerel "Bq":	second^-1;			// ambiguous with hertz. Must choose one or the other
+	//sievert "Sv"	:	joule / gram^3;	// ambiguous with hertz. Must choose one or the other. Or make it 'sievert "Sv" : gray'
+	
+	
+	area	"m^2"	:	meter * meter;
+	volume 	"m^3"	:	meter^3;
+	//litre	"l"	:	(1/1000) volume;
+	ton	"t"	:	(1000000) gram;	
+	
+	
+	// IMPERIAL UNITS
+	
+	// Base Unit
+	thou 	"th";
+	
+	// Equivalent Units
+	// length - imperial conversions are exact values, so only one conection point to
+	// international system is necessary
+	inch 	"in"	:	(1000) thou;
+	foot	"ft"	:	(12) inch;	
+	yard	"yd"	:	(3) feet | (0.9144) meter;	
+	chain	"ch"	:	(22) yard;
+	furlong	"fur"	:	(10) chain;
+	mile	"mi"	:	(8) furlong;
+	league	"lea"	:	(3) mile;
+	
+	// maritime units
+	fathom	"ftm"	:	(2.02667) yard;
+	cable	"cable"		:	(100) fathom;
+	nauticalMile "nautical Mile"	:	(10) cable;
+	
+	link 	"link"	:	(7.92) inch;
+	rod		"rod"	:	(25) link;
+	
+	// area
+	perch	"perch"	:	rod * rod;
+	rood	"rood"	:	furlong * rod;
+	acre	"acre"	:	furlong * chain;
+	
+	// volume
+	fluidOunce "fl Oz"	: (28.4130625 / 1000000) meter^3;
+	gill	"gi"	:	(5) fluidOunce;
+	pint	"pt"	:	(4) gill;
+	quart	"qt"	:	(2) pint;
+	gallon	"gal"	:	(4) quart;
+	
+	// mass and weight
+	pound "lb"		:	(453.59237) gram;
+	grain	"gr"	:	(1/7000) pound;
+	drachm	"dr"	:	(1/256) pound;
+	ounce	"oz"	:	(1/16) pound;
+	stone	"st"	:	(14) pound;
+	quarter	"qtr"	:	(2) stone;
+	hundredwight	"cwt"	:	(4) quarter;
+	imperialTon "it"			:	(20) hundredweight | (gram) 1000000;	
+	
+	
+	
+	
+}
+
+prefixes {
+	
+	yotta	"Y"	: 10^24;
+	yotta	"Z"	: 10^21;
+	yotta	"E"	: 10^18;
+	yotta	"P"	: 10^15;
+	yotta	"T"	: 10^12;
+	yotta	"G"	: 10^9;
+	yotta	"M"	: 10^6;
+	yotta	"k"	: 10^3;
+	yotta	"h"	: 10^2;
+	yotta	"da"	: 10;
+	yotta	"d"	: 10^-1;
+	yotta	"c"	: 10^-2;
+	yotta	"m"	: 10^-3;
+	yotta	"µ"	: 10^-6;
+	yotta	"n"	: 10^-9;
+	yotta	"p"	: 10^-12;
+	yotta	"f"	: 10^-15;
+	yotta	"a"	: 10^-18;
+	yotta	"z"	: 10^-21;
+	yotta	"y"	: 10^-24;
+	
+}

@@ -22,7 +22,8 @@ using				: USING STRING EOL
 					
 globalStatement		: varDeclaration EOL							#globalStatement_Declaration 
 					| assignment EOL								#globalStatement_Assignment
-					| function										#globalStatement_Function
+					| functionMain									#globalStatement_FunctionMain
+					| functionID									#globalStatement_FunctionID
 					;
 					
 // ----------------------------------------------
@@ -32,7 +33,6 @@ statement			: varDeclaration EOL							#statement_Declaration
 					| assignment EOL								#statement_Assignment
 					| controlFlowStatement							#statement_Control_Flow_Statement
 					| functionCall EOL								#statement_FunctionCall
-					| functionReturn EOL							#statement_Function_Return
 					| inputOutput EOL								#statement_InputOutput
 					;
 
@@ -43,14 +43,16 @@ assignment			: varDeclaration '=' expression					#assignment_Var_Declaration_Exp
 // ----------------------------------------------
 // Functions
 
-function			: FUN MAIN scope									#function_Main
-					| FUN ID ID '(' type ID (',' type ID)* ')' scope	#function_ID
-					;
-
-functionReturn		: RETURN expression
+functionMain		: FUN MAIN scope
 					;
 					
-functionCall		: ID '(' expression (',' (expression))* ')'
+functionID			: FUN type ID '(' (type ID)? (',' type ID)* ')' scope
+					;
+
+functionReturn		: RETURN expression? ';'
+					;
+					
+functionCall		: ID '(' expression? (',' (expression))* ')'
 					;
 
 // ----------------------------------------------
@@ -79,7 +81,7 @@ elseIfCondition		: ELSE IF '(' expression ')' scope
 elseCondition		: ELSE scope
 					;			
 
-scope				: '{' statement* functionReturn?'}'
+scope				: '{' statement* functionReturn? '}'
 					;
 					
 // ----------------------------------------------
@@ -155,7 +157,7 @@ value				: NUMBER			# value_Number
 // ----------------------------------------------
 // Casts
 
-cast				: '(' ID ')'
+cast				: '(' id=(ID | NUMBER_TYPE) ')'
 					;				
 
 // -----------------------------------------------------------------------------

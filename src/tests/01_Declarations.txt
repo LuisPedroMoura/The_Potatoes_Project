@@ -1,0 +1,5 @@
+using "tests/International_Imperial_SystemUnits.txt";
+
+meter m0 = (meter) 1;
+yard  y0 = (yard)  1;
+area a0 = (area) 1;

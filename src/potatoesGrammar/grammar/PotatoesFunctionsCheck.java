@@ -14,20 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-
 import potatoesGrammar.grammar.PotatoesParser.*;
 
 
 public class PotatoesFunctionsCheck extends PotatoesBaseVisitor<Boolean>  {
 	
-	Map<String, Function_IDContext> functionsCtx = new HashMap<>();
+	Map<String, FunctionIDContext> functionsCtx = new HashMap<>();
 	Map<String, List<String>> functionsArgs = new HashMap<>();
 	
 	/**
 	 * @return the Map functions
 	 */
-	public Map<String, Function_IDContext> getFunctionsCtx() {
+	public Map<String, FunctionIDContext> getFunctionsCtx() {
 		return functionsCtx;
 	}
 	
@@ -57,24 +55,27 @@ public class PotatoesFunctionsCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitGlobalStatement_Assignment(GlobalStatement_AssignmentContext ctx) {
 		return true;
 	}
-
+	
 	@Override
-	public Boolean visitGlobalStatement_Function(GlobalStatement_FunctionContext ctx) {
-		return visitChildren(ctx);
-	}
-
-	@Override
-	public Boolean visitFunction_Main(Function_MainContext ctx) {
+	public Boolean visitGlobalStatement_FunctionMain(GlobalStatement_FunctionMainContext ctx) {
 		return true;
 	}
 
 	@Override
-	public Boolean visitFunction_ID(Function_IDContext ctx) {
+	public Boolean visitGlobalStatement_FunctionID(GlobalStatement_FunctionIDContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	@Override
+	public Boolean visitFunctionID(FunctionIDContext ctx) {
 		String functionName = ctx.ID(0).getText();
 		List<String> typesNames = new ArrayList<>();
-		for (TypeContext type : ctx.type()) {
-			typesNames.add(type.getText());
+		for (int i = 1; i < ctx.type().size(); i++) {
+			typesNames.add(ctx.type(i).getText());
 		}
+//		for (TypeContext type : ctx.type()) {
+//			typesNames.add(type.getText());
+//		}
 		functionsCtx.put(functionName, ctx);
 		functionsArgs.put(functionName, typesNames);
 		return true;

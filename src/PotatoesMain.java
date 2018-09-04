@@ -17,13 +17,7 @@ import potatoesGrammar.grammar.PotatoesParser;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
-/**
- * 
- * <b>PotatoesMain</b><p>
- * 
- * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
- * @version May-June 2018
- */
+
 public class PotatoesMain {
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1) {
@@ -31,7 +25,7 @@ public class PotatoesMain {
 			exit(10);
 		}
 
-		out.println("The Potatoes Project");
+		//out.println("The Potatoes Project");
 
 		// create a stream from the file
 		InputStream fileStream = null;
@@ -42,13 +36,18 @@ public class PotatoesMain {
 		//System.out.println("inputed file: "+ args[0]);
 		File aux = new File(args[0]);
 		String name = aux.getName();
-		name = name.substring(0, name.length()-4);
-		//System.out.print("name " + name);
-
+		String[] nameArr = name.split("\\.");
+		name = nameArr[0];
+		if (name.charAt(0) != '$' && name.charAt(0) != '_' && !Character.isLetter(name.charAt(0))) {
+			name = "_" + name;
+		}
+		
 		try {
+			//out.println("ARGS: " + args[0]);
 			File f = new File(args[0]);
+			//out.println("FILE: " + f);
 			fileStream = new FileInputStream(f);
-			out.println("Compiling \"" + f.getAbsolutePath() + "\"...");
+			//out.println("Compiling \"" + f.getAbsolutePath() + "\"...");
 			input = CharStreams.fromStream(fileStream);
 			fileStream.close();
 		} catch(FileNotFoundException e) {

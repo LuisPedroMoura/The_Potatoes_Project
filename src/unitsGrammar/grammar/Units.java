@@ -10,6 +10,8 @@
 
 package unitsGrammar.grammar;
 
+import static java.lang.System.out;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +28,7 @@ import utils.errorHandling.ErrorHandlingListener;
 
 public class Units {
 	
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	// Instance Fields
 	private static Map<Integer, Unit>	basicUnitsCodesTable	= new HashMap<>();
@@ -50,8 +52,11 @@ public class Units {
 		CharStream input = null;
 
 		try {
+			//System.out.println("PATH: " + path);
 			File f = new File(path);
+			//System.out.println("FILE: " + f.getAbsolutePath());
 			fileStream = new FileInputStream(f);
+			//out.println("Compiling \"" + f.getAbsolutePath() + "\"...");
 			input = CharStreams.fromStream(fileStream);
 			fileStream.close();
 		} catch(FileNotFoundException e) {
@@ -95,10 +100,11 @@ public class Units {
 			GraphInfo graphInfo			= new GraphInfo(unitsGraph);
 			Units.conversionTable		= graphInfo.getAllMinJumpsPathCostsTable();
 			
-			// update conversion Table with Unit 'number which cannot be put in the graph
+			// update conversion Table with Unit 'number' which cannot be put in the graph
 			// (because it connects to everything and would allow conversion between all unrelated units)
 			Map<Unit, Double> map = new HashMap<>();
 			Unit number = new Unit("number", "", new Code(1));
+			unitsTable.put("number", number);
 			for (String key : unitsTable.keySet()) {
 				map.put(unitsTable.get(key), 1.0);
 				if (conversionTable.containsKey(unitsTable.get(key))) {

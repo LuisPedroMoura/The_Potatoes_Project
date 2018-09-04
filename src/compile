@@ -1,5 +1,5 @@
 #!/bin/bash  
-echo -e "The Potatoes Project | LFA 28 June 2018\nInes Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)\n"
+echo -e "The Potatoes Project - Cooking the potatoe..."
 #echo -e "Compiling the project..." 
 #antlr4-build -v
 #echo "Processing ./PotatoesMain.java"

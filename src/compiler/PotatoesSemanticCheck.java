@@ -12,8 +12,6 @@
 
 package compiler;
 
-import static java.lang.System.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,10 +50,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// --------------------------------------------------------------------------
 	// Static Fields
 	private static String UnitsFilePath;
+	private static String PotatoesFilePath;
 	
 	private	static Units							unitsFile;		// initialized in visitUsing();
 	private static PotatoesFunctionNames			functions;		// initialized in CTOR;
-	private static Map<String, Function_IDContext>	functionNames;	// initialized in CTOR;
+	private static Map<String, FunctionIDContext>	functionNames;	// initialized in CTOR;
 	private static Map<String, List<String>>		functionArgs;	// initialized in CTOR;
 
 	protected static ParseTreeProperty<Variable> 		mapCtxVar		= new ParseTreeProperty<>();
@@ -65,6 +64,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	protected static String currentReturn = null;
 	
  	public PotatoesSemanticCheck(String PotatoesFilePath){
+ 		PotatoesSemanticCheck.PotatoesFilePath = PotatoesFilePath;
 		functions = new PotatoesFunctionNames(PotatoesFilePath);
 		functionNames = functions.getFunctions();
 		functionArgs = functions.getFunctionsArgs();
@@ -81,9 +81,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public static Units getUnitsFileInfo() {
 		return unitsFile;
 	}
-
+	
+	public static Map<String, FunctionIDContext> getFunctionNames() {
+		return functionNames;
+	}
+	
 	// --------------------------------------------------------------------------
-	// Main Rules 
+	// Main Rules 	
+
 	@Override 
 	public Boolean visitProgram(ProgramContext ctx) {
 		
@@ -92,10 +97,40 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		Boolean valid = visit(ctx.using());
 		List<GlobalStatementContext> globalStatementsInstructions = ctx.globalStatement();
 
-		// Visit all globalStatement rules
+		// Visit all globalStatement Declarations
 		for (GlobalStatementContext c : globalStatementsInstructions) {
-			Boolean res = visit(c);
-			valid = valid && res;
+			if (c instanceof GlobalStatement_DeclarationContext) {
+				Boolean res = visit(c);
+				valid = valid && res;
+			}
+		}
+		
+		// Visit all globalStatement Assignments
+		for (GlobalStatementContext c : globalStatementsInstructions) {
+			if (c instanceof GlobalStatement_AssignmentContext) {
+				Boolean res = visit(c);
+				valid = valid && res;
+			}
+		}
+		
+		boolean mainExists = false;
+		// Visit all globalStatement Function Main if exists
+		for (GlobalStatementContext c : globalStatementsInstructions) {
+			if (c instanceof GlobalStatement_FunctionMainContext) {
+				mainExists = true;
+				Boolean res = visit(c);
+				valid = valid && res;
+			}
+		}
+		
+		// Visit all globalStatement Functions if Main does NOT exist
+		if (!mainExists) {
+			for (GlobalStatementContext c : globalStatementsInstructions) {
+				if (c instanceof GlobalStatement_FunctionIDContext) {
+					Boolean res = visit(c);
+					valid = valid && res;
+				}
+			}
 		}
 		
 		if(debug) ci();
@@ -110,7 +145,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
 		// Get information from the units file
 		UnitsFilePath = getStringText(ctx.STRING().getText());
-		if (debug) ErrorHandling.printInfo(ctx, UnitsFilePath);
+		
+		UnitsFilePath = PotatoesFilePath.substring(0, PotatoesFilePath.lastIndexOf("/")+1) + UnitsFilePath;
+		
+		if (debug) { ErrorHandling.printInfo(ctx, "UnitsFilePath is : " + UnitsFilePath);}
 		unitsFile = new Units(UnitsFilePath);
 
 		if (debug) {
@@ -145,11 +183,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		return valid;
 	}
-
+	
 	@Override
-	public Boolean visitGlobalStatement_Function(GlobalStatement_FunctionContext ctx) {
+	public Boolean visitGlobalStatement_FunctionMain(GlobalStatement_FunctionMainContext ctx) {
 		
-		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->GLOBAL STATEMENT - FUNCTION");
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->GLOBAL STATEMENT - FUNCTION MAIN");
+		
+		boolean valid = visitChildren(ctx);
+		
+		if (debug) ci();
+		
+		return valid;
+	}
+	
+	@Override
+	public Boolean visitGlobalStatement_FunctionID(GlobalStatement_FunctionIDContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->GLOBAL STATEMENT - FUNCTION ID");
 		
 		boolean valid = visitChildren(ctx);
 		
@@ -209,17 +259,17 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return valid;
 	}
 
-	@Override 
-	public Boolean visitStatement_Function_Return(Statement_Function_ReturnContext ctx) {
-		
-		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - FUNCTION RETURN");
-		
-		boolean valid = visitChildren(ctx);
-		
-		if (debug) ci();
-		
-		return valid;
-	}
+//	@Override 
+//	public Boolean visitStatement_Function_Return(Statement_Function_ReturnContext ctx) {
+//		
+//		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - FUNCTION RETURN");
+//		
+//		boolean valid = visitChildren(ctx);
+//		
+//		if (debug) ci();
+//		
+//		return valid;
+//	}
 
 	@Override 
 	public Boolean visitStatement_InputOutput(Statement_InputOutputContext ctx) {
@@ -306,14 +356,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable var = mapCtxVar.get(ctx.var());
 		Variable expr = mapCtxVar.get(ctx.expression());
-
-		if (debug) {
-			ErrorHandling.printInfo(ctx, "[OP_ASSIGN_VAR_OP] Visited visitAssignment_Var_Declaration_Expression");
-			ErrorHandling.printInfo(ctx, "--- Assigning to " + ctx.var().ID().getText() + " with unit " + var.getUnit());
-		}
 		
 		// Units are not compatible -> error
-		else if (var.getVarType() != expr.getVarType()) {
+		if (var.getVarType() != expr.getVarType()) {
 			ErrorHandling.printError(ctx, "Units in assignment are not compatible");
 			return false;
 		}
@@ -350,8 +395,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	// Functions
 	
 	@Override
-	public Boolean visitFunction_Main(Function_MainContext ctx) {
-		
+	public Boolean visitFunctionMain(FunctionMainContext ctx) {
+
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->FUNCTION MAIN");
 		
 		if (visitedMain == true) {
@@ -367,10 +412,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		return valid;
 	}
-
+	
 	@Override
-	public Boolean visitFunction_ID(Function_IDContext ctx) {
-		
+	public Boolean visitFunctionID(FunctionIDContext ctx) {
+
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->ASSIGNMENT - FUNCTION ID");
 		
 		if (!visit(ctx.scope())) {
@@ -389,11 +434,20 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->FUNCTION RETURN");
 		
+		if (ctx.expression() == null) {
+			if (currentReturn == null) {
+				return true;
+			}
+			ErrorHandling.printError(ctx, "return is not compatible with function signature");
+			return false;
+		}
+		
 		if(!visit(ctx.expression())) {
 			return false;
 		}
 		
 		Variable var = mapCtxVar.get(ctx.expression());
+		
 		
 		if (var.isNumeric()) {
 			
@@ -424,6 +478,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> expressionn : return var = " + var);
+			ErrorHandling.printInfo(ctx,indent +  "currentReturn is: " + currentReturn);
 			ci();
 		}
 		
@@ -445,13 +500,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// get function context to be visited and args needed from list of functions	
-		Function_IDContext functionToVisit = functionNames.get(ctx.ID().getText());
+		FunctionIDContext functionToVisit = functionNames.get(ctx.ID().getText());
 		List<String> argsToUse	= functionArgs.get(ctx.ID().getText());
 		
 		// update currentReturn
-		currentReturn = argsToUse.get(0);
+		currentReturn = functionToVisit.type(0).getText();
 		String cr = currentReturn;
-		if (!Units.exists(cr) && !cr.equals("string") && !cr.equals("boolean") && !cr.equals("list") && !cr.equals("dict")) {
+		if (!Units.exists(cr) && !cr.equals("string") && !cr.equals("boolean") && !cr.equals("list") && !cr.equals("dict") && !cr.equals("void")) {
 			ErrorHandling.printError(ctx, "Function return unit is not a valid unit");
 			return false;
 		}
@@ -465,7 +520,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				
 		// if number of arguments do not match -> error
 		if(argsToUse.size() != functionCallArgs.size()) {
-			ErrorHandling.printError(ctx, "NUmber of arguments in function call do not match required arguments");
+			ErrorHandling.printError(ctx, "Number of arguments in function call do not match required arguments");
 			return false;
 		}
 		
@@ -511,9 +566,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		visit(functionToVisit);
 		
 		// update tables and visit function
-		mapCtxVar.put(ctx, new Variable(null, varType.LIST, mapCtxVar.get(functionToVisit)));
+		if (mapCtxVar.get(functionToVisit) != null) {
+			mapCtxVar.put(ctx, new Variable(mapCtxVar.get(functionToVisit)));
+		}
 		
-		if (debug) ci();
+		if (debug) {
+			ErrorHandling.printInfo(ctx,indent +  "currentReturn is: " + currentReturn);
+			ci();
+		}
 		
 		return true;
 	}
@@ -612,6 +672,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// condition is boolean -> ok
 		Variable var = mapCtxVar.get(ctx.expression());
+		
 		if (!var.isBoolean()) {
 			ErrorHandling.printError(ctx, "If condition must be boolean");
 			return false;
@@ -692,6 +753,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		mapCtxVar.put(ctx, null);
+		
+		currentReturn = null;
+		
 		closeScope();
 		
 		if (debug) ci();
@@ -972,9 +1036,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		Variable exprVar= new Variable(mapCtxVar.get(ctx.expression())); // deep copy
-		System.out.println("^^^^^^^^^^^^^^^^^^ exprVar: " + exprVar);
-		String castName = ctx.cast().ID().getText();
-		System.out.println("^^^^^^^^^^^^^^^^^^ castNam: " + castName);
+		String castName = ctx.cast().id.getText();
 		
 		// verify if cast is valid numeric unit
 		if (!Units.exists(castName)) {
@@ -986,7 +1048,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if (exprVar.isNumeric()) {
 			
 			try {
-				System.out.println("^^^^^^^^^^^^^^^^^^ instanceOf castName: " + Units.instanceOf(castName));
 				exprVar.convertUnitTo(Units.instanceOf(castName));
 			}
 			catch (IllegalArgumentException e) {
@@ -2470,7 +2531,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->CAST");
 		
-		String castName = ctx.ID().getText();
+		String castName = ctx.id.getText();
 		// cast unit exists -> ok
 		if (Units.exists(castName)){
 			Variable var = new Variable(Units.instanceOf(castName), null, null);
@@ -2588,7 +2649,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	private static boolean isValidNewVariableName(String varName, ParserRuleContext ctx) {
 
 		if (symbolTableContains(varName)) {
-			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" is already declared VALID");
+			ErrorHandling.printError(ctx, "Variable \"" + varName +"\" is already declared");
 			return false;
 		}
 		
@@ -2607,7 +2668,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	 */
 	private static String getStringText(String str) {
 		str = str.substring(1, str.length() -1);
-		if (debug) ErrorHandling.printError("removed quotes from string - " + str);
+		if (debug) ErrorHandling.printInfo("removed quotes from string - " + str);
 		return str;
 	}
 	

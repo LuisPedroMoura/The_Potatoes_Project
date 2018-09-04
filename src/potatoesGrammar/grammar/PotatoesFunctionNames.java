@@ -13,20 +13,20 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import potatoesGrammar.grammar.PotatoesParser.Function_IDContext;
+import potatoesGrammar.grammar.PotatoesParser.FunctionIDContext;
 import utils.errorHandling.ErrorHandling;
 import utils.errorHandling.ErrorHandlingListener;
 
 
 public class PotatoesFunctionNames {
 	
-	Map<String, Function_IDContext> functions;
+	Map<String, FunctionIDContext> functions;
 	Map<String, List<String>> functionsArgs;
 	
 	/**
 	 * @return the functions
 	 */
-	public Map<String, Function_IDContext> getFunctions() {
+	public Map<String, FunctionIDContext> getFunctions() {
 		return functions;
 	}
 	

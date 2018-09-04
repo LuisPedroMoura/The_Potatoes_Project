@@ -1,5 +1,5 @@
 #!/bin/bash  
-echo -e "The Potatoes Project | LFA 28 June 2018\nInes Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)\n"
+echo -e "The Potatoes Project - planting the potatoe..."
 #if [ "$1" == "-c" ]; then
 #	echo -e "Installing the dependencies (JUNG Framework JARs) into the classpath..."
 #	sudo cp "utils/jung2-2_0_1/*.jar" "/usr/java/packages/lib/ext/"

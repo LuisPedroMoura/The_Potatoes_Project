@@ -31,7 +31,7 @@ unitsDeclaration	: 'units' '{' (unit EOL)* '}'
 					
 unit	: ID STRING 				 			#Unit_Basic
 		| ID STRING 	':' unitsDerivation		#Unit_Derived
-		| ID 			':' unitsEquivalence 	#Unit_Equivalent
+		| ID STRING?	':' unitsEquivalence 	#Unit_Equivalent
 		| ID '[' ID ']' ':' unitsEquivalence	#Unit_Class
 	  	;
 	  		

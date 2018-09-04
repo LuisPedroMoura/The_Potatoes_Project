@@ -30,7 +30,7 @@ stats(stat) ::= <<
 >>
 
 statsWithoutSeparator(stat) ::= <<
-<if(stat)><stat; separator="FODA-SE "><endif>
+<if(stat)><stat; separator="; "><endif>
 >>
 
 //-------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ public static void main(String[] args)
 <scope(scope)>
 >>
 
-function() ::= <<
+function(returnType, functionName, scope, args) ::= <<
 public static <returnType> <functionName>(<statsWithoutSeparator(args)>)
 <scope(scope)>
 >>
@@ -133,7 +133,7 @@ PrintWriter <var> = new Printwriter(fileName);
 >>
 
 printWriter(var, expression, previousStatements) ::= <<
-stats<previousStatements>
+<stats(previousStatements)>
 <var>.print(<expression>);
 >>
 
@@ -142,7 +142,7 @@ stats<previousStatements>
 //-------------------------------------------------------------------------------
 
 functionCall(previousStatements, functionName, args) ::= <<
-stats<previousStatements>
+<stats(previousStatements)>
 <functionName>(<statsWithoutSeparator(args)>)
 >>
 
