@@ -34,6 +34,7 @@ statement			: varDeclaration EOL							#statement_Declaration
 					| controlFlowStatement							#statement_Control_Flow_Statement
 					| functionCall EOL								#statement_FunctionCall
 					| inputOutput EOL								#statement_InputOutput
+					| expression EOL								#statement_Expression
 					;
 
 assignment			: varDeclaration '=' expression					#assignment_Var_Declaration_Expression
@@ -138,8 +139,8 @@ var					: ID
 					;
 
 varDeclaration		: type ID													#varDeclaration_Variable
-					| LIST_TYPE '[' block='?'? ID ']' ID						#varDeclaration_list
-					| DICT_TYPE '[' block0='?' ID ',' block1='?'? ID ']' ID		#varDeclaration_dict
+					| LIST_TYPE '[' block='?'? id=(ID | NUMBER_TYPE) ']' ID		#varDeclaration_list
+					| DICT_TYPE '[' block0='?'? key=(ID | NUMBER_TYPE) ',' block1='?'? val=(ID | NUMBER_TYPE) ']' ID	#varDeclaration_dict
 					;			
 
 type				: NUMBER_TYPE		# type_Number_Type
@@ -162,6 +163,8 @@ cast				: '(' id=(ID | NUMBER_TYPE) ')'
 
 // -----------------------------------------------------------------------------
 // Lexer
+
+ADD : 'add';
 
 USING				: 'using';
 

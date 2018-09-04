@@ -32,17 +32,19 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	// for debug purposes only
 	private static final boolean debug = false;
 
-	protected static STGroup stg = null;
+	protected static STGroup stg = new STGroupFile("java.stg");
 	//protected static ParseTreeProperty<Object> mapCtxObj = PotatoesSemanticCheck.getMapCtxObj();
 
-	protected static Map<String, String>			symbolTableNames	= new HashMap<>();  // stores the updated name of variables
+	protected static List<HashMap<String, String>>	symbolTableNames	= new ArrayList<>();  // stores the updated name of variables
 	protected static Map<String, Variable>			symbolTableValue	= new HashMap<>(); // stores the updated value of variables
 	protected static ParseTreeProperty<Variable> 	mapCtxVar			= new ParseTreeProperty<>();
 	
+	protected static Map<String, FunctionIDContext> functionNames		= PotatoesSemanticCheck.getFunctionNames();
+	
 	private static int varCounter = 0;
-	private static int scopeIndicator = 0;
+	private static boolean globalScope = true;
 	
-	
+	ST classContent = stg.getInstanceOf("class");
 	
 	// --------------------------------------------------------------------------------------------------------------------
 	// MAIN RULES----------------------------------------------------------------------------------------------------------
@@ -54,11 +56,34 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->PROGRAM\n");
 		
-		stg = new STGroupFile("java.stg");
-		
-	    ST classContent = stg.getInstanceOf("class");
+		// initialize symbolTableNames
+		symbolTableNames.add(new HashMap<>());
+	    
+		// visit global Declarations
 	    for(GlobalStatementContext statement : ctx.globalStatement()) {
-	    	classContent.add("stat", visit(statement));
+	    	if (statement instanceof GlobalStatement_DeclarationContext) {
+	    		classContent.add("stat", visit(statement));
+	    	}
+	    }
+	    
+	    // visit global Assignments
+	    for(GlobalStatementContext statement : ctx.globalStatement()) {
+	    	if (statement instanceof GlobalStatement_AssignmentContext) {
+	    		classContent.add("stat", visit(statement));
+	    	}
+	    }
+	    
+	    globalScope = false;
+	    // visit Main function
+	    for(GlobalStatementContext statement : ctx.globalStatement()) {
+	    	if (statement instanceof GlobalStatement_FunctionMainContext) {
+	    		classContent.add("stat", visit(statement));
+	    	}
+	    }
+	    
+	    // visit Normal Methods that are not called by the Main function directly or indirectly
+	    for (String key : functionNames.keySet()) {
+	    	classContent.add("stat", visit(functionNames.get(key)));
 	    }
 	    
 	    if(debug) ci();
@@ -187,10 +212,22 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return createEOL(statement);
 	}
 	
+	@Override
+	public ST visitStatement_Expression(Statement_ExpressionContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "->STATEMENT - EXPRESSION\n");
+		
+		ST statement = visit(ctx.expression());
+		
+		if(debug) ci();
+		
+		return createEOL(statement);
+	}
+	
 	// --------------------------------------------------------------------------------------------------------------------
 	// CLASS - ASSIGNMENTS-----------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------------------------------	
-	
+
 	@Override
 	public ST visitAssignment_Var_Declaration_Expression(Assignment_Var_Declaration_ExpressionContext ctx) {
 		
@@ -206,7 +243,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String factor = "";
 		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression())); // deep copy
 		
-		System.out.println("####################### varDeclaration  : " + ctx.varDeclaration());
+		
 		
 		if (ctx.varDeclaration() instanceof VarDeclaration_VariableContext) {
 			VarDeclaration_VariableContext decl = (VarDeclaration_VariableContext) ctx.varDeclaration();
@@ -228,7 +265,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = stg.getInstanceOf("varAssignment");
 		
 		// create template for every variable except global variables
-		if (scopeIndicator != 0) {
+		if (globalScope == false) {
 			
 			newVariable.add("previousStatements", var);
 			newVariable.add("previousStatements", expr);
@@ -245,9 +282,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// global declarations must be static in order to be compatible with main function
 			String[] varLines = var.render().split("\n");
-			for (String str : varLines) {
-				str = "static " + str;
-				newVariable.add("previousStatements", str);
+			for (int i = 1; i < varLines.length; i++) {
+				varLines[i] = "static " + varLines[i];
+				newVariable.add("previousStatements",  varLines[i]);
 			}
 			
 			String[] exprLines = expr.render().split("\n");
@@ -262,7 +299,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			newVariable.add("operation", exprName + factor);
 			
 			// update tables
-			symbolTableNames.put(id,  newName);
+			symbolTableNamesPut(id,  newName);
 			symbolTableValue.put(newName, exprVar);
 			mapCtxVar.put(ctx, exprVar);
 		}
@@ -284,7 +321,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// get var and expression info
 		String id = ctx.var().ID().getText();
-		String varName = symbolTableNames.get(id);
+		String varName = symbolTableNamesGet(id);
 		//ST var = visit(ctx.var());
 		ST expr = visit(ctx.expression());
 		String exprName = (String) expr.getAttribute("var");
@@ -333,8 +370,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->FUNCTION MAIN\n");
 		
+		openScope();
+		
 		ST main = stg.getInstanceOf("main");
-		scopeIndicator++;
 		main.add("scope", visit(ctx.scope()));
 		
 		if(debug) ci();
@@ -347,21 +385,25 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->FUNCTION ID");
 		
+		openScope();
+		
 		// create template
 		ST function = stg.getInstanceOf("function");
-		function.add("returnType", getCorrespondingTypeDeclaration(ctx.ID(0).getText(), "", ""));
+		function.add("returnType", getCorrespondingTypeDeclaration(ctx.type(0).getText(), "", ""));
 		function.add("functionName", ctx.ID(0).getText());
 		
 		for (int i = 2; i < ctx.ID().size(); i++) {
 			String type = visit(ctx.type(i-2)).render();
 			String var = getNewVarName();
 			function.add("args", type + " " + var);
-			symbolTableNames.put(ctx.ID(i).getText(), var);
+			symbolTableNamesPut(ctx.ID(i).getText(), var);
 		}
 		
 		function.add("scope",  visit(ctx.scope()));
 		
-		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.scope())));
+		if (mapCtxVar.get(ctx.scope()) != null) {
+			mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.scope())));
+		}
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> function name = " + ctx.ID(0).getText() + "\n");
@@ -419,10 +461,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// add function Name
 		functionCall.add("functionName", ctx.ID().getText());
 		
-		FunctionIDContext functionToVisit = PotatoesSemanticCheck.getFunctionNames().get(ctx.ID().getText());
-		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(functionToVisit)));
+		String functionName = ctx.ID().getText();
+		FunctionIDContext functionToVisit = functionNames.get(functionName);
+		functionNames.remove(functionName);
+		classContent.add("stat", visit(functionToVisit));
 		
-		scopeIndicator++;
+		if (mapCtxVar.get(functionToVisit) != null) {
+			mapCtxVar.put(ctx, new Variable(mapCtxVar.get(functionToVisit)));
+		}
 		
 		if(debug) ci();
 				
@@ -446,7 +492,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->FOR LOOP\n");
 		
-		scopeIndicator++;
+		openScope();
 		
 		// create template
 		ST forLoop = stg.getInstanceOf("forLoop");
@@ -492,7 +538,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->WHILE LOOP\n");
 		
-		scopeIndicator++;
+		openScope();
 
 		// get expression info
 		ST expr = visit(ctx.expression());
@@ -549,7 +595,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->IF CONDITION");
 		
-		scopeIndicator++;
+		openScope();
 
 		// get expression info
 		ST expr = visit(ctx.expression());
@@ -571,7 +617,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->ELSE IF CONDITION\n");
 		
-		scopeIndicator++;
+		openScope();
 		
 		// get expression info
 		ST expr = visit(ctx.expression());
@@ -593,7 +639,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->ELSE CONDITION\n");
 		
-		scopeIndicator++;
+		openScope();
 		
 		// create template
 		ST elseCondition = stg.getInstanceOf("elseCondition");
@@ -619,9 +665,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			scopeContent.add("stat", visit(ctx.functionReturn()));
 		}
 		
-		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.functionReturn())));
+		if (ctx.functionReturn() != null) {
+			mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.functionReturn())));
+		}
 		
-		scopeIndicator--;
+		closeScope();
 		
 		if(debug) ci();
 		
@@ -1120,10 +1168,19 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String op = ctx.op.getText();
 		String operation = "";
 		String type = "";
+		ST getToString = null;
 		
 		Variable expr0Var = new Variable(mapCtxVar.get(ctx.expression(0))); // deep copy
 		Variable expr1Var = new Variable(mapCtxVar.get(ctx.expression(1))); // deep copy
 		Variable var = null;
+		
+		
+		// create ST 
+		String newName = getNewVarName();
+		ST newVariable = stg.getInstanceOf("varAssignment"); 
+
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		
 		// both expressions are numeric
 		if (typeIsDouble(expr0) && typeIsDouble(expr1)) {
@@ -1145,13 +1202,47 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			String expr1Symbol = "";
 			
 			// expr0 is numeric -> get symbol for printing
-			if (typeIsDouble(expr0)) {
+			if (typeIsDouble(expr0)) {				
 				expr0Symbol = " + \" " + mapCtxVar.get(ctx.expression(0)).getUnit().getSymbol() + "\"";
+			}
+			if (typeIsList(expr0)) {
+				String newName2 = getNewVarName();
+				String it = getNewVarName();
+				getToString = varAssignmentST("String", newName2);
+				getToString.add("operation", "\"[\"");
+				newVariable.add("previousStatements", getToString);
+				
+				newVariable.add("previousStatements", "Iterator " + it + " = " + expr0Name + ".iterator();");
+				newVariable.add("previousStatements", "while (" + it + ".hasNext()) {");
+				newVariable.add("previousStatements", "\t" + newName2 + "+= (" + it + ".next() + \" " + Units.instanceOf(((ListVar)mapCtxVar.get(ctx.expression(0)).getValue()).getType()).getSymbol() + "\");");
+				newVariable.add("previousStatements", "\t" + "if(" + it + ".hasNext()){");
+				newVariable.add("previousStatements", "\t\t" + newName2 + " += \", \";");
+				newVariable.add("previousStatements", "\t" + "}");
+				newVariable.add("previousStatements", "}");
+				newVariable.add("previousStatements", newName2 + " += \"]\";");  				
+				expr0Name = newName2;
 			}
 			
 			// expr1 is numeric -> get symbol for printing
 			if (typeIsDouble(expr1)) {
 				expr1Symbol = " + \" " + mapCtxVar.get(ctx.expression(1)).getUnit().getSymbol() + "\"";
+			}
+			if (typeIsList(expr1)) {
+				String newName2 = getNewVarName();
+				String it = getNewVarName();
+				getToString = varAssignmentST("String", newName2);
+				getToString.add("operation", "\"[\"");
+				newVariable.add("previousStatements", getToString);
+				
+				newVariable.add("previousStatements", "Iterator " + it + " = " + expr0Name + ".iterator();");
+				newVariable.add("previousStatements", "while (" + it + ".hasNext()) {");
+				newVariable.add("previousStatements", "\t" + newName2 + "+= (" + it + ".next() + \" " + Units.instanceOf(((ListVar)mapCtxVar.get(ctx.expression(0)).getValue()).getType()).getSymbol() + "\");");
+				newVariable.add("previousStatements", "\t" + "if(" + it + ".hasNext()){");
+				newVariable.add("previousStatements", "\t\t" + newName2 + " += \", \";");
+				newVariable.add("previousStatements", "\t" + "}");
+				newVariable.add("previousStatements", "}");
+				newVariable.add("previousStatements", newName2 + " += \"]\";");  				
+				expr1Name = newName2;
 			}
 			
 			operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
@@ -1162,12 +1253,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 		} 
 			
-		// create ST 
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST(type, newName); 
-
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		//complete template
+		newVariable.add("type", type);
+		newVariable.add("var", newName);
 		newVariable.add("operation", operation);
 		
 		mapCtxVar.put(ctx, var);
@@ -1381,7 +1469,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsList(expr0)) {
 			
 			valueType = getListValueType(expr0);
-			type = getListDeclaration(valueType);
+			type = "Boolean"; // in Java, list add returns boolean
 			operation = expr0Name + ".get(" + expr1Name + ")";
 			
 			// get expr1 Variable
@@ -1390,7 +1478,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// if expr1 is Numeric conversion may be needed
 			if (expr1Var.isNumeric()) {
-				double factor = expr1Var.convertUnitTo(Units.instanceOf(valueType));
+				double factor = expr1Var.convertUnitTo(Units.instanceOf(((ListVar)(mapCtxVar.get(ctx.expression(0)).getValue())).getType()));
 				operation = expr0Name + ".add(" + expr1Name + " * " + factor + ")";
 			}
 		}
@@ -1491,7 +1579,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsList(expr0)) {
 			
 			valueType = getListValueType(expr0);
-			operation = expr0Name + ".get(" + expr1Name + ".intValue())";
+			operation = expr0Name + ".remove(" + expr1Name + ".intValue())";
 			
 			// get info to create Variable
 			ListVar listVar = (ListVar) new Variable(mapCtxVar.get(ctx.expression(0))).getValue();
@@ -1514,7 +1602,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				factor = " * " + key.convertUnitTo(Units.instanceOf(keyType));
 			}
 			
-			operation = expr0Name + ".get(" + expr1Name + factor + ")";
+			operation = expr0Name + ".remove(" + expr1Name + factor + ")";
 			
 			// create Variable
 			DictVar dictVar = (DictVar) new Variable(mapCtxVar.get(ctx.expression(0))).getValue();
@@ -1691,8 +1779,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = varAssignmentST("boolean", newName);
 
 		// add previous statements
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		
 		// get var names to complete operation and add it
 		String expr0Name = (String) expr0.getAttribute("var");
@@ -1776,18 +1864,34 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->EXPRESSION - FUNCTION CALL");
 		
+		// get expression info
 		ST functionCall = visit(ctx.functionCall());
+		String functionCallRender = functionCall.render();
 		
-		if (mapCtxVar.get(ctx.functionCall()) != null) {
-			mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.functionCall())));
+		// create new template
+		String newName = getNewVarName();
+		ST newVariable = stg.getInstanceOf("varAssignment");
+		
+		// add preiousStatments
+		if (functionCallRender.contains(";")) {
+			functionCallRender = functionCallRender.substring(0, functionCallRender.lastIndexOf(";"));
+			newVariable.add("previousStatements", functionCallRender);
 		}
+		newVariable.add("type", getVarTypeDeclaration(mapCtxVar.get(ctx.functionCall())));
+		newVariable.add("var", newName);
+		
+		String[] aux = functionCall.render().split(";");
+		String opFunctCall = aux[aux.length-1];
+		newVariable.add("operation", opFunctCall);
+		
+		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.functionCall())));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> function name = " + (String) functionCall.getAttribute("functionName") + "\n");
 			ci();
 		}
 		
-		return functionCall;
+		return newVariable;
 	}
 	
 	@Override
@@ -1870,7 +1974,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// get var info
 		String id = ctx.ID().getText();
-		String lastName = symbolTableNames.get(id);
+		String lastName = symbolTableNamesGet(id);
 		Variable var = new Variable(symbolTableValue.get(lastName));
 		
 		// create template
@@ -1917,6 +2021,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			type = "Double";
 		}
 		
+		if (globalScope == true) {
+			type = "static " + type;
+		}
+		
 		// create varDeclaration ST
 		ST varDeclaration = stg.getInstanceOf("varAssignment");
 		varDeclaration.add("type", type);
@@ -1925,7 +2033,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create Variable and save ctx and update tables
 		Variable var = new Variable(mapCtxVar.get(ctx.type())); // type already contains information necessary to create variable
-		symbolTableNames.put(originalName, newName);
+		symbolTableNamesPut(originalName, newName);
 		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx, var);
 		
@@ -1944,18 +2052,18 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->VARDECLARATION - LIST\n");
 		
 		// get varDeclaration info
-		String listType = ctx.ID(0).getText();
-		String originalName = ctx.ID(1).getText();
+		String listType = ctx.id.getText();
+		String originalName = ctx.ID(ctx.ID().size()-1).getText();
 		String newName = getNewVarName();
 		
 		// create varDeclaration ST
 		ST newVariable = varAssignmentST(getListDeclaration(listType), newName, "new ArrayList<>()");
 		
 		// update variable names table
-		symbolTableNames.put(originalName, newName);
+		symbolTableNamesPut(originalName, newName);
 		
 		// create Variable and save ctx
-		ListVar listVar = new ListVar(ctx.ID(0).getText(), true);
+		ListVar listVar = new ListVar(ctx.id.getText(), true);
 		Variable var = new Variable(null, varType.LIST, listVar);
 		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx,  var);
@@ -1971,19 +2079,19 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->VARDECLARATION - LIST\n");
 		
 		// get varDeclaration info
-		String keyType = ctx.ID(0).getText();
-		String valueType = ctx.ID(1).getText();
-		String originalName = ctx.ID(2).getText();
+		String keyType = ctx.key.getText();
+		String valueType = ctx.val.getText();
+		String originalName = ctx.ID(ctx.ID().size()-1).getText();
 		String newName = getNewVarName();
 		
 		// create varDeclaration ST
 		ST newVariable = varAssignmentST(getDictDeclaration(keyType, valueType), newName, "new HashMap<>()");
 		
 		// update variable names table
-		symbolTableNames.put(originalName, newName);
+		symbolTableNamesPut(originalName, newName);
 		
 		// create Variable and save ctx
-		DictVar dictVar = new DictVar(ctx.ID(0).getText(), true, ctx.ID(1).getText(), true); // boolean value is not relevante for compilation
+		DictVar dictVar = new DictVar(keyType, true, valueType, true); // boolean value is not relevant for compilation
 		Variable var = new Variable(null, varType.DICT, dictVar);
 		symbolTableValue.put(newName, var);
 		mapCtxVar.put(ctx,  var);
@@ -2334,13 +2442,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 	
 	private static boolean typeIsString(ST exprST) {
-		if (((String)exprST.getAttribute("type")).contains("String"))
+		if (((String)exprST.getAttribute("type")).equals("String"))
 				return true;
 		return false;
 	}
 	
 	private static boolean typeIsBoolean(ST exprST) {
-		if (((String)exprST.getAttribute("type")).contains("Boolean"))
+		if (((String)exprST.getAttribute("type")).equals("Boolean"))
 				return true;
 		return false;
 	}
@@ -2352,7 +2460,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 	
 	private static boolean typeIsDouble(ST exprST) {
-		if (((String)exprST.getAttribute("type")).contains("Double"))
+		if (((String)exprST.getAttribute("type")).equals("Double"))
 				return true;
 		return false;
 	}
@@ -2371,6 +2479,38 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			case "dict"		:	return varType.valueOf(varType.class, "DICT");
 			default			:	return varType.valueOf(varType.class, "NUMERIC");
 		}
+	}
+	
+	private static void openScope() {
+		
+		HashMap<String, String> newSymbolTable = new HashMap<>();
+		int lastIndex = symbolTableNames.size()-1;
+		
+		Map<String, String> oldSymbolTable = symbolTableNames.get(lastIndex);
+		for (String key : oldSymbolTable.keySet()) {
+			newSymbolTable.put(key, oldSymbolTable.get(key));
+		}
+		
+		symbolTableNames.add(newSymbolTable);
+		
+	}
+	
+	private static void closeScope() {
+		
+		int lastIndex = symbolTableNames.size()-1;
+		symbolTableNames.remove(lastIndex);
+	}
+	
+	private static void symbolTableNamesPut(String key, String value) {
+		
+		int lastIndex = symbolTableNames.size()-1;
+		symbolTableNames.get(lastIndex).put(key, value);
+	}
+	
+	private static String symbolTableNamesGet(String key) {
+		
+		int lastIndex = symbolTableNames.size()-1;
+		return symbolTableNames.get(lastIndex).get(key);
 	}
 	
 	private static String indent = "";

@@ -177,7 +177,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->GLOBAL STATEMENT - ASSIGNMENT");
 		
-		boolean valid =  visit(ctx.assignment());
+		
+		boolean valid = false;
+		if (ctx.assignment() instanceof Assignment_Var_Declaration_ExpressionContext) {
+			valid =  visit(ctx.assignment());
+		}
+		else {
+			ErrorHandling.printError(ctx, "No re-assignments allowed in global Scope");
+		}
 		
 		if(debug) ci();
 		
@@ -259,18 +266,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return valid;
 	}
 
-//	@Override 
-//	public Boolean visitStatement_Function_Return(Statement_Function_ReturnContext ctx) {
-//		
-//		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - FUNCTION RETURN");
-//		
-//		boolean valid = visitChildren(ctx);
-//		
-//		if (debug) ci();
-//		
-//		return valid;
-//	}
-
 	@Override 
 	public Boolean visitStatement_InputOutput(Statement_InputOutputContext ctx) {
 		
@@ -282,10 +277,31 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		return valid;
 	}
+	
+	@Override
+	public Boolean visitStatement_Expression(Statement_ExpressionContext ctx) {
+	
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->STATEMENT - EXPRESSION");
+		
+		boolean valid = false;
+		
+		if (ctx.expression() instanceof Expression_SORTContext ||
+			ctx.expression() instanceof Expression_ADDContext ||
+			ctx.expression() instanceof Expression_REMContext) {
+				valid = visit(ctx.expression());
+			}
+		
+		if (debug) ci();
+		
+		return valid;
+		
+	}
+	
 
 	// --------------------------------------------------------------------------
 	// Assignments
 	
+
 	@Override
 	public Boolean visitAssignment_Var_Declaration_Expression(Assignment_Var_Declaration_ExpressionContext ctx) {
 		
@@ -1315,7 +1331,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				String str1 = "";
 				
 				// variables are string || boolean || numeric, concatenation is possible -> ok
-				if ((var0.isString() || var0.isBoolean() || var0.isNumeric()) && (var1.isString() || var1.isBoolean() || var1.isNumeric())) {
+				if ((var0.isString() || var0.isBoolean() || var0.isNumeric() || var0.isList()) && (var1.isString() || var1.isBoolean() || var1.isNumeric()) || var1.isList()) {
 	
 					if (var0.isString()) {
 						str0 = (String) var0.getValue();
@@ -1326,6 +1342,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					if (var0.isNumeric()) {
 						str0 = ((Double) var0.getValue()) + var0.getUnit().getSymbol();
 					}
+					if (var0.isList()) {
+						str0 = ((ListVar) var0.getValue()).toString();
+					}
 					
 					if (var1.isString()) {
 						str1 = (String) var1.getValue();
@@ -1335,6 +1354,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					}
 					if (var1.isNumeric()) {
 						str1 = ((Double) var1.getValue()) + var1.getUnit().getSymbol();
+					}
+					if (var1.isList()) {
+						str1 = ((ListVar) var1.getValue()).toString();
 					}
 					
 					String finalStr = str0 + str1;
@@ -1517,11 +1539,15 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			ListVar listVar = (ListVar) var0.getValue();
 			String valueUnit = listVar.getType();
+			var1 = new Variable(var1); // deep copy
+			
+			if (var1.getUnit() == null) {
+				ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getVarType() + "'");
+				return false;
+			}
 			
 			// list accepts compatible value units -> verify
 			if (!listVar.isBlocked()) {
-				
-				var1 = new Variable(var1); // deep copy
 				
 				// list value unit and expression unit are not compatible -> error
 				try {
@@ -1533,7 +1559,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				}
 				// list value unit and expression unit are compatible -> ok (jumps to next code)
 			}
-			
+			else {
+				Unit varUnit = var1.getUnit();
+				if (!valueUnit.equals(varUnit.getName())) {
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + varUnit.getName() + "' is not equal to blocked list values type '" + valueUnit + "'");
+					return false;
+				}
+			}
 			// list value unit is blocked to specific unit -> verify
 			boolean added = listVar.getList().add(var1);
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, added));
@@ -1639,7 +1671,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					
 				if (var1.getUnit().equals(Units.instanceOf("number"))) {
 					try {
-						int index = (int) var1.getValue();
+						int index = ((Double)var1.getValue()).intValue();
 						Variable rem = listVar.getList().remove(index);
 						mapCtxVar.put(ctx, rem);
 						
@@ -2301,9 +2333,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION LIST");
 		
-		String listParamName = ctx.ID(0).getText();
+		String listParamName = ctx.id.getText();
 		varType listParam = newVarUnit(listParamName);
-		String newVarName = ctx.ID(1).getText();
+		String newVarName = ctx.ID(ctx.ID().size()-1).getText();
 		
 		// new variable is already declared -> error
 		if(symbolTableContains(newVarName)) {
@@ -2345,11 +2377,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION DICT");
 
-		String keyUnitName = ctx.ID(0).getText();
-		String valueUnitName = ctx.ID(1).getText();
+		String keyUnitName = ctx.key.getText();
+		String valueUnitName = ctx.val.getText();
 		varType keyUnit = newVarUnit(keyUnitName);
 		varType valueUnit = newVarUnit(valueUnitName);
-		String newVarName = ctx.ID(1).getText();
+		String newVarName = ctx.ID(ctx.ID().size()-1).getText();
 		
 		// new variable is already declared -> error
 		if(symbolTableContains(newVarName)) {

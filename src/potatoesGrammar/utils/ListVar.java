@@ -1,6 +1,7 @@
 package potatoesGrammar.utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -50,6 +51,26 @@ public class ListVar {
 	 */
 	public boolean isBlocked() {
 		return blocked;
+	}
+
+
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		
+		str.append("[");
+		
+		Iterator<Variable> it = list.iterator();
+		while (it.hasNext()) {
+			str.append(((Double) it.next().getValue()) + type);
+			if (it.hasNext()) {
+				str.append(",");
+			}
+		}
+		
+		str.append("]");
+		
+		return str.toString();
 	}
 	
 	
