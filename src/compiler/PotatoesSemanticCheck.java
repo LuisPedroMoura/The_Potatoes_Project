@@ -311,8 +311,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		};
 		
-		Variable var = mapCtxVar.get(ctx.varDeclaration());
-		Variable expr = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.varDeclaration()));
+		Variable expr = new Variable(mapCtxVar.get(ctx.expression()));
 		String varName = "";
 		if (ctx.varDeclaration() instanceof VarDeclaration_VariableContext) {
 			VarDeclaration_VariableContext decl = (VarDeclaration_VariableContext) ctx.varDeclaration();
@@ -320,11 +320,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		if (ctx.varDeclaration() instanceof VarDeclaration_listContext) {
 			VarDeclaration_listContext decl = (VarDeclaration_listContext) ctx.varDeclaration();
-			varName = decl.ID(1).getText();
+			varName = decl.ID().getText();
 		}
 		if (ctx.varDeclaration() instanceof VarDeclaration_dictContext) {
 			VarDeclaration_dictContext decl = (VarDeclaration_dictContext) ctx.varDeclaration();
-			varName = decl.ID(2).getText();
+			varName = decl.ID().getText();
 		}
 		
 		// Units are not compatible -> error
@@ -335,8 +335,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// units are numeric, may or may not be compatible -> verify
 		if (var.isNumeric() && expr.isNumeric()) {
-			
-			expr = new Variable (expr); // deep copy
 			
 			// units are not compatible -> error
 			try {
@@ -370,8 +368,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		};
 		
-		Variable var = mapCtxVar.get(ctx.var());
-		Variable expr = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.var()));
+		Variable expr = new Variable(mapCtxVar.get(ctx.expression()));
 		
 		// Units are not compatible -> error
 		if (var.getVarType() != expr.getVarType()) {
@@ -381,8 +379,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		// units are numeric, may or may not be compatible -> verify
 		if (var.isNumeric() && expr.isNumeric()) {
-			
-			expr = new Variable (expr); // deep copy
 			
 			// units are not compatible -> error
 			try {
@@ -438,7 +434,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 
-		mapCtxVar.put(ctx, mapCtxVar.get(ctx.scope()));
+		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.scope())));
 		
 		if (debug) ci();
 		
@@ -462,14 +458,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		
 		
 		if (var.isNumeric()) {
 			
 			if (Units.exists(currentReturn)) {
 				
-				var = new Variable(var); // deep copy
 				try {
 					var.convertUnitTo(Units.instanceOf(currentReturn));
 					// jumps to the end
@@ -531,7 +526,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		List<Variable> functionCallArgs = new ArrayList<>();
 		for (ExpressionContext expr : ctx.expression()) {
 			visit(expr);
-			functionCallArgs.add(mapCtxVar.get(expr));
+			functionCallArgs.add(new Variable(mapCtxVar.get(expr)));
 		}
 				
 		// if number of arguments do not match -> error
@@ -649,7 +644,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		valid = valid && res;
 		
 		// condition is boolean -> ok
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		if (!var.isBoolean()) {
 			ErrorHandling.printError(ctx, "If condition must be boolean");
 			return false;
@@ -687,7 +682,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		valid = valid && res;
 		
 		// condition is boolean -> ok
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		
 		if (!var.isBoolean()) {
 			ErrorHandling.printError(ctx, "If condition must be boolean");
@@ -714,7 +709,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		valid = valid && res;
 		
 		// condition is boolean -> ok
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		if (!var.isBoolean()) {
 			ErrorHandling.printError(ctx, "If condition must be boolean");
 			return false;
@@ -763,7 +758,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			if (!valid) {
 				return false;
 			}
-			mapCtxVar.put(ctx, mapCtxVar.get(ctx.functionReturn()));
+			mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.functionReturn())));
 			closeScope();
 			return true;
 		}
@@ -790,7 +785,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.expression())) {
 			return false;
 		}
-		mapCtxVar.put(ctx, mapCtxVar.get(ctx.expression()));
+		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.expression())));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, "Expression in Parenthesis is: " + mapCtxVar.get(ctx.expression()));
@@ -809,8 +804,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// expression units are list and numeric ('number') -> ok
 		if (var0.isList() && var1.isNumeric()) {
@@ -853,7 +848,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable exprVar = mapCtxVar.get(ctx.expression());
+		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression()));
 		boolean isEmpty;
 		
 		if (exprVar.isList()) {
@@ -900,7 +895,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable exprVar = mapCtxVar.get(ctx.expression());
+		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression()));
 		int size = 0;
 		
 		if (exprVar.isList()) {
@@ -947,7 +942,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		
 		if (var.isList()) {
 			
@@ -983,7 +978,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		
 		if (var.isDict()) {
 			
@@ -1017,7 +1012,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		
 		if (var.isDict()) {
 			
@@ -1051,7 +1046,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable exprVar= new Variable(mapCtxVar.get(ctx.expression())); // deep copy
+		Variable exprVar= new Variable(mapCtxVar.get(ctx.expression()));
 		String castName = ctx.cast().id.getText();
 		
 		// verify if cast is valid numeric unit
@@ -1095,7 +1090,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var = mapCtxVar.get(ctx.expression());
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
 		String op = ctx.op.getText();
 		
 		if ((op.equals("-") && var.isNumeric()) || (op.equals("!") && var.isBoolean())) {
@@ -1122,14 +1117,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable base = mapCtxVar.get(ctx.expression(0));
-		Variable pow = mapCtxVar.get(ctx.expression(1));
+		Variable base = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable pow = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		if (base.isNumeric() && pow.isNumeric()) {
 			
 			if (pow.getUnit().equals(Units.instanceOf("number"))) {
-				
-				base = new Variable(base); // deep copy
 				
 				Variable res = Variable.power(base, pow);
 				
@@ -1160,14 +1153,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		String op = ctx.op.getText();
 	
 		if (var0.isNumeric() && var1.isNumeric()) {
-			
-			var0 = new Variable(var0); // deep copy
-			var1 = new Variable(var1); // deep copy
 			
 			Variable res = null;
 			// Modulus
@@ -1285,15 +1275,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		String op = ctx.op.getText();
 		
 		// both elements are numeric -> ok
 		if (var0.isNumeric() && var1.isNumeric()) {
-			
-			var0 = new Variable(var0); // deep copy
-			var1 = new Variable(var1); // deep copy
 	
 			try {
 				Variable res = null;
@@ -1322,57 +1309,57 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// one operand is string and the other is string || boolean || numeric -> ok (string concatenation)
-		else if (var0.isString() || var1.isString()) {
+		else if ((var0.isString() || var1.isString()) && op.equals("+") && !var0.isTuple() && !var1.isTuple()) {
 			
-			// operator is '+' -> concatenation is possible
-			if (op.equals("+")) {
+			String str0 = "";
+			String str1 = "";
 			
-				String str0 = "";
-				String str1 = "";
-				
-				// variables are string || boolean || numeric, concatenation is possible -> ok
-				if ((var0.isString() || var0.isBoolean() || var0.isNumeric() || var0.isList()) && (var1.isString() || var1.isBoolean() || var1.isNumeric()) || var1.isList()) {
-	
-					if (var0.isString()) {
-						str0 = (String) var0.getValue();
-					}
-					if (var0.isBoolean()) {
-						str0 = ((Boolean) var0.getValue())+""; 
-					}
-					if (var0.isNumeric()) {
-						str0 = ((Double) var0.getValue()) + var0.getUnit().getSymbol();
-					}
-					if (var0.isList()) {
-						str0 = ((ListVar) var0.getValue()).toString();
-					}
-					
-					if (var1.isString()) {
-						str1 = (String) var1.getValue();
-					}
-					if (var1.isBoolean()) {
-						str1 = ((Boolean) var1.getValue())+""; 
-					}
-					if (var1.isNumeric()) {
-						str1 = ((Double) var1.getValue()) + var1.getUnit().getSymbol();
-					}
-					if (var1.isList()) {
-						str1 = ((ListVar) var1.getValue()).toString();
-					}
-					
-					String finalStr = str0 + str1;
-					mapCtxVar.put(ctx, new Variable (null, varType.STRING, finalStr));
-					
-					if (debug) {
-						ErrorHandling.printInfo(ctx, indent+" -> String Operation!");
-						ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
-						ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
-						ErrorHandling.printInfo(ctx, indent+" -> result of op " + op + ": " + finalStr);
-						ci();
-					}
-					
-					return true;
-				}
+			// get var0 string value
+			if (var0.isString()) {
+				str0 = (String) var0.getValue();
 			}
+			else if (var0.isBoolean()) {
+				str0 = ((Boolean) var0.getValue())+""; 
+			}
+			else if (var0.isNumeric()) {
+				str0 = ((Double) var0.getValue()) + var0.getUnit().getSymbol();
+			}
+			else if (var0.isList()) {
+				str0 = ((ListVar) var0.getValue()).toString();
+			}
+			else if (var0.isDict()) {
+				str0 = ((DictVar) var0.getValue()).toString();
+			}
+			
+			// get var1 string value
+			if (var1.isString()) {
+				str1 = (String) var1.getValue();
+			}
+			else if (var1.isBoolean()) {
+				str1 = ((Boolean) var1.getValue())+""; 
+			}
+			else if (var1.isNumeric()) {
+				str1 = ((Double) var1.getValue()) + var1.getUnit().getSymbol();
+			}
+			else if (var1.isList()) {
+				str1 = ((ListVar) var1.getValue()).toString();
+			}
+			else if (var0.isDict()) {
+				str1 = ((DictVar) var1.getValue()).toString();
+			}
+			
+			String finalStr = str0 + str1;
+			mapCtxVar.put(ctx, new Variable (null, varType.STRING, finalStr));
+			
+			if (debug) {
+				ErrorHandling.printInfo(ctx, indent+" -> String Operation!");
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
+				ErrorHandling.printInfo(ctx, indent+" -> result of op " + op + ": " + finalStr);
+				ci();
+			}
+			
+			return true;
 		}
 		
 		if (debug) {
@@ -1396,8 +1383,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
+		String op = ctx.op.getText();
+		Double var0Val = (Double) var0.getValue();
+		Double var1Val = (Double) var1.getValue();
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
@@ -1405,27 +1395,76 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ci();
 		}
 		
+		if (!(var0.isNumeric() && var1.isNumeric()) && !(var0.isString() && var1.isString())) {
+			ErrorHandling.printError(ctx, "Units to be compared are not compatible");
+			return false;
+		}
+		
 		if (var0.isNumeric() && var1.isNumeric()) {
-			
-			var0 = new Variable(var0); // deep copy
 			
 			try {
 				var0.convertUnitTo(var1.getUnit());
-				mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));	
-				return true;
+				var0Val = (Double) var0.getValue();
 			}
 			catch (IllegalArgumentException e) {
-				// do nothing
+				// do nothing (jumps to error)
 			}
 		}
 		
 		else if (var0.isString() && var1.isString()) {
-			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
-			return true;
+			var0Val = (double) ((String) var0.getValue()).length();
+			var1Val = (double) ((String) var1.getValue()).length();
 		}
-
-		ErrorHandling.printError(ctx, "Units to be compared are not compatible");
-		return false;
+		
+		Boolean res = false;
+		if (op.equals("<")) {
+			res = var0Val < var1Val;
+		}
+		else if (op.equals("<=")) {
+			res = var0Val <= var1Val;
+		}
+		else if (op.equals(">")) {
+			res = var0Val > var1Val;
+		}
+		else {
+			res = var0Val >= var1Val;
+		}
+		
+		mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, res));	
+		return true;
+		
+	}
+	
+	@Override
+	public Boolean visitExpression_INSTANCEOF(Expression_INSTANCEOFContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->EXPRESSION INSTANCEOF");
+		
+		if(!visit(ctx.expression()) || !visit(ctx.type())) {
+			return false;
+		}
+		
+		Variable var = new Variable(mapCtxVar.get(ctx.expression()));
+		Variable type = new Variable(mapCtxVar.get(ctx.type()));
+		
+		Boolean res = false;
+		if (var.getVarType() == type.getVarType()) {
+			
+			if (!var.isNumeric()) {
+				res = true;
+			}
+			else {
+				if (var.getUnit().equals(type.getUnit())) {
+					res = true;
+				}
+			}
+		}
+		
+		mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, res));
+		
+		if (debug) ci();
+		
+		return true;
 	}
 
 	@Override
@@ -1437,8 +1476,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
@@ -1446,27 +1485,28 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ci();
 		}
 		
+		if (!(var0.getVarType() == var1.getVarType())) {
+			ErrorHandling.printError(ctx, "Units to be compared are not compatible");
+			return false;
+		}
+		
 		if (var0.isNumeric() && var1.isNumeric()) {
-			
-			var0 = new Variable(var0); // deep copy
 			
 			try {
 				var0.convertUnitTo(var1.getUnit());
-				mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
-				return true;
 			}
 			catch (IllegalArgumentException e) {
 				// do nothing
 			}
 		}
 		
-		else if (var0.getVarType() == var1.getVarType()) {
-			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
-			return true;
+		Boolean res = false;
+		if (var0.equals(var1)) {
+			res = true;
 		}
-			
-		ErrorHandling.printError(ctx, "Units to be compared are not compatible");
-		return false;
+		
+		mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, res));
+		return true;
 	}
 	
 	@Override
@@ -1478,8 +1518,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
@@ -1488,7 +1528,16 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		if (var0.isBoolean() && var1.isBoolean()) {
-			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, true));
+			
+			Boolean res = null;
+			if (ctx.op.getText().equals("&&")) {
+				res = ((Boolean)var0.getValue()) && ((Boolean)var1.getValue());
+			}
+			else {
+				res = ((Boolean)var0.getValue()) || ((Boolean)var1.getValue());
+			}
+			
+			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, res));
 			return true;
 		}
 		
@@ -1505,8 +1554,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		DictTuple tuple = new DictTuple(var0, var1);
 		
@@ -1531,15 +1580,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// left expression is unit list -> verify
 		if (var0.isList()) {
 			
 			ListVar listVar = (ListVar) var0.getValue();
 			String valueUnit = listVar.getType();
-			var1 = new Variable(var1); // deep copy
 			
 			if (var1.getUnit() == null) {
 				ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getVarType() + "'");
@@ -1588,15 +1636,13 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			String keyUnit = dictVar.getKeyType();
 			String valueUnit = dictVar.getValueType();
 			
-			Variable tupleKey = ((DictTuple) var1.getValue()).getKey();
-			Variable tupleValue = ((DictTuple) var1.getValue()).getValue();
+			Variable tupleKey = new Variable(((DictTuple) var1.getValue()).getKey());
+			Variable tupleValue = new Variable(((DictTuple) var1.getValue()).getValue());
 			
 			// variable to be added is tuple -> verify
 			if (var1.isTuple()) {
 				
 				if (!dictVar.isBlockedKey()) {
-					
-					tupleKey = new Variable(tupleKey); // deep copy
 					
 					// dict key unit and expression unit are not compatible -> error
 					try {
@@ -1610,8 +1656,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				
 				if (!dictVar.isBlockedValue()) {
 					
-					tupleValue = new Variable(tupleValue); // deep copy
-					
 					// dict key unit and expression unit are not compatible -> error
 					try {
 						tupleValue.convertUnitTo(Units.instanceOf(valueUnit));
@@ -1622,7 +1666,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 					}
 				}
 				
-				Variable previous = dictVar.getDict().put(tupleKey, tupleValue); // previous can be null, but I think the code will not allow it anywhere
+				Variable previous = new Variable(dictVar.getDict().put(tupleKey, tupleValue)); // previous can be null, but I think the code will not allow it anywhere
 				mapCtxVar.put(ctx, previous);
 				
 				if (debug) {
@@ -1658,8 +1702,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// expression to search index on is unit list -> verify
 		if (var0.isList()) {
@@ -1672,7 +1716,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				if (var1.getUnit().equals(Units.instanceOf("number"))) {
 					try {
 						int index = ((Double)var1.getValue()).intValue();
-						Variable rem = listVar.getList().remove(index);
+						Variable rem = new Variable(listVar.getList().remove(index));
 						mapCtxVar.put(ctx, rem);
 						
 						if (debug) {
@@ -1706,8 +1750,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// dict accepts compatible key units -> verify
 			if (!dictVar.isBlockedKey()) {
 				
-				var1 = new Variable(var1); // deep copy
-				
 				// dict key unit and expression unit are not compatible -> error
 				try {
 					var1.convertUnitTo(Units.instanceOf(keyUnit));
@@ -1721,7 +1763,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			
 			// dict key unit is blocked to specific unit -> verify
-			Variable rem = dictVar.getDict().remove(var1);
+			Variable rem = new Variable(dictVar.getDict().remove(var1));
 			// if dictionary does not contain key
 			if (rem == null) {
 				ErrorHandling.printError(ctx, "Dictionary does not contain key or value");
@@ -1781,8 +1823,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// expression to search index on is list -> verify
 		if(var0.isList()) {
@@ -1791,13 +1833,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// expression for index search is 'number' -> ok
 			if (var1.isNumeric()) {
-
-				var1 = new Variable(var1); // deep copy
 				
 				if (var1.getUnit().equals(Units.instanceOf("number"))) {
 					try {
 						int index = (int) var1.getValue();
-						Variable get = (Variable) listVar.getList().get(index);
+						Variable get = new Variable((Variable) listVar.getList().get(index));
 						mapCtxVar.put(ctx, get);
 						
 						if (debug) {
@@ -1831,8 +1871,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			// dict accepts compatible key units -> verify
 			if (!dictVar.isBlockedKey()) {
 				
-				var1 = new Variable(var1); // deep copy
-				
 				// dict key unit and expression unit are not compatible -> error
 				try {
 					var1.convertUnitTo(Units.instanceOf(keyUnit));
@@ -1845,7 +1883,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			}
 			
 			// dict does not accept compatible key units -> verify
-			Variable get = (Variable) dictVar.getDict().get(var1);
+			Variable get = new Variable((Variable) dictVar.getDict().get(var1));
 			// if dictionary does not contain key
 			if (get == null) {
 				ErrorHandling.printError(ctx, "Dictionary does not contain key");
@@ -1886,8 +1924,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// expression to search value on has unit list -> ok
 		if (var0.isList()) {
@@ -1897,8 +1935,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// list accepts compatible value units -> verify
 			if (!listVar.isBlocked()) {
-				
-				var1 = new Variable(var1); // deep copy
+
 				
 				// list value unit and expression unit are not compatible -> error
 				try {
@@ -1972,8 +2009,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// expression to search value on has unit dict -> ok
 		
@@ -1984,8 +2021,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// dict accepts compatible key units -> verify
 			if (!dictVar.isBlockedValue()) {
-				
-				var1 = new Variable(var1); // deep copy
 				
 				// dict key unit and expression unit are not compatible -> error
 				try {
@@ -2034,8 +2069,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// expression to search value on is dict -> ok
 		if (var0.isDict()) {
@@ -2045,8 +2080,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// dict accepts compatible value units -> verify
 			if (!dict.isBlockedValue()) {
-				
-				var1 = new Variable(var1); // deep copy
 				
 				// dict value unit and expression unit are not compatible -> error
 				try {
@@ -2095,8 +2128,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var0 = mapCtxVar.get(ctx.expression(0));
-		Variable var1 = mapCtxVar.get(ctx.expression(1));
+		Variable var0 = new Variable(mapCtxVar.get(ctx.expression(0)));
+		Variable var1 = new Variable(mapCtxVar.get(ctx.expression(1)));
 		
 		// expression to search index on is a list -> verify
 		if (var0.isList()) {
@@ -2107,8 +2140,6 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			// dict accepts compatible value units -> verify
 			if (!listVar.isBlocked()) {
-				
-				var1 = new Variable(var1); // deep copy
 			
 				// dict value unit and expression unit are not compatible -> error
 				try {
@@ -2177,7 +2208,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.var())) {
 			return false;
 		}
-		mapCtxVar.put(ctx, mapCtxVar.get(ctx.var()));
+		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.var())));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> expression: " + mapCtxVar.get(ctx.var()));
@@ -2195,7 +2226,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.value())) {
 			return false;
 		}
-		mapCtxVar.put(ctx, mapCtxVar.get(ctx.value()));
+		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.value())));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> expression: " + mapCtxVar.get(ctx.value()));
@@ -2213,7 +2244,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.functionCall())) {
 			return false;
 		}
-		mapCtxVar.put(ctx, mapCtxVar.get(ctx.functionCall()));
+		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.functionCall())));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> expression: " + mapCtxVar.get(ctx.functionCall()));
@@ -2244,6 +2275,8 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->PRINT");
 		
 		boolean valid = visit(ctx.expression());
+		
+		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.expression())));
 		
 		if (debug) ci();
 		
@@ -2284,7 +2317,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String varName = ctx.ID().getText();
 		// variable is declared -> ok
 		if (symbolTableContains(varName)) {
-			mapCtxVar.put(ctx, symbolTableGet(varName));
+			mapCtxVar.put(ctx, new Variable(symbolTableGet(varName)));
 			
 			if (debug) {
 				ErrorHandling.printInfo(ctx, indent+" -> var Name: " + varName);
@@ -2309,7 +2342,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable unit = mapCtxVar.get(ctx.type());
+		Variable unit = new Variable(mapCtxVar.get(ctx.type()));
 		String newVarName = ctx.ID().getText();
 		
 		// variable to be created is already declared or is reserved word -> error
@@ -2333,9 +2366,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION LIST");
 		
-		String listParamName = ctx.id.getText();
+		String listParamName = ctx.type().getText();
 		varType listParam = newVarUnit(listParamName);
-		String newVarName = ctx.ID(ctx.ID().size()-1).getText();
+		String newVarName = ctx.ID().getText();
 		
 		// new variable is already declared -> error
 		if(symbolTableContains(newVarName)) {
@@ -2377,11 +2410,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION DICT");
 
-		String keyUnitName = ctx.key.getText();
-		String valueUnitName = ctx.val.getText();
+		String keyUnitName = ctx.type(0).getText();
+		String valueUnitName = ctx.type(1).getText();
 		varType keyUnit = newVarUnit(keyUnitName);
 		varType valueUnit = newVarUnit(valueUnitName);
-		String newVarName = ctx.ID(ctx.ID().size()-1).getText();
+		String newVarName = ctx.ID().getText();
 		
 		// new variable is already declared -> error
 		if(symbolTableContains(newVarName)) {
@@ -2473,7 +2506,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - VOID TYPE");
 		
-		Variable var = new Variable (null, varType.VOID, "");
+		Variable var = new Variable (null, varType.VOID, null);
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) ci();
@@ -2504,6 +2537,32 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		return false;
 	}
 	
+	@Override
+	public Boolean visitType_List_Type(Type_List_TypeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - LIST TYPE");
+		
+		Variable var = new Variable (null, varType.LIST, new ListVar("temp", true));
+		mapCtxVar.put(ctx, var);
+		
+		if (debug) ci();
+		
+		return true;
+	}
+
+	@Override
+	public Boolean visitType_Dict_Type(Type_Dict_TypeContext ctx) {
+		
+		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - DICT TYPE");
+		
+		Variable var = new Variable (null, varType.LIST, new DictVar("temp", true, "temp", true));
+		mapCtxVar.put(ctx, var);
+		
+		if (debug) ci();
+		
+		return true;
+	}
+
 	@Override
 	public Boolean visitValue_Number(Value_NumberContext ctx) {
 		
@@ -2566,7 +2625,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		String castName = ctx.id.getText();
 		// cast unit exists -> ok
 		if (Units.exists(castName)){
-			Variable var = new Variable(Units.instanceOf(castName), null, null);
+			Variable var = new Variable(Units.instanceOf(castName), varType.NUMERIC, null);
 			mapCtxVar.put(ctx, var);
 			
 			if (debug) {

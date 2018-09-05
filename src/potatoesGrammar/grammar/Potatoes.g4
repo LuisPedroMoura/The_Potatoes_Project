@@ -101,6 +101,7 @@ expression			: '(' expression ')' 							#expression_Parenthesis
 					| expression op=('*' | '/' | '%') expression	#expression_Mult_Div_Mod
 					| expression  op=('+' | '-') expression			#expression_Add_Sub				
 					| expression op=('<'|'<='|'>'|'>=') expression	#expression_RelationalQuantityOperators
+					| expression 'instanceof' type					#expression_INSTANCEOF
 					| expression op=('=='|'!=') expression			#expression_RelationalEquality
 					| expression op=('&&'|'||') expression			#expression_logicalOperation
 					| expression '->' expression					#expression_tuple
@@ -139,14 +140,16 @@ var					: ID
 					;
 
 varDeclaration		: type ID													#varDeclaration_Variable
-					| LIST_TYPE '[' block='?'? id=(ID | NUMBER_TYPE) ']' ID		#varDeclaration_list
-					| DICT_TYPE '[' block0='?'? key=(ID | NUMBER_TYPE) ',' block1='?'? val=(ID | NUMBER_TYPE) ']' ID	#varDeclaration_dict
+					| LIST_TYPE '[' block='?'? type ']' ID		#varDeclaration_list
+					| DICT_TYPE '[' block0='?'? type ',' block1='?'? type ']' ID	#varDeclaration_dict
 					;			
 
 type				: NUMBER_TYPE		# type_Number_Type
 					| BOOLEAN_TYPE		# type_Boolean_Type
 					| STRING_TYPE		# type_String_Type
 					| VOID_TYPE			# type_Void_Type
+					| LIST_TYPE			# type_List_Type
+					| DICT_TYPE			# type_Dict_Type
 					| ID				# type_ID_Type
 					;
 	
