@@ -62,7 +62,18 @@ public class ListVar {
 		
 		Iterator<Variable> it = list.iterator();
 		while (it.hasNext()) {
-			str.append(((Double) it.next().getValue()) + type);
+			
+			Variable var = it.next();
+			if (var.isNumeric()) {
+				str.append(((Double) var.getValue()) + var.getUnit().getSymbol() );
+			}
+			else if (var.isString()){
+				str.append(((String) var.getValue()));
+			}
+			else {
+				str.append(((Boolean) var.getValue()));
+			}
+			
 			if (it.hasNext()) {
 				str.append(",");
 			}

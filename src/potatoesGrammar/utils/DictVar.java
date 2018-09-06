@@ -1,6 +1,7 @@
 package potatoesGrammar.utils;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -73,6 +74,51 @@ public class DictVar {
 	 */
 	public boolean isBlockedValue() {
 		return blockedValueType;
+	}
+	
+	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		
+		str.append("[");
+		
+		Iterator<Variable> it = dict.keySet().iterator();
+		while (it.hasNext()) {
+			
+			Variable key = it.next();
+			Variable val = dict.get(key);
+			
+			if (key.isNumeric()) {
+				str.append(((Double) key.getValue()) + key.getUnit().getSymbol() );
+			}
+			else if (key.isString()){
+				str.append(((String) key.getValue()));
+			}
+			else {
+				str.append(((Boolean) key.getValue()));
+			}
+			
+			str.append(" -> ");
+			
+			if (val.isNumeric()) {
+				str.append(((Double) val.getValue()) + val.getUnit().getSymbol() );
+			}
+			else if (val.isString()){
+				str.append(((String) val.getValue()));
+			}
+			else {
+				str.append(((Boolean) val.getValue()));
+			}
+			
+			if (it.hasNext()) {
+				str.append(",");
+			}
+		}
+		
+		str.append("]");
+		
+		return str.toString();
 	}
 
 }

@@ -18,7 +18,7 @@ import unitsGrammar.grammar.Unit;
 import unitsGrammar.grammar.Units;
 
 
-public class Variable {
+public class Variable implements Comparable<Variable>{
 
 	// Static Constant (Debug Only)
 	private static final boolean debug = false;
@@ -327,9 +327,7 @@ public class Variable {
 		return "value =" + value + ", type =" + varType + ", unit =" + unit;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -339,9 +337,7 @@ public class Variable {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -362,6 +358,30 @@ public class Variable {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
+	}
+
+
+	@Override
+	public int compareTo(Variable other) {
+		
+		if (this.value instanceof String && other.getValue() instanceof String) {
+			return ((String) this.value).compareTo((String) other.getValue());
+		}
+		
+		else if (this.value instanceof Boolean && other.getValue() instanceof Boolean) {
+			return ((Boolean) this.value).compareTo((Boolean) other.getValue());
+		}
+		
+		else if (this.value instanceof Double && other.getValue() instanceof Double) {
+			
+			Variable auxOther = new Variable(other);
+			auxOther.convertUnitTo(this.getUnit());
+			return ((Double) this.getValue()).compareTo((Double) auxOther.getValue());
+		}
+		
+		else {
+			throw new IllegalArgumentException();
+		}
 	}
 
 	
