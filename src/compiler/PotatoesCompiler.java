@@ -1896,12 +1896,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->VARDECLARATION - LIST\n");
 		
 		// get varDeclaration info
-		String listType = ctx.type().getText();
 		String originalName = ctx.ID().getText();
 		String newName = getNewVarName();
 		
-		// create varDeclaration ST
-		ST newVariable = varAssignmentST(getListDeclaration(listType), newName, "new ArrayList<>()");
+		// create varDeclaration ST - in Java all Lists are parameterized with String to guarantee correct search and removal
+		ST newVariable = varAssignmentST("List<String>", newName, "new ArrayList<>()");
 		
 		// update variable names table
 		symbolTableNamesPut(originalName, newName);
@@ -1918,13 +1917,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->VARDECLARATION - LIST\n");
 		
 		// get varDeclaration info
-		String keyType = ctx.type(0).getText();
-		String valueType = ctx.type(1).getText();
 		String originalName = ctx.ID().getText();
 		String newName = getNewVarName();
 		
-		// create varDeclaration ST
-		ST newVariable = varAssignmentST(getDictDeclaration(keyType, valueType), newName, "new HashMap<>()");
+		// create varDeclaration ST - in Java all Maps are parameterized with String to guarantee correct search and removal
+		ST newVariable = varAssignmentST("Map<String, String>", newName, "new HashMap<>()");
 		
 		// update variable names table
 		symbolTableNamesPut(originalName, newName);
@@ -2012,7 +2009,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST type = stg.getInstanceOf("type");
-		type.add("type", "List");
+		type.add("type", "list");
 		
 		if(debug) ci();
 		
@@ -2026,7 +2023,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST type = stg.getInstanceOf("type");
-		type.add("type", "Dict");
+		type.add("type", "dict");
 		
 		if(debug) ci();
 		
