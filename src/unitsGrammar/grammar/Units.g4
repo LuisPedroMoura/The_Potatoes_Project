@@ -26,9 +26,12 @@ declaration : unitsDeclaration
 	  			
 // -----------------------------------------------------------------------------
 // Units
-unitsDeclaration	: 'units' '{' (unit EOL)* '}' 
+unitsDeclaration	: 'units' '{' defineDimensionless? (unit EOL)* '}' 
 					;
-					
+
+defineDimensionless	: 'define' 'dimensionless' ':' ID EOL
+					;
+	
 unit	: ID STRING 				 			#Unit_Basic
 		| ID STRING 	':' unitsDerivation		#Unit_Derived
 		| ID STRING?	':' unitsEquivalence 	#Unit_Equivalent

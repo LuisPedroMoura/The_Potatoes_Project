@@ -80,6 +80,10 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public static ParseTreeProperty<Variable> getmapCtxVar(){
 		return mapCtxVar;
 	}
+	
+	public static ParseTreeProperty<Variable> getmapCtxListDict(){
+		return mapCtxListDict;
+	}
 
 	public static Units getUnitsFileInfo() {
 		return unitsFile;
@@ -1591,38 +1595,61 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// left expression is unit list -> verify
 		if (var0.isList()) {
 			
+			var0 = new Variable(mapCtxListDict.get(ctx.expression(0)));
 			ListVar listVar = (ListVar) var0.getValue();
-			String valueUnit = listVar.getType();
+			String valueType = listVar.getType();
+			boolean added = false;
 			
+			// list can only be parameterized with boolean, string or numeric units
 			if (var1.getUnit() == null) {
-				ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getVarType() + "'");
+				ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueType + "' is not compatible with '" + var1.getVarType() + "'");
 				return false;
 			}
 			
-			// list accepts compatible value units -> verify
-			if (!listVar.isBlocked()) {
+			// list is parameterized with string or boolean
+			else if ((valueType.equals("string") && var1.isString()) || (valueType.equals("boolean") && var1.isBoolean())) {
+				added = listVar.getList().add(var1);
+			}
+			
+			// list is parameterized with numeric unit
+			else if (Units.exists(valueType) && var1.isNumeric()) {
 				
-				// list value unit and expression unit are not compatible -> error
-				try {
-					var1.convertUnitTo(Units.instanceOf(valueUnit));
-				}
-				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
+				// as number is compatible with everything, it has to be blocked manually
+				if ((!valueType.equals("number") && var1.getUnit().equals(Units.instanceOf("number")))
+						|| (valueType.equals("number") && !var1.getUnit().equals(Units.instanceOf("number")))) {
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueType + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
-				// list value unit and expression unit are compatible -> ok (jumps to next code)
-			}
-			else {
-				Unit varUnit = var1.getUnit();
-				if (!valueUnit.equals(varUnit.getName())) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + varUnit.getName() + "' is not equal to blocked list values type '" + valueUnit + "'");
-					return false;
+				
+				// list accepts compatible value units -> verify
+				if (!listVar.isBlocked()) {
+					
+					// list value unit and expression unit are not compatible -> error
+					if (var1.getUnit().isCompatible(Units.instanceOf(valueType))) {
+						added = listVar.getList().add(var1);
+					}
+					else {
+						ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueType + "' is not compatible with '" + var1.getUnit().getName() + "'");
+						return false;
+					}
+				}
+				// list is blocked to specific unit
+				else {
+
+					if (var1.getUnit().equals(Units.instanceOf("valueType"))) {
+						added = listVar.getList().add(var1);
+					}
+					else {
+						ErrorHandling.printError(ctx, "Bad operand. Unit '" + var1.getUnit().getName() + "' is not equal to blocked list values type '" + valueType + "'");
+						return false;
+					}
 				}
 			}
-			// list value unit is blocked to specific unit -> verify
-			boolean added = listVar.getList().add(var1);
+			
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, added));
-			mapCtxListDict.put(ctx, new Variable(null, varType.LIST, listVar));
+			Variable list = new Variable(null, varType.LIST, listVar);
+			mapCtxListDict.put(ctx, list);
+			updateSymbolTable(ctx.expression(0).getText(), list);
 			
 			if (debug) {
 				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
@@ -1641,40 +1668,108 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			DictVar dictVar = (DictVar) var0.getValue();
 			String keyUnit = dictVar.getKeyType();
 			String valueUnit = dictVar.getValueType();
-			
-			Variable tupleKey = new Variable(((DictTuple) var1.getValue()).getKey());
-			Variable tupleValue = new Variable(((DictTuple) var1.getValue()).getValue());
-			
+			Variable previous = null;
 			// variable to be added is tuple -> verify
 			if (var1.isTuple()) {
 				
-				if (!dictVar.isBlockedKey()) {
+				Variable tupleKey = new Variable(((DictTuple) var1.getValue()).getKey());
+				Variable tupleValue = new Variable(((DictTuple) var1.getValue()).getValue());
+				
+				boolean checkKey = false;
+				boolean checkVal = false;
+				
+				// check if key is compatible
+				if ((keyUnit.equals("string") && tupleKey.isString()) || (keyUnit.equals("boolean") && tupleKey.isBoolean())) {
 					
-					// dict key unit and expression unit are not compatible -> error
-					try {
-						tupleKey.convertUnitTo(Units.instanceOf(keyUnit));
+					checkKey = true;
+				}
+				else if (Units.exists(keyUnit) && tupleKey.isNumeric()) {
+					
+					// as number is compatible with everything, it has to be blocked manually
+					if ((!keyUnit.equals("number") && var1.getUnit().equals(Units.instanceOf("number")))
+							|| (keyUnit.equals("number") && !var1.getUnit().equals(Units.instanceOf("number")))) {
+						ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with 'number'");
+						return false;
 					}
-					catch (IllegalArgumentException e){
+					
+					// dict accepts compatible key units
+					if (!dictVar.isBlockedKey()) {
+						
+						if (tupleKey.getUnit().isCompatible(Units.instanceOf(keyUnit))) {
+							checkKey = true;
+						}
+					}
+					// dict key is blocked to specific unit
+					else {
+						
+						if (tupleKey.getUnit().equals(Units.instanceOf(keyUnit))) {
+							checkKey = true;
+						}
+					}
+					
+					// key is not compatible
+					if (checkKey == false) {
 						ErrorHandling.printError(ctx, "Bad operand. Key unit is not compatible with dictionary parameterized key unit");
 						return false;
 					}
 				}
+				else {
+					ErrorHandling.printError(ctx, "Bad operand. Key unit is not compatible with dictionary parameterized key unit");
+					return false;
+				}
 				
-				if (!dictVar.isBlockedValue()) {
+				// check if value is compatible
+				if ((valueUnit.equals("string") && tupleValue.isString()) || (valueUnit.equals("boolean") && tupleValue.isBoolean())) {
 					
-					// dict key unit and expression unit are not compatible -> error
-					try {
-						tupleValue.convertUnitTo(Units.instanceOf(valueUnit));
+					checkVal = true;
+				}
+				else if (Units.exists(valueUnit) && var1.isNumeric()) {
+					
+					// as number is compatible with everything, it has to be blocked manually
+					if ((!valueUnit.equals("number") && var1.getUnit().equals(Units.instanceOf("number")))
+							|| (valueUnit.equals("number") && !var1.getUnit().equals(Units.instanceOf("number")))) {
+						ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueUnit + "' is not compatible with 'number'");
+						return false;
 					}
-					catch (IllegalArgumentException e){
+					
+					// dict accepts compatible value units
+					if (!dictVar.isBlockedValue()) {
+						
+						if (tupleValue.getUnit().isCompatible(Units.instanceOf(valueUnit))) {
+							checkVal = true;
+						}
+					}
+					// dict value is blocked to specific unit
+					else {
+						
+						if (tupleValue.getUnit().equals(Units.instanceOf(valueUnit))) {
+							checkVal = true;
+						}
+					}
+					
+					// value is not compatible
+					if (checkVal == false) {
 						ErrorHandling.printError(ctx, "Bad operand. Value unit is not compatible with dictionary parameterized value unit");
 						return false;
 					}
 				}
+				else {
+					ErrorHandling.printError(ctx, "Bad operand. Key unit is not compatible with dictionary parameterized key unit");
+					return false;
+				}
 				
-				Variable previous = new Variable(dictVar.getDict().put(tupleKey, tupleValue)); // previous can be null, but I think the code will not allow it anywhere
+				// add/put the tuple into the dict
+				if (checkKey && checkVal) {
+					previous = new Variable(dictVar.getDict().put(tupleKey, tupleValue));
+					if (previous == null) {
+						previous = new Variable(null, varType.VOID, null);
+					}
+				}
+ 
 				mapCtxVar.put(ctx, previous);
-				mapCtxListDict.put(ctx, new Variable(null, varType.LIST, dictVar));
+				Variable dict = new Variable(null, varType.LIST, dictVar);
+				mapCtxListDict.put(ctx, dict);
+				updateSymbolTable(ctx.expression(0).getText(), dict);
 				
 				if (debug) {
 					ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
@@ -1695,7 +1790,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ci();
 		}
 		
-		// Bad operands: var0 is not list || dict or var1 is not compatible with given list || dict
+		// Bad operands: var0 is not list || dict
 		ErrorHandling.printError(ctx, "Bad operand units for operator 'add'");
 		return false;
 	}
@@ -1715,6 +1810,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// expression to search index on is unit list -> verify
 		if (var0.isList()) {
 			
+			var0 = new Variable(mapCtxListDict.get(ctx.expression(0)));
 			ListVar listVar = (ListVar) var0.getValue();
 			
 			// expression unit is 'number' -> verify
@@ -1725,7 +1821,9 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						int index = ((Double)var1.getValue()).intValue();
 						Variable rem = new Variable(listVar.getList().remove(index));
 						mapCtxVar.put(ctx, rem);
-						mapCtxListDict.put(ctx, new Variable(null, varType.LIST, listVar));
+						Variable list = new Variable(null, varType.LIST, listVar);
+						mapCtxListDict.put(ctx, list);
+						updateSymbolTable(ctx.expression(0).getText(), list);
 						
 						if (debug) {
 							ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
@@ -1755,31 +1853,61 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			DictVar dictVar = (DictVar) var1.getValue() ;
 			String keyUnit = dictVar.getKeyType();
 			
-			// dict accepts compatible key units -> verify
-			if (!dictVar.isBlockedKey()) {
+			boolean checkKey = false;
+			
+			// check if key is compatible
+			if ((keyUnit.equals("string") && var1.isString()) || (keyUnit.equals("boolean") && var1.isBoolean())) {
 				
-				// dict key unit and expression unit are not compatible -> error
-				try {
-					var1.convertUnitTo(Units.instanceOf(keyUnit));
-				}
-				catch (IllegalArgumentException e) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with '" + var1.getUnit().getName() + "'");
+				checkKey = true;
+			}
+			else if (Units.exists(keyUnit) && var1.isNumeric()) {
+				
+				// as number is compatible with everything, it has to be blocked manually
+				if ((!keyUnit.equals("number") && var1.getUnit().equals(Units.instanceOf("number")))
+						|| (keyUnit.equals("number") && !var1.getUnit().equals(Units.instanceOf("number")))) {
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + keyUnit + "' is not compatible with 'number'");
 					return false;
 				}
-				// dict key unit and expression unit are compatible -> ok (jumps to next code
 				
+				// dict accepts compatible key units
+				if (!dictVar.isBlockedKey()) {
+					
+					if (var1.getUnit().isCompatible(Units.instanceOf(keyUnit))) {
+						checkKey = true;
+					}
+				}
+				// dict key is blocked to specific unit
+				else {
+					
+					if (var1.getUnit().equals(Units.instanceOf(keyUnit))) {
+						checkKey = true;
+					}
+				}
+				
+				// key is not compatible
+				if (checkKey == false) {
+					ErrorHandling.printError(ctx, "Bad operand. Key unit is not compatible with dictionary parameterized key unit");
+					return false;
+				}
 			}
-			
-			// dict key unit is blocked to specific unit -> verify
-			Variable rem = new Variable(dictVar.getDict().remove(var1));
-			// if dictionary does not contain key
-			if (rem == null) {
-				ErrorHandling.printError(ctx, "Dictionary does not contain key or value");
+			else {
+				ErrorHandling.printError(ctx, "Bad operand. Key unit is not compatible with dictionary parameterized key unit");
 				return false;
 			}
+			
+			Variable rem = null;
+			if (checkKey) {
+				rem = new Variable(dictVar.getDict().remove(var1));
+				if (rem == null) {
+					rem = new Variable(null, varType.VOID, null);
+				}
+			}
+			
 			// update tables
 			mapCtxVar.put(ctx, rem);
-			mapCtxListDict.put(ctx, new Variable(null, varType.LIST, dictVar));
+			Variable dict = new Variable(null, varType.LIST, dictVar);
+			mapCtxListDict.put(ctx, dict);
+			updateSymbolTable(ctx.expression(0).getText(), dict);
 			
 			if (debug) {
 				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
@@ -2217,7 +2345,14 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		if(!visit(ctx.var())) {
 			return false;
 		}
-		mapCtxVar.put(ctx, new Variable(mapCtxVar.get(ctx.var())));
+		
+		Variable var = new Variable(mapCtxVar.get(ctx.var()));
+		mapCtxVar.put(ctx, var);
+		if (var.isList() || var.isDict()) {
+			mapCtxListDict.put(ctx, var);
+		}
+		
+		
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> expression: " + mapCtxVar.get(ctx.var()));
@@ -2327,6 +2462,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		// variable is declared -> ok
 		if (symbolTableContains(varName)) {
 			mapCtxVar.put(ctx, new Variable(symbolTableGet(varName)));
+			mapCtxListDict.put(ctx, new Variable(symbolTableGet(varName)));
 			
 			if (debug) {
 				ErrorHandling.printInfo(ctx, indent+" -> var Name: " + varName);
@@ -2555,6 +2691,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable var = new Variable (null, varType.LIST, new ListVar("temp", true));
 		mapCtxVar.put(ctx, var);
+		mapCtxListDict.put(ctx, var);
 		
 		if (debug) ci();
 		
@@ -2568,6 +2705,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable var = new Variable (null, varType.LIST, new DictVar("temp", true, "temp", true));
 		mapCtxVar.put(ctx, var);
+		mapCtxListDict.put(ctx, var);
 		
 		if (debug) ci();
 		

@@ -104,7 +104,9 @@ public class Units {
 			// (because it connects to everything and would allow conversion between all unrelated units)
 			Map<Unit, Double> map = new HashMap<>();
 			Unit number = new Unit("number", "", new Code(1));
+			basicUnitsCodesTable.put(1, number);
 			unitsTable.put("number", number);
+			reservedWords.add("number");
 			for (String key : unitsTable.keySet()) {
 				map.put(unitsTable.get(key), 1.0);
 				if (conversionTable.containsKey(unitsTable.get(key))) {

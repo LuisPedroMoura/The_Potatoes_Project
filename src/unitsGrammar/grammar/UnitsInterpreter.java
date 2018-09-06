@@ -42,6 +42,8 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	
 	private ParseTreeProperty<Unit>		unitsCtx	= new ParseTreeProperty<>();
 	private ParseTreeProperty<Double>	valuesCtx	= new ParseTreeProperty<>();
+	
+	String dimentionlessUnitName = null;
 
 	// --------------------------------------------------------------------------
 	// Getters
@@ -115,11 +117,6 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	@Override
 	public Boolean visitUnitsFile(UnitsFileContext ctx) {
 		
-		// add dimensionless Unit number
-		Unit number = new Unit("number", "", new Code(1));
-		unitsTable.put("number", number);
-		basicUnitsCodesTable.put(1, number);
-		
 		Boolean valid = true;
 		for (DeclarationContext dec : ctx.declaration()) {
 			valid = visit(dec);
@@ -141,6 +138,19 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 	public Boolean visitUnitsDeclaration(UnitsDeclarationContext ctx) {
 
 		Boolean valid = true;
+		
+		if (ctx.defineDimensionless() != null) {
+			
+			valid = valid && visit(ctx.defineDimensionless());
+		}
+		else {
+			dimentionlessUnitName = "number";
+			Unit number = new Unit("number", "", new Code(1));
+			basicUnitsCodesTable.put(1, number);
+			unitsTable.put("number", number);
+			reservedWords.add("number");	
+			unitsCtx.put(ctx, number);
+		}
 
 		List<UnitContext> UnitsDeclared = ctx.unit(); 
 		for (UnitContext unit : UnitsDeclared) {
@@ -152,6 +162,22 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 		return valid;
 	}
 	
+	@Override
+	public Boolean visitDefineDimensionless(DefineDimensionlessContext ctx) {
+		
+		dimentionlessUnitName = ctx.ID().getText();
+		
+		Unit number = new Unit(dimentionlessUnitName, "", new Code(1));
+		
+		basicUnitsCodesTable.put(1, number);
+		unitsTable.put(dimentionlessUnitName, number);
+		reservedWords.add(dimentionlessUnitName);
+		
+		unitsCtx.put(ctx,  number);
+		
+		return true;
+	}
+
 	@Override
 	public Boolean visitUnit_Basic(Unit_BasicContext ctx) {
 		
@@ -478,22 +504,23 @@ public class UnitsInterpreter extends UnitsBaseVisitor<Boolean> {
 
 		// Create prefixed Units and add them to the Graph linked to all units
 		for (String key : unitsTable.keySet()) {
-			
-			Unit u = unitsTable.get(key);
-			String prefixedName = prefixName + u.getName();
-			String prefixedSymbol = prefixSymbol + u.getSymbol();
-			
-			Unit prefix = new Unit(prefixedName, prefixedSymbol);
-			
-			unitsGraph.addEdge(value, u, prefix);
-			unitsGraph.addEdge(1/value, prefix, u);
-			prefixedUnitsTable.put(prefixedName, prefix);
-			reservedWords.add(prefixedName);
-			reservedWords.add(prefixedSymbol);
-			reservedPrefixes.add(prefixSymbol);
-			
-			if (debug) {
-				ErrorHandling.printInfo(ctx, "Added " + prefix + "\n\tOriginal line: " + ctx.getText() + "\n");
+			if (!unitsTable.get(key).getName().equals(dimentionlessUnitName)) {
+				Unit u = unitsTable.get(key);
+				String prefixedName = prefixName + u.getName();
+				String prefixedSymbol = prefixSymbol + u.getSymbol();
+				
+				Unit prefix = new Unit(prefixedName, prefixedSymbol);
+				
+				unitsGraph.addEdge(1/value, u, prefix);
+				unitsGraph.addEdge(value, prefix, u);
+				prefixedUnitsTable.put(prefixedName, prefix);
+				reservedWords.add(prefixedName);
+				reservedWords.add(prefixedSymbol);
+				reservedPrefixes.add(prefixSymbol);
+				
+				if (debug) {
+					ErrorHandling.printInfo(ctx, "Added " + prefix + "\n\tOriginal line: " + ctx.getText() + "\n");
+				}
 			}
 		}
 		

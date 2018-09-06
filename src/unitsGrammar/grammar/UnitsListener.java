@@ -40,6 +40,16 @@ public interface UnitsListener extends ParseTreeListener {
 	 */
 	void exitUnitsDeclaration(UnitsParser.UnitsDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link UnitsParser#defineDimensionless}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefineDimensionless(UnitsParser.DefineDimensionlessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link UnitsParser#defineDimensionless}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefineDimensionless(UnitsParser.DefineDimensionlessContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code Unit_Basic}
 	 * labeled alternative in {@link UnitsParser#unit}.
 	 * @param ctx the parse tree

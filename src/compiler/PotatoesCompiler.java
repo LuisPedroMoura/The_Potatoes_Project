@@ -37,7 +37,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 
 	protected static List<HashMap<String, String>>	symbolTableNames	= new ArrayList<>();  // stores the updated name of variables
 	protected static Map<String, Variable>			symbolTableValue	= new HashMap<>(); // stores the updated value of variables
-	protected static ParseTreeProperty<Variable> 	mapCtxVar			= new ParseTreeProperty<>();
+	protected static ParseTreeProperty<Variable> 	mapCtxVar			= PotatoesSemanticCheck.getmapCtxVar();
+	protected static ParseTreeProperty<Variable> 	mapCtxListDict		= PotatoesSemanticCheck.getmapCtxListDict();
 	protected static Map<String, FunctionIDContext> functionNames		= PotatoesSemanticCheck.getFunctionNames();
 	
 	private static int varCounter = 0;
@@ -2000,8 +2001,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		print.add("expression", expression);
 		
-		System.out.println("##################   " + PotatoesSemanticCheck.getmapCtxVar().get(ctx));
-		
 		if(debug) ci();
 			
 		return print;
@@ -2304,10 +2303,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Double", newName, number); 
 		
-		// create Variable and save ctx
-		Unit unit = new Unit(Units.instanceOf("number"));
-		Variable var = new Variable(unit, varType.NUMERIC, Double.parseDouble(number));
-		mapCtxVar.put(ctx, var);
+//		// create Variable and save ctx
+//		Unit unit = new Unit(Units.instanceOf("number"));
+//		Variable var = new Variable(unit, varType.NUMERIC, Double.parseDouble(number));
+//		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> value = " + ctx.NUMBER().getText() + "\n");
@@ -2329,9 +2328,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Boolean", newName, b+""); 
 		
-		// create Variable and save ctx
-		Variable var = new Variable(null, varType.BOOLEAN, b);
-		mapCtxVar.put(ctx, var);
+//		// create Variable and save ctx
+//		Variable var = new Variable(null, varType.BOOLEAN, b);
+//		mapCtxVar.put(ctx, var);
 		
 		if (debug ) {
 			ErrorHandling.printInfo(ctx,indent + "-> boolean = " + ctx.BOOLEAN().getText() + "\n");
@@ -2353,9 +2352,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("String", newName, str);
 		
-		// create Variable and save ctx
-		Variable var = new Variable(null, varType.STRING, getStringText(str));
-		mapCtxVar.put(ctx, var);
+//		// create Variable and save ctx
+//		Variable var = new Variable(null, varType.STRING, getStringText(str));
+//		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> string = " + ctx.STRING().getText() + "\n");

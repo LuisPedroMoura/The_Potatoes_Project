@@ -54,6 +54,18 @@ public class UnitsBaseListener implements UnitsListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDefineDimensionless(UnitsParser.DefineDimensionlessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDefineDimensionless(UnitsParser.DefineDimensionlessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUnit_Basic(UnitsParser.Unit_BasicContext ctx) { }
 	/**
 	 * {@inheritDoc}

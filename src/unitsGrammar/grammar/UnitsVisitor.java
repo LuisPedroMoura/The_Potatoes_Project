@@ -31,6 +31,12 @@ public interface UnitsVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUnitsDeclaration(UnitsParser.UnitsDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link UnitsParser#defineDimensionless}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefineDimensionless(UnitsParser.DefineDimensionlessContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code Unit_Basic}
 	 * labeled alternative in {@link UnitsParser#unit}.
 	 * @param ctx the parse tree

@@ -40,6 +40,13 @@ public class UnitsBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitDefineDimensionless(UnitsParser.DefineDimensionlessContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitUnit_Basic(UnitsParser.Unit_BasicContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
