@@ -56,6 +56,7 @@ public class ListVar {
 
 	@Override
 	public String toString() {
+		
 		StringBuilder str = new StringBuilder();
 		
 		str.append("[");
@@ -65,7 +66,7 @@ public class ListVar {
 			
 			Variable var = it.next();
 			if (var.isNumeric()) {
-				str.append(((Double) var.getValue()) + var.getUnit().getSymbol() );
+				str.append(((Double) var.getValue()) + " " + var.getUnit().getSymbol());
 			}
 			else if (var.isString()){
 				str.append(((String) var.getValue()));
@@ -75,7 +76,7 @@ public class ListVar {
 			}
 			
 			if (it.hasNext()) {
-				str.append(",");
+				str.append(", ");
 			}
 		}
 		
@@ -83,8 +84,4 @@ public class ListVar {
 		
 		return str.toString();
 	}
-	
-	
-	
-
 }

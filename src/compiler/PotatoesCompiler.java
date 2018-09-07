@@ -4,6 +4,7 @@ import utils.errorHandling.ErrorHandling;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -404,7 +405,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST functionReturn = stg.getInstanceOf("stats");
-		functionReturn.add("stat", expr.render());
+		functionReturn.add("stat", expr);
 		functionReturn.add("stat", "return " + (String) expr.getAttribute("var") + ";");
 		
 		if (debug) {
@@ -478,7 +479,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// get logical operation and add to forLoop outsideStatements
 		ST expr = visit(ctx.expression());
-		forLoop.add("outsideStatements", expr.render());
+		forLoop.add("outsideStatements", expr);
 		
 		// add logical Operation result to internal if
 		String exprRes = (String) expr.getAttribute("var");
@@ -494,7 +495,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// add logical operation to for loop content
 		expr = visit(ctx.expression());
 		String lastLogicalName = (String) expr.getAttribute("var");
-		forLoop.add("content", expr.render());
+		forLoop.add("content", expr);
 		
 		// force logical expression result into last varName
 		forLoop.add("content", exprRes + " = " + lastLogicalName + ";");
@@ -520,7 +521,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		whileLoop.add("previousStatements", "\n//starting while template\n");
 		
-		whileLoop.add("previousStatements", expr.render());
+		whileLoop.add("previousStatements", expr);
 		whileLoop.add("logicalOperation", logicalOperation);
 		whileLoop.add("content", visit(ctx.scope()));
 		ST exprNewVisit = visit(ctx.expression());
@@ -574,7 +575,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST ifCondition = stg.getInstanceOf("ifCondition");
-		ifCondition.add("previousStatements", expr.render());
+		ifCondition.add("previousStatements", expr);
 		ifCondition.add("logicalOperation", logicalOperation);
 		ifCondition.add("scope", visit(ctx.scope()));
 		
@@ -596,7 +597,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST elseIfCondition = stg.getInstanceOf("ifCondition");
-		elseIfCondition.add("previousStatements", expr.render());
+		elseIfCondition.add("previousStatements", expr);
 		elseIfCondition.add("logicalOperation", logicalOperation);
 		elseIfCondition.add("scope", visit(ctx.scope()));
 		
@@ -661,7 +662,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -688,8 +689,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if(debug) ci();
@@ -711,7 +712,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -760,7 +761,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("operation", operation);
 
 		if (debug) {
@@ -801,7 +802,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("previousStatements", previousStatements);
 		newVariable.add("operation", operation);
 
@@ -828,7 +829,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("operation", operation);
 		
 		if(debug) ci();
@@ -851,7 +852,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("operation", operation);
 		
 		if(debug) ci();
@@ -881,7 +882,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -907,7 +908,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create ST
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr.render());
+		newVariable.add("previousStatements", expr);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -935,8 +936,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create ST
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -1021,8 +1022,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create ST
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -1078,48 +1079,29 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			// expr0 is numeric -> get symbol for printing
 			if (typeIsDouble(expr0)) {				
 				expr0Symbol = " + \" " + mapCtxVar.get(ctx.expression(0)).getUnit().getSymbol() + "\"";
+				operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
 			}
-			if (typeIsList(expr0)) {
-				String newName2 = getNewVarName();
-				String it = getNewVarName();
-				getToString = varAssignmentST("String", newName2);
-				getToString.add("operation", "\"[\"");
-				newVariable.add("previousStatements", getToString);
+			else if (typeIsList(expr0) || typeIsMap(expr0)) {
 				
-				newVariable.add("previousStatements", "Iterator " + it + " = " + expr0Name + ".iterator();");
-				newVariable.add("previousStatements", "while (" + it + ".hasNext()) {");
-				newVariable.add("previousStatements", "\t" + newName2 + "+= (" + it + ".next() + \" " + Units.instanceOf(((ListVar)mapCtxVar.get(ctx.expression(0)).getValue()).getType()).getSymbol() + "\");");
-				newVariable.add("previousStatements", "\t" + "if(" + it + ".hasNext()){");
-				newVariable.add("previousStatements", "\t\t" + newName2 + " += \", \";");
-				newVariable.add("previousStatements", "\t" + "}");
-				newVariable.add("previousStatements", "}");
-				newVariable.add("previousStatements", newName2 + " += \"]\";");  				
-				expr0Name = newName2;
+				operation = "\"" + (String) mapCtxVar.get(ctx).getValue() + "\"";
+			}
+			else {
+				
+				operation = expr0Name + " + " + expr1Name;
 			}
 			
 			// expr1 is numeric -> get symbol for printing
 			if (typeIsDouble(expr1)) {
 				expr1Symbol = " + \" " + mapCtxVar.get(ctx.expression(1)).getUnit().getSymbol() + "\"";
 			}
-			if (typeIsList(expr1)) {
-				String newName2 = getNewVarName();
-				String it = getNewVarName();
-				getToString = varAssignmentST("String", newName2);
-				getToString.add("operation", "\"[\"");
-				newVariable.add("previousStatements", getToString);
+			else if (typeIsList(expr0) || typeIsMap(expr0)) {
 				
-				newVariable.add("previousStatements", "Iterator " + it + " = " + expr0Name + ".iterator();");
-				newVariable.add("previousStatements", "while (" + it + ".hasNext()) {");
-				newVariable.add("previousStatements", "\t" + newName2 + "+= (" + it + ".next() + \" " + Units.instanceOf(((ListVar)mapCtxVar.get(ctx.expression(0)).getValue()).getType()).getSymbol() + "\");");
-				newVariable.add("previousStatements", "\t" + "if(" + it + ".hasNext()){");
-				newVariable.add("previousStatements", "\t\t" + newName2 + " += \", \";");
-				newVariable.add("previousStatements", "\t" + "}");
-				newVariable.add("previousStatements", "}");
-				newVariable.add("previousStatements", newName2 + " += \"]\";");  				
-				expr1Name = newName2;
+				operation = "\"" + (String) mapCtxVar.get(ctx).getValue() + "\"";
 			}
-			
-			operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
+			else {
+				
+				operation = expr0Name + " + " + expr1Name;
+			}
 		} 
 			
 		//complete template
@@ -1268,8 +1250,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Boolean", newName);
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -1297,8 +1279,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// create template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST("Boolean", newName);
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", expr0Name + " " + op + " " + expr1Name);
 		
 		if (debug) {
@@ -1330,8 +1312,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String operation = "new AbstractMap.SimpleEntry<>(" + expr0Name + ", " + expr1Name + ")";
 		
 		// add previous statements
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -1379,29 +1361,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		else if (typeIsMap(expr0)) {
 			
 			valueType = getDictValueType(expr0);
-			String keyType = getDictKeyType(expr0);
-			type = getDictDeclaration(keyType, valueType);
-			String keyFactor = "";
-			String valueFactor = "";
+			type = valueType;
 			
-			// get variable type for dictionary key conversion factor
-			DictTuple dictTuple = (DictTuple) new Variable(mapCtxVar.get(ctx.expression(1))).getValue();
-			Variable key = dictTuple.getKey();
-			key = new Variable(key); // deep copy
-			Variable value = dictTuple.getValue();
-			value = new Variable(value); // deep copy
-			
-			// key is numeric -> get conversion factor
-			if (key.isNumeric()) {
-				keyFactor = " * " + key.convertUnitTo(Units.instanceOf(keyType));
-			}
-			
-			// value is numeric -> get convertion factor
-			if (value.isNumeric()) {
-				valueFactor = " * " + value.convertUnitTo(Units.instanceOf(valueType));
-			}
-			
-			operation = expr0Name + ".put(" + expr1Name + ".getKey()" + keyFactor + ", " + expr1Name + ".getValue()" + valueFactor + ")";
+			operation = expr0Name + ".put(" + expr1Name + ", " + expr1Name + ")";
 		}
 		
 		// expr0 is string -> concatenation
@@ -1429,8 +1391,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = varAssignmentST(type, newName);
 		
 		// add previous statements
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -1466,19 +1428,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsMap(expr0)) {
 			
 			valueType = getDictValueType(expr0);
-			String keyType = getDictKeyType(expr0);
-			String factor = "";
 			
-			// get variable type for dictionary key conversion factor
-			Variable key = new Variable(mapCtxVar.get(ctx.expression(1)));
-			key = new Variable(key); // deep copy
-			
-			// key is numeric -> get conversion factor
-			if (key.isNumeric()) {
-				factor = " * " + key.convertUnitTo(Units.instanceOf(keyType));
-			}
-			
-			operation = expr0Name + ".remove(" + expr1Name + factor + ")";
+			operation = "(" + valueType + ") " + expr0Name + ".keySet().toArray()[" + (int) mapCtxListDict.get(ctx).getValue() + "]";
 		}
 		
 		// create new template
@@ -1486,8 +1437,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = varAssignmentST(valueType, newName);
 		
 		// add previous statements
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -1524,27 +1475,15 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsMap(expr0)) {
 			
 			valueType = getDictValueType(expr0);
-			String keyType = getDictKeyType(expr0);
-			String factor = "";
 			
-			// get variable type for dictionary key conversion factor
-			Variable key = new Variable(mapCtxVar.get(ctx.expression(1)));
-			key = new Variable(key); // deep copy
-			
-			// key is numeric -> get conversion factor
-			if (key.isNumeric()) {
-				Unit keyTypeUnit = new Unit(Units.instanceOf(keyType));
-				factor = " * " + key.convertUnitTo(keyTypeUnit);
-			}
-			
-			operation = expr0Name + ".get(" + expr1Name + factor + ")";
+			operation = expr0Name + ".keySet().toArray()[" + (int) mapCtxListDict.get(ctx).getValue() + "]";
 		}
 		
 		// create new template
 		String newName = getNewVarName();
 		ST newVariable = varAssignmentST(valueType, newName);
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		newVariable.add("operation", operation);
 		
 		if (debug) {
@@ -1570,8 +1509,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = varAssignmentST("boolean", newName);
 		
 		// add previous statements
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		
 		// get var names to complete operation and add it
 		String expr0Name = (String) expr0.getAttribute("var");
@@ -1597,8 +1536,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = varAssignmentST("boolean", newName);
 
 		// add previous statements
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		
 		// get var names to complete operation and add it
 		String expr0Name = (String) expr0.getAttribute("var");
@@ -1651,13 +1590,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST newVariable = varAssignmentST("Double", newName);
 		
 		// add previous statements
-		newVariable.add("previousStatements", expr0.render());
-		newVariable.add("previousStatements", expr1.render());
+		newVariable.add("previousStatements", expr0);
+		newVariable.add("previousStatements", expr1);
 		
 		// get var names to complete operation and add it
 		String expr0Name = (String) expr0.getAttribute("var");
 		String expr1Name = (String) expr1.getAttribute("var");
-		newVariable.add("operation", expr0Name + ".indeOf(" + expr1Name + ")");
+		newVariable.add("operation", expr0Name + ".indexOf(" + expr1Name + ")");
 		
 		if(debug) ci();
 		
@@ -1743,6 +1682,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "-> PRINT\n");
 		
 		ST expr = visit(ctx.expression());
+		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression()));
 		String exprName = (String) expr.getAttribute("var");
 		
 		//create printST
@@ -1760,29 +1700,23 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		}
 		
 		// add expression to be printed
-		String varName = (String) expr.getAttribute("var");
-		String expression = varName;
-		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression()));
+		String expression = "";
+		
 		if (exprVar.isNumeric()) {
-			expression += " + \" " + exprVar.getUnit().getSymbol() + "\"";
+			
+			expression = exprName + " + \" " + exprVar.getUnit().getSymbol() + "\"";
 		}
 		else if (exprVar.isList()) {
-			String newName2 = getNewVarName();
-			String it = getNewVarName();
-			ST getToString = varAssignmentST("String", newName2);
-			getToString.add("operation", "\"[\"");
-
-			print.add("previousStatements", getToString);
 			
-			print.add("previousStatements", "Iterator " + it + " = " + exprName + ".iterator();");
-			print.add("previousStatements", "while (" + it + ".hasNext()) {");
-			print.add("previousStatements", "\t" + newName2 + "+= (" + it + ".next() + \" " + Units.instanceOf(((ListVar) exprVar.getValue()).getType()).getSymbol() + "\");");
-			print.add("previousStatements", "\t" + "if(" + it + ".hasNext()){");
-			print.add("previousStatements", "\t\t" + newName2 + " += \", \";");
-			print.add("previousStatements", "\t" + "}");
-			print.add("previousStatements", "}");
-			print.add("previousStatements", newName2 + " += \"]\";");  				
-			expression = newName2;
+			expression = "\"" + ((ListVar) exprVar.getValue()).toString() + "\"";
+		}
+		else if (exprVar.isDict()) {
+			
+			expression = "\"" + ((DictVar) exprVar.getValue()).toString() + "\"";
+		}
+		else {
+			
+			expression = exprName;
 		}
 		print.add("expression", expression);
 		
@@ -1900,7 +1834,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		
 		// create varDeclaration ST - in Java all Lists are parameterized with String to guarantee correct search and removal
-		ST newVariable = varAssignmentST("List<String>", newName, "new ArrayList<>()");
+		ST newVariable = varAssignmentST("List<" + visit(ctx.type()).render() + ">", newName, "new ArrayList<>()");
 		
 		// update variable names table
 		symbolTableNamesPut(originalName, newName);
@@ -1921,7 +1855,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String newName = getNewVarName();
 		
 		// create varDeclaration ST - in Java all Maps are parameterized with String to guarantee correct search and removal
-		ST newVariable = varAssignmentST("Map<String, String>", newName, "new HashMap<>()");
+		ST newVariable = varAssignmentST("Map<" + visit(ctx.type(0)).render() + ", " + visit(ctx.type(1)).render() + ">", newName, "new LinkedHashMap<>()");
 		
 		// update variable names table
 		symbolTableNamesPut(originalName, newName);
@@ -1995,7 +1929,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST type = stg.getInstanceOf("type");
-		type.add("type", "id");
+		type.add("type", "Double");
 		
 		if(debug) ci();
 		
@@ -2191,7 +2125,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		else if (var.isDict()) {
 			String key = ((DictVar) var.getValue()).getKeyType();
 			String val = ((DictVar) var.getValue()).getValueType();
-			if (!key.equals("boolean") && !key.equals("string")) val = "Double";
+			if (!key.equals("boolean") && !key.equals("string")) key = "Double";
 			if (!val.equals("boolean") && !val.equals("string")) val = "Double";
 			
 			return "Map<" + key + ", " + val + ">";
@@ -2231,7 +2165,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	private static String getDictKeyType(ST exprST) {
 		String decl = ((String) exprST.getAttribute("type"));
-		String type = decl.split(",")[0].substring(5, decl.length());
+		String type = decl.split(",")[0];
+		if (type.charAt(0) == '?') {
+			type = type.substring(5, type.length());
+		}
+		else {
+			type = type.substring(4, type.length());
+		}
 		if (type.equals("string")) return "String";
 		else if (type.equals("boolean")) return "Boolean";
 		else return "Double";
@@ -2239,7 +2179,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	
 	private static String getDictValueType(ST exprST) {
 		String decl = ((String) exprST.getAttribute("type"));
-		String type = decl.split(",")[1].substring(1, decl.length()-1);
+		String type = decl.split(",")[1];
+		if (type.charAt(0) == '?') {
+			type = type.substring(2, type.length()-1);
+		}
+		else {
+			type = type.substring(1, type.length()-1);
+		}
 		if (type.equals("string")) return "String";
 		else if (type.equals("boolean")) return "Boolean";
 		else return "Double";

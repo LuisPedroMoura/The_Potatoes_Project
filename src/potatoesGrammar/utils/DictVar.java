@@ -2,6 +2,7 @@ package potatoesGrammar.utils;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Map;
  */
 public class DictVar {
 	
-	private Map<Variable, Variable> dict = new HashMap<>();
+	private Map<Variable, Variable> dict = new LinkedHashMap<>();
 	private String keyType;
 	private String valueType;
 	private boolean blockedKeyType;
@@ -90,7 +91,7 @@ public class DictVar {
 			Variable val = dict.get(key);
 			
 			if (key.isNumeric()) {
-				str.append(((Double) key.getValue()) + key.getUnit().getSymbol() );
+				str.append(((Double) key.getValue()) + " " + key.getUnit().getSymbol() );
 			}
 			else if (key.isString()){
 				str.append(((String) key.getValue()));
@@ -102,7 +103,7 @@ public class DictVar {
 			str.append(" -> ");
 			
 			if (val.isNumeric()) {
-				str.append(((Double) val.getValue()) + val.getUnit().getSymbol() );
+				str.append(((Double) val.getValue()) + " " + val.getUnit().getSymbol() );
 			}
 			else if (val.isString()){
 				str.append(((String) val.getValue()));
@@ -112,7 +113,7 @@ public class DictVar {
 			}
 			
 			if (it.hasNext()) {
-				str.append(",");
+				str.append(", ");
 			}
 		}
 		
