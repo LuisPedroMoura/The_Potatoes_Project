@@ -234,25 +234,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String type = (String) expr.getAttribute("type");
 		String varName = (String) var.getAttribute("var");
 		String exprName = (String) expr.getAttribute("var");
-		String id = "";
+		String id = ctx.varDeclaration().ID().getText();
 		String factor = "";
-		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression())); // deep copy
 		
-		if (ctx.varDeclaration() instanceof VarDeclaration_VariableContext) {
-			VarDeclaration_VariableContext decl = (VarDeclaration_VariableContext) ctx.varDeclaration();
-			id = decl.ID().getText();
-			if (exprVar.isNumeric()) {
-				double conversionFactor = exprVar.convertUnitTo(Units.instanceOf(decl.type().getText()));
-				factor = " * " + conversionFactor;
-			}
-		}
-		if (ctx.varDeclaration() instanceof VarDeclaration_listContext) {
-			VarDeclaration_listContext decl = (VarDeclaration_listContext) ctx.varDeclaration();
-			id = decl.ID().getText();
-		}
-		if (ctx.varDeclaration() instanceof VarDeclaration_dictContext) {
-			VarDeclaration_dictContext decl = (VarDeclaration_dictContext) ctx.varDeclaration();
-			id = decl.ID().getText();
+		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression()));
+		Variable declVar = new Variable(mapCtxVar.get(ctx.varDeclaration()));
+		if (exprVar.isNumeric()) {
+			double conversionFactor = exprVar.convertUnitTo(Units.instanceOf(declVar.getUnit().getName()));
+			factor = " * " + conversionFactor;
 		}
 		
 		ST newVariable = stg.getInstanceOf("varAssignment");
@@ -313,7 +302,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get var and expression info
 		String id = ctx.var().ID().getText();
 		String varName = symbolTableNamesGet(id);
-		//ST var = visit(ctx.var());
 		ST expr = visit(ctx.expression());
 		String exprName = (String) expr.getAttribute("var");
 		String factor = "";
@@ -1049,7 +1037,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String op = ctx.op.getText();
 		String operation = "";
 		String type = "";
-		ST getToString = null;
 		
 		Variable expr0Var = new Variable(mapCtxVar.get(ctx.expression(0))); // deep copy
 		Variable expr1Var = new Variable(mapCtxVar.get(ctx.expression(1))); // deep copy
@@ -1299,17 +1286,27 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
+		Variable var0 = mapCtxVar.get(ctx.expression(0));
+		Variable var1 = mapCtxVar.get(ctx.expression(1));
 		String expr0Name = (String) expr0.getAttribute("var");
+		expr0Name = var0.isNumeric() ? expr0Name + " + \"" + var0.getUnit().getSymbol() + "\"" : expr0Name;
 		String expr1Name = (String) expr1.getAttribute("var");
+		expr1Name = var1.isNumeric() ? expr1Name + " + \"" + var1.getUnit().getSymbol() + "\"" : expr1Name;
 		String expr0Type = (String) expr0.getAttribute("type");
 		String expr1Type = (String) expr1.getAttribute("type");
 		
 		// create new template
 		String newName = getNewVarName();
-		ST newVariable = varAssignmentST(getDictDeclaration(expr0Type, expr1Type), newName);
+		DictTuple tuple = (DictTuple) mapCtxVar.get(ctx).getValue();
+		String keyType = getVarTypeDeclaration(tuple.getKey());
+		if (keyType.equals("Double")) keyType = "String";
+		String valType = getVarTypeDeclaration(tuple.getValue());
+		if (valType.equals("Double")) valType = "String";
+		String type = "Entry<" + keyType + ", " + valType + ">";
+		ST newVariable = varAssignmentST(type , newName);
 		
 		// create operation string
-		String operation = "new AbstractMap.SimpleEntry<>(" + expr0Name + ", " + expr1Name + ")";
+		String operation = "new AbstractMap.SimpleEntry<" + keyType + ", " + valType + ">(" + expr0Name + ", " + expr1Name + ")";
 		
 		// add previous statements
 		newVariable.add("previousStatements", expr0);
@@ -1322,7 +1319,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			ci();
 		}
 		
-		return super.visitExpression_tuple(ctx);
+		return newVariable;
 	}
 	
 	@Override
@@ -1334,7 +1331,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
 		String expr0Name = (String) expr0.getAttribute("var");
-		String expr1Name = (String) expr1.getAttribute("var");
 		String valueType = "";
 		String operation = "";
 		String type = "";
@@ -1342,9 +1338,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// expr0 is a list
 		if (typeIsList(expr0)) {
 			
-			valueType = getListValueType(expr0);
+			String expr1Name = (String) expr1.getAttribute("var");
+			valueType = (String) expr0.getAttribute("type");
 			type = "Boolean"; // in Java, list add returns boolean
-			operation = expr0Name + ".get(" + expr1Name + ")";
+			operation = expr0Name + ".add(" + expr1Name + ")";
 			
 			// get expr1 Variable
 			Variable expr1Var = new Variable(mapCtxVar.get(ctx.expression(1)));
@@ -1352,23 +1349,36 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// if expr1 is Numeric conversion may be needed
 			if (expr1Var.isNumeric()) {
-				double factor = expr1Var.convertUnitTo(Units.instanceOf(((ListVar)(mapCtxVar.get(ctx.expression(0)).getValue())).getType()));
-				operation = expr0Name + ".add(" + expr1Name + " * " + factor + ")";
+				
+				operation = expr0Name + ".add(" + expr1Name + "\"" + expr1Var.getUnit().getSymbol() + "\")";
 			}
 		}
 		
 		// expr0 is a dict
 		else if (typeIsMap(expr0)) {
 			
-			valueType = getDictValueType(expr0);
-			type = valueType;
+			String expr1Name = (String) expr1.getAttribute("var");
+			DictTuple tuple = (DictTuple) mapCtxVar.get(ctx.expression(1)).getValue();
+			String keyType = getVarTypeDeclaration(tuple.getKey());
+			if (keyType.equals("Double")) keyType = "String";
+			String valType = getVarTypeDeclaration(tuple.getValue());
+			type = valType;
+			String key = expr1Name + ".getKey()";
+			String value = expr1Name+ ".getValue()";
+			operation = expr0Name + ".put(" + key + ", " + value + ")";
+			String numericOperation = operation;
+			if (getVarTypeDeclaration(tuple.getKey()).equals("Double")) {
+				numericOperation = "Double.parseDouble(" + operation + ".split(\" \")[0])";
+			}
 			
-			operation = expr0Name + ".put(" + expr1Name + ", " + expr1Name + ")";
+			operation = operation + " == null ? " + null + " : " + numericOperation;
+			
 		}
 		
 		// expr0 is string -> concatenation
 		else if (typeIsString(expr0)) {
 			
+			String expr1Name = (String) expr1.getAttribute("var");
 			type = "String";
 			String expr0Symbol = "";
 			String expr1Symbol = "";
@@ -1777,7 +1787,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	}
 
 	@Override
-	public ST visitVarDeclaration_Variable(VarDeclaration_VariableContext ctx) {
+	public ST visitVarDeclaration(VarDeclarationContext ctx) {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->VARDECLARATION - VARIABLE");
 		
@@ -1786,34 +1796,34 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String originalName = ctx.ID().getText();
 		String newName = getNewVarName();
 		String operation = "";
-		String type = "";
+		String type = typeST.render();
 		
-		if(typeST.render().equals("Boolean")) {
+		if(typeIsBoolean(typeST)) {
 			operation = "false";
-			type = "Boolean";
 		}
-		else if(typeST.render().equals("String")) {
+		else if(typeIsString(typeST)) {
 			operation = "\"\"";
-			type = "String";
 		}
-		else {
+		else if (typeIsDouble(typeST)) {
 			operation = "0.0";
-			type = "Double";
 		}
-		
-		if (globalScope == true) {
-			type = "static " + type;
+		else if (typeIsList(typeST)) {
+			operation = "new ArrayList<>()";
+		}
+		else if (typeIsMap(typeST)) {
+			operation = "new LinkedHashMap<>()";
 		}
 		
 		// create varDeclaration ST
 		ST varDeclaration = stg.getInstanceOf("varAssignment");
+		if (globalScope == true) varDeclaration.add("modifier", "static");
 		varDeclaration.add("type", type);
 		varDeclaration.add("var", newName);
 		varDeclaration.add("operation", operation);
 		
 		// create Variable and save ctx and update tables
 		symbolTableNamesPut(originalName, newName);
-		symbolTableValue.put(newName, mapCtxVar.get(ctx));
+		symbolTableValue.put(newName, new Variable(mapCtxVar.get(ctx)));
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> original/new name = " + originalName + ", " + newName);
@@ -1824,47 +1834,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return varDeclaration;
 	}
 
-	@Override
-	public ST visitVarDeclaration_list(VarDeclaration_listContext ctx) {
-		
-		if(debug) ErrorHandling.printInfo(ctx,oi() + "->VARDECLARATION - LIST\n");
-		
-		// get varDeclaration info
-		String originalName = ctx.ID().getText();
-		String newName = getNewVarName();
-		
-		// create varDeclaration ST - in Java all Lists are parameterized with String to guarantee correct search and removal
-		ST newVariable = varAssignmentST("List<" + visit(ctx.type()).render() + ">", newName, "new ArrayList<>()");
-		
-		// update variable names table
-		symbolTableNamesPut(originalName, newName);
-		symbolTableValue.put(newName, mapCtxVar.get(ctx));
-		
-		if(debug) ci();
-				
-		return newVariable;
-	}
-
-	@Override
-	public ST visitVarDeclaration_dict(VarDeclaration_dictContext ctx) {
-		
-		if(debug) ErrorHandling.printInfo(ctx,oi() + "->VARDECLARATION - LIST\n");
-		
-		// get varDeclaration info
-		String originalName = ctx.ID().getText();
-		String newName = getNewVarName();
-		
-		// create varDeclaration ST - in Java all Maps are parameterized with String to guarantee correct search and removal
-		ST newVariable = varAssignmentST("Map<" + visit(ctx.type(0)).render() + ", " + visit(ctx.type(1)).render() + ">", newName, "new LinkedHashMap<>()");
-		
-		// update variable names table
-		symbolTableNamesPut(originalName, newName);
-		symbolTableValue.put(newName, mapCtxVar.get(ctx));
-		
-		if(debug) ci();
-		
-		return newVariable;
-	}
 
 	@Override
 	public ST visitType_Number_Type(Type_Number_TypeContext ctx) {
@@ -1941,9 +1910,14 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "->TYPE LIST_TYPE\n");
 		
+		visit(ctx.type());
+		
 		// create template
 		ST type = stg.getInstanceOf("type");
-		type.add("type", "list");
+		
+		String valueType = visit(ctx.type()).render();
+		if (valueType.equals("Double")) valueType = "String"; // all Numeric Types will be converted to String in Java
+		type.add("type", "List<" + valueType + ">");
 		
 		if(debug) ci();
 		
@@ -1957,7 +1931,12 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create template
 		ST type = stg.getInstanceOf("type");
-		type.add("type", "dict");
+		
+		String keyType = visit(ctx.type(0)).render();
+		String valueType = visit(ctx.type(1)).render();
+		if (keyType.equals("Double")) keyType = "String"; // all Numeric Types will be converted to String in Java
+		if (valueType.equals("Double")) valueType = "String"; // all Numeric Types will be converted to String in Java
+		type.add("type", "Map<" + keyType + ", " + valueType + ">");
 		
 		if(debug) ci();
 		
@@ -2037,7 +2016,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 	//-------------------------------------------------------------------------------------------------------------------------------------
 
 	protected static ST createEOL (ST temp) {
-		String stat = temp.render()+";";
+		String stat = temp.render();
 		ST statements = stg.getInstanceOf("stats");
 		statements.add("stat", stat);
 		return statements;		
@@ -2114,26 +2093,212 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			else if (valVar.isString()) val = "String";
 			else val = "Double";
 			
-			return "Entry<" + key + "' " + val + ">";
+			return "Entry<" + key + ", " + val + ">";
 		}
 		else if (var.isList()) {
-			String val = ((ListVar) var.getValue()).getType();
-			if (!val.equals("boolean") && !val.equals("string")) val = "Double";
-			
-			return "List<" + val + ">";
+			String valType = ((ListVar) var.getValue()).getType();
+			if (valType.equals("boolean")) {
+				valType = "Boolean";
+			}
+			else if (valType.contains("list") || valType.contains("dict")) {
+				
+				String finalStr = "";
+				String str = "";
+				while (valType.length() > 0) {
+					
+					valType.trim();
+					
+					int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
+					int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
+					int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+					
+					String next = "";
+					
+					if (open < close && open < comma) {
+						next = "open";
+					}
+					else if (close < open && close < comma) {
+						next = "close";
+					}
+					else {
+						next = "comma";
+					}
+					
+					switch(next) {
+					case "open" :
+						str = valType.substring(0, open).trim();
+						valType = valType.substring(open+1, valType.length()).trim();
+						if (str.equals("list")) {
+							str = "List<";
+						}
+						else if (str.equals("dict")) {
+							str = "Map<";
+						}
+						break;
+					case "close" :
+						str = valType.substring(0, close).trim();
+						valType = valType.substring(close+1, valType.length()).trim();
+						if (str.equals("boolean")) {
+							str = "Boolean";
+						}
+						else if (str.equals("")) {
+							str = ">";
+						}
+						else {
+							str = "String";
+						}
+						break;
+					default:
+						str = ", ";
+					}
+					
+					finalStr += str;
+				}
+			}
+			else {
+				valType = "String";
+			}
+			return "List<" + valType + ">";
 		}
-		else if (var.isDict()) {
-			String key = ((DictVar) var.getValue()).getKeyType();
-			String val = ((DictVar) var.getValue()).getValueType();
-			if (!key.equals("boolean") && !key.equals("string")) key = "Double";
-			if (!val.equals("boolean") && !val.equals("string")) val = "Double";
+		else if (var.isDict() || var.isTuple()) {
 			
-			return "Map<" + key + ", " + val + ">";
+			String keyType = ((DictVar) var.getValue()).getKeyType();
+			String valType = ((DictVar) var.getValue()).getValueType();
+			
+			// the key
+			if (keyType.equals("boolean")) {
+				keyType = "Boolean";
+			}
+			else if (keyType.contains("list") || keyType.contains("dict")) {
+				
+				String finalStr = "";
+				String str = "";
+				while (keyType.length() > 0) {
+					
+					keyType.trim();
+					
+					int open = keyType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
+					int close = keyType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
+					int comma = keyType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+					
+					String next = "";
+					
+					if (open < close && open < comma) {
+						next = "open";
+					}
+					else if (close < open && close < comma) {
+						next = "close";
+					}
+					else {
+						next = "comma";
+					}
+					
+					switch(next) {
+					case "open" :
+						str = keyType.substring(0, open).trim();
+						valType = keyType.substring(open+1, keyType.length()).trim();
+						if (str.equals("list")) {
+							str = "List<";
+						}
+						else if (str.equals("dict")) {
+							str = "Map<";
+						}
+						break;
+					case "close" :
+						str = keyType.substring(0, close).trim();
+						valType = keyType.substring(close+1, keyType.length()).trim();
+						if (str.equals("boolean")) {
+							str = "Boolean";
+						}
+						else if (str.equals("")) {
+							str = ">";
+						}
+						else {
+							str = "String";
+						}
+						break;
+					default:
+						str = ", ";
+					}
+					
+					finalStr += str;
+				}
+			}
+			else {
+				keyType = "String";
+			}
+			
+			// the value
+			if (valType.equals("boolean")) {
+				valType = "Boolean";
+			}
+			else if (valType.contains("list") || valType.contains("dict")) {
+				
+				String finalStr = "";
+				String str = "";
+				while (valType.length() > 0) {
+					
+					valType.trim();
+					
+					int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
+					int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
+					int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+					
+					String next = "";
+					
+					if (open < close && open < comma) {
+						next = "open";
+					}
+					else if (close < open && close < comma) {
+						next = "close";
+					}
+					else {
+						next = "comma";
+					}
+					
+					switch(next) {
+					case "open" :
+						str = valType.substring(0, open).trim();
+						valType = valType.substring(open+1, valType.length()).trim();
+						if (str.equals("list")) {
+							str = "List<";
+						}
+						else if (str.equals("dict")) {
+							str = "Map<";
+						}
+						break;
+					case "close" :
+						str = valType.substring(0, close).trim();
+						valType = valType.substring(close+1, valType.length()).trim();
+						if (str.equals("boolean")) {
+							str = "Boolean";
+						}
+						else if (str.equals("")) {
+							str = ">";
+						}
+						else {
+							str = "String";
+						}
+						break;
+					default:
+						str = ", ";
+					}
+					
+					finalStr += str;
+				}
+			}
+			else {
+				valType = "String";
+			}
+			
+			return "Map<" + keyType + ", " + valType + ">";
 		}
+		
 		else {
 			return "String";
 		}
 	}
+
 	
 	private static String getListDeclaration(String param) {
 		if (param.equals("string")) param = "String";

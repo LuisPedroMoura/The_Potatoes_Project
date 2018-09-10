@@ -139,18 +139,16 @@ input				: INPUT '(' STRING ')'
 var					: ID
 					;
 
-varDeclaration		: type ID													#varDeclaration_Variable
-					| LIST_TYPE '[' block='?'? type ']' ID		#varDeclaration_list
-					| DICT_TYPE '[' block0='?'? type ',' block1='?'? type ']' ID	#varDeclaration_dict
+varDeclaration		: type ID
 					;			
 
-type				: NUMBER_TYPE		# type_Number_Type
-					| BOOLEAN_TYPE		# type_Boolean_Type
-					| STRING_TYPE		# type_String_Type
-					| VOID_TYPE			# type_Void_Type
-					| LIST_TYPE			# type_List_Type
-					| DICT_TYPE			# type_Dict_Type
-					| ID				# type_ID_Type
+type				: NUMBER_TYPE												# type_Number_Type
+					| BOOLEAN_TYPE												# type_Boolean_Type
+					| STRING_TYPE												# type_String_Type
+					| VOID_TYPE													# type_Void_Type
+					| LIST_TYPE	'[' block='?'? type ']'							# type_List_Type
+					| DICT_TYPE	'[' block0='?'? type ',' block1='?'? type ']'	# type_Dict_Type
+					| ID														# type_ID_Type
 					;
 	
 value				: NUMBER			# value_Number

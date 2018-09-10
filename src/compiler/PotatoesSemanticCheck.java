@@ -41,9 +41,6 @@ import utils.errorHandling.ErrorHandling;
  * 
  * <b>PotatoesSemanticCheck</b><p>
  * This class performs a semantic analysis for a Parse Tree generated from a Potatoes Source File<p>
- * 
- * @author Ines Justo (84804), Luis Pedro Moura (83808), Maria Joao Lavoura (84681), Pedro Teixeira (84715)
- * @version May-June 2018
  */
 public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 
@@ -321,34 +318,43 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		Variable var = new Variable(mapCtxVar.get(ctx.varDeclaration()));
 		Variable expr = new Variable(mapCtxVar.get(ctx.expression()));
-		String varName = "";
+		String varName = ctx.varDeclaration().ID().getText();
 		
 		if (expr.getVarType() == varType.VOID) {
 			ErrorHandling.printError(ctx, "expression value is null, cannot be assigned");
 			return false;
 		}
 		
-		if (ctx.varDeclaration() instanceof VarDeclaration_VariableContext) {
-			VarDeclaration_VariableContext decl = (VarDeclaration_VariableContext) ctx.varDeclaration();
-			varName = decl.ID().getText();
-		}
-		if (ctx.varDeclaration() instanceof VarDeclaration_listContext) {
-			VarDeclaration_listContext decl = (VarDeclaration_listContext) ctx.varDeclaration();
-			varName = decl.ID().getText();
-		}
-		if (ctx.varDeclaration() instanceof VarDeclaration_dictContext) {
-			VarDeclaration_dictContext decl = (VarDeclaration_dictContext) ctx.varDeclaration();
-			varName = decl.ID().getText();
-		}
-		
-		// Units are not compatible -> error
+		// Types are not compatible -> error
 		else if (var.getVarType() != expr.getVarType()) {
 			ErrorHandling.printError(ctx, "Units in assignment are not compatible");
 			return false;
 		}
 		
-		// units are numeric, may or may not be compatible -> verify
-		if (var.isNumeric() && expr.isNumeric()) {
+		// types are list, may or may not be compatible -> verify
+		if (var.isList()) {
+			
+			if(!((ListVar) var.getValue()).getType().equals(((ListVar) expr.getValue()).getType())) {
+				ErrorHandling.printError(ctx, "Lists values in assignment are not compatible");
+				return false;
+			}
+		}
+		
+		// types are dict, may or may not be compatible -> verify
+		if (var.isList()) {
+			
+			if(!((DictVar) var.getValue()).getKeyType().equals(((DictVar) expr.getValue()).getKeyType())) {
+				ErrorHandling.printError(ctx, "Dict keys in assignment are not compatible");
+				return false;
+			}
+			if(!((DictVar) var.getValue()).getValueType().equals(((DictVar) expr.getValue()).getValueType())) {
+				ErrorHandling.printError(ctx, "Dict values in assignment are not compatible");
+				return false;
+			}
+		}
+		
+		// types are numeric, may or may not be compatible -> verify
+		if (var.isNumeric()) {
 			
 			// units are not compatible -> error
 			try {
@@ -2524,7 +2530,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	}
 
 	@Override
-	public Boolean visitVarDeclaration_Variable(VarDeclaration_VariableContext ctx) {
+	public Boolean visitVarDeclaration(VarDeclarationContext ctx) {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION VARIABLE");
 		
@@ -2532,123 +2538,23 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable unit = new Variable(mapCtxVar.get(ctx.type()));
+		Variable type = new Variable(mapCtxVar.get(ctx.type()));
 		String newVarName = ctx.ID().getText();
 		
 		// variable to be created is already declared or is reserved word -> error
 		if(!isValidNewVariableName(newVarName, ctx)) {return false;}
 				
 		// update tables -> unit already contains information necessary to create variable
-		mapCtxVar.put(ctx, unit);
-		updateSymbolTable(newVarName, unit);
+		mapCtxVar.put(ctx, type);
+		updateSymbolTable(newVarName, type);
 		
 		if (debug) {
 			ErrorHandling.printInfo(ctx, indent+" -> var Name: " + newVarName);
-			ErrorHandling.printInfo(ctx, indent+" -> var type: " + unit);
+			ErrorHandling.printInfo(ctx, indent+" -> var type: " + type);
 			ci();
 		}
 		
 		return true;
-	}
-
-	@Override
-	public Boolean visitVarDeclaration_list(VarDeclaration_listContext ctx) {
-		
-		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION LIST");
-		
-		String listParamName = ctx.type().getText();
-		varType listParam = newVarUnit(listParamName);
-		String newVarName = ctx.ID().getText();
-		
-		// new variable is already declared -> error
-		if(symbolTableContains(newVarName)) {
-			ErrorHandling.printError(ctx, "Variable '" + newVarName + "' is already declared");
-			return false;
-		}
-		
-
-		// list parameterized unit is string || boolean || numeric -> ok
-		if (listParam.isString() || listParam.isBoolean() || (listParam.isNumeric() && Units.exists(listParamName))) {
-			// verify if list unit is blocked or accepts compatible units
-			boolean blockedUnit = false;
-			if (ctx.block == null) {
-				blockedUnit = true;
-			}
-			ListVar listVar = new ListVar(listParamName, blockedUnit);
-			Variable list = new Variable(null, varType.LIST, listVar);
-			
-			// update tables
-			mapCtxVar.put(ctx, list);
-			mapCtxListDict.put(ctx, list);
-			updateSymbolTable(newVarName, list);
-			
-			if (debug) {
-				ErrorHandling.printInfo(ctx, indent+" -> list Name: " + newVarName);
-				ErrorHandling.printInfo(ctx, indent+" -> list value type: " + listVar.getType());
-				ci();
-			}
-			
-			return true;
-		}
-		
-		// other list units -> error
-		ErrorHandling.printError(ctx, "Incorrect argument for list parameter");
-		return false;
-	}
-
-	@Override
-	public Boolean visitVarDeclaration_dict(VarDeclaration_dictContext ctx) {
-		
-		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->VARDECLARATION DICT");
-
-		String keyUnitName = ctx.type(0).getText();
-		String valueUnitName = ctx.type(1).getText();
-		varType keyUnit = newVarUnit(keyUnitName);
-		varType valueUnit = newVarUnit(valueUnitName);
-		String newVarName = ctx.ID().getText();
-		
-		// new variable is already declared -> error
-		if(symbolTableContains(newVarName)) {
-			ErrorHandling.printError(ctx, "Variable '" + newVarName + "' is already declared");
-			return false;
-		}
-		
-		// dict key unit and value unit are string || boolean || numeric -> ok
-		if (keyUnit.isString() || keyUnit.isBoolean() || (keyUnit.isNumeric() && Units.exists(keyUnitName))) {
-			if (valueUnit.isString() || valueUnit.isBoolean() || (valueUnit.isNumeric() && Units.exists(valueUnitName))) {
-				
-				// verify if dict key unit and value unit are blocked or accept compatible units
-				boolean blockKeyUnit = false;
-				if (ctx.block0 == null) {
-					blockKeyUnit = true;
-				}
-				boolean blockValUnit = false;
-				if (ctx.block0 == null) {
-					blockValUnit = true;
-				}
-				
-				DictVar dictVar = new DictVar(keyUnitName, blockKeyUnit, valueUnitName, blockValUnit);
-				Variable dict = new Variable(null, varType.DICT, dictVar);
-				
-				// update tables
-				mapCtxVar.put(ctx, dict);
-				mapCtxListDict.put(ctx, dict);
-				updateSymbolTable(newVarName, dict);
-				
-				if (debug) {
-					ErrorHandling.printInfo(ctx, indent+" -> dict Name: " + newVarName);
-					ErrorHandling.printInfo(ctx, indent+" -> dict key and value type: " + dictVar.getKeyType() + ", " + dictVar.getValueType());
-					ci();
-				}
-				
-				return true;
-			}
-		}
-		
-		// other dict units -> error
-		ErrorHandling.printError(ctx, "Incorrect arguments for dict unit");
-		return false;
-
 	}
 	
 	// --------------------------------------------------------------------------
@@ -2734,7 +2640,33 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - LIST TYPE");
 		
-		Variable var = new Variable (null, varType.LIST, new ListVar("temp", true));
+		if(!visit(ctx.type())) {
+			return false;
+		}
+		
+		if (ctx.type() instanceof Type_Void_TypeContext) {
+			ErrorHandling.printError(ctx, "List value type cannot be void");
+			return false;
+		}
+		
+		String type = ctx.type().getText();
+		if (ctx.type() instanceof Type_List_TypeContext) {
+			type = "list[" + ((ListVar) mapCtxVar.get(ctx.type()).getValue()).getType() + "]";
+		}
+		else if (ctx.type() instanceof Type_Dict_TypeContext) {
+			DictVar dict = (DictVar) mapCtxVar.get(ctx.type()).getValue();
+			type = "dict[" + dict.getKeyType() + ", " + dict.getValueType() + "]";
+		}
+		else {
+			if (!Units.exists(type)) {
+				ErrorHandling.printError(ctx, "Invalid unit type for list value");
+				return false;
+			}
+		}
+		
+		Boolean blocked = ctx.block == null ? true : false;
+		
+		Variable var = new Variable (null, varType.LIST, new ListVar(type, blocked));
 		mapCtxVar.put(ctx, var);
 		mapCtxListDict.put(ctx, var);
 		
@@ -2747,8 +2679,49 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 	public Boolean visitType_Dict_Type(Type_Dict_TypeContext ctx) {
 		
 		if(debug) ErrorHandling.printInfo(ctx,oi() + "PSC->TYPE - DICT TYPE");
+
+		if(!visit(ctx.type(0)) || !visit(ctx.type(1))) {
+			return false;
+		}
 		
-		Variable var = new Variable (null, varType.DICT, new DictVar("temp", true, "temp", true));
+		if (ctx.type(0) instanceof Type_Void_TypeContext || ctx.type(1) instanceof Type_Void_TypeContext) {
+			ErrorHandling.printError(ctx, "Dict value and key type cannot be void");
+			return false;
+		}
+		
+		String keyType = ctx.type(0).getText();
+		if (ctx.type() instanceof Type_List_TypeContext) {
+			keyType = "list[" + ((ListVar) mapCtxVar.get(ctx.type(0)).getValue()).getType() + "]";
+		}
+		else if (ctx.type() instanceof Type_Dict_TypeContext) {
+			DictVar dict = (DictVar) mapCtxVar.get(ctx.type(0)).getValue();
+			keyType = "dict[" + dict.getKeyType() + ", " + dict.getValueType() + "]";
+		}
+		else {
+			if (!Units.exists(keyType)) {
+				ErrorHandling.printError(ctx, "Invalid unit type for dict key");
+				return false;
+			}
+		}
+		Boolean blockedKey = ctx.block0 == null ? true : false;
+		
+		String valType = ctx.type(1).getText();
+		if (ctx.type() instanceof Type_List_TypeContext) {
+			valType = "list[" + ((ListVar) mapCtxVar.get(ctx.type(1)).getValue()).getType() + "]";
+		}
+		else if (ctx.type() instanceof Type_Dict_TypeContext) {
+			DictVar dict = (DictVar) mapCtxVar.get(ctx.type(1)).getValue();
+			valType = "dict[" + dict.getKeyType() + ", " + dict.getValueType() + "]";
+		}
+		else {
+			if (!Units.exists(valType)) {
+				ErrorHandling.printError(ctx, "Invalid unit type for dict value");
+				return false;
+			}
+		}
+		Boolean blockedVal = ctx.block1 == null ? true : false;
+		
+		Variable var = new Variable (null, varType.DICT, new DictVar(keyType, blockedKey, valType, blockedVal));
 		mapCtxVar.put(ctx, var);
 		mapCtxListDict.put(ctx, var);
 		

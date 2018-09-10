@@ -323,8 +323,26 @@ public class Variable implements Comparable<Variable>{
 	// Other Methods	
 
 	@Override
-	public String toString() {
-		return "value =" + value + ", type =" + varType + ", unit =" + unit;
+	public String toString() throws IllegalArgumentException{
+		
+		if (isBoolean()) {
+			return ((Boolean) value).toString();
+		}
+		else if (isString()) {
+			return (String) value;
+		}
+		else if (isNumeric()) {
+			return (Double) value + unit.getSymbol();
+		}
+		else if (isList()) {
+			return ((ListVar) value).toString();
+		}
+		else if (isDict()) {
+			return ((DictVar) value).toString();
+		}
+		else {
+			throw new IllegalArgumentException();
+		}
 	}
 
 

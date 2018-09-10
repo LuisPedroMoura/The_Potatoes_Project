@@ -1,6 +1,5 @@
 import static java.lang.System.err;
 import static java.lang.System.exit;
-import static java.lang.System.out;
 
 import java.io.*;
 

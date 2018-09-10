@@ -40,6 +40,7 @@ statsWithoutSeparator(stat) ::= <<
 
 class(name,stat) ::= <<
 import java.util.*;
+import java.util.Map.*;
 import java.io.*;
 
 public class <name> {
@@ -123,7 +124,7 @@ while(<logicalOperation>) {
 
 print(type, expression, previousStatements) ::= <<
 <stats(previousStatements)>
-<printType.(type)>(<expression>)
+<printType.(type)>(<expression>);
 >>
 
 printWriterDeclaration(expression, path, var, previousStatements) ::= <<
@@ -158,8 +159,8 @@ dictDeclaration(key, value) ::= <<
 HashMap \< <key>, <value> \>
 >>
 
-varDeclaration(type, var) ::= <<
-<if(type)><type> <var><else><var><endif>;
+varDeclaration(modifier, type, var) ::= <<
+<if(static)><modifier> <type> <var><else><if(type)><type> <var><else><var><endif>;
 >>
 
 type(type) ::= <<
