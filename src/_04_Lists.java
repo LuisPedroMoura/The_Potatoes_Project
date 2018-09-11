@@ -84,13 +84,13 @@ public class _04_Lists {
 		String var42 = "met3 = ";
 
 		Double var43 = var32;
-		String var44 = var42 + var43;
+		String var44 = var42 + var43 + " m";
 
 		String var45 = ", met4 = ";
 		String var46 = var44 + var45;
 
 		Double var47 = var36;
-		String var48 = var46 + var47;
+		String var48 = var46 + var47 + " m";
 
 		String var49 = "\n";
 		String var50 = var48 + var49;
@@ -101,7 +101,7 @@ public class _04_Lists {
 		List<String> var52 = var0;
 
 		Double var53 = var4;
-		Boolean var54 = var52.contains(var53);
+		Boolean var54 = var52.contains(var53 + " yd");
 		var51 = var54;
 
 		Boolean var55 = false;
@@ -109,7 +109,7 @@ public class _04_Lists {
 		List<String> var56 = var0;
 
 		Double var57 = var12;
-		Boolean var58 = var56.contains(var57);
+		Boolean var58 = var56.contains(var57 + " yd");
 		var55 = var58;
 		String var59 = "contains:";
 		System.out.println(var59);
@@ -135,7 +135,7 @@ public class _04_Lists {
 		List<String> var71 = var0;
 
 		Double var72 = var1;
-		Double var73 = (double) var71.indexOf(var72 + "m");
+		Double var73 = (double) var71.indexOf(var72 + " m");
 		var70 = var73 * 1.0;
 
 		Double var74 = 0.0;
@@ -144,7 +144,7 @@ public class _04_Lists {
 
 		Double var76 = var7;
 		Double var77 = var76 * 1.0;
-		Double var78 = (double) var75.indexOf(var77 + "in");
+		Double var78 = (double) var75.indexOf(var77 + " in");
 		var74 = var78 * 1.0;
 		String var79 = "indexOf:";
 		System.out.println(var79);
@@ -153,13 +153,13 @@ public class _04_Lists {
 		String var81 = "1 m = ";
 
 		Double var82 = var70;
-		String var83 = var81 + var82;
+		String var83 = var81 + var82 + " ";
 
 		String var84 = ", 3 in = ";
 		String var85 = var83 + var84;
 
 		Double var86 = var74;
-		String var87 = var85 + var86;
+		String var87 = var85 + var86 + " ";
 
 		String var88 = "\n";
 		String var89 = var87 + var88;
@@ -191,7 +191,7 @@ public class _04_Lists {
 		String var103 = "size = ";
 
 		Double var104 = var99;
-		String var105 = var103 + var104;
+		String var105 = var103 + var104 + " ";
 
 		String var106 = "\n";
 		String var107 = var105 + var106;
@@ -219,13 +219,13 @@ public class _04_Lists {
 		String var118 = "at0 = ";
 
 		Double var119 = var108;
-		String var120 = var118 + var119;
+		String var120 = var118 + var119 + " m";
 
 		String var121 = ", at1 = ";
 		String var122 = var120 + var121;
 
 		Double var123 = var112;
-		String var124 = var122 + var123;
+		String var124 = var122 + var123 + " m";
 
 		String var125 = "\n";
 		String var126 = var124 + var125;

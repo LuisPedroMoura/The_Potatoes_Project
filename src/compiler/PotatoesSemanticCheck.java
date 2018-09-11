@@ -845,7 +845,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				int index = ((Double) var1.getValue()).intValue();
 				
 				try {
-					Variable get = listVar.getList().get(index);
+					Variable get = new Variable(listVar.getList().get(index));
 					mapCtxVar.put(ctx, get);
 					
 					if (debug) {

@@ -1073,7 +1073,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			String expr1Symbol = "";
 			
 			// expr0 is numeric -> get symbol for printing
-			if (typeIsDouble(expr0)) {				
+			if (typeIsDouble(expr0)) {	
+				
 				expr0Symbol = " + \" " + mapCtxVar.get(ctx.expression(0)).getUnit().getSymbol() + "\"";
 				operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
 			}
@@ -1088,7 +1089,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			
 			// expr1 is numeric -> get symbol for printing
 			if (typeIsDouble(expr1)) {
+				
 				expr1Symbol = " + \" " + mapCtxVar.get(ctx.expression(1)).getUnit().getSymbol() + "\"";
+				operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
 			}
 			else if (typeIsList(expr0) || typeIsMap(expr0)) {
 				
@@ -1340,7 +1343,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
 		String expr0Name = (String) expr0.getAttribute("var");
-		String valueType = "";
 		String operation = "";
 		String type = "";
 		
@@ -1348,7 +1350,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (typeIsList(expr0)) {
 			
 			String expr1Name = (String) expr1.getAttribute("var");
-			valueType = (String) expr0.getAttribute("type");
 			type = "Boolean"; // in Java, list add returns boolean
 			operation = expr0Name + ".add(" + expr1Name + ")";
 			
@@ -1542,6 +1543,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get var names to complete operation and add it
 		String expr0Name = (String) expr0.getAttribute("var");
 		String expr1Name = (String) expr1.getAttribute("var");
+		String expr1Type = (String) expr1.getAttribute("type");
+		if (expr1Type.equals("Double")) {
+			expr1Name = expr1Name + " + \" " + mapCtxVar.get(ctx.expression(1)).getUnit().getSymbol() + "\"";
+		}
 		newVariable.add("operation", expr0Name + ".contains(" + expr1Name + ")");
 		
 		if(debug) ci();
@@ -1625,7 +1630,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String expr0Name = (String) expr0.getAttribute("var");
 		String expr1Name = (String) expr1.getAttribute("var");
 		if (expr1Var.isNumeric()) {
-			expr1Name = expr1Name + " + \"" + expr1Var.getUnit().getSymbol() + "\"";
+			expr1Name = expr1Name + " + \" " + expr1Var.getUnit().getSymbol() + "\"";
 		}
 		
 		newVariable.add("operation", "(double) " + expr0Name + ".indexOf(" + expr1Name + ")");
