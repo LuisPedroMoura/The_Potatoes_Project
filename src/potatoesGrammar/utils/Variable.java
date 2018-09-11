@@ -332,7 +332,7 @@ public class Variable implements Comparable<Variable>{
 			return (String) value;
 		}
 		else if (isNumeric()) {
-			return (Double) value + unit.getSymbol();
+			return (Double) value + " " + unit.getSymbol();
 		}
 		else if (isList()) {
 			return ((ListVar) value).toString();

@@ -926,7 +926,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		Variable exprVar = new Variable(mapCtxVar.get(ctx.expression()));
-		int size = 0;
+		Integer size = 0;
 		
 		if (exprVar.isList()) {
 			
@@ -951,7 +951,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			return false;
 		}
 		
-		Variable var = new Variable(Units.instanceOf("number") , varType.NUMERIC, size);
+		Variable var = new Variable(Units.instanceOf("number") , varType.NUMERIC, size.doubleValue());
 		mapCtxVar.put(ctx, var);
 		
 		if (debug) {
@@ -2009,7 +2009,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				
 				if (var1.getUnit().equals(Units.instanceOf("number"))) {
 					try {
-						int index = (int) var1.getValue();
+						int index = ((Double) var1.getValue()).intValue();
 						Variable get = new Variable((Variable) listVar.getList().get(index));
 						mapCtxVar.put(ctx, get);
 						

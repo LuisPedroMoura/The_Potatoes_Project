@@ -3,6 +3,7 @@ package compiler;
 import utils.errorHandling.ErrorHandling;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashMap;
 import java.util.List;
@@ -671,8 +672,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		ST expr1 = visit(ctx.expression(1));
 		String expr0Name = (String) expr0.getAttribute("var");
 		String expr1Name = (String) expr1.getAttribute("var");
-		String type = getListValueType(expr0);
-		String operation = expr0Name + ".indexOf(" + expr1Name + ")";
+		String type = getListValueDeclaration(((ListVar) mapCtxVar.get(ctx.expression(0)).getValue()).getType());
+		String operation = expr0Name + ".get(" + expr1Name + ".intValue()" + ")";
+		if (type.equals("Double")) {
+			operation = "Double.parseDouble(" + operation + ".split(\" \")[0]" + ")";
+		}
 		
 		// create template
 		String newName = getNewVarName();
@@ -732,9 +736,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// expression is list
 		else if (typeIsList(expr)) {
 			
-			String listType = getListValueType(expr);
-			type = getListDeclaration(listType);
-			operation = exprName + ".size()";
+			type = "Double";
+			operation = "(double)" + exprName + ".size()";
 		}
 		
 		// expression is dict
@@ -773,11 +776,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		String operation = "";
 		String previousStatements = "";
 		
+		// create template
+		String newName = getNewVarName();
+		ST newVariable = stg.getInstanceOf("varAssignment");
+		
 		// expression is list
 		if (typeIsList(expr)) {
 			
-			type = getListDeclaration(getListValueType(expr));
-			operation = exprName + ".sort()";
+			newVariable = stg.getInstanceOf("values");
+			newVariable.add("value", expr);
+			newVariable.add("value", "Collections.sort(" + exprName + ");");
 		}
 		
 		// expression is string
@@ -786,15 +794,13 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			type = "String";
 			previousStatements = "char[] chars = " + exprName + ".toCharArray();\nArrays.sort(chars)";
 			operation = "new String(chars)";
+			newVariable.add("previousStatements", expr);
+			newVariable.add("previousStatements", previousStatements);
+			newVariable.add("type",  type);
+			newVariable.add("var", newName);
+			newVariable.add("operation", operation);
 		}
 		
-		// create template
-		String newName = getNewVarName();
-		ST newVariable = varAssignmentST(type, newName);
-		newVariable.add("previousStatements", expr);
-		newVariable.add("previousStatements", previousStatements);
-		newVariable.add("operation", operation);
-
 		if (debug) {
 			ErrorHandling.printInfo(ctx,indent + "-> expr type = " + mapCtxVar.get(ctx).getVarType().toString() + "\n");
 			ci();
@@ -1353,7 +1359,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			// if expr1 is Numeric conversion may be needed
 			if (expr1Var.isNumeric()) {
 				
-				operation = expr0Name + ".add(" + expr1Name + " + \"" + expr1Var.getUnit().getSymbol() + "\")";
+				operation = expr0Name + ".add(" + expr1Name + " + \" " + expr1Var.getUnit().getSymbol() + "\")";
 			}
 		}
 		
@@ -1485,8 +1491,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// expr0 is a list
 		if (typeIsList(expr0)) {
 			
-			valueType = getListValueType(expr0);
+			valueType = getListValueDeclaration(((ListVar) mapCtxVar.get(ctx.expression(0)).getValue()).getType());
 			operation = expr0Name + ".get(" + expr1Name + ".intValue())";
+			if (valueType.equals("Double")) {
+				operation = "Double.parseDouble(" + operation + ".split(\" \")[0]" + ")";
+			}
 		}
 		
 		// expr0 is a dict
@@ -1524,7 +1533,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		
 		// create new template
 		String newName = getNewVarName();
-		ST newVariable = varAssignmentST("boolean", newName);
+		ST newVariable = varAssignmentST("Boolean", newName);
 		
 		// add previous statements
 		newVariable.add("previousStatements", expr0);
@@ -1602,6 +1611,7 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get expressions info
 		ST expr0 = visit(ctx.expression(0));
 		ST expr1 = visit(ctx.expression(1));
+		Variable expr1Var = mapCtxVar.get(ctx.expression(1));
 		
 		// create new template
 		String newName = getNewVarName();
@@ -1614,7 +1624,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// get var names to complete operation and add it
 		String expr0Name = (String) expr0.getAttribute("var");
 		String expr1Name = (String) expr1.getAttribute("var");
-		newVariable.add("operation", expr0Name + ".indexOf(" + expr1Name + ")");
+		if (expr1Var.isNumeric()) {
+			expr1Name = expr1Name + " + \"" + expr1Var.getUnit().getSymbol() + "\"";
+		}
+		
+		newVariable.add("operation", "(double) " + expr0Name + ".indexOf(" + expr1Name + ")");
 		
 		if(debug) ci();
 		
@@ -2331,12 +2345,75 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		return "Map<" + keyType + ", " + valueType + ">";
 	}
 	
-	private static String getListValueType(ST exprST) {
-		String decl = ((String) exprST.getAttribute("type"));
-		String type = decl.substring(5, decl.length()-1);
-		if (type.equals("string")) return "String";
-		else if (type.equals("boolean")) return "Boolean";
-		else return "Double";
+	private static String getListValueDeclaration(String valType) {
+
+		if (valType.equals("boolean")) {
+			valType = "Boolean";
+		}
+		if (valType.equals("string")) {
+			return "String";
+		}
+		else if (valType.contains("list") || valType.contains("dict")) {
+			
+			String finalStr = "";
+			String str = "";
+			while (valType.length() > 0) {
+				
+				valType.trim();
+				
+				int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
+				int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
+				int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+				
+				String next = "";
+				
+				if (open < close && open < comma) {
+					next = "open";
+				}
+				else if (close < open && close < comma) {
+					next = "close";
+				}
+				else {
+					next = "comma";
+				}
+				
+				switch(next) {
+				case "open" :
+					str = valType.substring(0, open).trim();
+					valType = valType.substring(open+1, valType.length()).trim();
+					if (str.equals("list")) {
+						str = "List<";
+					}
+					else if (str.equals("dict")) {
+						str = "Map<";
+					}
+					break;
+				case "close" :
+					str = valType.substring(0, close).trim();
+					valType = valType.substring(close+1, valType.length()).trim();
+					if (str.equals("boolean")) {
+						str = "Boolean";
+					}
+					else if (str.equals("")) {
+						str = ">";
+					}
+					else {
+						str = "String";
+					}
+					break;
+				default:
+					str = ", ";
+				}
+				
+				finalStr += str;
+			}
+			valType = finalStr;
+		}
+		else {
+			valType = "Double";
+		}
+		
+		return valType;
 	}
 	
 	private static String getDictKeyDeclaration(String valType) {
