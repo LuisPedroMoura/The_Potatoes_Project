@@ -43,6 +43,13 @@ public class ListVar {
 	 * @return the type
 	 */
 	public String getType() {
+		if (type.charAt(0) == '?') {
+			return type.substring(1, type.length());
+		}
+		return type;
+	}
+	
+	public String getType_() {
 		return type;
 	}
 	
@@ -66,13 +73,19 @@ public class ListVar {
 			
 			Variable var = it.next();
 			if (var.isNumeric()) {
-				str.append(((Double) var.getValue()) + " " + var.getUnit().getSymbol());
+				str.append((Double) var.getValue() + " " + var.getUnit().getSymbol());
 			}
-			else if (var.isString()){
-				str.append(((String) var.getValue()));
+			else if (var.isString()) {
+				str.append(((String) var.getValue()).toString());
+			}
+			else if (var.isList()) {
+				str.append(((ListVar) var.getValue()).toString());
+			}
+			else if (var.isDict()) {
+				str.append(((DictVar) var.getValue()).toString());
 			}
 			else {
-				str.append(((Boolean) var.getValue()));
+				str.append(((Boolean) var.getValue()).toString());
 			}
 			
 			if (it.hasNext()) {

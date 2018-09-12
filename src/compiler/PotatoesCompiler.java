@@ -783,9 +783,19 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// expression is list
 		if (typeIsList(expr)) {
 			
-			newVariable = stg.getInstanceOf("values");
-			newVariable.add("value", expr);
-			newVariable.add("value", "Collections.sort(" + exprName + ");");
+			List<Variable> preList 	= ((ListVar) mapCtxListDict.get(ctx).getValue()).getList();
+			List<Variable> list 	= ((ListVar) mapCtxVar.get(ctx).getValue()).getList();
+			
+			newVariable = stg.getInstanceOf("varAssignment");
+			newVariable.add("previousStatements", expr);
+			newVariable.add("previousStatements", expr.getAttribute("type") + newName + " = new ArrayList<>();");
+			for (int i = 0; i < list.size(); i++) {
+				int index = preList.indexOf(list.get(i));
+				newVariable.add("previousStatements", newName + ".add(" + exprName + ".get(" + index + "));");
+			}
+			
+			newVariable.add("var", symbolTableNamesGet(exprName));
+			newVariable.add("operation", newName);
 		}
 		
 		// expression is string
@@ -1078,10 +1088,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				expr0Symbol = " + \" " + mapCtxVar.get(ctx.expression(0)).getUnit().getSymbol() + "\"";
 				operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
 			}
-			else if (typeIsList(expr0) || typeIsMap(expr0)) {
-				
-				operation = "\"" + (String) mapCtxVar.get(ctx).getValue() + "\"";
-			}
 			else {
 				
 				operation = expr0Name + " + " + expr1Name;
@@ -1092,10 +1098,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				
 				expr1Symbol = " + \" " + mapCtxVar.get(ctx.expression(1)).getUnit().getSymbol() + "\"";
 				operation = expr0Name + expr0Symbol + " + " + expr1Name + expr1Symbol;
-			}
-			else if (typeIsList(expr0) || typeIsMap(expr0)) {
-				
-				operation = "\"" + (String) mapCtxVar.get(ctx).getValue() + "\"";
 			}
 			else {
 				
@@ -1442,8 +1444,11 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		// expr0 is a list
 		if (typeIsList(expr0)) {
 			
-			type = "Boolean";
-			operation = expr0Name + ".remove(" + expr1Name + ")";
+			type = getListValueDeclaration(((ListVar) mapCtxVar.get(ctx.expression(0)).getValue()).getType());
+			operation = expr0Name + ".remove(" + expr1Name + ".intValue()" + ")";
+			if (mapCtxVar.get(ctx).isNumeric()) {
+				operation = "Double.parseDouble(" + operation + ".split(\" \")[0]" + ")";
+			}
 		}
 		
 		// expr0 is a dict
@@ -1742,14 +1747,6 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 		if (exprVar.isNumeric()) {
 			
 			expression = exprName + " + \" " + exprVar.getUnit().getSymbol() + "\"";
-		}
-		else if (exprVar.isList()) {
-			
-			expression = "\"" + ((ListVar) exprVar.getValue()).toString() + "\"";
-		}
-		else if (exprVar.isDict()) {
-			
-			expression = "\"" + ((DictVar) exprVar.getValue()).toString() + "\"";
 		}
 		else {
 			
@@ -2133,11 +2130,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				String str = "";
 				while (valType.length() > 0) {
 					
-					valType.trim();
-					
 					int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
-					int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
-					int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+					int close = valType.indexOf(']'); if (close == -1) close = Integer.MAX_VALUE;
+					int comma = valType.indexOf(','); if (comma == -1) comma = Integer.MAX_VALUE;
 					
 					String next = "";
 					
@@ -2153,8 +2148,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					
 					switch(next) {
 					case "open" :
-						str = valType.substring(0, open).trim();
-						valType = valType.substring(open+1, valType.length()).trim();
+						str = valType.substring(0, open);
+						valType = valType.substring(open+1, valType.length());
 						if (str.equals("list")) {
 							str = "List<";
 						}
@@ -2163,16 +2158,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 						}
 						break;
 					case "close" :
-						str = valType.substring(0, close).trim();
-						valType = valType.substring(close+1, valType.length()).trim();
+						str = valType.substring(0, close);
+						valType = valType.substring(close+1, valType.length());
 						if (str.equals("boolean")) {
-							str = "Boolean";
+							str = "Boolean>";
 						}
 						else if (str.equals("")) {
 							str = ">";
 						}
 						else {
-							str = "String";
+							str = "String>";
 						}
 						break;
 					default:
@@ -2203,11 +2198,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				String str = "";
 				while (keyType.length() > 0) {
 					
-					keyType.trim();
-					
 					int open = keyType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
-					int close = keyType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
-					int comma = keyType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+					int close = keyType.indexOf(']'); if (close == -1) close = Integer.MAX_VALUE;
+					int comma = keyType.indexOf(','); if (comma == -1) comma = Integer.MAX_VALUE;
 					
 					String next = "";
 					
@@ -2223,8 +2216,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					
 					switch(next) {
 					case "open" :
-						str = keyType.substring(0, open).trim();
-						valType = keyType.substring(open+1, keyType.length()).trim();
+						str = keyType.substring(0, open);
+						valType = keyType.substring(open+1, keyType.length());
 						if (str.equals("list")) {
 							str = "List<";
 						}
@@ -2233,16 +2226,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 						}
 						break;
 					case "close" :
-						str = keyType.substring(0, close).trim();
-						valType = keyType.substring(close+1, keyType.length()).trim();
+						str = keyType.substring(0, close);
+						valType = keyType.substring(close+1, keyType.length());
 						if (str.equals("boolean")) {
-							str = "Boolean";
+							str = "Boolean>";
 						}
 						else if (str.equals("")) {
 							str = ">";
 						}
 						else {
-							str = "String";
+							str = "String>";
 						}
 						break;
 					default:
@@ -2267,11 +2260,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				String str = "";
 				while (valType.length() > 0) {
 					
-					valType.trim();
-					
 					int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
-					int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
-					int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+					int close = valType.indexOf(']'); if (close == -1) close = Integer.MAX_VALUE;
+					int comma = valType.indexOf(','); if (comma == -1) comma = Integer.MAX_VALUE;
 					
 					String next = "";
 					
@@ -2287,8 +2278,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					
 					switch(next) {
 					case "open" :
-						str = valType.substring(0, open).trim();
-						valType = valType.substring(open+1, valType.length()).trim();
+						str = valType.substring(0, open);
+						valType = valType.substring(open+1, valType.length());
 						if (str.equals("list")) {
 							str = "List<";
 						}
@@ -2297,16 +2288,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 						}
 						break;
 					case "close" :
-						str = valType.substring(0, close).trim();
-						valType = valType.substring(close+1, valType.length()).trim();
+						str = valType.substring(0, close);
+						valType = valType.substring(close+1, valType.length());
 						if (str.equals("boolean")) {
-							str = "Boolean";
+							str = "Boolean>";
 						}
 						else if (str.equals("")) {
 							str = ">";
 						}
 						else {
-							str = "String";
+							str = "String>";
 						}
 						break;
 					default:
@@ -2363,12 +2354,10 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			String finalStr = "";
 			String str = "";
 			while (valType.length() > 0) {
-				
-				valType.trim();
-				
+							
 				int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
-				int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
-				int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+				int close = valType.indexOf(']'); if (close == -1) close = Integer.MAX_VALUE;
+				int comma = valType.indexOf(','); if (comma == -1) comma = Integer.MAX_VALUE;
 				
 				String next = "";
 				
@@ -2384,8 +2373,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				
 				switch(next) {
 				case "open" :
-					str = valType.substring(0, open).trim();
-					valType = valType.substring(open+1, valType.length()).trim();
+					str = valType.substring(0, open);
+					valType = valType.substring(open+1, valType.length());
 					if (str.equals("list")) {
 						str = "List<";
 					}
@@ -2394,16 +2383,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					}
 					break;
 				case "close" :
-					str = valType.substring(0, close).trim();
-					valType = valType.substring(close+1, valType.length()).trim();
+					str = valType.substring(0, close);
+					valType = valType.substring(close+1, valType.length());
 					if (str.equals("boolean")) {
-						str = "Boolean";
+						str = "Boolean>";
 					}
 					else if (str.equals("")) {
 						str = ">";
 					}
 					else {
-						str = "String";
+						str = "String>";
 					}
 					break;
 				default:
@@ -2436,11 +2425,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			String str = "";
 			while (valType.length() > 0) {
 				
-				valType.trim();
-				
 				int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
-				int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
-				int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+				int close = valType.indexOf(']'); if (close == -1) close = Integer.MAX_VALUE;
+				int comma = valType.indexOf(','); if (comma == -1) comma = Integer.MAX_VALUE;
 				
 				String next = "";
 				
@@ -2456,8 +2443,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				
 				switch(next) {
 				case "open" :
-					str = valType.substring(0, open).trim();
-					valType = valType.substring(open+1, valType.length()).trim();
+					str = valType.substring(0, open);
+					valType = valType.substring(open+1, valType.length());
 					if (str.equals("list")) {
 						str = "List<";
 					}
@@ -2466,16 +2453,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					}
 					break;
 				case "close" :
-					str = valType.substring(0, close).trim();
-					valType = valType.substring(close+1, valType.length()).trim();
+					str = valType.substring(0, close);
+					valType = valType.substring(close+1, valType.length());
 					if (str.equals("boolean")) {
-						str = "Boolean";
+						str = "Boolean>";
 					}
 					else if (str.equals("")) {
 						str = ">";
 					}
 					else {
-						str = "String";
+						str = "String>";
 					}
 					break;
 				default:
@@ -2508,11 +2495,9 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 			String str = "";
 			while (valType.length() > 0) {
 				
-				valType.trim();
-				
 				int open = valType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
-				int close = valType.indexOf(']'); if (close == -1) open = Integer.MAX_VALUE;
-				int comma = valType.indexOf(','); if (comma == -1) open = Integer.MAX_VALUE;
+				int close = valType.indexOf(']'); if (close == -1) close = Integer.MAX_VALUE;
+				int comma = valType.indexOf(','); if (comma == -1) comma = Integer.MAX_VALUE;
 				
 				String next = "";
 				
@@ -2528,8 +2513,8 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 				
 				switch(next) {
 				case "open" :
-					str = valType.substring(0, open).trim();
-					valType = valType.substring(open+1, valType.length()).trim();
+					str = valType.substring(0, open);
+					valType = valType.substring(open+1, valType.length());
 					if (str.equals("list")) {
 						str = "List<";
 					}
@@ -2538,16 +2523,16 @@ public class PotatoesCompiler extends PotatoesBaseVisitor<ST> {
 					}
 					break;
 				case "close" :
-					str = valType.substring(0, close).trim();
-					valType = valType.substring(close+1, valType.length()).trim();
+					str = valType.substring(0, close);
+					valType = valType.substring(close+1, valType.length());
 					if (str.equals("boolean")) {
-						str = "Boolean";
+						str = "Boolean>";
 					}
 					else if (str.equals("")) {
 						str = ">";
 					}
 					else {
-						str = "String";
+						str = "String>";
 					}
 					break;
 				default:

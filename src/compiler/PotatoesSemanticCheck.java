@@ -341,7 +341,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// types are dict, may or may not be compatible -> verify
-		if (var.isList()) {
+		else if (var.isDict()) {
 			
 			if(!((DictVar) var.getValue()).getKeyType().equals(((DictVar) expr.getValue()).getKeyType())) {
 				ErrorHandling.printError(ctx, "Dict keys in assignment are not compatible");
@@ -354,7 +354,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		// types are numeric, may or may not be compatible -> verify
-		if (var.isNumeric()) {
+		else if (var.isNumeric()) {
 			
 			// units are not compatible -> error
 			try {
@@ -980,10 +980,12 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			ListVar listVar = (ListVar) var.getValue();
 			List<Variable> list = listVar.getList();
 			
+			mapCtxListDict.put(ctx, new Variable(null, varType.LIST, new ListVar(listVar))); // pre order list
+			
 			Collections.sort(list);
 			
 			mapCtxVar.put(ctx, new Variable(null, varType.LIST, listVar));
-			mapCtxListDict.put(ctx, new Variable(null, varType.LIST, listVar));
+			
 			return true;
 		}
 		
@@ -1615,27 +1617,22 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			
 			var0 = new Variable(mapCtxListDict.get(ctx.expression(0)));
 			ListVar listVar = (ListVar) var0.getValue();
-			String valueType = listVar.getType();
+			String listValueType = listVar.getType();
 			boolean added = false;
 			
-			// list can only be parameterized with boolean, string or numeric units
-			if (var1.getUnit() == null) {
-				ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueType + "' is not compatible with '" + var1.getVarType() + "'");
-				return false;
-			}
-			
 			// list is parameterized with string or boolean
-			else if ((valueType.equals("string") && var1.isString()) || (valueType.equals("boolean") && var1.isBoolean())) {
+			if ((listValueType.equals("string") && var1.isString()) || (listValueType.equals("boolean") && var1.isBoolean())) {
+				
 				added = listVar.getList().add(var1);
 			}
 			
 			// list is parameterized with numeric unit
-			else if (Units.exists(valueType) && var1.isNumeric()) {
+			else if (Units.exists(listValueType) && var1.isNumeric()) {
 				
 				// as number is compatible with everything, it has to be blocked manually
-				if ((!valueType.equals("number") && var1.getUnit().equals(Units.instanceOf("number")))
-						|| (valueType.equals("number") && !var1.getUnit().equals(Units.instanceOf("number")))) {
-					ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueType + "' is not compatible with '" + var1.getUnit().getName() + "'");
+				if ((!listValueType.equals("number") && var1.getUnit().equals(Units.instanceOf("number")))
+						|| (listValueType.equals("number") && !var1.getUnit().equals(Units.instanceOf("number")))) {
+					ErrorHandling.printError(ctx, "Bad operand. Unit '" + listValueType + "' is not compatible with '" + var1.getUnit().getName() + "'");
 					return false;
 				}
 				
@@ -1643,11 +1640,11 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 				if (!listVar.isBlocked()) {
 					
 					// list value unit and expression unit are not compatible -> error
-					if (var1.getUnit().isCompatible(Units.instanceOf(valueType))) {
+					if (var1.getUnit().isCompatible(Units.instanceOf(listValueType))) {
 						added = listVar.getList().add(var1);
 					}
 					else {
-						ErrorHandling.printError(ctx, "Bad operand. Unit '" + valueType + "' is not compatible with '" + var1.getUnit().getName() + "'");
+						ErrorHandling.printError(ctx, "Bad operand. Unit '" + listValueType + "' is not compatible with '" + var1.getUnit().getName() + "'");
 						return false;
 					}
 				}
@@ -1658,10 +1655,143 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 						added = listVar.getList().add(var1);
 					}
 					else {
-						ErrorHandling.printError(ctx, "Bad operand. Unit '" + var1.getUnit().getName() + "' is not equal to blocked list values type '" + valueType + "'");
+						ErrorHandling.printError(ctx, "Bad operand. Unit '" + var1.getUnit().getName() + "' is not equal to blocked list values type '" + listValueType + "'");
 						return false;
 					}
 				}
+			}
+			
+			// list is parameterized with list or map
+			else if (listValueType.contains("list") || listValueType.contains("dict")) {
+				
+				boolean valid = true;
+				
+				String exprType = "";
+				String bl = ((ListVar) var1.getValue()).isBlocked() ? "" : "?";
+				if (var1.isList()) {
+					exprType = "list[" + bl + ((ListVar) var1.getValue()).getType() + "]";
+				}
+				else if (var1.isDict()) {
+					exprType = "dict[" + bl + ((ListVar) var1.getValue()).getType() + "]";
+				}
+
+				while (listValueType.length() > 1) {
+
+					int open = listValueType.indexOf('['); if (open == -1) open = Integer.MAX_VALUE;
+					int close = listValueType.indexOf(']'); if (close == -1) close = Integer.MAX_VALUE;
+					int comma = listValueType.indexOf(','); if (comma == -1) comma = Integer.MAX_VALUE;
+					
+					String next = "";
+					
+					if (open < close && open < comma) {
+						next = "open";
+					}
+					else if (close < open && close < comma) {
+						next = "close";
+					}
+					else {
+						next = "comma";
+					}
+					
+					switch(next) {
+					case "open" :
+						
+						valid = listValueType.substring(0, open).equals(exprType.substring(0, exprType.indexOf("[")));
+						if (valid) {
+							listValueType = listValueType.substring(open +1, listValueType.length());
+							exprType = exprType.substring(exprType.indexOf("[") +1, exprType.length());
+						}
+						break;
+						
+					case "close" :
+
+						String eType = exprType.substring(0, exprType.indexOf("]"));
+						String lType = listValueType.substring(0, close);
+						boolean blocked;
+						
+						if((!eType.equals("") && lType.equals("")) || (eType.equals("") && !lType.equals(""))) {
+							valid = false;
+						}
+						
+						if (eType.contains("?") && !lType.contains("?")) {
+							valid = false;
+							break;
+						}
+
+						if (!eType.equals("") && !lType.equals("")) {
+							
+							if (eType.charAt(0) =='?') eType = eType.substring(1, eType.length());
+							
+							if (lType.charAt(0) =='?') {
+								blocked = false;
+								lType = lType.substring(1, lType.length());
+							}
+							else {
+								blocked = true;
+							}
+							
+							if (!blocked) {
+								if (!Units.instanceOf(eType).isCompatible(Units.instanceOf(lType))) {
+									valid = false;
+								}
+							}
+							else {
+								if (!Units.instanceOf(eType).equals(Units.instanceOf(lType))) {
+									valid = false;
+								}
+							}
+						}
+						
+						if (valid) {
+							listValueType = listValueType.substring(close +1, listValueType.length());
+							exprType = exprType.substring(exprType.indexOf("]") +1, exprType.length());
+						}		
+						break;
+						
+					default:
+						
+						eType = exprType.substring(0, exprType.indexOf(","));
+						lType = listValueType.substring(0, comma);
+												
+						if (eType.contains("?") && !lType.contains("?")) {
+							break;
+						}
+						
+						if (!eType.equals("") && !lType.equals("")) {
+							if (eType.charAt(0) =='?') eType = eType.substring(1, eType.length());
+							if (lType.charAt(0) =='?') {
+								blocked = false;
+								lType = lType.substring(1, lType.length());
+							}
+							else {
+								blocked = true;
+							}
+							
+							if (!blocked) {
+
+								if (!Units.instanceOf(eType).isCompatible(Units.instanceOf(lType))) {
+									valid = false;
+								}
+							}
+							else {
+								if (!Units.instanceOf(eType).equals(Units.instanceOf(lType))) {
+									valid = false;
+								}
+							}
+						}
+
+						if (valid) {
+							listValueType = listValueType.substring(comma +1, listValueType.length());
+							exprType = exprType.substring(exprType.indexOf(",") +1, exprType.length());
+						}
+					}
+					
+					if (!valid) {
+						ErrorHandling.printError(ctx, "Bad operand. Unit expression type is not compatible to blocked list values accepted types");
+						return false;
+					}
+				}
+				added = listVar.getList().add(var1);
 			}
 			
 			mapCtxVar.put(ctx, new Variable(null, varType.BOOLEAN, added));
@@ -1670,7 +1800,7 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 			updateSymbolTable(ctx.expression(0).getText(), list);
 			
 			if (debug) {
-				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0);
+				ErrorHandling.printInfo(ctx, indent+" -> expression 0: " + var0.toString());
 				ErrorHandling.printInfo(ctx, indent+" -> expression 0 (list) type: " + ((ListVar) var0.getValue()).getType());
 				ErrorHandling.printInfo(ctx, indent+" -> expression 1: " + var1);
 				ErrorHandling.printInfo(ctx, indent+" -> added?: " + added);
@@ -2650,21 +2780,33 @@ public class PotatoesSemanticCheck extends PotatoesBaseVisitor<Boolean>  {
 		}
 		
 		String type = ctx.type().getText();
+		Boolean blocked = ctx.block == null ? true : false;
+		
 		if (ctx.type() instanceof Type_List_TypeContext) {
-			type = "list[" + ((ListVar) mapCtxVar.get(ctx.type()).getValue()).getType() + "]";
+			
+			type = ((ListVar) mapCtxVar.get(ctx.type()).getValue()).getType_();
+			String isStructure = type.substring(0, 4);
+			if (blocked && (isStructure.equals("list") || isStructure.equals("dict"))) {
+				ErrorHandling.printError(ctx, "Invalid permision modifier to use with " + isStructure);
+				return false;
+			}
+			type = "list[" + type + "]";
 		}
 		else if (ctx.type() instanceof Type_Dict_TypeContext) {
+			
 			DictVar dict = (DictVar) mapCtxVar.get(ctx.type()).getValue();
 			type = "dict[" + dict.getKeyType() + ", " + dict.getValueType() + "]";
 		}
 		else {
+			
 			if (!Units.exists(type)) {
 				ErrorHandling.printError(ctx, "Invalid unit type for list value");
 				return false;
 			}
+			
+			if (!blocked) type = "?" + type;
+
 		}
-		
-		Boolean blocked = ctx.block == null ? true : false;
 		
 		Variable var = new Variable (null, varType.LIST, new ListVar(type, blocked));
 		mapCtxVar.put(ctx, var);
