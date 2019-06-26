@@ -1,0 +1,65 @@
+using "testUnitsFile.txt";
+
+number test;
+number test2 = 3;
+
+fun main {
+
+	println("Inside main");
+
+	if (booleanFunction()) {
+		voidFunction();
+	}
+
+	println("The End! Nice!");
+
+}
+
+fun meter meterFunction () {
+
+	meter met = (meter) 1;	
+
+	println("Inside meterFunction, return is meter");
+
+	return met;
+}
+
+
+fun number numberFunction () {
+
+	number n = 1;	
+
+	println("Inside numberFunction, return is number");
+
+	return n;
+}
+
+fun void voidFunction () {
+
+	println("Inside voidFunction, return is void");
+
+	println("Calling numberFunction");
+	number n = numberFunction();
+	println("\t" + n);
+
+	println("Calling meterFunction");
+	meter met = meterFunction();
+	println("\t" + met);
+
+	println("Calling stringFunction");
+	string str = stringFunction();
+	println("\t" + str);
+
+}
+
+fun string stringFunction () {
+
+	return "Inside sringFunction, just returned this string";
+}
+
+fun boolean booleanFunction () {
+
+	println("Inside booleanFunction, return is true");
+
+	return true;
+}

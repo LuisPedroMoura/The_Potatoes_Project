@@ -1,0 +1,55 @@
+units {
+
+	// INTERNATIONAL SYSTEM UNITS
+	
+	// Base Units
+	meter		"m";
+	gram		"g";
+	second		"s";
+	
+	// Derived Units
+	hertz	"Hz"	:	number / second;
+	newton	"N"	:	(gram^3 * meter) / second^2;
+	pascal	"Pa"	:	newton / meter^2;
+	joule	"J"	:	newton * meter;
+	watt	"W"	:	joule / second;
+
+	area	"m^2"	:	meter * meter;
+	volume 	"m^3"	:	meter^3;
+	//litre	"l";
+	//litre		:	(1/1000) volume;
+	ton	"t";
+	ton		:	(1000000) gram;	
+	
+	
+	// IMPERIAL UNITS
+	
+	// Base Unit
+	thou 	"th";
+	
+	// Equivalent Units
+	// length - imperial conversions are exact values, so only one conection point to
+	// international system is necessary
+	inch 	"in"	:	(1000) thou;
+	foot	"ft"	:	(12) inch;	
+	yard	"yd"	:	(3) foot | (0.9144) meter;	
+	mile	"mi"	:	(8*10*22) yard;
+	
+	// mass and weight
+	pound "lb"		:	(453.59237) gram;
+	grain	"gr"	:	(1/7000) pound;
+	drachm	"dr"	:	(1/256) pound;
+	ounce	"oz"	:	(1/16) pound;
+	stone	"st"	:	(14) pound;	
+}
+
+prefixes {
+	
+	kilo	"k"	: 10^3;
+	hecto	"h"	: 10^2;
+	deca	"da"	: 10;
+	deci	"d"	: 10^-1;
+	centi	"c"	: 10^-2;
+	mili	"m"	: 10^-3;
+	
+}

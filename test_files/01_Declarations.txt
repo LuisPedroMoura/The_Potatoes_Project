@@ -1,0 +1,36 @@
+using "testUnitsFile.txt";
+
+meter m0 = (meter) 1;
+yard  y0 = (yard)  1;
+area a0 = (area) 1;
+
+meter m1 = m0;
+yard y1 = y0;
+area a1 = a0;
+
+//m2 = (meter) 1;	// Error
+//m2 = m1;		// Error
+
+fun main {
+
+	//meter m0 = (meter) 1;		// Error
+	m0 = (meter) 2;
+
+	println("Inside main");
+	println(m0 + ", " + y0 + ", " + a0);
+	println(m1 + ", " + y1 + ", " + a1);
+
+	function1();
+}
+
+fun meter function1 () {
+
+	//meter m0 = (meter) 1;		// Error
+	m0 = (meter) 3;	
+
+	println("Inside function");
+	println(m0 + ", " + y0 + ", " + a0);
+	println(m1 + ", " + y1 + ", " + a1);
+
+	return m0;
+}

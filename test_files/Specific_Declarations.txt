@@ -1,0 +1,25 @@
+using "testUnitsFile.txt";
+
+meter m0 = (meter) 1;
+
+meter m1 = m0;
+
+fun main {
+
+	m0 = (meter) 2;
+
+	println("Inside main");
+	println(m0);
+
+	function1();
+}
+
+fun meter function1 () {
+
+	m0 = (meter) 3;	
+
+	println("Inside function");
+	println(m0);
+
+	return m0;
+}

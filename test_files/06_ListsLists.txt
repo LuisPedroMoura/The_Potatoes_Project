@@ -1,0 +1,95 @@
+using "testUnitsFile.txt";
+
+fun main {
+
+	list[?meter] metList;
+	list[?yard] yarList;
+	list[?inch] inList;
+	list[list[?inch]] listList;
+	
+	meter met = (meter) 1;
+	yard yar = (yard) 2;
+	number num = 3;
+	meter met2 = (meter) 1;
+	yard yar2 = (yard) (meter) 1;
+	number num2 = 3;
+	
+
+	metList add met;
+	metList add yar;
+	metList add (inch) num;
+	yarList add yar;
+	yarList add met;
+	yarList add (inch) num;
+	listList add metList;
+	listList add yarList;
+
+	println("Added:");
+	println(listList + "\n");
+	
+
+
+	list[?meter] metList2 = listList get 0;
+	list[?yard] yarList2 = listList get 1;
+	meter met3 = listList get 0 get 0;
+	println("got:");
+	println(metList);
+	println("metList = " + metList2 + ", yarList = " + yarList2 + ", met = " + met3 + "\n");
+
+	
+
+	boolean bol = listList contains metList;
+	boolean bol2 = listList contains inList;
+	println("contains:");
+	println(metList);
+	println("metList(true) = " + bol + ", inList(false) = " + bol2 + "\n");
+	
+	
+
+	number num3 = listList indexOf metList;
+	number num4 = listList indexOf yarList;
+	number num5 = listList get 0 indexOf (inch) num;
+	number num6 = listList indexOf inList;
+	println("indexOf:");
+	println(metList);
+	println("metList(0) = " + num3 + ", yarList(1) = " + num4 + ", inch(2) = " + num5 + "inList(-1) = " + num6 + "\n");
+	
+	
+
+	boolean bol3 = listList isEmpty;
+	println(metList);
+	println("isEmpty?(false) = " + bol3 + "\n");
+
+
+	
+	number num7 = listList size;
+	number num8 = (listList get 1) size;
+	println("size:");
+	println(metList);
+	println("listList(2) = " + num7 + ", yarList(3) = " + num8 + "\n");
+
+
+
+	list[?meter] metList3 = listList[0];
+	list[?inch] inList2 = listList[1];
+	println("array index:");
+	println(metList);
+	println("at0 = " + metList3 + ", at1 = " + inList2 + "\n");
+
+
+/*	
+	println("sorted:");
+	println(metList);
+	metList sort;
+	println(metList + "\n");
+
+
+
+	println("remove index 2:");
+	println(metList);
+	metList rem 2;	
+	println(metList + "\n");
+
+*/
+
+}

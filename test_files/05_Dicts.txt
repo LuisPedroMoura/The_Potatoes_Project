@@ -1,0 +1,49 @@
+using "testUnitsFile.txt";
+
+fun main {
+
+	dict [?meter, ?meter] metDict;
+	
+	meter met = (meter) 1;
+	yard yar = (yard) 2;
+	number num = 3;
+	
+	metDict add (met -> met);
+	metDict add (yar -> yar);
+	metDict add ((inch) num -> (inch) num);
+	
+	println("Added:");
+	//println(metDict + "\n");
+	println(metDict);
+	
+	metDict rem met;
+	
+	println("Removed:");
+	println(metDict + "\n");
+
+
+	dict [?meter, ?meter] metDict2;
+	
+	meter met2 = (meter) 1;
+	yard yar2 = (yard) (meter) 0.9144;
+	number num2 = 3;
+	
+	metDict2 add (met2 -> met2);
+	metDict2 add (yar2 -> yar2);
+	metDict2 add ((inch) num2 -> (inch) num2);
+	
+	println("Added:");
+	//println(metDict2 + "\n");
+	println(metDict2);
+	
+	metDict2 rem yar2;
+
+	println("Removed:");
+	println(metDict2 + "\n");
+
+	boolean bol = metDict2 containsKey yar2;
+	
+	println("Contains?");
+	println(bol + "\n");
+
+}

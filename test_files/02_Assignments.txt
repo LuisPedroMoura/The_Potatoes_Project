@@ -1,0 +1,19 @@
+using "testUnitsFile.txt";
+
+meter m0 = (meter) 1;
+yard  y0 = (yard)  1;
+area a0 = (area) 1;
+
+meter m1 = m0;
+yard y1 = y0;
+area a1 = a0;
+
+meter m2 = (meter) m1;
+meter m3 = (meter) ((meter) 1);
+meter m4 = (meter) ((number) m1);
+
+fun main {
+	println(m0 + ", " + y0 + ", " + a0);
+	println(m1 + ", " + y1 + ", " + a1);
+	println(m2 + ", " + m3 + ", " + m4);
+}
