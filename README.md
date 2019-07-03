@@ -5,7 +5,7 @@
 ... READ ME WORK IN PROGRESS ...
 
 
-
+DISCLAIMER: Although commits are not shown, user mjlavoura@ua.pt was a main contributor to the project, participating in the language design, and was responsible for the ANTLR4 parser and stringtemplate.
 
 
 
